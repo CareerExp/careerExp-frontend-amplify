@@ -1,0 +1,58 @@
+.select-and-buttons {
+  display: flex;
+}
+.buttons button:last-child {
+  margin-right: 30px;
+}
+
+.applyBtn {
+  background-image: linear-gradient(to top left, #720361, #bf2f75);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  font-size: 1.125rem;
+  gap: 0.875rem;
+  color: white;
+  cursor: pointer;
+}
+
+.resetBtn {
+  background-color: transparent;
+  border: 1px solid #dddddd;
+  padding: 0rem 1rem;
+  border-radius: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  font-size: 1.125rem;
+  gap: 0.875rem;
+  color: #717171;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 480px) {
+  .applyBtn,
+  .resetBtn {
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+    gap: 10px;
+  }
+  .filters {
+    flex-direction: column;
+  }
+  .select-and-buttons {
+    margin-bottom: 1rem;
+    justify-content: space-between;
+  }
+  .buttons {
+    justify-content: space-between;
+  }
+  .buttons button:last-child {
+    margin-right: 0;
+  }
+}

@@ -1,0 +1,240 @@
+.top-subCard {
+  /* height: 216px; */
+  background-color: #720361;
+  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  gap: 0.685rem;
+  position: relative;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #f0d7ed;
+}
+
+.questionBox {
+  width: 100%;
+  background-color: #93257dae;
+  border-radius: 0.5rem;
+  padding: 0.625rem;
+  display: flex;
+  justify-content: center;
+  /* height: 10vh; */
+}
+
+.questionText {
+  font-size: 1.35rem;
+  color: white;
+}
+
+.status {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  bottom: -1rem;
+  padding: 0 2rem;
+}
+
+.circle {
+  font-weight: bold;
+  font-size: 1.25rem;
+  height: 2.125rem;
+  width: 2.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2.93px solid white;
+  color: white;
+}
+
+.circleActive {
+  background-color: #ff8a00;
+}
+
+.circleInactive {
+  background-color: #93257d5e;
+  backdrop-filter: blur(0.24rem);
+}
+
+.optionContainer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  height: 163px;
+  margin-top: 1.5rem;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.option img {
+  /* width: 35%;
+    height: 35%; */
+  object-fit: cover; /* or use 'contain', 'fill', etc. based on your requirement */
+}
+
+.optionText {
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.optionActive {
+  color: #720361;
+  filter: grayscale(0);
+}
+
+.optionInactive {
+  color: gray;
+  filter: grayscale(100%);
+}
+
+/* Material UI breakpoints:
+xs: 0px
+sm: 600px
+md: 900px
+lg: 1200px
+xl: 1536px */
+
+@media screen and (max-width: 900px) {
+  .optionContainer {
+    gap: 0.5rem;
+  }
+
+  .option img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .optionText {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .status {
+    padding: 0 1rem;
+  }
+
+  .circle {
+    height: 1.8rem;
+    width: 1.8rem;
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .questionText {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .top-subCard {
+    padding: 1.5rem 1rem;
+    border-radius: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .title {
+    font-size: 1.75rem;
+    margin-top: 0;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .questionBox {
+    padding: 0.5rem;
+  }
+
+  .questionText {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .status {
+    bottom: -0.8rem;
+    padding: 0 0.5rem;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .circle {
+    height: 1.5rem;
+    width: 1.5rem;
+    font-size: 0.8rem;
+    border-width: 2px;
+  }
+
+  .optionContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    column-gap: 0.5rem;
+    row-gap: 1rem;
+    height: auto;
+    margin-top: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .optionContainer div:nth-child(4) {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    margin-left: 0;
+    justify-self: end;
+  }
+
+  .optionContainer div:nth-child(5) {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+    margin-left: 0;
+    justify-self: start;
+  }
+
+  .option {
+    width: 100%;
+    padding: 0.5rem;
+  }
+
+  .option img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .optionText {
+    font-size: 0.75rem;
+    margin-top: 0.3rem;
+    text-align: center;
+  }
+}

@@ -1,0 +1,486 @@
+/* CreatorProfile.module.css */
+
+/* Main container */
+.container {
+  margin-top: 10rem;
+}
+
+/* Profile top section */
+.profileTopContainer {
+  margin: auto;
+  box-shadow: 2px 2px 10px #a8a8a86a;
+  width: 80rem;
+  height: 25.5rem;
+  border-radius: 1rem;
+  position: relative;
+  background-color: white;
+}
+
+.profileBackgroundImage {
+  content: url("../assets//Profile/profileOilPaint.png");
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+/* Avatar section */
+.avatarContainer {
+  position: absolute;
+  top: 50px;
+  left: 46px;
+}
+
+.followersText {
+  font-weight: 600;
+  color: #5e5e5e;
+  margin-top: 0.5rem;
+}
+
+/* Profile info section */
+.profileInfoContainer {
+  position: absolute;
+  left: 177px;
+  top: 100px;
+  width: 67.875rem;
+}
+
+.nameContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nameText {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.shareContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  cursor: pointer;
+}
+
+.shareIcon {
+  width: 24px;
+}
+
+.specializationContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.specializationTag {
+  color: #545454;
+  background-color: #f2f2f2;
+  padding: 0.5rem;
+  border-radius: 90px;
+}
+
+.experienceContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.experienceTag {
+  color: #545454;
+  background-color: #f2f2f2;
+  padding: 0.3rem;
+  border-radius: 90px;
+}
+
+.contactInfoContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.aboutMeContainer {
+  background-color: #f2f2f2;
+  color: #777777;
+  border-radius: 10px;
+  margin-top: 1rem;
+  padding: 0.5rem;
+}
+
+.aboutMeTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.aboutMeText {
+  margin-top: 0.5rem;
+}
+
+/* Content section */
+.contentContainer {
+  box-shadow: 2px 2px 10px #a8a8a86a;
+  width: 80rem;
+  border-radius: 1rem;
+  background-color: white;
+  margin: 2rem auto;
+  padding: 1.2rem 1rem;
+}
+
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-bottom: 1px solid #dedede;
+}
+
+.tabItem {
+  padding: 0.5rem 2rem;
+  cursor: pointer;
+}
+
+.activeTab {
+  color: #bc2876;
+  font-weight: 600;
+  border-bottom: 2px solid #bc2876;
+}
+
+.inactiveTab {
+  color: #999999;
+}
+
+.videosGrid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.paginationContainer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Video card */
+.videoCard {
+  border-radius: 15px;
+  padding: 15px;
+  border: 1px solid #cecece;
+  height: auto;
+  background-color: white;
+  width: 38.125rem;
+  cursor: pointer;
+}
+
+.thumbnailImage {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.videoTitle {
+  margin-top: 0.5rem;
+}
+
+.ratingContainer {
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.ratingText {
+  color: #898989;
+}
+
+.authorText {
+  margin-top: 0.3rem;
+  color: #898989;
+}
+
+.authorName {
+  color: #bc2876;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+/* Dot component */
+.dot {
+  height: 5px;
+  width: 5px;
+  background-color: #ff8a00;
+  border-radius: 50%;
+}
+
+/* Information component */
+.infoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navButton {
+  background-image: linear-gradient(to top left, #5c014e, #bf2f75);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  font-size: 1.125rem;
+  gap: 0.875rem;
+  color: white;
+  cursor: pointer;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .profileTopContainer,
+  .contentContainer {
+    width: 90%;
+  }
+
+  .profileInfoContainer {
+    width: calc(100% - 200px);
+  }
+}
+
+/* Mobile-first responsive styles */
+@media (max-width: 768px) {
+}
+
+/* Very small devices */
+@media (max-width: 480px) {
+  .videoTitle {
+    margin-top: 0.5rem;
+
+    width: 100%;
+  }
+
+  .container {
+    margin-top: 2rem;
+    padding: 0 1rem;
+  }
+
+  .profileTopContainer {
+    width: 100%;
+    height: auto;
+    padding-bottom: 5rem;
+    border-radius: 0.5rem;
+  }
+
+  .profileBackgroundImage {
+    content: url("../assets/Profile/Subtractshivam.png");
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    margin-top: 0;
+  }
+
+  .avatarContainer {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    margin-top: -60px;
+    margin-bottom: 1rem;
+    /* margin-left: 10px; */
+    left: auto;
+    top: auto;
+  }
+
+  .followersContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  .followersText {
+    font-size: 0.9rem;
+  }
+
+  .navButton {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+
+  .shareContainer {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+    position: absolute;
+    cursor: pointer;
+    /* z-index: 1000; */
+    top: 140px;
+    right: 8%;
+  }
+
+  .shareIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .profileInfoContainer {
+    position: static;
+    width: 100%;
+    padding: 0 1rem;
+    left: auto;
+    top: auto;
+  }
+
+  .nameContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nameText {
+    font-size: 1.5rem;
+    text-align: center;
+    text-wrap: nowrap;
+  }
+
+  .specializationContainer,
+  .experienceContainer {
+    flex-direction: row;
+    align-items: left;
+    gap: 0.3rem;
+    margin-top: 1.8rem;
+  }
+  .experienceContainer {
+    margin-top: 0.8rem;
+  }
+
+  .specializationTag,
+  .experienceTag {
+    text-align: left;
+    /* width: fit-content; */
+    padding: 0.3rem 1rem;
+    font-size: small;
+  }
+
+  .contactInfoContainer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .infoContainer {
+    flex: 1 0 40%;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .infoContainer p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+  }
+
+  .dot {
+    display: none;
+  }
+
+  .aboutMeContainer {
+    margin-top: 1rem;
+    padding: 0.8rem;
+  }
+
+  .aboutMeText {
+    font-size: 0.9rem;
+  }
+
+  .contentContainer {
+    width: 100%;
+    margin: 1rem auto;
+    padding: 1rem 0.5rem;
+  }
+
+  .tabItem {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .videosGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .videoCard {
+    width: 100%;
+    padding: 0.8rem;
+  }
+
+  .statsContainer {
+    justify-content: space-between;
+  }
+
+  .statItem {
+    font-size: 0.8rem;
+  }
+
+  .statItem img {
+    width: 18px;
+  }
+
+  .counsellingPrompt {
+    text-align: center;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #bc2876;
+    font-weight: 600;
+  }
+  .container {
+    margin-top: 6rem;
+    padding: 0 1rem;
+  }
+  .infoContainer {
+    flex: 1 0 100%;
+    justify-content: flex-start;
+  }
+
+  .infoContainer p {
+    max-width: 200px;
+  }
+
+  .contactInfoContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .tabsContainer {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .statsContainer {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: end;
+    width: 100%;
+
+    text-wrap: nowrap;
+  }
+}
