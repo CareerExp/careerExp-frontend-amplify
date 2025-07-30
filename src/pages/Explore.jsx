@@ -223,7 +223,7 @@ const Explore = () => {
     setPage4(value);
   }, []);
 
-  useEffect(() => { }, [
+  useEffect(() => {}, [
     allVideosData,
     trendingVideosData,
     userInterestsVideosData,
@@ -551,6 +551,21 @@ const Explore = () => {
                   className={exploreStyles["resetBtn"]}
                   sx={{
                     textTransform: "capitalize",
+                    backgroundColor: "transparent",
+                    border: "1px solid #dddddd",
+                    padding: "0rem 1rem",
+                    borderRadius: "90px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "fit-content",
+                    fontSize: "1.125rem",
+                    gap: ".875rem",
+                    color: "#717171",
+                    cursor: "pointer",
+                    "&:hover": {
+                      borderColor: "#dddddd",
+                    },
                   }}
                 >
                   Reset
