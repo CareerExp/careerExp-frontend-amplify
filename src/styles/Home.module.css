@@ -116,10 +116,12 @@
   background-image: linear-gradient(to top left, #720361, #bf2f75);
   border: none;
   border-radius: 50%;
+  cursor: pointer;
 }
 
 .pagination-buttons .disabled {
   background-image: linear-gradient(to top left, #720361a8, #bf2f75a0);
+  cursor: not-allowed;
 }
 
 .horizontal-scroll-page {
