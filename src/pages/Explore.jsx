@@ -647,7 +647,7 @@ const Explore = () => {
           onPageChange={handlePageChange3}
         />
 
-        {userId && isAuthenticated && (
+        {userId && isAuthenticated && userInterestsVideosData?.videos?.length > 0 && (
           <VideoSection
             title="Curated For You"
             videos={userInterestsVideosData?.videos.slice(0, 12) || []}
