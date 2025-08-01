@@ -223,7 +223,7 @@ const Explore = () => {
     setPage4(value);
   }, []);
 
-  useEffect(() => { }, [
+  useEffect(() => {}, [
     allVideosData,
     trendingVideosData,
     userInterestsVideosData,
@@ -612,7 +612,7 @@ const Explore = () => {
           onPageChange={handlePageChange1}
         />
 
-        {relatedSearchVideosData?.videos?.length > 0 && (
+        {/* {relatedSearchVideosData?.videos?.length > 0 && (
           <VideoSection
             title="Related Searches"
             videos={relatedSearchVideosData?.videos || []}
@@ -621,18 +621,18 @@ const Explore = () => {
             totalPages={relatedSearchVideosData?.totalPages || 1}
             onPageChange={handlePageChange2}
           />
-        )}
+        )} */}
 
-        <VideoSection
+        {/* <VideoSection
           title="Most Trending Videos"
           videos={trendingVideosData?.videos || []}
           isLoading={page3Loading}
           currentPage={page3}
           totalPages={trendingVideosData?.totalPages || 1}
           onPageChange={handlePageChange3}
-        />
+        /> */}
 
-        {userId && isAuthenticated && (
+        {/* {userId && isAuthenticated && (
           <VideoSection
             title="Curated For You"
             videos={userInterestsVideosData?.videos.slice(0, 12) || []}
@@ -641,7 +641,7 @@ const Explore = () => {
             totalPages={userInterestsVideosData?.totalPages || 1}
             onPageChange={handlePageChange4}
           />
-        )}
+        )} */}
       </Container>
     </Box>
   );
