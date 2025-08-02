@@ -1,4 +1,6 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {
   Box,
   Button,
@@ -10,7 +12,7 @@ import {
   Typography,
   Autocomplete,
 } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import VideoCard from "../components/VideoCard";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
@@ -78,6 +80,18 @@ const Explore = () => {
   const [page3Loading, setPage3Loading] = useState(false);
   const [page4Loading, setPage4Loading] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+
+  const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 200; // Adjust this value as needed
+      scrollRef.current.scrollBy({
+        left: direction === "right" ? scrollAmount : -scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   // useEffect(() => {
   //   const fetchVideos = async () => {
@@ -223,7 +237,7 @@ const Explore = () => {
     setPage4(value);
   }, []);
 
-  useEffect(() => {}, [
+  useEffect(() => { }, [
     allVideosData,
     trendingVideosData,
     userInterestsVideosData,
@@ -269,8 +283,19 @@ const Explore = () => {
           <Box
             sx={{
               borderBottom: "1px solid #dddddd",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px"
             }}
           >
+            <ArrowBackIosNewIcon
+              sx={{
+                cursor: "pointer",
+                color: "#42424275",
+                fontSize: "1.5rem",
+              }}
+              onClick={() => scroll("left")}
+            />
             {/* Categories Filter */}
             <Box
               sx={{
@@ -280,12 +305,13 @@ const Explore = () => {
                 padding: "15px 0px",
                 overflowX: "auto",
                 overflowY: "hidden",
-                margin: {
-                  xs: "0px 15px",
-                  sm: "0px 30px",
-                },
+                // margin: {
+                //   xs: "0px 15px",
+                //   sm: "0px 30px",
+                // },
               }}
               className="scrollbar-hide"
+              ref={scrollRef}
             >
               {" "}
               <Typography
@@ -335,6 +361,14 @@ const Explore = () => {
                 ))}
               </Box>
             </Box>
+            <ArrowForwardIosIcon
+              sx={{
+                cursor: "pointer",
+                color: "#42424275",
+                fontSize: "1.5rem",
+              }}
+              onClick={() => scroll("right")}
+            />
           </Box>
 
           <Box
@@ -647,16 +681,18 @@ const Explore = () => {
           onPageChange={handlePageChange3}
         />
 
-        {userId && isAuthenticated && userInterestsVideosData?.videos?.length > 0 && (
-          <VideoSection
-            title="Curated For You"
-            videos={userInterestsVideosData?.videos.slice(0, 12) || []}
-            isLoading={page4Loading}
-            currentPage={page4}
-            totalPages={userInterestsVideosData?.totalPages || 1}
-            onPageChange={handlePageChange4}
-          />
-        )}
+        {userId &&
+          isAuthenticated &&
+          userInterestsVideosData?.videos?.length > 0 && (
+            <VideoSection
+              title="Curated For You"
+              videos={userInterestsVideosData?.videos.slice(0, 12) || []}
+              isLoading={page4Loading}
+              currentPage={page4}
+              totalPages={userInterestsVideosData?.totalPages || 1}
+              onPageChange={handlePageChange4}
+            />
+          )}
       </Container>
     </Box>
   );
