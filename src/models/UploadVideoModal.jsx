@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Autocomplete,
   Box,
@@ -25,11 +25,10 @@ import {
   updateVideo,
   uploadYoutubeVideo,
   resetVideoData,
-  getYoutubeVideoTags,
 } from "../redux/slices/creatorSlice.js";
 import UploadMedia from "./UploadMedia";
 import creatorStyle from "../styles/CreatorVideo.module.css";
-import { categories, languages } from "../utility/category";
+import { categories, languages, tags } from "../utility/category";
 import { fonts } from "../utility/fonts";
 
 const UploadVideoModal = ({ open, handleClose }) => {
@@ -50,8 +49,6 @@ const UploadVideoModal = ({ open, handleClose }) => {
   const [category, setCategory] = useState("");
   const [youtubeLink, setYoutubeLink] = useState("");
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [isLinkTranscriptLoading, setIsLinkTranscriptLoading] = useState(false);
-  const [manualVideoLink, setManualVideoLink] = useState("");
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -127,37 +124,6 @@ const UploadVideoModal = ({ open, handleClose }) => {
       dispatchToRedux(notify({ type: "error", message: error.message }));
     }
   };
-
-  const handleVideoTags = (videoLink) => {
-    setIsLinkTranscriptLoading(true);
-    dispatchToRedux(getYoutubeVideoTags({ youtubeUrl: videoLink, token }))
-      .unwrap()
-      .then((res) => {
-        if (res.success && res.keywords?.length > 0) {
-          setSelectedTags((prev) => [...prev, ...res.keywords]);
-          dispatchToRedux(
-            notify({ type: "success", message: "Tags fetched successfully" })
-          );
-          setIsLinkTranscriptLoading(false);
-        }
-      })
-      .catch((err) => {
-        setSelectedTags([]);
-        dispatchToRedux(notify({ type: "error", message: err.message }));
-        setIsLinkTranscriptLoading(false);
-        return;
-      });
-  };
-
-  useEffect(() => {
-    if (tabValue === 0 && youtubeLink) {
-      setManualVideoLink("");
-      handleVideoTags(youtubeLink);
-    } else if (tabValue === 1 && manualVideoLink) {
-      setYoutubeLink("");
-      handleVideoTags(manualVideoLink);
-    }
-  }, [tabValue, youtubeLink, manualVideoLink]);
 
   return (
     <Dialog
@@ -288,101 +254,23 @@ const UploadVideoModal = ({ open, handleClose }) => {
         </Tabs>
         <Box>
           {tabValue === 0 ? (
-            <>
-              <TextField
-                placeholder="YouTube Link"
-                variant="standard"
-                sx={{
-                  marginBottom: "1rem",
-                  padding: { xs: ".5rem 1rem", sm: ".66rem 1.4rem" },
-                  borderRadius: "2rem",
-                  backgroundColor: "#F2F2F2",
-                  width: "100%",
-                }}
-                value={youtubeLink}
-                onChange={(e) => setYoutubeLink(e.target.value)}
-                InputProps={{ disableUnderline: true }}
-              />
-              {/* {isLinkTranscriptLoading && (
-                <Typography
-                  sx={{
-                    fontSize: "0.75rem",
-                    fontStyle: "italic",
-                    color: "#888",
-                    mb: "0.75rem",
-                    marginLeft: "0.25rem",
-                  }}
-                >
-                  Generating tags... This may take up to 1-3 minutes.
-                </Typography>
-              )} */}
-            </>
+            <TextField
+              placeholder="YouTube Link"
+              variant="standard"
+              sx={{
+                marginBottom: "1rem",
+                padding: { xs: ".5rem 1rem", sm: ".66rem 1.4rem" },
+                borderRadius: "2rem",
+                backgroundColor: "#F2F2F2",
+                width: "100%",
+              }}
+              value={youtubeLink}
+              onChange={(e) => setYoutubeLink(e.target.value)}
+              InputProps={{ disableUnderline: true }}
+            />
           ) : (
-            <UploadMedia setManualVideoLink={setManualVideoLink} />
+            <UploadMedia />
           )}
-
-          <Autocomplete
-            multiple
-            freeSolo
-            id="tags"
-            options={[]} // No predefined options
-            value={selectedTags}
-            onChange={handleTagChange}
-            disabled={isLinkTranscriptLoading}
-            renderInput={(params) => (
-              isLinkTranscriptLoading ?
-                <Box
-                  sx={{
-                    padding: { xs: ".5rem 1rem", sm: ".66rem 1.4rem" },
-                    borderRadius: "2rem",
-                    backgroundColor: "#F2F2F2",
-                    height: { xs: "5.45rem", sm: "8rem" },
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    marginBottom: "1rem",
-                  }}
-                  className="scrollbar-hide"
-                >
-                  <Typography variant="body2" sx={{ color: "#b4b4b4", fontSize: "1rem" }}>
-                    Generating tags... This may take up to 1–3 minutes.
-                  </Typography>
-                  <CircularProgress size={24} sx={{ marginRight: 2, color: "#a4a4a4", }} />
-                </Box>
-                :
-                <TextField
-                  {...params}
-                  placeholder={
-                    isLinkTranscriptLoading
-                      ? "Generating tags... This may take up to 1–3 minutes."
-                      : "Enter Video Tags"
-                  }
-                  variant="standard"
-                  sx={{
-                    padding: { xs: ".5rem 1rem", sm: ".66rem 1.4rem" },
-                    borderRadius: "2rem",
-                    backgroundColor: "#F2F2F2",
-                    border: "none",
-                    outline: "none",
-                    height: { xs: "5.45rem", sm: "8rem" },
-                    width: "100%",
-                    overflowY: "auto",
-                    textTransform: "capitalize",
-                    marginBottom: "1rem",
-                  }}
-                  className="scrollbar-hide"
-                  InputProps={{
-                    ...params.InputProps,
-                    disableUnderline: true,
-                  }}
-                />
-            )}
-          />
-
           <TextField
             name="title"
             placeholder="Title"
@@ -403,7 +291,6 @@ const UploadVideoModal = ({ open, handleClose }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-
           <TextField
             name="description"
             placeholder="Description"
@@ -411,7 +298,7 @@ const UploadVideoModal = ({ open, handleClose }) => {
             multiline
             rows={isMobile ? 3 : 4}
             sx={{
-              // marginBottom: "1rem",
+              marginBottom: "1rem",
               padding: { xs: ".5rem 1rem", sm: ".66rem 1.4rem" },
               borderRadius: "2rem",
               backgroundColor: "#F2F2F2",
@@ -424,6 +311,36 @@ const UploadVideoModal = ({ open, handleClose }) => {
             }}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+          />
+
+          <Autocomplete
+            multiple
+            id="tags"
+            options={tags.map((tag) => tag.option)}
+            value={selectedTags}
+            onChange={handleTagChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Video Tags"
+                variant="standard"
+                sx={{
+                  padding: { xs: ".5rem 1rem", sm: ".66rem 1.4rem" },
+                  borderRadius: "2rem",
+                  backgroundColor: "#F2F2F2",
+                  border: "none",
+                  outline: "none",
+                  height: { xs: "3rem", sm: "3.375rem" },
+                  width: "100%",
+                  overflowY: "auto",
+                  maxHeight: "50px",
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  disableUnderline: true,
+                }}
+              />
+            )}
           />
 
           <FormControl fullWidth>
@@ -567,11 +484,7 @@ const UploadVideoModal = ({ open, handleClose }) => {
                 fontSize: "1rem",
                 width: isMobile ? "100%" : "auto",
               }}
-              disabled={
-                (tabValue === 1 && (!videoData || !thumbnailLink)) ||
-                isButtonLoading ||
-                isLinkTranscriptLoading
-              }
+              disabled={tabValue === 1 && (!videoData || !thumbnailLink)}
             >
               {isButtonLoading ? (
                 <CircularProgress size={25} color="inherit" />
