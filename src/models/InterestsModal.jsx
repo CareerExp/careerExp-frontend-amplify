@@ -7,6 +7,7 @@ import {
   Typography,
   ToggleButtonGroup,
   ToggleButton,
+  CircularProgress,
 } from "@mui/material";
 import React, { useState } from "react";
 import { categories } from "../utility/category";
@@ -21,7 +22,7 @@ import {
   selectToken,
   selectUserId,
 } from "../redux/slices/authSlice.js";
-import toast from "react-hot-toast";
+import { notify } from "../redux/slices/alertSlice.js";
 
 const InterestsModal = ({ open, handleClose }) => {
   const dispatchToRedux = useDispatch();
@@ -49,14 +50,21 @@ const InterestsModal = ({ open, handleClose }) => {
       const result = await dispatchToRedux(
         updateUserProfile({ updatedData, userId: userData?._id, token })
       );
-      toast.success("Interests added successfully");
+      dispatchToRedux(
+        notify({ type: "success", message: "Interests added successfully" })
+      );
       setIsButtonLoading2(false);
 
       if (result.meta.requestStatus === "fulfilled") {
         handleClose();
       }
     } catch (error) {
-      toast.error("Something went wrong, please try again");
+      dispatchToRedux(
+        notify({
+          type: "error",
+          message: "Something went wrong, please try again",
+        })
+      );
       setIsButtonLoading2(false);
     }
   };
@@ -89,6 +97,7 @@ const InterestsModal = ({ open, handleClose }) => {
           boxShadow: 24,
           borderRadius: "25px",
         }}
+        className="scrollbar-hide"
       >
         <Box
           sx={{
@@ -229,7 +238,11 @@ const InterestsModal = ({ open, handleClose }) => {
             onClick={handleSubmit}
             disabled={selected.length < 2}
           >
-            Save
+            {isButtonLoading2 ? (
+              <CircularProgress size={25} color="inherit" />
+            ) : (
+              "Save"
+            )}
           </Button>
         </Box>
       </Box>
