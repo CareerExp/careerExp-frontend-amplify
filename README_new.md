@@ -1,5 +1,5 @@
 # Career Explorer Frontend
-
+ 
 ## Overview
 
 Career Explorer is a modern, user-friendly web application designed to help  individuals discover and plan their career paths. This frontend application provides an intuitive interface for accessing  career assessment tools, educational content, and professional development resources.

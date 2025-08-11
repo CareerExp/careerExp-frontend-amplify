@@ -11,8 +11,15 @@ import {
   videoShareIcon,
   videoViewsIcon,
 } from "../assets/assest.js";
+import {
+  videoLikeIcon,
+  videoPlaylistIcon,
+  videoShareIcon,
+  videoViewsIcon,
+} from "../assets/assest.js";
 import { videoDetailById } from "../redux/slices/creatorSlice.js";
 import { fonts } from "../utility/fonts.js";
+import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 
 const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
@@ -137,6 +144,16 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
               }}
             >
               {/* Category */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                mt: "-2rem",
+                // border: "1px solid black",
+              }}
+            >
+              {/* Category */}
 
               {/* Divider */}
               <Typography
@@ -147,7 +164,38 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
                   fontSize: "1rem",
                 }}
               ></Typography>
+              {/* Divider */}
+              <Typography
+                component="span"
+                sx={{
+                  color: "gray",
+                  mx: 1.25,
+                  fontSize: "1rem",
+                }}
+              ></Typography>
 
+              {/* Updated On */}
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  color: "gray",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Updated on:
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  color: "black",
+                  fontSize: "0.875rem",
+                  ml: 0.5,
+                }}
+              >
+                {new Date(videoData?.updatedAt).toLocaleDateString()}
+              </Typography>
               {/* Updated On */}
               <Typography
                 variant="body1"
@@ -182,7 +230,40 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
               >
                 |
               </Typography>
+              {/* Divider */}
+              <Typography
+                component="span"
+                sx={{
+                  color: "gray",
+                  mx: 1.25,
+                  fontSize: "1rem",
+                }}
+              >
+                |
+              </Typography>
 
+              {/* Language */}
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  color: "gray",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Language:
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  color: "black",
+                  fontSize: "0.875rem",
+                  ml: 0.5,
+                }}
+              >
+                {videoData?.language}
+              </Typography>
               {/* Language */}
               <Typography
                 variant="body1"
@@ -217,6 +298,17 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
               >
                 |
               </Typography>
+              {/* Divider */}
+              <Typography
+                component="span"
+                sx={{
+                  color: "gray",
+                  mx: 1.25,
+                  fontSize: "1rem",
+                }}
+              >
+                |
+              </Typography>
 
               <Typography
                 variant="body1"
@@ -228,7 +320,36 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
               >
                 Rating:
               </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  color: "gray",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Rating:
+              </Typography>
 
+              <IconButton>
+                <Rating
+                  sx={{ fontSize: "1rem" }}
+                  name="read-only"
+                  readOnly
+                  value={averageRatingValue}
+                />
+                <Typography
+                  sx={{
+                    color: "gray",
+                    mx: 0.25,
+                    fontSize: "1rem",
+                  }}
+                >
+                  ({videoData?.totalRatings})
+                </Typography>
+              </IconButton>
+            </Box>
+          </Box>
               <IconButton>
                 <Rating
                   sx={{ fontSize: "1rem" }}
@@ -260,7 +381,54 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
           >
             {renderVideo()}
           </Box>
+          {/* render video  */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "2rem",
+              marginTop: "1rem",
+            }}
+          >
+            {renderVideo()}
+          </Box>
 
+          {/* /* Like, Rating, and Playlist Section */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "-1.5rem",
+              px: "2rem",
+              marginBottom: "0.5rem",
+              //   border: "1px solid black",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  cursor: "pointer",
+                }}
+              >
+                <img
+                  src={videoLikeIcon}
+                  alt="Video Like"
+                  style={{ width: "20px" }}
+                />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    color: "gray",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {videoData?.totalLikes} Likes
+                </Typography>
+              </Box>
           {/* /* Like, Rating, and Playlist Section */}
           <Box
             sx={{
@@ -318,7 +486,35 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
                 </Typography>
               </Box>
             </Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                <img
+                  src={videoViewsIcon}
+                  alt="Video Views"
+                  style={{ width: "20px" }}
+                />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    color: "gray",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {videoData?.totalViews} Views
+                </Typography>
+              </Box>
+            </Box>
 
+            <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <Box sx={{ cursor: "pointer" }}>
+                <img
+                  src={videoShareIcon}
+                  alt="Video Share"
+                  style={{ width: "25px" }}
+                />
+              </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <Box sx={{ cursor: "pointer" }}>
                 <img
@@ -337,6 +533,15 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
               </Box>
             </Box>
           </Box>
+              <Box sx={{ cursor: "pointer" }}>
+                <img
+                  src={videoPlaylistIcon}
+                  alt="video Playlist"
+                  style={{ width: "25px" }}
+                />
+              </Box>
+            </Box>
+          </Box>
 
           {/* Video Description */}
           <Box
@@ -344,7 +549,79 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
               border: "1px solid #cecece",
               backgroundColor: "#f2f2f2",
               borderRadius: "10px",
+          {/* Video Description */}
+          <Box
+            sx={{
+              border: "1px solid #cecece",
+              backgroundColor: "#f2f2f2",
+              borderRadius: "10px",
 
+              px: "1rem",
+              width: "95%",
+              margin: "auto",
+              marginBottom: "1rem",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+                alignItems: "center",
+                py: "1rem",
+              }}
+            >
+              <Avatar
+                alt="Remy Sharp"
+                src={creatorData?.profilePicture}
+                sx={{ width: 50, height: 50 }}
+              />
+              <Box
+                sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    color: "black",
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                  }}
+                >
+                  {creatorData?.firstName + " " + creatorData?.lastName}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    color: "gray",
+                    fontSize: "0.675rem",
+                    mt: "-0.5rem",
+                  }}
+                >
+                  COUNSELLOR
+                </Typography>
+              </Box>
+            </Box>
+            <Divider />
+            <Box sx={{ p: 2, marginBottom: 4 }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  marginTop: "1rem",
+                  lineHeight: 1.6,
+                  fontSize: "0.7rem",
+                  color: "text.secondary",
+                  width: "100%",
+                  margin: "auto",
+                }}
+              >
+                {videoData?.description}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      )}
               px: "1rem",
               width: "95%",
               margin: "auto",

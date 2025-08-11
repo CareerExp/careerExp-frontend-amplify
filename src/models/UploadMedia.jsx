@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, CircularProgress, Box, TextField } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "../redux/slices/alertSlice.js";
@@ -10,19 +10,22 @@ import {
   selectVideoLink,
 } from "../redux/slices/creatorSlice.js";
 
-const UploadMedia = ({ setManualVideoLink }) => {
+const UploadMedia = () => {
   const dispatchToRedux = useDispatch();
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const videoData = useSelector(selectVideoLink);
   const thumbnailLink = useSelector(selectThumbnailLink);
   const [isVideoButtonLoading, setIsVideoButtonLoading] = useState(false);
-  const [isThumbnailButtonLoading, setIsThumbnailButtonLoading] = useState(false);
+  const [isThumbnailButtonLoading, setIsThumbnailButtonLoading] =
+    useState(false);
 
   const handleVideoChange = async (e) => {
     const file = e.target.files[0];
     if (file.size > 50 * 1024 * 1024) {
-      dispatchToRedux(notify({ type: "error", message: "Video size should not exceed 50 MB" }));
+      dispatchToRedux(
+        notify({ type: "error", message: "Video size should not exceed 50 MB" })
+      );
       return;
     }
 
@@ -42,7 +45,9 @@ const UploadMedia = ({ setManualVideoLink }) => {
   const handleThumbnailChange = async (e) => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) {
-      dispatchToRedux(notify({ type: "warning", message: "Please upload an image file" }));
+      dispatchToRedux(
+        notify({ type: "warning", message: "Please upload an image file" })
+      );
       return;
     }
 
@@ -58,12 +63,6 @@ const UploadMedia = ({ setManualVideoLink }) => {
       dispatchToRedux(notify({ type: "error", message: error.message }));
     }
   };
-
-  useEffect(() => {
-    if (videoData?.link) {
-      setManualVideoLink(videoData?.link);
-    }
-  }, [videoData?.link]);
 
   return (
     <Box>
