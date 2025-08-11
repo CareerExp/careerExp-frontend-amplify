@@ -37,11 +37,11 @@ const ProfileTabContent = ({
           togglePasswordVisibility={togglePasswordVisibility}
         />
       );
-    // case 2:
-    //   return (
-    //     <InterestsTab isButtonLoading={isButtonLoading} userData={userData} />
-    //   );
     case 2:
+      return (
+        <InterestsTab isButtonLoading={isButtonLoading} userData={userData} />
+      );
+    case 3:
       return (
         <SocialAccountsForm
           formData={formData}
@@ -50,7 +50,7 @@ const ProfileTabContent = ({
           isButtonLoading={isButtonLoading}
         />
       );
-    case 3:
+    case 4:
       return (
         <EducationForm
           formData={formData}

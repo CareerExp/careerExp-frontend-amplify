@@ -56,7 +56,7 @@ const ProfileTabs = ({ tabValue, setTabValue, userData }) => {
           },
         }}
       />
-      {/* <Tab
+      <Tab
         label="Interests"
         sx={{
           display: userData?.activeDashboard !== "user" ? "none" : "block",
@@ -73,7 +73,7 @@ const ProfileTabs = ({ tabValue, setTabValue, userData }) => {
             color: selectedColor,
           },
         }}
-      /> */}
+      />
       <Tab
         label="Social Account"
         sx={{
