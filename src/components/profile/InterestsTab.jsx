@@ -13,8 +13,8 @@ import {
 import { categories } from "../../utility/category.js";
 import { updateUserProfile } from "../../redux/slices/profileSlice.js";
 import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
 import { selectToken } from "../../redux/slices/authSlice.js";
+import { notify } from "../../redux/slices/alertSlice.js";
 
 const InterestsTab = ({ isButtonLoading, userData }) => {
   const dispatchToRedux = useDispatch();
@@ -37,19 +37,39 @@ const InterestsTab = ({ isButtonLoading, userData }) => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("userData?.interests", userData?.interests);
+    console.log("selected", selected);
     e.preventDefault();
-    const updatedData = {
-      interests: selected,
-    };
+    const userInterestsArray = Object.keys(userData?.interests || {});
+    const isBothSame =
+      selected?.length === userInterestsArray?.length &&
+      selected?.every((item) => userInterestsArray?.includes(item)) &&
+      userInterestsArray?.every((item) => selected?.includes(item));
     try {
-      setIsButtonLoading2(true);
-      const result = await dispatchToRedux(
-        updateUserProfile({ updatedData, userId: userData?._id, token })
-      );
-      toast.success("Interests updated successfully");
-      setIsButtonLoading2(false);
+      if (isBothSame) {
+        dispatchToRedux(
+          notify({ type: "error", message: "No changes made to interests" })
+        );
+      } else {
+        setIsButtonLoading2(true);
+        const updatedData = {
+          interests: selected,
+        };
+        const result = await dispatchToRedux(
+          updateUserProfile({ updatedData, userId: userData?._id, token })
+        );
+        dispatchToRedux(
+          notify({ type: "success", message: "Interests updated successfully" })
+        );
+        setIsButtonLoading2(false);
+      }
     } catch (error) {
-      toast.error("Something went wrong, please try again");
+      dispatchToRedux(
+        notify({
+          type: "error",
+          message: "Something went wrong, please try again",
+        })
+      );
       setIsButtonLoading2(false);
     }
   };

@@ -155,6 +155,7 @@ const UploadVideoModal = ({ open, handleClose }) => {
             fontSize: "2rem",
             border: "none",
             textAlign: "end",
+            cursor: "pointer",
           }}
         >
           x

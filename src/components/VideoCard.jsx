@@ -40,6 +40,7 @@ const VideoCard = ({ video, isAuthenticated }) => {
         boxShadow: "2px 2px 10px #a7a7a764",
       }}
       className={videoCardStyles["card"]}
+      onClick={() => handleVideoClick(video._id)}
     >
       {video?.youtubeLink ? (
         <>
@@ -47,7 +48,6 @@ const VideoCard = ({ video, isAuthenticated }) => {
             src={`https://img.youtube.com/vi/${video?.youtubeVideoId}/0.jpg`}
             alt="thumbnail"
             style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: "8px" }}
-            onClick={() => handleVideoClick(video._id)}
           />
         </>
       ) : (
@@ -56,7 +56,6 @@ const VideoCard = ({ video, isAuthenticated }) => {
             src={video?.thumbnail}
             alt="thumbnail"
             style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: "8px" }}
-            onClick={() => handleVideoClick(video._id)}
           />
         </>
       )}
