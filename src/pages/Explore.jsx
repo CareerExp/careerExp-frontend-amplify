@@ -4,23 +4,40 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {
   Box,
   Button,
+  Chip,
   Container,
   MenuItem,
   Pagination,
   TextField,
   Typography,
+  Autocomplete,
 } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import VideoCard from "../components/VideoCard";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 // import ExploreVideoPlayPopup from "../models/ExploreVideoPlayPopup.jsx";
-import { selectAuthenticated } from "../redux/slices/authSlice";
+import { selectAuthenticated, selectUserId } from "../redux/slices/authSlice";
 import { resetState } from "../redux/slices/creatorSlice";
-import { getAllVideos, selectAllVideos } from "../redux/slices/exploreSlice.js";
+import {
+  getAllVideos,
+  getTrendingVideos,
+  getVideosByUserInterests,
+  getRelatedSearchVideos,
+  selectAllVideos,
+  selectTrendingVideos,
+  selectUserInterestsVideos,
+  selectRelatedSearchVideos,
+  resetRelatedSearchVideos,
+  getAllTags,
+  selectAllTags,
+} from "../redux/slices/exploreSlice.js";
 import exploreStyles from "../styles/Explore.module.css";
 import { categories, tags } from "../utility/category";
 import { fonts } from "../utility/fonts.js";
+import VideoSection from "../components/VideoSection.jsx";
+import { borderBottom } from "@mui/system";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Helper function to convert to sentence case
 const toSentenceCase = (str) => {
@@ -39,6 +56,18 @@ const processedTags = tags
 const Explore = () => {
   const dispatchToRedux = useDispatch();
   let allVideosData = useSelector(selectAllVideos);
+  const trendingVideosData = useSelector(selectTrendingVideos);
+  const userInterestsVideosData = useSelector(selectUserInterestsVideos);
+  const relatedSearchVideosData = useSelector(selectRelatedSearchVideos);
+  const userId = useSelector(selectUserId);
+  const allTags = useSelector(selectAllTags);
+  // Convert to Sentence Case
+  const formattedTags = allTags
+    ?.map((tag) => ({
+      label: tag.name.charAt(0).toUpperCase() + tag.name.slice(1).toLowerCase(),
+      value: tag.name.toLowerCase(),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
   const isAuthenticated = useSelector(selectAuthenticated);
   const [searchValue, setSearchValue] = useState("");
   const [selectedCatagory, setSelectedCatagory] = useState("");
@@ -96,19 +125,85 @@ const Explore = () => {
   // }, [page1, page2, page3, page4, selectedCatagory, selectedTags]);
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    dispatchToRedux(getAllTags());
+  }, []);
+
+  useEffect(() => {
+    // const fetchAllVideos = async () => {
+    //   try {
+    //     setPage1Loading(true);
+    //     await dispatchToRedux(getAllVideos({ page: page1 }));
+    //   } catch (error) {
+    //     console.error("Error fetching all videos:", error);
+    //   } finally {
+    //     setPage1Loading(false);
+    //   }
+    // };
+    // fetchAllVideos();
+
+    dispatchToRedux(
+      getAllVideos({
+        page: page1,
+        search: searchValue,
+        tags: selectedTags,
+        category: selectedCatagory,
+      })
+    );
+  }, [page1, searchValue, selectedTags, selectedCatagory]);
+
+  // related searches
+  useEffect(() => {
+    const fetchRelated = async () => {
       try {
-        setPageLoading(true);
-        await dispatchToRedux(getAllVideos({ page }));
-        setPageLoading(false);
+        setPage2Loading(true);
+        await dispatchToRedux(
+          getRelatedSearchVideos({
+            category: selectedCatagory,
+            tags: selectedTags,
+            page: page2,
+          })
+        );
       } catch (error) {
-        console.error("Error fetching videos:", error);
-        setPageLoading(false);
+        console.error("Error fetching related videos:", error);
+      } finally {
+        setPage2Loading(false);
       }
     };
+    fetchRelated();
+  }, [page2, selectedCatagory, selectedTags, searchValue]);
 
-    fetchVideos();
-  }, [page]);
+  // trending videos
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        setPage3Loading(true);
+        await dispatchToRedux(getTrendingVideos({ page: page3 }));
+      } catch (error) {
+        console.error("Error fetching trending videos:", error);
+      } finally {
+        setPage3Loading(false);
+      }
+    };
+    fetchTrending();
+  }, [page3]);
+
+  // curated for you
+  useEffect(() => {
+    const fetchUserInterests = async () => {
+      if (!userId || !isAuthenticated) return;
+      try {
+        setPage4Loading(true);
+        await dispatchToRedux(
+          getVideosByUserInterests({ userId, page: page4 })
+        );
+      } catch (error) {
+        console.error("Error fetching user interest videos:", error);
+      } finally {
+        setPage4Loading(false);
+      }
+    };
+    fetchUserInterests();
+  }, [page4, userId, isAuthenticated]);
 
   const handleCategorySelection = useCallback(
     (category) => {
@@ -118,26 +213,57 @@ const Explore = () => {
   );
 
   const handleSearchClick = useCallback(() => {
-    if (tag) {
-      dispatchToRedux(getAllVideos({ tags: [tag] }));
+    if (selectedTags?.length > 0) {
+      dispatchToRedux(getAllVideos({ tags: selectedTags }));
     }
     if (searchValue) {
       dispatchToRedux(getAllVideos({ search: searchValue }));
     }
-  }, [searchValue, tag, dispatchToRedux]);
+  }, [selectedTags?.length, searchValue, dispatchToRedux]);
 
-  const handlePageChange = useCallback((event, value) => {
-    setPage(value);
+  const handlePageChange1 = useCallback((event, value) => {
+    setPage1(value);
   }, []);
 
-  useEffect(() => {}, [allVideosData, dispatchToRedux]);
+  const handlePageChange2 = useCallback((event, value) => {
+    setPage2(value);
+  }, []);
+
+  const handlePageChange3 = useCallback((event, value) => {
+    setPage3(value);
+  }, []);
+
+  const handlePageChange4 = useCallback((event, value) => {
+    setPage4(value);
+  }, []);
+
+  useEffect(() => {}, [
+    allVideosData,
+    trendingVideosData,
+    userInterestsVideosData,
+    dispatchToRedux,
+  ]);
 
   const handleReset = () => {
-    dispatchToRedux(resetState());
-    dispatchToRedux(getAllVideos({ page }));
-    setSearchValue("");
-    setTag("");
+    setSelectedTags([]);
     setSelectedCatagory("");
+    setSearchValue("");
+    setPage1(1);
+    setPage2(1);
+    setPage3(1);
+    setPage4(1);
+    dispatchToRedux(resetState());
+    dispatchToRedux(getAllVideos({ page: page1 }));
+    dispatchToRedux(resetRelatedSearchVideos());
+    dispatchToRedux(getTrendingVideos({ page: page3 }));
+    if (userId && isAuthenticated) {
+      dispatchToRedux(
+        getVideosByUserInterests({
+          userId: userId,
+          page: page4,
+        })
+      );
+    }
   };
 
   return (
@@ -150,6 +276,7 @@ const Explore = () => {
             width: "80rem",
             maxWidth: "100%",
             margin: "auto",
+            marginBottom: "2rem",
             borderRadius: "19px",
           }}
         >
@@ -251,9 +378,11 @@ const Explore = () => {
               alignItems: "center",
               width: "100%",
               margin: "auto",
+              padding: "4px 0",
             }}
             className={exploreStyles["filters"]}
           >
+            {/* Search Input */}
             <Box
               sx={{
                 display: "flex",
@@ -261,7 +390,11 @@ const Explore = () => {
                 alignItems: "center",
                 width: "100%",
                 margin: "auto",
-                padding: "15px 30px",
+                position: "relative",
+                padding: {
+                  xs: "14px 12px",
+                  sm: "15px 30px",
+                },
               }}
             >
               <input
@@ -275,21 +408,42 @@ const Explore = () => {
                   outline: "none",
                   border: "1px solid #dddddd",
                   borderRadius: "90px",
-                  padding: "12px 15px",
+                  padding: "12px 64px 12px 15px",
+                  backgroundColor: "#F6F6F6",
                 }}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
+              <Button
+                variant="contained"
+                onClick={handleSearchClick}
+                className={exploreStyles["applyBtn"]}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  right: "10px",
+                  textTransform: "capitalize",
+                  borderRadius: "90px",
+                  padding: "12px 24px",
+                  // borderRadius: "50%",
+                }}
+              >
+                Search
+              </Button>
             </Box>
 
-            {/* tags  */}
-
+            {/* Tags Filter  */}
             <div className={exploreStyles["select-and-buttons"]}>
-              <TextField
+              {/* Multiple tag selection filter */}
+              {/* <TextField
                 select
+                multiple
                 variant="outlined"
-                value={tag}
-                onChange={(e) => setTag(e.target.value)}
+                value={selectedTags}
+                onChange={(e) => {
+                  setSelectedTags(e.target.value);
+                }}
                 className={exploreStyles["select"]}
                 displayEmpty
                 sx={{
@@ -300,6 +454,7 @@ const Explore = () => {
                   backgroundColor: "#F6F6F6",
                   color: "#545454",
                   borderRadius: "90px",
+                  border: "1px solid #dddddd",
                   overflow: "hidden", // prevent overflow
                   "& .MuiOutlinedInput-root": {
                     height: "100%",
@@ -331,10 +486,11 @@ const Explore = () => {
                   },
                 }}
                 SelectProps={{
+                  multiple: true,
                   IconComponent: KeyboardArrowDownIcon,
                   displayEmpty: true,
                   renderValue: (selected) => {
-                    if (!selected) {
+                    if (selected.length === 0) {
                       return (
                         <span
                           style={{
@@ -342,7 +498,6 @@ const Explore = () => {
                             fontFamily: fonts.sans,
                             fontSize: "14px",
                             display: "flex",
-                            justifyContent: "center",
                             alignItems: "center",
                             height: "100%",
                           }}
@@ -351,32 +506,81 @@ const Explore = () => {
                         </span>
                       );
                     }
-                    return selected;
+                    return selected.map((tag, i) => (
+                      <Chip
+                        key={i}
+                        label={tag}
+                        sx={{
+                          fontFamily: fonts.sans,
+                          color: "#4F4F4F",
+                          border: "1px solid #dddddd",
+                          margin: "0 2px",
+                        }}
+                      />
+                    ));
                   },
                 }}
-                // renderValue={(value) => (value === "" ? "Filter by Tags" : value)}
               >
                 <MenuItem disabled value="">
                   <em>Filter by Tags</em>
                 </MenuItem>
-
                 {processedTags.map((tag) => (
                   <MenuItem key={tag.option} value={tag.option}>
                     {tag.option}
                   </MenuItem>
                 ))}
-              </TextField>
+              </TextField> */}
+              <Autocomplete
+                multiple
+                options={formattedTags}
+                getOptionLabel={(option) => option.label}
+                value={formattedTags.filter((tag) =>
+                  selectedTags.includes(tag.value)
+                )}
+                onChange={(event, newValue) => {
+                  const selectedLowercaseTags = newValue.map(
+                    (tag) => tag.value
+                  );
+                  setSelectedTags(selectedLowercaseTags);
+                }}
+                filterSelectedOptions
+                disableCloseOnSelect
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Filter by Tags"
+                    sx={{
+                      marginRight: "10px",
+                      width: "169px",
+                      maxWidth: "100%",
+                      height: "46px",
+                      backgroundColor: "#F6F6F6",
+                      borderRadius: "90px",
+                      border: "1px solid #dddddd",
+                      "& .MuiOutlinedInput-root": {
+                        height: "100%",
+                        borderRadius: "90px",
+                        padding: "0 35px 0 15px",
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+                    }}
+                  />
+                )}
+                renderTags={() => null}
+              />
+
+              {/* Apply and Reset Buttons */}
               <Box
-                sx={{ display: "flex", gap: "10px" }}
+                sx={{
+                  display: "flex",
+                  gap: "10px",
+                }}
                 className={exploreStyles["buttons"]}
               >
-                <button
-                  onClick={handleSearchClick}
-                  className={exploreStyles["applyBtn"]}
-                >
-                  Apply
-                </button>
-                <button
+                <Button
                   onClick={handleReset}
                   className={exploreStyles["resetBtn"]}
                   sx={{
@@ -399,69 +603,48 @@ const Explore = () => {
                   }}
                 >
                   Reset
-                </button>
+                </Button>
               </Box>
             </div>
           </Box>
-        </Box>
 
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, 1fr)",
-              lg: "repeat(4, 1fr)",
-            },
-            gap: "30px",
-            margin: "auto",
-            marginTop: "30px",
-            width: "1280px",
-            maxWidth: "100%",
-          }}
-        >
-          {pageLoading ? (
+          {/* Show Selected Tags */}
+          {selectedTags?.length > 0 && (
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "center",
                 alignItems: "center",
-                height: "100vh",
-                width: "85vw",
-              }}
-            >
-              <InitialLoaders />
-            </Box>
-          ) : allVideosData?.videos?.length === 0 ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "40vh",
-                width: "90vw",
+                gap: "10px",
+                width: "100%",
                 margin: "auto",
+                padding: "0 30px 15px 30px",
               }}
             >
-              <Typography
-                variant="h5"
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: "600",
-                  textAlign: "center",
-                }}
-              >
-                No Videos Found
-              </Typography>
+              {selectedTags?.length > 0 &&
+                selectedTags.map((tag, i) => (
+                  <Chip
+                    key={i}
+                    label={tag}
+                    onDelete={() => {
+                      setSelectedTags((prev) => prev.filter((t) => t !== tag));
+                    }}
+                    deleteIcon={<CloseIcon />}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      backgroundColor: "#f5f5f5",
+                      color: "#4F4F4F",
+                      border: "1px solid #dddddd",
+                      "& .MuiChip-deleteIcon": {
+                        color: "#888",
+                        fontSize: "18px",
+                        "&:hover": {
+                          color: "#FF8A00",
+                        },
+                      },
+                    }}
+                  />
+                ))}
             </Box>
-          ) : (
-            allVideosData?.videos?.map((video) => (
-              <VideoCard
-                key={video._id}
-                video={video}
-                isAuthenticated={isAuthenticated}
-              />
-            ))
           )}
         </Box>
 
