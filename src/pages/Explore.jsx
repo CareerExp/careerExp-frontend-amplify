@@ -579,7 +579,7 @@ const Explore = () => {
         )}
 
         <VideoSection
-          title="Most Trending Videos"
+          title="Trending"
           videos={trendingVideosData?.videos || []}
           isLoading={page3Loading}
           currentPage={page3}
