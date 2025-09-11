@@ -1,4 +1,10 @@
-import { Box, IconButton, LinearProgress, Rating, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  LinearProgress,
+  Rating,
+  Typography,
+} from "@mui/material";
 import ReactECharts from "echarts-for-react";
 import React, { useEffect, useState } from "react";
 import { BsDownload } from "react-icons/bs";
@@ -13,9 +19,16 @@ import Headers from "../components/Headers";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import CareerDetailsFromOnet from "../models/CareerDetailsFromOnet.jsx";
 import { selectToken, selectUserId } from "../redux/slices/authSlice.js";
-import { getInterests, selectEducationLevel, selectInterests } from "../redux/slices/interestSlice.js";
+import {
+  getInterests,
+  selectEducationLevel,
+  selectInterests,
+} from "../redux/slices/interestSlice.js";
 import { getCareerInfo } from "../redux/slices/onetSlice.js";
-import { getUserProfile, selectUserProfile } from "../redux/slices/profileSlice.js";
+import {
+  getUserProfile,
+  selectUserProfile,
+} from "../redux/slices/profileSlice.js";
 import assessmentResult1 from "../styles/AssessmentResult1.module.css";
 import { countryList } from "../utility/countryList.js";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -43,8 +56,10 @@ const AssessmentResult1 = () => {
   const [progress, setProgress] = useState(0);
   const [buffer, setBuffer] = useState(10);
 
-  const universities = interestsProfile?.interestProfileDetails?.careers?.career[19]?.universities;
-  const interestAttemptNumber = interestsProfile?.interestProfileDetails?.attemptNumber;
+  const universities =
+    interestsProfile?.interestProfileDetails?.careers?.career[19]?.universities;
+  const interestAttemptNumber =
+    interestsProfile?.interestProfileDetails?.attemptNumber;
   const [pollingIntervalId, setPollingIntervalId] = useState(null);
 
   // Initial data loading
@@ -83,7 +98,14 @@ const AssessmentResult1 = () => {
       clearInterval(pollingIntervalId);
       setPollingIntervalId(null);
     }
-  }, [universities, isInitialLoading, dispatchToRedux, userId, token, attemptNumber]);
+  }, [
+    universities,
+    isInitialLoading,
+    dispatchToRedux,
+    userId,
+    token,
+    attemptNumber,
+  ]);
 
   useEffect(() => {
     if (isInitialLoading) return;
@@ -96,7 +118,7 @@ const AssessmentResult1 = () => {
       setProgress(100);
       setBuffer(100);
       setModalMessage(
-        "Your report is compiled and generated! Click the download button to save it to your device.",
+        "Your report is compiled and generated! Click the download button to save it to your device."
       );
       return;
     }
@@ -116,7 +138,7 @@ const AssessmentResult1 = () => {
       setBuffer(100);
       setIsButtonDisabled(false);
       setModalMessage(
-        "Your report is compiled and generated! Click the download button to save it to your device.",
+        "Your report is compiled and generated! Click the download button to save it to your device."
       );
     }, 300000); // 5 minutes (300,000 ms)
 
@@ -136,15 +158,16 @@ const AssessmentResult1 = () => {
   };
 
   // Dynamically update graph and accordion data
-  const dynamicGraphAccordionList = interestsProfile?.interestProfileDetails?.results?.result.map(
-    (interest) => ({
-      title: interest.area,
-      percent: ((interest.score / 100) * 100).toFixed(2),
-      score: interest.score,
-      description: interest.description,
-      color: colorMap[interest.area] || ["#000", "#333"],
-    }),
-  );
+  const dynamicGraphAccordionList =
+    interestsProfile?.interestProfileDetails?.results?.result.map(
+      (interest) => ({
+        title: interest.area,
+        percent: ((interest.score / 100) * 100).toFixed(2),
+        score: interest.score,
+        description: interest.description,
+        color: colorMap[interest.area] || ["#000", "#333"],
+      })
+    );
 
   const dynamicOption = {
     toolbox: {
@@ -166,26 +189,31 @@ const AssessmentResult1 = () => {
             show: false,
           },
         },
-        data: interestsProfile?.interestProfileDetails?.results?.result.map((interest) => {
-          const [startColor, endColor] = colorMap[interest.area] || ["#000", "#333"];
-          return {
-            value: interest.score,
-            name: interest.area,
-            itemStyle: {
-              color: {
-                type: "linear",
-                x: 1,
-                y: 1,
-                x2: 0,
-                y2: 1,
-                colorStops: [
-                  { offset: 0, color: startColor },
-                  { offset: 1, color: endColor },
-                ],
+        data: interestsProfile?.interestProfileDetails?.results?.result.map(
+          (interest) => {
+            const [startColor, endColor] = colorMap[interest.area] || [
+              "#000",
+              "#333",
+            ];
+            return {
+              value: interest.score,
+              name: interest.area,
+              itemStyle: {
+                color: {
+                  type: "linear",
+                  x: 1,
+                  y: 1,
+                  x2: 0,
+                  y2: 1,
+                  colorStops: [
+                    { offset: 0, color: startColor },
+                    { offset: 1, color: endColor },
+                  ],
+                },
               },
-            },
-          };
-        }),
+            };
+          }
+        ),
       },
     ],
     graphic: {
@@ -206,7 +234,7 @@ const AssessmentResult1 = () => {
 
     try {
       const response = await dispatchToRedux(
-        getCareerInfo({ careercode: item.code, topic: "report", token }),
+        getCareerInfo({ careercode: item.code, topic: "report", token })
       );
 
       if (response.error) {
@@ -275,7 +303,9 @@ const AssessmentResult1 = () => {
       <div className={assessmentResult1.container}>
         <div className={assessmentResult1.left}>
           <img src={india} alt="user" />
-          <p className={assessmentResult1.name}>{userProfile?.firstName + " " + userProfile?.lastName}</p>
+          <p className={assessmentResult1.name}>
+            {userProfile?.firstName + " " + userProfile?.lastName}
+          </p>
           <p style={{ textAlign: "center" }}>{educationLevel}</p>
         </div>
         <div className={assessmentResult1.right}>
@@ -311,15 +341,18 @@ const AssessmentResult1 = () => {
           <div className={assessmentResult1.aboutResults}>
             <h6>About Your Results</h6>
             <p>
-              The first part of the Assessment has examined your Interests, based on a range of work
-              activities that you find compelling and enjoyable. The second part has looked at your
-              personality traits and the strengths that come easily and are natural to you. Our algorithms
-              then look at the way the results of both these parts fit together. The final outcome is a
-              recommended shortlist of Career pathways for you to now seriously consider.{" "}
+              The first part of the Assessment has examined your Interests,
+              based on a range of work activities that you find compelling and
+              enjoyable. The second part has looked at your personality traits
+              and the strengths that come easily and are natural to you. Our
+              algorithms then look at the way the results of both these parts
+              fit together. The final outcome is a recommended shortlist of
+              Career pathways for you to now seriously consider.{" "}
             </p>
             <p>
-              Its time to open your mind, be creative and play with the options. Consider where the Market
-              Opportunities are and now begin your Career planning.
+              Its time to open your mind, be creative and play with the options.
+              Consider where the Market Opportunities are and now begin your
+              Career planning.
             </p>
           </div>
 
@@ -334,7 +367,9 @@ const AssessmentResult1 = () => {
                 style={{ height: 10, padding: "0 20px" }}
                 sx={{
                   "& .MuiLinearProgress-bar": { backgroundColor: "orange" },
-                  "& .MuiLinearProgress-dashed": { background: "rgba(255, 165, 0, 0.3)" },
+                  "& .MuiLinearProgress-dashed": {
+                    background: "rgba(255, 165, 0, 0.3)",
+                  },
                 }}
               />
             </div>
@@ -351,7 +386,11 @@ const AssessmentResult1 = () => {
                 gap: "8px",
               }}
             >
-              {isButtonDisabled ? <CircularProgressWithLabel value={progress} /> : <BsDownload />}
+              {isButtonDisabled ? (
+                <CircularProgressWithLabel value={progress} />
+              ) : (
+                <BsDownload />
+              )}
               Download Report
             </button>
           </div>
@@ -384,12 +423,14 @@ const AssessmentResult1 = () => {
           <div className={assessmentResult1.bestMatch}>
             <h6>Best Career Matches based on assessement</h6>
             <p>
-              The range of Career Pathways below have been selected based on your interests and strengths,
-              using a RAISEC methodology. In addition you will see your Personality Factor (PF). This star
-              rating shows you how good a match your natural personality is for that career. <br />{" "}
-              (IMPORTANT: Please always remember that this is only a guide for you in your Career Exploration
-              Journey. As you gain more practical experience and build your skills these selections may
-              change)
+              The range of Career Pathways below have been selected based on
+              your interests and strengths, using a RAISEC methodology. In
+              addition you will see your Personality Factor (PF). This star
+              rating shows you how good a match your natural personality is for
+              that career. <br /> (IMPORTANT: Please always remember that this
+              is only a guide for you in your Career Exploration Journey. As you
+              gain more practical experience and build your skills these
+              selections may change)
             </p>
 
             {isOnetDetailedLoading ? (
@@ -398,49 +439,79 @@ const AssessmentResult1 = () => {
               </Box>
             ) : (
               <ul className={assessmentResult1.bestMatchCardsList}>
-                {interestsProfile?.interestProfileDetails?.careers?.career.map((item, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className={assessmentResult1.bestMatchCard}
-                      onClick={() => handleOpenModal(item)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div>
-                        <p style={{ fontWeight: "bold", color: "black" }}>{item.title}</p>
-                        <p className={assessmentResult1.description}>
-                          {item.fit === "Best" ? "Good" : item.fit}
-                        </p>
-                      </div>
-                      <div className={assessmentResult1.userAndRating}>
-                        <div className={assessmentResult1.logo}>P</div>
-                        <IconButton sx={{ marginTop: "-0.2rem", pointerEvents: "none" }}>
-                          <Rating
-                            sx={{
-                              fontSize: "1rem",
-                              pointerEvents: "none",
-                              "& .MuiRating-iconHover": { color: "inherit" },
-                              "& .MuiRating-iconFocus": { color: "inherit" },
-                              "& .MuiRating-iconActive": { color: "inherit" },
-                            }}
-                            name="read-only"
-                            readOnly
-                            value={item?.match_score}
-                          />
-                          <Typography
-                            sx={{
-                              color: "gray",
-                              mx: 0.25,
-                              fontSize: "1rem",
+                {interestsProfile?.interestProfileDetails?.careers?.career.map(
+                  (item, index) => {
+                    return (
+                      <li
+                        key={index}
+                        className={assessmentResult1.bestMatchCard}
+                        onClick={() => handleOpenModal(item)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <div>
+                          <p
+                            style={{
+                              fontWeight: "bold",
+                              color: "black",
+                              marginBottom: "8px",
                             }}
                           >
-                            {item?.match_score}
-                          </Typography>
-                        </IconButton>
-                      </div>
-                    </li>
-                  );
-                })}
+                            {item.title}
+                          </p>
+                        </div>
+                        <div className={assessmentResult1.userAndRating}>
+                          <p className={assessmentResult1.description}>
+                            {item.fit === "Best" ? "Good" : item.fit} Fit
+                          </p>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "4px",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div className={assessmentResult1.logo}>P</div>
+                            {/* <IconButton
+                              sx={{
+                                marginTop: "-0.2rem",
+                                pointerEvents: "none",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  color: "gray",
+                                  mx: 0.25,
+                                  fontSize: "1rem",
+                                }}
+                              >
+                                {item?.match_score}
+                              </Typography>
+                            </IconButton> */}
+                            <Rating
+                              sx={{
+                                fontSize: "1rem",
+                                pointerEvents: "none",
+                                "& .MuiRating-iconHover": {
+                                  color: "inherit",
+                                },
+                                "& .MuiRating-iconFocus": {
+                                  color: "inherit",
+                                },
+                                "& .MuiRating-iconActive": {
+                                  color: "inherit",
+                                },
+                              }}
+                              name="read-only"
+                              readOnly
+                              value={item?.match_score}
+                            />
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  }
+                )}
               </ul>
             )}
           </div>
@@ -470,13 +541,22 @@ const Accordion = ({ title, percent, score, description, color, ...props }) => {
     <li className={assessmentResult1["accordion"]} {...props}>
       <div className={assessmentResult1["accordion-header"]}>
         <div>
-          <div className={assessmentResult1.circle} style={{ backgroundColor: color[0] }}></div>
+          <div
+            className={assessmentResult1.circle}
+            style={{ backgroundColor: color[0] }}
+          ></div>
           <h6>{title}</h6>
-          <p className={assessmentResult1.realisticPercent} style={{ backgroundColor: color[1] }}>
+          <p
+            className={assessmentResult1.realisticPercent}
+            style={{ backgroundColor: color[1] }}
+          >
             {percent}
           </p>
         </div>
-        <button className={assessmentResult1["accordion-button"]} onClick={toggleAccordion}>
+        <button
+          className={assessmentResult1["accordion-button"]}
+          onClick={toggleAccordion}
+        >
           {isOpen ? <FaChevronUp /> : <FaChevronDown />}
         </button>
       </div>
