@@ -259,6 +259,10 @@ const AssessmentResult1 = () => {
     window.open(`/generate-assessmnet-pdf?attempt=${attemptNumber}`, "_blank");
   };
 
+  const handleCompressedDownloadAssessment = (attemptNumber) => {
+    window.open(`/generate-compressed-pdf?attempt=${attemptNumber}`, "_blank");
+  };
+
   function CircularProgressWithLabel({ value }) {
     return (
       <Box sx={{ position: "relative", display: "inline-flex" }}>
@@ -374,25 +378,54 @@ const AssessmentResult1 = () => {
               />
             </div>
 
-            <button
-              className={assessmentResult1.navButton}
-              onClick={() => handleDownloadAssessment(interestAttemptNumber)}
-              disabled={isButtonDisabled}
+            <div
               style={{
-                cursor: isButtonDisabled ? "not-allowed" : "pointer",
-                opacity: isButtonDisabled ? 0.5 : 1,
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
               }}
             >
-              {isButtonDisabled ? (
-                <CircularProgressWithLabel value={progress} />
-              ) : (
-                <BsDownload />
-              )}
-              Download Report
-            </button>
+              <button
+                className={assessmentResult1.navButton}
+                onClick={() => handleDownloadAssessment(interestAttemptNumber)}
+                disabled={isButtonDisabled}
+                style={{
+                  cursor: isButtonDisabled ? "not-allowed" : "pointer",
+                  opacity: isButtonDisabled ? 0.5 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {isButtonDisabled ? (
+                  <CircularProgressWithLabel value={progress} />
+                ) : (
+                  <BsDownload />
+                )}
+                Download Report
+              </button>
+              <button
+                className={assessmentResult1.navButton}
+                onClick={() =>
+                  handleCompressedDownloadAssessment(interestAttemptNumber)
+                }
+                disabled={isButtonDisabled}
+                style={{
+                  cursor: isButtonDisabled ? "not-allowed" : "pointer",
+                  opacity: isButtonDisabled ? 0.5 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                {isButtonDisabled ? (
+                  <CircularProgressWithLabel value={progress} />
+                ) : (
+                  <BsDownload />
+                )}
+                Download Compressed Report
+              </button>
+            </div>
           </div>
 
           <div className={assessmentResult1.graphResult}>

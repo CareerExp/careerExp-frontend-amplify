@@ -5,49 +5,83 @@ import InitialLoaders from "../loaders/InitialLoaders";
 import { useSelector } from "react-redux";
 import { selectAuthenticated } from "../redux/slices/authSlice.js";
 import ProtectedRoute from "./ProtectedRoute.jsx";
+import CompressedReportPage from "../pages/pdfGeneration/CompressedReportPage.jsx";
 
 // Import components lazily
 const Register = React.lazy(() => import("../pages/Register"));
 const Login = React.lazy(() => import("../pages/Login"));
 const ForgetPassword = React.lazy(() => import("../pages/ForgetPassword"));
-const CreateNewPassword = React.lazy(() => import("../pages/CreateNewPassword"));
+const CreateNewPassword = React.lazy(
+  () => import("../pages/CreateNewPassword")
+);
 const VerifyEmail = React.lazy(() => import("../pages/EmailVerification.jsx"));
 
 const Layout = React.lazy(() => import("../components/Layout"));
 const Home = React.lazy(() => import("../pages/Home"));
 const Explore = React.lazy(() => import("../pages/Explore"));
 const AssessmentCenter = React.lazy(() => import("../pages/AssessmentCenter"));
-const ResumeBuilderPage = React.lazy(() => import("../pages/ResumeBuilder.jsx"));
+const ResumeBuilderPage = React.lazy(
+  () => import("../pages/ResumeBuilder.jsx")
+);
 const HowItWorks = React.lazy(() => import("../pages/HowItWorks.jsx"));
 const Pricing = React.lazy(() => import("../pages/Pricing.jsx"));
 const Workspace = React.lazy(() => import("../pages/Workspace.jsx"));
 
 const AboutUs = React.lazy(() => import("../pages/AboutUs.jsx"));
-const TermsAndConditons = React.lazy(() => import("../pages/TermsAndConditons.jsx"));
-const PrivacyAndPolicy = React.lazy(() => import("../pages/PrivacyAndPolicy.jsx"));
+const TermsAndConditons = React.lazy(
+  () => import("../pages/TermsAndConditons.jsx")
+);
+const PrivacyAndPolicy = React.lazy(
+  () => import("../pages/PrivacyAndPolicy.jsx")
+);
 
-const ContactUs = React.lazy(() => import("../components/contactUs/ContactUs.jsx"));
-const StudentSupport = React.lazy(() => import("../components/contactUs/StudentSupport.jsx"));
-const TechSupport = React.lazy(() => import("../components/contactUs/TechSupport.jsx"));
+const ContactUs = React.lazy(
+  () => import("../components/contactUs/ContactUs.jsx")
+);
+const StudentSupport = React.lazy(
+  () => import("../components/contactUs/StudentSupport.jsx")
+);
+const TechSupport = React.lazy(
+  () => import("../components/contactUs/TechSupport.jsx")
+);
 
 const InvalidPages = React.lazy(() => import("../pages/InvalidPages"));
 
 const ExploreVideoPlay = React.lazy(() => import("../pages/ExploreVideoPlay"));
 const CreatorProfile = React.lazy(() => import("../pages/CreatorProfile.jsx"));
 
-const InterestProfiler = React.lazy(() => import("../components/onet/InterestProfiler.jsx"));
+const InterestProfiler = React.lazy(
+  () => import("../components/onet/InterestProfiler.jsx")
+);
 const DiscAssessment = React.lazy(() => import("../pages/DiscAssessment.jsx"));
 const SurveyPage = React.lazy(() => import("../pages/SurveyPage.jsx"));
 
-const AssessmentResult = React.lazy(() => import("../pages/AssessmentResult.jsx"));
-const AssessmentResult1 = React.lazy(() => import("../pages/AssessmentResult1.jsx"));
-const GenerateAssessmentPDF = React.lazy(() => import("../pages/pdfGeneration/AssessmentPdfPage.jsx"));
+const AssessmentResult = React.lazy(
+  () => import("../pages/AssessmentResult.jsx")
+);
+const AssessmentResult1 = React.lazy(
+  () => import("../pages/AssessmentResult1.jsx")
+);
+const GenerateAssessmentPDF = React.lazy(
+  () => import("../pages/pdfGeneration/AssessmentPdfPage.jsx")
+);
+const GenerateCompressedAssessmentPDF = React.lazy(
+  () => import("../pages/pdfGeneration/CompressedReportPage.jsx")
+);
 
-const PaymentSuccess = React.lazy(() => import("../pages/PaymentSuccessPage.jsx"));
-const PaymentCancel = React.lazy(() => import("../pages/PaymentCancelPage.jsx"));
+const PaymentSuccess = React.lazy(
+  () => import("../pages/PaymentSuccessPage.jsx")
+);
+const PaymentCancel = React.lazy(
+  () => import("../pages/PaymentCancelPage.jsx")
+);
 
-const ResumeDashboardPage = React.lazy(() => import("../components/resumeBuilder/ResumeDashboard.jsx"));
-const SelectResumeTemplate = React.lazy(() => import("../components/resumeBuilder/SelectTemplate.jsx"));
+const ResumeDashboardPage = React.lazy(
+  () => import("../components/resumeBuilder/ResumeDashboard.jsx")
+);
+const SelectResumeTemplate = React.lazy(
+  () => import("../components/resumeBuilder/SelectTemplate.jsx")
+);
 
 const AppRoutes = () => {
   const authenticated = useSelector(selectAuthenticated);
@@ -162,7 +196,9 @@ const AppRoutes = () => {
       <Route
         path="/workspace/:id"
         element={
-          <Suspense fallback={<InitialLoaders />}>{authenticated ? <Workspace /> : <Login />}</Suspense>
+          <Suspense fallback={<InitialLoaders />}>
+            {authenticated ? <Workspace /> : <Login />}
+          </Suspense>
         }
       />
       <Route
@@ -303,6 +339,16 @@ const AppRoutes = () => {
           element={
             <Suspense fallback={<InitialLoaders />}>
               <GenerateAssessmentPDF />
+            </Suspense>
+          }
+        />
+      </Route>
+      <Route element={<ProtectedRoute />}>
+        <Route
+          path="/generate-compressed-pdf"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <GenerateCompressedAssessmentPDF />
             </Suspense>
           }
         />
