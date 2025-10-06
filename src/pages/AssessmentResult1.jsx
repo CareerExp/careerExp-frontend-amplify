@@ -404,7 +404,7 @@ const AssessmentResult1 = () => {
                 )}
                 Download Report
               </button>
-              <button
+              {/* <button
                 className={assessmentResult1.navButton}
                 onClick={() =>
                   handleCompressedDownloadAssessment(interestAttemptNumber)
@@ -424,7 +424,7 @@ const AssessmentResult1 = () => {
                   <BsDownload />
                 )}
                 Download Compressed Report
-              </button>
+              </button> */}
             </div>
           </div>
 

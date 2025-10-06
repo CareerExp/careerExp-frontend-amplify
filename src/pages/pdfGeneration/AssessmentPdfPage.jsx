@@ -51,6 +51,7 @@ const AssessmentPdfPage = () => {
   // data to be shown on pdf
   const [loading, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [compressButtonLoading, setCompressButtonLoading] = useState(false);
   const [savingToStorage, setSavingToStorage] = useState(false);
 
   // const fullName = data.fullname;
@@ -209,6 +210,127 @@ const AssessmentPdfPage = () => {
     }
   };
 
+  const generateCompressedPdf = async () => {
+    try {
+      setCompressButtonLoading(true);
+      const element = pdfRef.current; // Get the content to render as PDF
+      const fileName = `${fullName}_CDR.pdf`;
+
+      const options = {
+        margin: 0,
+        filename: fileName,
+        image: {
+          type: "jpeg",
+          quality: 0.6,
+        },
+        html2canvas: {
+          scale: 1.5,
+          useCORS: true,
+          letterRendering: true,
+          scrollY: 0,
+          windowWidth: 1024, // Force desktop viewport width
+          onrendered: function (canvas) {
+            document.body.style.overflow = "auto"; // Reset scroll after render
+          },
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+          compress: true,
+          hotfixes: ["px_scaling"],
+          preferCSSPageSize: true,
+          // precision: 2,
+        },
+      };
+
+      // Prepare the document for PDF generation
+      const preparePdfGeneration = () => {
+        // Store current scroll position
+        const scrollPos = window.pageYOffset;
+        // Temporarily disable scrolling
+        document.body.style.overflow = "hidden";
+        // Force window scroll to top
+        window.scrollTo(0, 0);
+        return scrollPos;
+      };
+
+      // Restore document state after PDF generation
+      const cleanupPdfGeneration = (scrollPos) => {
+        document.body.style.overflow = "auto";
+        window.scrollTo(0, scrollPos);
+      };
+
+      const pdfSections = [
+        { id: "pdf-section-0", fileName: `${fullName}_part0.pdf` },
+        { id: "pdf-section-1", fileName: `${fullName}_part1.pdf` },
+        { id: "pdf-section-2", fileName: `${fullName}_part2.pdf` },
+        { id: "pdf-section-3", fileName: `${fullName}_part3.pdf` },
+        { id: "pdf-section-4", fileName: `${fullName}_part4.pdf` },
+        { id: "pdf-section-5", fileName: `${fullName}_part5.pdf` },
+        { id: "pdf-section-6", fileName: `${fullName}_part6.pdf` },
+        { id: "pdf-section-7", fileName: `${fullName}_part7.pdf` },
+      ];
+
+      let pdfBlobs = [];
+      const scrollPos = preparePdfGeneration();
+
+      try {
+        for (let section of pdfSections) {
+          const element = document.getElementById(section.id);
+          if (!element) continue;
+
+          await new Promise((resolve) => setTimeout(resolve, 500)); // Small delay between sections
+          const pdfBlob = await html2pdf()
+            .from(element)
+            .set(options)
+            .outputPdf("blob");
+          pdfBlobs.push(pdfBlob);
+        }
+
+        let pdfBlob = await mergePdfs(pdfBlobs, fileName);
+
+        // Save Locally
+        const localDownloadLink = document.createElement("a");
+        localDownloadLink.href = URL.createObjectURL(pdfBlob);
+        localDownloadLink.download = fileName;
+        document.body.appendChild(localDownloadLink);
+        localDownloadLink.click();
+        document.body.removeChild(localDownloadLink);
+
+        // Convert Blob to File for AWS Upload
+        // const pdfFile = new File([pdfBlob], fileName, {
+        //   type: "application/pdf",
+        // });
+
+        // // Prepare FormData for upload
+        // const formData = new FormData();
+        // formData.append("cdr", pdfFile);
+        // setButtonLoading(false);
+        // setSavingToStorage(true);
+
+        // // Upload to AWS using dispatch function
+        // const response = await dispatchToRedux(
+        //   uploadCdrToStorage({
+        //     token,
+        //     formData,
+        //     userId,
+        //     attemptNumber: attempt,
+        //   })
+        // );
+        // setSavingToStorage(false);
+
+        console.log("Upload response:", response);
+      } finally {
+        cleanupPdfGeneration(scrollPos);
+      }
+    } catch (error) {
+      console.error("Error generating or uploading PDF:", error.message);
+      setCompressButtonLoading(false);
+      setSavingToStorage(false);
+    }
+  };
+
   // calculating character length
   const maxCharsPerPage = 2265;
   const textPages = splitTextIntoPages(
@@ -294,6 +416,71 @@ const AssessmentPdfPage = () => {
                 "Generate PDF"
               )}
             </button>
+
+            {/* new button compressed pdf */}
+            <button
+              onClick={generateCompressedPdf}
+              style={{
+                position: "fixed",
+                top: "80px",
+                left: "20px",
+                zIndex: 1000,
+                backgroundImage:
+                  "linear-gradient(to top left, #720361, #bf2f75)",
+                border: "none",
+                padding: "0.6rem 1rem",
+                borderRadius: "90px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "fit-content",
+                fontSize: "1.125rem",
+                gap: "0.875rem",
+                color: "white",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+              }}
+              disabled={compressButtonLoading}
+            >
+              {compressButtonLoading ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "200px",
+                    height: "100%",
+                  }}
+                >
+                  <CircularProgress
+                    size={24}
+                    sx={{ color: "white", marginRight: "8px" }}
+                  />{" "}
+                  Downloading...
+                </Box>
+              ) : savingToStorage ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "200px",
+                    height: "100%",
+                  }}
+                >
+                  <CircularProgress
+                    size={24}
+                    sx={{ color: "white", marginRight: "8px" }}
+                  />{" "}
+                  Saving Data...
+                </Box>
+              ) : (
+                "Generate Compressed PDF"
+              )}
+            </button>
+            {/* new button compressed pdf */}
+
             {/* Content to be rendered in the PDF */}
 
             <div ref={pdfRef}>
