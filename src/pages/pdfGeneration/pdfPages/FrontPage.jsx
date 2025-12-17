@@ -83,7 +83,7 @@ const FrontPage = ({ fullName, assessmentDate }) => {
               lineHeight: "90px",
             }}
           >
-            CAREER DIRECTIONS REPORTS
+            CAREER DIRECTIONS REPORT
           </span>
         </div>
 
