@@ -5,9 +5,14 @@ import { Link } from "react-router-dom";
 
 import { background, interestLogo, surevyHero } from "../assets/assest.js";
 import SurveyQuestionCards from "../components/SurveyQuestionCards.jsx";
+import SurveyQuestion7Card from "../components/SurveyQuestion7Card.jsx";
 import { notify } from "../redux/slices/alertSlice.js";
 import { selectToken, selectUserId } from "../redux/slices/authSlice.js";
-import { getPaymentStatus, selectIsPaid, selectRemainingAttempts } from "../redux/slices/paymentSlice.js";
+import {
+  getPaymentStatus,
+  selectIsPaid,
+  selectRemainingAttempts,
+} from "../redux/slices/paymentSlice.js";
 import {
   getCareerClusterOptions,
   getSurveyQuestions,
@@ -39,34 +44,6 @@ const SurveyPage = () => {
     dispatchToRedux(getPaymentStatus({ userId, token }));
   }, [userId]);
 
-  // const handleSubmit = async (updatedOverallAnswer) => {
-  //   try {
-  //     // Create a new object to hold the answers
-  //     const answers = updatedOverallAnswer.reduce((acc, answer) => {
-  //       return { ...acc, ...answer };
-  //     }, {});
-
-  //     // Dispatch the answers to Redux
-  //     setIsButtonLoading(true);
-  //     await dispatchToRedux(saveSurveyData({ token, formData: answers, userId }));
-  //     console.log("Survey answers submitted:", answers);
-  //     setIsButtonLoading(false);
-
-  //     // Navigate to the assessment result page
-
-  //     if (isPaid && remainingAttempts > 0) {
-  //       navigate("/assessment-result1");
-  //     } else {
-  //       navigate("/assessment-result");
-  //     }
-  //     navigate("/assessment-result1");
-  //   } catch (error) {
-  //     console.error("Error submitting the survey:", error);
-  //     setIsButtonLoading(false);
-  //     // Handle any errors if needed
-  //   }
-  // };
-
   const handleSubmit = async (updatedOverallAnswer) => {
     try {
       const answers = updatedOverallAnswer.reduce((acc, answer) => {
@@ -74,7 +51,9 @@ const SurveyPage = () => {
       }, {});
 
       setIsButtonLoading(true);
-      const resultAction = await dispatchToRedux(saveSurveyData({ token, formData: answers, userId }));
+      const resultAction = await dispatchToRedux(
+        saveSurveyData({ token, formData: answers, userId })
+      );
 
       if (saveSurveyData.fulfilled.match(resultAction)) {
         const result = resultAction.payload;
@@ -84,7 +63,7 @@ const SurveyPage = () => {
           notify({
             type: "success",
             message: result.message || "Survey submitted successfully!",
-          }),
+          })
         );
 
         // Navigate after showing notification
@@ -99,8 +78,9 @@ const SurveyPage = () => {
         dispatchToRedux(
           notify({
             type: "error",
-            message: error.message || "Failed to submit survey. Please try again.",
-          }),
+            message:
+              error.message || "Failed to submit survey. Please try again.",
+          })
         );
       }
     } catch (error) {
@@ -109,7 +89,7 @@ const SurveyPage = () => {
         notify({
           type: "error",
           message: "An unexpected error occurred. Please try again.",
-        }),
+        })
       );
     } finally {
       setIsButtonLoading(false);
@@ -122,7 +102,8 @@ const SurveyPage = () => {
     }
     if (currentQuestionIndex < questions.length - 1) {
       if (currentQuestionIndex + 1 === 7) {
-        const optionSelected = updatedOverallAnswer[currentQuestionIndex].mostAppealingField;
+        const optionSelected =
+          updatedOverallAnswer[currentQuestionIndex].mostAppealingField;
         const lastQuestion = {
           // question: "Select Career Pathways",
           question: "Select up to 2 Career Pathways from each Career Cluster.",
@@ -167,9 +148,14 @@ const SurveyPage = () => {
         </div>
         <div className={globalStyle["right"]}>
           <Link to="/">
-            <img src={interestLogo} alt="logo" width={"248px"} height={"76.67px"} />
+            <img
+              src={interestLogo}
+              alt="logo"
+              width={"248px"}
+              height={"76.67px"}
+            />
           </Link>
-          {questions.length > 0 && (
+          {/* {questions.length > 0 && (
             <SurveyQuestionCards
               questionNumber={currentQuestionIndex + 1}
               questionStatment={questions[currentQuestionIndex]["question"]}
@@ -187,6 +173,49 @@ const SurveyPage = () => {
               isButtonLoading={isButtonLoading}
               clusterData={clusterData}
             />
+          )} */}
+          {questions.length > 0 && (
+            <>
+              {currentQuestionIndex === 6 ? (
+                // Render custom Q7 component
+                <SurveyQuestion7Card
+                  questionNumber={currentQuestionIndex + 1}
+                  questionStatment={questions[currentQuestionIndex]["question"]}
+                  questionOptions={questions[currentQuestionIndex]["options"]}
+                  isMultiple={questions[currentQuestionIndex]["isMutiple"]}
+                  answerKey={questions[currentQuestionIndex]["key"]}
+                  totalQuestions={questions.length}
+                  onNext={handleNext}
+                  onPrevious={handlePrevious}
+                  isLastQuestion={currentQuestionIndex === questions.length - 1}
+                  isFirstQuestion={currentQuestionIndex === 0}
+                  overallAnswers={overallAnswers}
+                  setOverallAnswers={setOverallAnswers}
+                  handleSubmit={handleSubmit}
+                  isButtonLoading={isButtonLoading}
+                  clusterData={clusterData}
+                />
+              ) : (
+                // Default questions use existing card
+                <SurveyQuestionCards
+                  questionNumber={currentQuestionIndex + 1}
+                  questionStatment={questions[currentQuestionIndex]["question"]}
+                  questionOptions={questions[currentQuestionIndex]["options"]}
+                  isMultiple={questions[currentQuestionIndex]["isMutiple"]}
+                  answerKey={questions[currentQuestionIndex]["key"]}
+                  totalQuestions={questions.length}
+                  onNext={handleNext}
+                  onPrevious={handlePrevious}
+                  isLastQuestion={currentQuestionIndex === questions.length - 1}
+                  isFirstQuestion={currentQuestionIndex === 0}
+                  overallAnswers={overallAnswers}
+                  setOverallAnswers={setOverallAnswers}
+                  handleSubmit={handleSubmit}
+                  isButtonLoading={isButtonLoading}
+                  clusterData={clusterData}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

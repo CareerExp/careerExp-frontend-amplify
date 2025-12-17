@@ -1,0 +1,177 @@
+.career-card {
+    display: flex;
+        /* NEW */
+        flex-direction: column;
+        /* NEW */
+        box-sizing: border-box;
+        /* safer sizing */
+        height: 100%;
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.08);
+    overflow: visible;
+    /* icon box sits partly outside visually if needed */
+}
+
+.career-card-content {
+    position: relative;
+    z-index: 2;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+/* Top Gradient Border */
+.top-border-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 6px;
+    /* thickness */
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    z-index: 1;
+}
+
+.icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(176, 30, 255, 0.12);
+    flex-shrink: 0;
+}
+
+/* Title row: keep it visually aligned with icon */
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 0.6rem;
+    gap: "1rem"
+}
+
+.title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: #121212;
+    padding-right: 4rem;
+}
+
+/* description text */
+.desc {
+    color: gray;
+    font-size: 16px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+    line-height: 24px;
+}
+
+/* focus box */
+.focus-box {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+        align-items: start;
+    padding: 1rem;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 1) 0%, rgba(255, 255, 255, 1) 100%);
+    border: 1px solid rgba(233, 224, 238, 0.6);
+    box-shadow: 0 2px 8px rgba(11, 10, 11, 0.03);
+}
+
+/* left focus icon container (circle) */
+.focus-left {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.focus-icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    /* background: #014D72; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(30, 167, 246, 0.12);
+}
+
+/* right side of focus box */
+.focus-right h4{
+    flex-shrink: 0;
+    font-size: 24px;
+}
+
+.focus-label {
+    font-size: 0.95rem;
+    color: #3b3b3b;
+    margin-bottom: 0.5rem;
+}
+
+/* value row */
+.focus-value-row {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    margin-top: 10px;
+}
+
+.focus-value {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    flex-shrink: 0;
+    /* padding-bottom: 1rem; */
+}
+
+.focus-text {
+    margin: 0;
+    color: #292C39;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* responsive tweaks */
+@media (max-width: 640px) {
+    .career-card {
+        padding: 1rem;
+    }
+
+    .icon-box {
+        left: 14px;
+        top: 14px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .icon-inner {
+        width: 38px;
+        height: 38px;
+    }
+
+    .career-card-content {
+        padding-left: 70px;
+    }
+
+    .focus-icon-circle {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: stretch;
+    margin-top: 49px;
+}
+
