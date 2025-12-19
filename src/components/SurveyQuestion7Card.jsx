@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { GrLinkNext, GrStatusWarningSmall } from "react-icons/gr";
 import { useDispatch } from "react-redux";
@@ -23,26 +23,41 @@ const SurveyQuestion7Card = ({
   setOverallAnswers,
   handleSubmit,
   isButtonLoading,
-  clusterData, // expected shape: [{ CareerClusters: "AI, Data...", CareerPathways: ["Pathway A", ...] }, ...]
+  clusterData, // expected shape: [{cluster:{name: string, number: number}, sub_clusters:{name:string, number:number}}]
 }) => {
   const dispatchToRedux = useDispatch();
-  const circleValues = [1, 2, 3, 4, 5, 6, 7, 8];
-
-  console.log(clusterData);
+  const circleValues = [1, 2, 3, 4, 5, 6, 7];
 
   // state
   const [selectedClusters, setSelectedClusters] = useState([]); // array of cluster names (string)
   const [selectedSubclusters, setSelectedSubclusters] = useState({}); // { clusterName: [sub1, sub2] }
   const [expandedCluster, setExpandedCluster] = useState(null);
 
+  const selectedClustersName = useMemo(
+    () => selectedClusters.map((cluster) => cluster.name),
+    [selectedClusters]
+  );
+  const selectedSubClustersName = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(selectedSubclusters).map(
+          ([clusterName, subclusters]) => [
+            clusterName,
+            subclusters.map((subcluster) => subcluster.name),
+          ]
+        )
+      ),
+    [selectedSubclusters]
+  );
+
   // helpers
   const MAX_CLUSTERS = 3;
   const MAX_SUBCLUSTERS_PER_CLUSTER = 2;
 
-  const toggleCluster = (clusterName) => {
+  const toggleCluster = (cluster) => {
     // toggle logic with validation
-    const alreadySelected = selectedClusters.includes(clusterName);
-    if (!alreadySelected && selectedClusters.length >= MAX_CLUSTERS) {
+    const alreadySelected = selectedClustersName.includes(cluster.name);
+    if (!alreadySelected && selectedClustersName.length >= MAX_CLUSTERS) {
       dispatchToRedux(
         notify({
           type: "warning",
@@ -56,22 +71,22 @@ const SurveyQuestion7Card = ({
     let newSubclusters = { ...selectedSubclusters };
 
     if (alreadySelected) {
-      newClusters = selectedClusters.filter((c) => c !== clusterName);
+      newClusters = selectedClusters.filter((c) => c.name !== cluster.name);
       // remove associated subclusters when cluster deselected
-      delete newSubclusters[clusterName];
+      delete newSubclusters[cluster.name];
       // if we collapsed the expanded cluster, close it
-      if (expandedCluster === clusterName) setExpandedCluster(null);
+      if (expandedCluster === cluster.name) setExpandedCluster(null);
     } else {
-      newClusters = [...selectedClusters, clusterName];
+      newClusters = [...selectedClusters, cluster];
     }
 
     setSelectedClusters(newClusters);
     setSelectedSubclusters(newSubclusters);
   };
 
-  const toggleSubcluster = (clusterName, subclusterName) => {
+  const toggleSubcluster = (clusterName, subcluster) => {
     // ensure cluster is selected first
-    if (!selectedClusters.includes(clusterName)) {
+    if (!selectedClustersName.includes(clusterName)) {
       dispatchToRedux(
         notify({
           type: "warning",
@@ -81,8 +96,8 @@ const SurveyQuestion7Card = ({
       return;
     }
 
-    const current = selectedSubclusters[clusterName] || [];
-    const already = current.includes(subclusterName);
+    const current = selectedSubClustersName[clusterName] || [];
+    const already = current.includes(subcluster.name);
 
     if (!already && current.length >= MAX_SUBCLUSTERS_PER_CLUSTER) {
       dispatchToRedux(
@@ -95,8 +110,8 @@ const SurveyQuestion7Card = ({
     }
 
     const newForCluster = already
-      ? current.filter((s) => s !== subclusterName)
-      : [...current, subclusterName];
+      ? selectedSubclusters[clusterName].filter((s) => s.name !== subcluster.name)
+      : [...(selectedSubclusters[clusterName] ?? []), subcluster];
     setSelectedSubclusters({
       ...selectedSubclusters,
       [clusterName]: newForCluster,
@@ -170,9 +185,8 @@ const SurveyQuestion7Card = ({
   // we assume clusterData is an array of objects with `CareerClusters` and `CareerPathways`.
   // We'll coerce to a structure: [{ clusterName, pathways: [...] }, ...]
   const clusters = (clusterData || []).map((c) => ({
-    // clusterName: c.CareerClusters || c.clusterName || "Unnamed Cluster",
-    clusterName: c.CareerClusters || c.value || "Unnamed Cluster",
-    pathways: Array.isArray(c.CareerPathways) ? c.CareerPathways : [],
+    cluster: c.cluster,
+    pathways: Array.isArray(c.sub_clusters) ? c.sub_clusters : [],
   }));
 
   return (
@@ -207,34 +221,34 @@ const SurveyQuestion7Card = ({
           {/* options container is scrollable */}
           <div className={styles.optionsContainer}>
             <div className={styles.clusterList}>
-              {clusters.map(({ clusterName, pathways }) => {
-                const isChecked = selectedClusters.includes(clusterName);
-                const isExpanded = expandedCluster === clusterName;
-                const chosenPaths = selectedSubclusters[clusterName] || [];
-                // console.log("clusters", clusters);
+              {clusters.map(({ cluster, pathways }) => {
+                const isChecked = selectedClustersName.includes(cluster.name);
+                const isExpanded = expandedCluster === cluster.name;
+                const chosenPaths = selectedSubClustersName[cluster.name] || [];
+
                 return (
-                  <div key={clusterName} className={styles.clusterRow}>
+                  <div key={cluster.name} className={styles.clusterRow}>
                     <div className={styles.clusterRowMain}>
                       <label className={styles.checkboxLabel}>
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => {
-                            toggleCluster(clusterName);
-                            // setExpandedCluster(isExpanded ? null : clusterName);
+                            toggleCluster(cluster);
+                            // setExpandedCluster(isExpanded ? null : cluster.name);
                           }}
                           className={styles.checkbox}
                         />
                         <span className={styles.clusterTitle}>
-                          {clusterName}
+                          {cluster.name}
                         </span>
                       </label>
 
                       <button
                         className={styles.expandButton}
                         onClick={() => {
-                          // toggleCluster(clusterName);
-                          setExpandedCluster(isExpanded ? null : clusterName);
+                          // toggleCluster(cluster.name);
+                          setExpandedCluster(isExpanded ? null : cluster.name);
                         }}
                         aria-expanded={isExpanded}
                       >
@@ -256,20 +270,20 @@ const SurveyQuestion7Card = ({
                           </div>
                         ) : (
                           pathways.map((p) => {
-                            const pathChecked = chosenPaths.includes(p);
+                            const pathChecked = chosenPaths.includes(p.name);
                             return (
-                              <label key={p} className={styles.subclusterRow}>
+                              <label key={p.name} className={styles.subclusterRow}>
                                 <input
                                   type="checkbox"
                                   checked={pathChecked}
                                   onChange={() =>
-                                    toggleSubcluster(clusterName, p)
+                                    toggleSubcluster(cluster.name, p)
                                   }
                                   disabled={!isChecked}
                                   className={styles.checkbox}
                                 />
                                 <span className={styles.subclusterText}>
-                                  {p}
+                                  {p.name}
                                 </span>
                               </label>
                             );

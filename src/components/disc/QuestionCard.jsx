@@ -10,6 +10,418 @@ import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
 import { saveDiscAnswers } from "../../redux/slices/discSlice.js";
 import { getUnifiedRecordData, selectUnifiedRecord } from "../../redux/slices/unifiedRecordSlice.js";
 
+const IS_LOCAL = import.meta.env.VITE_REACT_APP_IS_LOCAL === "true";
+const partBAnswers = [
+  {
+    questionNumber: "1",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "I",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "2",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "I",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "S",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "3",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "C",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "4",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "S",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "I",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "5",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "C",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "6",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "I",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "7",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "B",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "S",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "8",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "C",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "D",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "9",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "I",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "C",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "10",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "S",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "11",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "C",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "D",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "12",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "S",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "13",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "B",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "I",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "14",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "I",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "15",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "I",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "16",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "C",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "D",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "17",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "I",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "S",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "18",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "I",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "D",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "19",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "I",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "S",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "20",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "S",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "21",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "22",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "23",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "S",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "B",
+        },
+      },
+    ],
+  },
+  {
+    questionNumber: "24",
+    questionAns: [
+      {
+        statementNumber: 3,
+        statementAns: {
+          least: "D",
+        },
+      },
+      {
+        statementNumber: 4,
+        statementAns: {
+          most: "C",
+        },
+      },
+    ],
+  },
+];
+
 const QuestionCard = ({
   questionNumber,
   totalQuestions,
@@ -98,7 +510,13 @@ const QuestionCard = ({
     if (allAnswersSelected) {
       try {
         setIsButtonLoading(true);
-        await dispatchToRedux(saveDiscAnswers({ userId, token, answers: updatedOverallAnswers }));
+        await dispatchToRedux(
+          saveDiscAnswers({
+            userId,
+            token,
+            answers: IS_LOCAL ? partBAnswers : updatedOverallAnswers,
+          })
+        );
         setIsButtonLoading(false);
         navigate("/survey");
       } catch (error) {
