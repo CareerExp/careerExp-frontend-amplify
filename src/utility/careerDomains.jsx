@@ -264,7 +264,7 @@ export const careerDomains = [
       "Curious about how things are made, how machines work or how factories are becoming smarter? Here you’ll find careers that blend hands‑on making with robotics, automation and digital tech.",
     focus: "95%",
     focusText:
-      "Exceptional demand driven by digital transformation and AI adoption.",
+      "High demand from automation, reshoring and advanced manufacturing investments.",
   },
   {
     icon: (
