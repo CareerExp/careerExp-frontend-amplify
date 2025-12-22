@@ -91,7 +91,7 @@
 /* left focus icon container (circle) */
 .focus-left {
     display: flex;
-    gap: 1rem;
+    gap: 24px;
     align-items: center;
 }
 
@@ -123,7 +123,7 @@
 .focus-value-row {
     display: flex;
     align-items: start;
-    gap: 1rem;
+    gap: 12px;
     margin-top: 10px;
 }
 
