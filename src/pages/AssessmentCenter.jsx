@@ -172,7 +172,10 @@ const AssessmentCenter = () => {
               />
             ))}
           </div>
-          <div style={{ width: "625px", marginTop: "24px" }}>
+          <div
+            className="careerDomainSingle"
+            // style={{ width: "625px", marginTop: "24px" }}
+          >
             <CareerDomainCard
               icon={careerDomains[8].icon}
               gradient={careerDomains[8].gradient}
