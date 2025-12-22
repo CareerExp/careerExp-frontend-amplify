@@ -110,7 +110,10 @@ const AssessmentCenter = () => {
         >
           <h2>Our Assessments</h2>
         </section>
-        <section className={assessmentStyle["main"]}>
+        <section
+          className={assessmentStyle["main"]}
+          // style={{ maxWidth: "1440px", margin: "auto", marginTop: "5rem" }}
+        >
           <div className={assessmentStyle["left"]}>
             <img src={domainImage} alt="hero Image" />
           </div>
@@ -158,7 +161,10 @@ const AssessmentCenter = () => {
             </button>
           </div>
         </section>
-        <section className={assessmentStyle["domain"]}>
+        <section
+          className={assessmentStyle["domain"]}
+          // style={{ maxWidth: "1440px", margin: "auto", marginTop: "5rem" }}
+        >
           <h3>Career Domains Explained</h3>
           <div className="cardsGrid">
             {careerDomains.slice(0, 8).map((cd, i) => (
@@ -172,10 +178,7 @@ const AssessmentCenter = () => {
               />
             ))}
           </div>
-          <div
-            className="careerDomainSingle"
-            // style={{ width: "625px", marginTop: "24px" }}
-          >
+          <div className="careerDomainSingle">
             <CareerDomainCard
               icon={careerDomains[8].icon}
               gradient={careerDomains[8].gradient}
@@ -201,7 +204,10 @@ const AssessmentCenter = () => {
             </span>
           </button>
         </section>
-        <section className={assessmentStyle["assessment-format"]}>
+        <section
+          className={assessmentStyle["assessment-format"]}
+          // style={{ maxWidth: "1440px", margin: "auto", marginTop: "5rem" }}
+        >
           <h3>Assessment Format</h3>
           <p>
             The Assessment is in 2 parts - Part A and Part B. Part A has 30
@@ -218,7 +224,10 @@ const AssessmentCenter = () => {
             {cardItems.map(({ heading, content }, index) => (
               <li
                 key={index}
-                style={{ backgroundImage: `url(${assessmentCardBg})` }}
+                style={{
+                  backgroundImage: `url(${assessmentCardBg})`,
+                  backgroundSize: "cover",
+                }}
               >
                 <h5>{heading}</h5>
                 <p>{content}</p>

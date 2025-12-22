@@ -146,7 +146,21 @@ const CareerDomainCard = ({
 
                     <div className="icon-container">
                       {+focus.split("%")[0] > 90 ? (
-                        renderIcon(focusIcon, <DefaultFocusIcon />)
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="size-[18px]"
+                        >
+                          <path d="M16 7h6v6" />
+                          <path d="m22 7-8.5 8.5-5-5L2 17" />
+                        </svg>
                       ) : (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -176,7 +190,9 @@ const CareerDomainCard = ({
             <div className="focus-right">
               <div className="focus-value-row">
                 <h4 className="focus-value">{focus}</h4>
-                <p className="focus-text">{focusText}</p>
+                <p className="focus-text" style={{ color: "#292C39" }}>
+                  {focusText}
+                </p>
               </div>
             </div>
           </div>
