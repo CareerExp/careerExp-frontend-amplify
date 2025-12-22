@@ -9,6 +9,7 @@
   border-bottom-left-radius: 2rem;
   border-bottom-right-radius: 2rem;
 }
+
 .header h2 {
   position: absolute;
   bottom: 3rem;
@@ -18,35 +19,52 @@
   color: white;
   font-weight: 900;
 }
+
 /* main */
 .main {
   margin: 5rem;
   display: flex;
   gap: 5rem;
 }
+
 .right h3 {
-  margin: 1rem 0;
+  margin: 20px 0;
   font-size: 3.1rem;
+  line-height: 55px;
+  color: #101010;
   /* border: 1px solid black; */
 }
+
 .right h4 {
-  margin: 1rem 0;
+  margin: 20px 0;
   font-size: 16px;
   color: #FF8A00;
+  text-align: center;
 }
+
+/* Tablet & Desktop */
+@media (min-width: 768px) {
+  .right h4 {
+    text-align: left;
+  }
+}
+
 .right p {
   /* font-size: 0.9375rem; */
   /* font-weight: 100; */
   font-size: 16px;
 }
-.right h3 + p {
-  color: gray;
+
+.right h3+p {
+  color: #787876;
 }
+
 .right span,
 .right b {
   display: block;
   margin: 1rem 0;
 }
+
 /* assessment format */
 .assessment-format {
   display: flex;
@@ -55,28 +73,34 @@
   margin-top: 1rem;
   margin-bottom: 5rem;
 }
+
 .assessment-format h3 {
   font-size: 3.1rem;
 }
-.assessment-format > p {
+
+.assessment-format>p {
   text-align: center;
   margin: 1rem 5rem 0;
 }
+
 .assessment-format p {
   font-size: 1.1rem;
   color: gray;
 }
+
 .good-to-know {
   margin: 2rem 5rem;
   display: flex;
   gap: 1.2rem;
   align-items: center;
 }
+
 .good-to-know div {
   width: 10rem;
   height: 1.3rem;
   background-image: linear-gradient(to right, #bf2f7500, #bf2f75);
 }
+
 .good-to-know div:last-child {
   transform: rotate(180deg);
 }
@@ -98,6 +122,7 @@
   justify-content: center;
   margin-bottom: 2rem;
 }
+
 .cardsList li {
   background-repeat: no-repeat;
   width: 30%;
@@ -105,11 +130,13 @@
   list-style: none;
   border-radius: 1.2rem;
 }
-.cardsList li > h5 {
+
+.cardsList li>h5 {
   color: #bf2f75;
   text-align: center;
   font-size: 1.1rem;
 }
+
 .cardsList li p {
   margin-top: 1rem;
   text-align: center;
@@ -119,7 +146,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 8rem;
+  margin: 1rem;
+  /* line-height: 55px; */
+}
+.domain h3{
+  line-height: 55px;
+}
+
+/* Tablet & Desktop */
+@media (min-width: 768px) {
+  .domain {
+    margin: 8rem;
+  }
 }
 
 .domain h3 {
@@ -136,61 +174,78 @@
   color: gray;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 600px) {
   .header {
     width: 100%;
   }
+
   .header h2 {
     font-size: 2rem;
     text-align: center;
     width: 100%;
   }
+
   .main {
     flex-direction: column;
     margin: 1rem;
+    gap: 1rem;
   }
+
   .main .left {
     width: 100%;
   }
+
   .main .left img {
     width: 100%;
   }
+
   .main .right {
     width: 100%;
   }
-  .main .right > p {
+
+  .main .right>p {
     text-align: center;
   }
+
   .main .right h3,
   .assessment-format h3 {
     font-size: 2.3rem;
     text-align: center;
   }
+
   .right button {
     margin: auto;
   }
+
   .assessment-format {
     margin: 4rem 1rem;
   }
+
   .assessment-format p {
     margin: 2rem 0;
   }
+
   .domain {
     margin: 4rem 1rem;
   }
+
   .domain p {
     margin: 2rem 0;
   }
+
   .good-to-know {
     width: 100%;
   }
+
   .good-to-know h4 {
     font-size: 1.5rem;
     text-wrap: nowrap;
   }
+
   .cardsList {
     flex-direction: column;
   }
+
   .cardsList li {
     width: 100%;
   }
