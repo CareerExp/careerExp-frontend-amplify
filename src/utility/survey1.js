@@ -18,7 +18,7 @@ const gradePoints = [
   { grade: "(C to B-) GPA of 2.0 to 2.4" },
   { grade: "(C- to C) GPA of 1.5 to 1.9" },
   { grade: "(D to C-) GPA of 1.0 to 1.4" },
-  { grade: "(D- to D) GPA of 09 and below" },
+  { grade: "(D- to D) GPA of 0.9 and below" },
 ];
 
 const nextCareer = [

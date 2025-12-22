@@ -5,9 +5,47 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { background, interestHero, interestLogo } from "../../assets/assest.js";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
-import { getQuestions, getResultAndJob, selectOnet } from "../../redux/slices/onetSlice.js";
+import {
+  getQuestions,
+  getResultAndJob,
+  selectOnet,
+} from "../../redux/slices/onetSlice.js";
 import globalStyle from "./Common.module.css";
 import InterestQuestionCard from "./InterestQuestionCard.jsx";
+
+const IS_LOCAL = import.meta.env.VITE_REACT_APP_IS_LOCAL === "true";
+const partAAnswers = [
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "3",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "4",
+  "3",
+];
 
 const styles = {
   containerStyle: {
@@ -71,11 +109,13 @@ export default function InterestProfiler() {
   const handleChooseOption = async () => {
     try {
       setLoading(true);
-      await dispatchToRedux(getQuestions({ resource: "questions_30", start: 1, end: 60, token }));
+      await dispatchToRedux(
+        getQuestions({ resource: "questions_30", start: 1, end: 60, token })
+      );
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -105,6 +145,11 @@ export default function InterestProfiler() {
   };
 
   const handleSubmitButton = async (answers = overallAnswers) => {
+    if (IS_LOCAL) {
+      answers = [...partAAnswers];
+    }
+
+    
     const finalAnswer = answers[answers.length - 1];
     if (finalAnswer === "?") {
       console.log("Please select an answer for the last question.");
@@ -113,7 +158,9 @@ export default function InterestProfiler() {
 
     try {
       setIsButtonLoading(true);
-      await dispatchToRedux(getResultAndJob({ answers: answers.join(""), token, userId }));
+      await dispatchToRedux(
+        getResultAndJob({ answers: answers.join(""), token, userId })
+      );
       navigate("/disc");
       setIsButtonLoading(false);
     } catch (error) {
@@ -154,7 +201,14 @@ export default function InterestProfiler() {
             </div>
           </Link>
           {loading ? (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "50vh",
+              }}
+            >
               <CircularProgress color="inherit" />
             </div>
           ) : (
@@ -162,11 +216,17 @@ export default function InterestProfiler() {
               <InterestQuestionCard
                 questionNumber={currentQuestionIndex + 1}
                 // questionStatment={onet?.questions[currentQuestionIndex]["text"]}
-                questionStatment={getReplacedQuestionText(currentQuestionIndex + 1)}
+                questionStatment={getReplacedQuestionText(
+                  currentQuestionIndex + 1
+                )}
                 totalQuestions={onet?.questions?.length}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
-                isLastQuestion={currentQuestionIndex === onet?.questions?.length - 1}
+                isLastQuestion={
+                  IS_LOCAL
+                    ? true
+                    : currentQuestionIndex === onet?.questions?.length - 1
+                }
                 isFirstQuestion={currentQuestionIndex === 0}
                 overallAnswers={overallAnswers}
                 setOverallAnswers={setOverallAnswers}

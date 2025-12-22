@@ -23,6 +23,80 @@ import {
 import globalStyle from "../styles/Questions.module.css";
 import { surveyQuesAns } from "../utility/surveyQuesAns.js";
 
+const IS_LOCAL = import.meta.env.VITE_REACT_APP_IS_LOCAL === "true";
+const partCAnswers = [
+  {
+    educationLevel: "Further or Higher Education, Year 4",
+  },
+  {
+    gradePoints: "(A- to A) GPA of 3.5 or above",
+  },
+  {
+    nextCareerStep: "Corporate job",
+  },
+  {
+    preferredLocation: ["India"],
+  },
+  {
+    top3thingsForFuture: [
+      "Academic ranking and reputation",
+      "Flexibility of delivery (online, classroom, hybrid learning)",
+      "Career preparation",
+    ],
+  },
+  {
+    nationality: "India",
+  },
+  {
+    mostAppealingField: [
+      {
+        name: "AI, Data Science & Machine Learning",
+        code: 1,
+      },
+      {
+        name: "Cybersecurity & Digital Forensics",
+        code: 2,
+      },
+      {
+        name: "Cloud Computing & Infrastructure",
+        code: 3,
+      },
+    ],
+    mostAppealingFieldSubclusters: {
+      "AI, Data Science & Machine Learning": [
+        {
+          name: "Data Analysis & Analytics",
+          code: 1.1,
+        },
+        {
+          name: "Machine Learning & AI",
+          code: 1.2,
+        },
+      ],
+      "Cybersecurity & Digital Forensics": [
+        {
+          name: "Security Operations & Support",
+          code: 2.1,
+        },
+        {
+          name: "Information Security & Threat Analysis",
+          code: 2.2,
+        },
+      ],
+      "Cloud Computing & Infrastructure": [
+        {
+          name: "Cloud Support & Help Desk",
+          code: 3.1,
+        },
+        {
+          name: "Systems & Infrastructure Administration",
+          code: 3.2,
+        },
+      ],
+    },
+  },
+];
+
 const SurveyPage = () => {
   const dispatchToRedux = useDispatch();
   const navigate = useNavigate();
@@ -45,10 +119,19 @@ const SurveyPage = () => {
   }, [userId]);
 
   const handleSubmit = async (updatedOverallAnswer) => {
+    if (IS_LOCAL) {
+      updatedOverallAnswer = partCAnswers;
+    }
     try {
       const answers = updatedOverallAnswer.reduce((acc, answer) => {
         return { ...acc, ...answer };
       }, {});
+      answers.selectedPathways = Object.values(
+        answers.mostAppealingFieldSubclusters
+      ).reduce((acc, subcluster) => {
+        return [...acc, ...subcluster];
+      }, []);
+      delete answers.mostAppealingFieldSubclusters;
 
       setIsButtonLoading(true);
       const resultAction = await dispatchToRedux(
@@ -110,7 +193,6 @@ const SurveyPage = () => {
           key: "selectedPathways",
           isMutiple: true,
           options: optionSelected?.map((option) => {
-            console.log(clusterData.find((el) => el.CareerClusters === option));
             return {
               label: option,
               options:
@@ -187,7 +269,11 @@ const SurveyPage = () => {
                   totalQuestions={questions.length}
                   onNext={handleNext}
                   onPrevious={handlePrevious}
-                  isLastQuestion={currentQuestionIndex === questions.length - 1}
+                  isLastQuestion={
+                    IS_LOCAL
+                      ? true
+                      : currentQuestionIndex === questions.length - 1
+                  }
                   isFirstQuestion={currentQuestionIndex === 0}
                   overallAnswers={overallAnswers}
                   setOverallAnswers={setOverallAnswers}
@@ -206,7 +292,11 @@ const SurveyPage = () => {
                   totalQuestions={questions.length}
                   onNext={handleNext}
                   onPrevious={handlePrevious}
-                  isLastQuestion={currentQuestionIndex === questions.length - 1}
+                  isLastQuestion={
+                    IS_LOCAL
+                      ? true
+                      : currentQuestionIndex === questions.length - 1
+                  }
                   isFirstQuestion={currentQuestionIndex === 0}
                   overallAnswers={overallAnswers}
                   setOverallAnswers={setOverallAnswers}

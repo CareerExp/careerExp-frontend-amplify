@@ -62,8 +62,8 @@ const surveyQuesAns = [
         label: "(D to C-) GPA of 1.0 to 1.4",
       },
       {
-        value: "(D- to D) GPA of 09 and below",
-        label: "(D- to D) GPA of 09 and below",
+        value: "(D- to D) GPA of 0.9 and below",
+        label: "(D- to D) GPA of 0.9 and below",
       },
     ],
   },
@@ -674,57 +674,57 @@ const surveyQuesAns = [
       },
     ],
   },
-  {
-    question: "Fake",
-    key: "fake",
-    isMutiple: true,
-    options: [
-      {
-        value: "Agriculture, Food & Natural Resources",
-        label: "Agriculture, Food & Natural Resources",
-      },
-      {
-        value: "Architecture & Construction",
-        label: "Architecture & Construction",
-      },
-      {
-        value: "Arts, Audio/Video Technology & Communications",
+  // {
+  //   question: "Fake",
+  //   key: "fake",
+  //   isMutiple: true,
+  //   options: [
+  //     {
+  //       value: "Agriculture, Food & Natural Resources",
+  //       label: "Agriculture, Food & Natural Resources",
+  //     },
+  //     {
+  //       value: "Architecture & Construction",
+  //       label: "Architecture & Construction",
+  //     },
+  //     {
+  //       value: "Arts, Audio/Video Technology & Communications",
 
-        label: "Arts, Audio/Video Technology & Communications",
-      },
-      {
-        value: "Business Management & Administration",
-        label: "Business Management & Administration",
-      },
-      { value: "Education & Training", label: "Education & Training" },
-      { value: "Finance", label: "Finance" },
-      {
-        value: "Government & Public Administration",
-        label: "Government & Public Administration",
-      },
-      { value: "Health Sciences", label: "Health Sciences" },
-      { value: "Hospitality & Tourism", label: "Hospitality & Tourism" },
-      {
-        value: "Human Services",
-        label: "Human Services",
-      },
-      { value: "Information Technology", label: "Information Technology" },
-      {
-        value: "Law, Public Safety, Corrections & Security",
-        label: "Law, Public Safety, Corrections & Security",
-      },
-      { value: "Manufacturing", label: "Manufacturing" },
-      { value: "Marketing", label: "Marketing" },
-      {
-        value: "Science, Technology, Engineering & Mathematics",
-        label: "Science, Technology, Engineering & Mathematics",
-      },
-      {
-        value: "Transportation, Distribution & Logistics",
-        label: "Transportation, Distribution & Logistics",
-      },
-    ],
-  },
+  //       label: "Arts, Audio/Video Technology & Communications",
+  //     },
+  //     {
+  //       value: "Business Management & Administration",
+  //       label: "Business Management & Administration",
+  //     },
+  //     { value: "Education & Training", label: "Education & Training" },
+  //     { value: "Finance", label: "Finance" },
+  //     {
+  //       value: "Government & Public Administration",
+  //       label: "Government & Public Administration",
+  //     },
+  //     { value: "Health Sciences", label: "Health Sciences" },
+  //     { value: "Hospitality & Tourism", label: "Hospitality & Tourism" },
+  //     {
+  //       value: "Human Services",
+  //       label: "Human Services",
+  //     },
+  //     { value: "Information Technology", label: "Information Technology" },
+  //     {
+  //       value: "Law, Public Safety, Corrections & Security",
+  //       label: "Law, Public Safety, Corrections & Security",
+  //     },
+  //     { value: "Manufacturing", label: "Manufacturing" },
+  //     { value: "Marketing", label: "Marketing" },
+  //     {
+  //       value: "Science, Technology, Engineering & Mathematics",
+  //       label: "Science, Technology, Engineering & Mathematics",
+  //     },
+  //     {
+  //       value: "Transportation, Distribution & Logistics",
+  //       label: "Transportation, Distribution & Logistics",
+  //     },
+  //   ],
+  // },
 ];
 
 export { surveyQuesAns };
