@@ -123,7 +123,7 @@
 .focus-value-row {
     display: flex;
     align-items: start;
-    gap: 1rem;
+    gap: 12px;
     margin-top: 10px;
 }
 
