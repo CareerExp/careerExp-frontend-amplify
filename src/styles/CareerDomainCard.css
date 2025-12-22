@@ -136,7 +136,7 @@
 }
 
 .focus-text {
-    margin: 0 !important;
+    margin: 5px !important;
     font-style: italic;
     font-size: 14px !important;
 }
@@ -189,7 +189,7 @@
     }
 
     .focus-text {
-        margin: 0 !important;
+        margin: 5px !important;
         font-style: italic;
         font-size: 14px !important;
     }
