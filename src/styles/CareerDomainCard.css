@@ -45,7 +45,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(176, 30, 255, 0.12);
+    box-shadow: 2px 8px 20px rgba(106, 103, 109, 0.25);
     flex-shrink: 0;
 }
 
@@ -60,7 +60,7 @@
 
 .title {
     font-size: 1.4rem;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
     color: #121212;
     padding-right: 4rem;
@@ -68,7 +68,7 @@
 
 /* description text */
 .desc {
-    color: #787876;
+    color: #787876 !important;
     font-size: 16px;
     margin-top: 16px;
     margin-bottom: 24px;
@@ -136,9 +136,9 @@
 }
 
 .focus-text {
-    margin: 0;
+    margin: 0 !important;
     font-style: italic;
-    font-size: 14px;
+    font-size: 14px !important;
 }
 
 /* responsive tweaks */
@@ -184,9 +184,15 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-           .career-card-content {
-               padding: 32px;
-           }
+    .career-card-content {
+        padding: 32px;
+    }
+
+    .focus-text {
+        margin: 0 !important;
+        font-style: italic;
+        font-size: 14px !important;
+    }
 }
 
 
