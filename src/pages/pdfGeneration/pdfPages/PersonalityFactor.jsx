@@ -21,7 +21,14 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
         >
           {/* Section Title */}
           <div style={{ textAlign: "left" }}>
-            <span style={{ fontSize: "24px", fontWeight: "bold", marginTop: "20px", color: "#FF8A00" }}>
+            <span
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                marginTop: "20px",
+                color: "#FF8A00",
+              }}
+            >
               Section 3
             </span>
           </div>
@@ -41,14 +48,17 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
           {/* Description */}
           <div style={{ marginBottom: "15px" }}>
             <span style={{ display: "block", lineHeight: "1.5" }}>
-              Success in your career will come with making the right personal choices along with focus and
-              perseverance. The next stage of our analysis is to look at the strengths that you bring with
-              your natural personality and how these interface with career pathways based on your Interests
-              and educational achievements.
+              Success in your career will come with making the right personal
+              choices along with focus and perseverance. The next stage of our
+              analysis is to look at the strengths that you bring with your
+              natural personality and how these interface with career pathways
+              based on your Interests and educational achievements.
               <br /> <br />
-              We have identified 20 career pathways that you should seriously consider. For each of these we
-              have analysed how your natural personality aligns with each one. This is represented on a 5 star
-              scale. The stronger the fit the more likely you are likely to be successful in that career.
+              We have identified 20 career pathways that you should seriously
+              consider. For each of these we have analysed how your natural
+              personality aligns with each one. This is represented on a 5 star
+              scale. The stronger the fit the more likely you are likely to be
+              successful in that career.
             </span>
           </div>
 
@@ -61,80 +71,95 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               gap: "20px",
             }}
           >
-            {interestProfileData?.careers?.career.slice(0, 8).map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  marginBottom: "10px",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e0e0e0",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.1)",
-                }}
-              >
+            {interestProfileData?.careers?.career
+              .slice(0, 8)
+              .map((item, index) => (
                 <div
+                  key={index}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
-                    marginBottom: "5px",
+                    marginBottom: "10px",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e0e0e0",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <p
-                    style={{
-                      fontWeight: "bold",
-                      color: "black",
-                      fontSize: "16px",
-                      width: "90%",
-                      margin: "0",
-                      padding: "0",
-                    }}
-                  >
-                    {item.title}
-                  </p>
                   <div
                     style={{
-                      backgroundColor: "#bf2f75",
-                      height: "24px",
-                      width: "24px",
                       display: "flex",
-                      justifyContent: "center",
+                      justifyContent: "space-between",
                       alignItems: "center",
-                      color: "white",
-                      borderRadius: "50%",
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      flexShrink: 0,
+                      width: "100%",
+                      marginBottom: "5px",
                     }}
                   >
-                    P
+                    <p
+                      style={{
+                        fontWeight: "bold",
+                        color: "black",
+                        fontSize: "16px",
+                        width: "90%",
+                        margin: "0",
+                        padding: "0",
+                      }}
+                    >
+                      {item.title}
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      alignItems: "center",
+                      padding: "5px 0",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "gray",
+                        fontWeight: 500,
+                        margin: "0",
+                        padding: "0",
+                      }}
+                    >
+                      {item?.fit === "Best" ? "Good" : item?.fit} Fit
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          backgroundColor: "#bf2f75",
+                          height: "24px",
+                          width: "24px",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          color: "white",
+                          borderRadius: "50%",
+                          fontWeight: "bold",
+                          fontSize: "14px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        P
+                      </div>
+                      <Rating
+                        value={item?.match_score}
+                        readOnly
+                        size="small"
+                        style={{ fontSize: "1.2rem" }}
+                      />
+                    </div>
                   </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    alignItems: "center",
-                    padding: "5px 0",
-                  }}
-                >
-                  <p
-                    style={{
-                      color: "gray",
-                      fontWeight: 500,
-                      margin: "0",
-                      padding: "0",
-                    }}
-                  >
-                    {item?.fit === "Best" ? "Good" : item?.fit} Fit
-                  </p>
-                  <Rating value={item?.match_score} readOnly size="small" style={{ fontSize: "1.2rem" }} />
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </NewPage>
@@ -158,80 +183,87 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               gap: "20px",
             }}
           >
-            {interestProfileData?.careers?.career.slice(8).map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  marginBottom: "10px",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e0e0e0",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.1)",
-                }}
-              >
+            {interestProfileData?.careers?.career
+              .slice(8)
+              .map((item, index) => (
                 <div
+                  key={index}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
-                    marginBottom: "5px",
+                    marginBottom: "10px",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e0e0e0",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <p
-                    style={{
-                      fontWeight: "bold",
-                      color: "black",
-                      fontSize: "16px",
-                      width: "90%",
-                      margin: "0",
-                      padding: "0",
-                    }}
-                  >
-                    {item.title}
-                  </p>
                   <div
                     style={{
-                      backgroundColor: "#bf2f75",
-                      height: "24px",
-                      width: "24px",
                       display: "flex",
-                      justifyContent: "center",
+                      justifyContent: "space-between",
                       alignItems: "center",
-                      color: "white",
-                      borderRadius: "50%",
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      flexShrink: 0,
+                      width: "100%",
+                      marginBottom: "5px",
                     }}
                   >
-                    P
+                    <p
+                      style={{
+                        fontWeight: "bold",
+                        color: "black",
+                        fontSize: "16px",
+                        width: "90%",
+                        margin: "0",
+                        padding: "0",
+                      }}
+                    >
+                      {item.title}
+                    </p>
+                    <div
+                      style={{
+                        backgroundColor: "#bf2f75",
+                        height: "24px",
+                        width: "24px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        color: "white",
+                        borderRadius: "50%",
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      P
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      alignItems: "center",
+                      padding: "5px 0",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "gray",
+                        fontWeight: 500,
+                        margin: "0",
+                        padding: "0",
+                      }}
+                    >
+                      {item?.fit === "Best" ? "Good" : item?.fit} Fit
+                    </p>
+                    <Rating
+                      value={item?.match_score}
+                      readOnly
+                      size="small"
+                      style={{ fontSize: "1.2rem" }}
+                    />
                   </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    alignItems: "center",
-                    padding: "5px 0",
-                  }}
-                >
-                  <p
-                    style={{
-                      color: "gray",
-                      fontWeight: 500,
-                      margin: "0",
-                      padding: "0",
-                    }}
-                  >
-                    {item?.fit === "Best" ? "Good" : item?.fit} Fit
-                  </p>
-                  <Rating value={item?.match_score} readOnly size="small" style={{ fontSize: "1.2rem" }} />
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </NewPage>
@@ -259,12 +291,19 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
           </span>
           <div style={{ marginBottom: "15px" }}>
             <span style={{ display: "block", lineHeight: "1.5" }}>
-              {getFirstName(fullName)} for each of the identified career pathways we have also analysed how
-              well these fit with your current interests, educational preferences and aspirations. There are 3
-              levels we have assigned to each career pathway:
+              {getFirstName(fullName)} for each of the identified career
+              pathways we have also analysed how well these fit with your
+              current interests, educational preferences and aspirations. There
+              are 3 levels we have assigned to each career pathway:
             </span>
 
-            <ul style={{ listStyleType: "disc", paddingLeft: "40px", margin: "15px 0" }}>
+            <ul
+              style={{
+                listStyleType: "disc",
+                paddingLeft: "40px",
+                margin: "15px 0",
+              }}
+            >
               <li>Perfect fit </li>
               <li>Great fit </li>
               <li>Best fit </li>
@@ -283,11 +322,24 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               Detailed career pathways
             </span>
           </div>
-          <span style={{ display: "block", lineHeight: "1.5", marginBottom: "10px" }}>
-            For each career pathway that has been recommended for you there are 6 information sections that
-            you should read and make notes on what you like or don't like:
+          <span
+            style={{
+              display: "block",
+              lineHeight: "1.5",
+              marginBottom: "10px",
+            }}
+          >
+            For each career pathway that has been recommended for you there are
+            6 information sections that you should read and make notes on what
+            you like or don't like:
           </span>
-          <ul style={{ listStyleType: "disc", paddingLeft: "40px", margin: "15px 0" }}>
+          <ul
+            style={{
+              listStyleType: "disc",
+              paddingLeft: "40px",
+              margin: "15px 0",
+            }}
+          >
             <li>What people in these jobs do </li>
             <li>Knowledge required </li>
             <li>Skills required </li>
@@ -295,14 +347,17 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             <li>Personality type </li>
             <li>Technology competence </li>
           </ul>
-          <span style={{ display: "block", lineHeight: "1.5", margin: "15px 0" }}>
-            Academic requirements for each Career pathway are also identified along with relevant Colleges and
-            Universities that offer the relevant programmes in the countries selected in the Educational
+          <span
+            style={{ display: "block", lineHeight: "1.5", margin: "15px 0" }}
+          >
+            Academic requirements for each Career pathway are also identified
+            along with relevant Colleges and Universities that offer the
+            relevant programmes in the countries selected in the Educational
             survey.
           </span>
           <span style={{ display: "block", lineHeight: "1.5" }}>
-            {getFirstName(fullName)}, please use this as the starting point on your career discovery and
-            planning process.
+            {getFirstName(fullName)}, please use this as the starting point on
+            your career discovery and planning process.
           </span>
         </div>
         <div
@@ -327,11 +382,13 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
           </span>
           <div style={{ marginBottom: "15px" }}>
             <span style={{ display: "block", lineHeight: "1.5" }}>
-              You should not consider this as a closed or restricted list of careers. This is your starting
-              point to use to investigate and dig down to find the right space for you. As you progress your
-              education, the experiences and opportunities that become available to you will influence your
-              career choices. Be open to change and seek help and assistance form your counsellors and friends
-              and family to make your best choices.
+              You should not consider this as a closed or restricted list of
+              careers. This is your starting point to use to investigate and dig
+              down to find the right space for you. As you progress your
+              education, the experiences and opportunities that become available
+              to you will influence your career choices. Be open to change and
+              seek help and assistance form your counsellors and friends and
+              family to make your best choices.
             </span>
           </div>
           <span
@@ -347,8 +404,9 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
           </span>
           <div>
             <span style={{ display: "block", lineHeight: "1.5" }}>
-              Making the right career decisions needs careful analysis, investigation and reflection. As you
-              become more informed you will instinctively develop a sense of the direction that's right for
+              Making the right career decisions needs careful analysis,
+              investigation and reflection. As you become more informed you will
+              instinctively develop a sense of the direction that's right for
               you.
             </span>
           </div>
@@ -364,7 +422,13 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             textAlign: "left",
           }}
         >
-          <span style={{ display: "block", lineHeight: "1.5", marginBottom: "15px" }}>
+          <span
+            style={{
+              display: "block",
+              lineHeight: "1.5",
+              marginBottom: "15px",
+            }}
+          >
             We recommend a 3-step plan for you to work through:
           </span>
 
@@ -391,10 +455,12 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                     Network:
                   </td>
                   <td style={{ padding: "10px", lineHeight: "1.5" }}>
-                    Speak to people you know in those fields. Ask them about their career journeys, what they
-                    studied and how they got to their current job. What their aspirations are going forward.
-                    What challenges they see on the horizon. Of course, ask for their guidance on
-                    opportunities they can recommend in the field.
+                    Speak to people you know in those fields. Ask them about
+                    their career journeys, what they studied and how they got to
+                    their current job. What their aspirations are going forward.
+                    What challenges they see on the horizon. Of course, ask for
+                    their guidance on opportunities they can recommend in the
+                    field.
                   </td>
                 </tr>
 
@@ -411,10 +477,12 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                     Upskill:
                   </td>
                   <td style={{ padding: "10px", lineHeight: "1.5" }}>
-                    Register for and complete some micro-credential or certification programmes online in the
-                    fields that interest you most and are aligned to your selected career. CareerExplorer.me
-                    has created the 'Opportunity' section on its platform for you to see options to build
-                    knowledge and skills.
+                    Register for and complete some micro-credential or
+                    certification programmes online in the fields that interest
+                    you most and are aligned to your selected career.
+                    CareerExplorer.me has created the 'Opportunity' section on
+                    its platform for you to see options to build knowledge and
+                    skills.
                   </td>
                 </tr>
 
@@ -431,8 +499,9 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                     Build Experiences:
                   </td>
                   <td style={{ padding: "10px", lineHeight: "1.5" }}>
-                    Look into getting some work experience in your chosen fields. This can come in the form of
-                    holiday jobs, remote work projects, virtual internships, or apprenticeships.
+                    Look into getting some work experience in your chosen
+                    fields. This can come in the form of holiday jobs, remote
+                    work projects, virtual internships, or apprenticeships.
                   </td>
                 </tr>
               </tbody>
@@ -453,21 +522,26 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             </span>
             <div style={{ marginTop: "15px" }}>
               <span style={{ display: "block", lineHeight: "1.5" }}>
-                As time goes by and you continue in your education and build new experiences and skills, your
-                focus may change and you may want to look at alternative careers. This is very healthy and is
-                a sign of maturity. You are now evaluating different options and engaging your mind towards
-                new opportunities for you. You may now feel the need to re-assess yourself and check which
-                career pathways now constitute your best-fit.
+                As time goes by and you continue in your education and build new
+                experiences and skills, your focus may change and you may want
+                to look at alternative careers. This is very healthy and is a
+                sign of maturity. You are now evaluating different options and
+                engaging your mind towards new opportunities for you. You may
+                now feel the need to re-assess yourself and check which career
+                pathways now constitute your best-fit.
                 <br /> <br />
-                We are committed to helping you to achieve the success you deserve and so we provide 3
-                Assessment takes that you can do for the one-time fee that you have paid. We advise you to
-                spread your 3 attempts over one or two years to reflect the changes in your interests and
-                attitudes.
+                We are committed to helping you to achieve the success you
+                deserve and so we provide 3 Assessment takes that you can do for
+                the one-time fee that you have paid. We advise you to spread
+                your 3 attempts over one or two years to reflect the changes in
+                your interests and attitudes.
                 <br /> <br />
-                Once you feel ready to take the assessment again, login to your account on CareerExplorer.me,
-                go to 'My Assessments' in your personal workspace and hit the RE-ASSESS button to retake. All
-                your Career Direction Reports will be logged for you under 'My Assessments' for you to see
-                over a period of time, how your career thinking and planning has evolved.
+                Once you feel ready to take the assessment again, login to your
+                account on CareerExplorer.me, go to 'My Assessments' in your
+                personal workspace and hit the RE-ASSESS button to retake. All
+                your Career Direction Reports will be logged for you under 'My
+                Assessments' for you to see over a period of time, how your
+                career thinking and planning has evolved.
                 <br /> <br />
                 Good Luck!
               </span>

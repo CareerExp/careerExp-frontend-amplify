@@ -2,14 +2,29 @@ import React, { useEffect, useState } from "react";
 import { MdArrowOutward } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import "../styles/CareerDomainCard.css";
+import { careerDomains } from "../utility/careerDomains.jsx";
 
-import { assessmentCardBg, assessmentHeaderImg, assessmentHeroImg } from "../assets/assest.js";
+import {
+  assessmentCardBg,
+  assessmentHeaderImg,
+  assessmentHeroImg,
+  domainImage,
+} from "../assets/assest.js";
 import { notify } from "../redux/slices/alertSlice.js";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
-import { getUnifiedRecordData, selectUnifiedRecord } from "../redux/slices/unifiedRecordSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
+import {
+  getUnifiedRecordData,
+  selectUnifiedRecord,
+} from "../redux/slices/unifiedRecordSlice.js";
 import assessmentStyle from "../styles/AssessmentCenter.module.css";
 import commonStyle from "../styles/Common.module.css";
 import RechargeAssessmentModal from "../models/RechargeAssessmentModal.jsx";
+import CareerDomainCard from "../components/CareerDomainCard.jsx";
 
 const AssessmentCenter = () => {
   const navigate = useNavigate();
@@ -64,7 +79,10 @@ const AssessmentCenter = () => {
     }
 
     if (isAuthenticated) {
-      if (unifiedRecord?.combinedPayment.isPaid && unifiedRecord?.combinedPayment.remainingAttempts > 0) {
+      if (
+        unifiedRecord?.combinedPayment.isPaid &&
+        unifiedRecord?.combinedPayment.remainingAttempts > 0
+      ) {
         navigate("/interest-profiler");
       } else if (
         !unifiedRecord?.combinedPayment.isPaid &&
@@ -94,48 +112,101 @@ const AssessmentCenter = () => {
         </section>
         <section className={assessmentStyle["main"]}>
           <div className={assessmentStyle["left"]}>
-            <img src={assessmentHeroImg} alt="hero Image" />
+            <img src={domainImage} alt="hero Image" />
           </div>
           <div className={assessmentStyle["right"]}>
-            <h3>Assessment Center</h3>
+            <h4>Introduction</h4>
+            <h3>The Career Opportunity Framework 2025-35</h3>
             <p>
+              {/* <b>The Career Opportunity Framework 2025-35</b> */}
               <span>
-                We have developed our Career Assessment to give you insights to your strengths, interests and
-                personality. We combine the use of a broad range of tried and tested instruments with
-                Artificial Intelligence to provide you with targeted information on career pathways that are
-                most suited to your personality and which you are most likely to be successful in.
+                Your career plan is forward facing and looks to future
+                opportunities, some of which are known and some that are still
+                unfolding. Our Assessment centres around a unique Career
+                Opportunity Framework, where we take a 10 year view of where
+                employment and rewards can be found.
               </span>
               <span>
-                Use the downloadable Career Directions Report to have meaningful discussions with your friends
-                and family, then Explore further with selected Colleges and Universities to make the best
-                Educational and Career pathway decisions.
-              </span>
-              <span>
-                After completing all sections of the Assessment, you get a taster of your 3 Best-fit Career
-                Pathway options for free.
+                The Career Directions Report brings together your strengths,
+                interests and personality and maps these on the 9 Career Domains
+                to help you in your exploration journey. Share with your
+                Counsellor, friends and family to help you make the best
+                Educational and Career decisions.
               </span>
               <b>
-                The full Career Directions Report with online links and references is for the introductory
-                price of $49.
+                The full Career Directions Report with online links and
+                references is for the introductory price of $49.
               </b>
             </p>
             <button
               className={commonStyle["navButton"]}
-              style={{ height: "3rem", display: "flex", alignItems: "center" }}
+              style={{
+                height: "3rem",
+                display: "flex",
+                alignItems: "center",
+                marginTop: "1.5rem",
+              }}
               onClick={handleAssessmentClick}
             >
               Start Assessment
               <span style={{ marginLeft: "0.5rem" }}>
-                <MdArrowOutward size={"1.5rem"} />
+                <MdArrowOutward
+                  size={"1.5rem"}
+                  style={{ marginTop: "0.3rem" }}
+                />
               </span>
             </button>
           </div>
         </section>
+        <section className={assessmentStyle["domain"]}>
+          <h3>Career Domains Explained</h3>
+          <div className="cardsGrid">
+            {careerDomains.slice(0, 8).map((cd, i) => (
+              <CareerDomainCard
+                icon={cd.icon}
+                gradient={cd.gradient}
+                title={cd.title}
+                content={cd.content}
+                focus={cd.focus}
+                focusText={cd.focusText}
+              />
+            ))}
+          </div>
+          <div
+            className="careerDomainSingle"
+            // style={{ width: "625px", marginTop: "24px" }}
+          >
+            <CareerDomainCard
+              icon={careerDomains[8].icon}
+              gradient={careerDomains[8].gradient}
+              title={careerDomains[8].title}
+              content={careerDomains[8].content}
+              focus={careerDomains[8].focus}
+              focusText={careerDomains[8].focusText}
+            />
+          </div>
+          <button
+            className={commonStyle["navButton"]}
+            style={{
+              height: "3rem",
+              display: "flex",
+              alignItems: "center",
+              marginTop: "3rem",
+            }}
+            onClick={handleAssessmentClick}
+          >
+            Start Assessment
+            <span style={{ marginLeft: "0.5rem" }}>
+              <MdArrowOutward size={"1.5rem"} />
+            </span>
+          </button>
+        </section>
         <section className={assessmentStyle["assessment-format"]}>
           <h3>Assessment Format</h3>
           <p>
-            The Assessment is in 2 parts – Part A and Part B. Part A has 30 questions and Part B 24 questions,
-            After you complete Parts A and B there are a few more educational questions that allow us to fine
+            The Assessment is in 2 parts - Part A and Part B. Part A has 30
+            questions and Part B 24 questions, After you complete Parts A and B
+            there are a few more educational questions that allow us to fine
             tune your results.
           </p>
           <div className={assessmentStyle["good-to-know"]}>
@@ -145,20 +216,29 @@ const AssessmentCenter = () => {
           </div>
           <ul className={assessmentStyle["cardsList"]}>
             {cardItems.map(({ heading, content }, index) => (
-              <li key={index} style={{ backgroundImage: `url(${assessmentCardBg})` }}>
+              <li
+                key={index}
+                style={{ backgroundImage: `url(${assessmentCardBg})` }}
+              >
                 <h5>{heading}</h5>
                 <p>{content}</p>
               </li>
             ))}
           </ul>
-          <button className={commonStyle["navButton"]} onClick={handleAssessmentClick}>
+          <button
+            className={commonStyle["navButton"]}
+            onClick={handleAssessmentClick}
+          >
             Let's Go
             <span>
               <MdArrowOutward />
             </span>
           </button>
         </section>
-        <RechargeAssessmentModal open={openPaymentModal} onClose={handleCloseModal} />
+        <RechargeAssessmentModal
+          open={openPaymentModal}
+          onClose={handleCloseModal}
+        />
       </div>
     </>
   );

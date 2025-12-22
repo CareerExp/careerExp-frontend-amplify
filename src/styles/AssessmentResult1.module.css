@@ -144,8 +144,8 @@
   background-color: white;
   box-shadow: 0.5px 0.5px 10px gray;
   padding: 0.4rem;
-  display: flex;
-  justify-content: space-between;
+  /* display: flex;
+  justify-content: space-between; */
 }
 .bestMatchCard:active {
   border: 2px solid #720361;
@@ -177,8 +177,11 @@
 }
 .userAndRating {
   display: flex;
-  flex-direction: column;
-  align-items: end;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  /* flex-direction: column; */
+  /* align-items: end; */
 }
 
 .modalMessageContainer {
