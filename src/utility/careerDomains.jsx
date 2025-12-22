@@ -315,7 +315,7 @@ export const careerDomains = [
     content:
       "Enjoy maths, physics or technical challenges and want to build big, complex things? This domain covers engineering roles in buildings, transport, energy, aerospace, biomedical and more. Infrastructure and technology projects continue to grow.",
     focus: "82%",
-    focusText: "Steady high demand for analytical and advisory expertise.",
+    focusText: "Strong demand for skilled engineers across multiple sectors.",
   },
   {
     icon: (
