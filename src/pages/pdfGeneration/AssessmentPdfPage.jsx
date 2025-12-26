@@ -33,6 +33,7 @@ import { mergePdfs } from "./pdfUtility/mergePdf.js";
 import RenderTextWithLineBreaks from "./pdfUtility/RenderTextWithLineBreaks.jsx";
 import { splitTextIntoPages } from "./pdfUtility/splitTextIntoPages.js";
 import { top3Sphere } from "./pdfUtility/top3Sphere.js";
+import {raisecDefinitions} from "../../utility/raisecDefinitions.js";
 
 const AssessmentPdfPage = () => {
   const navigate = useNavigate();
@@ -332,7 +333,7 @@ const AssessmentPdfPage = () => {
   };
 
   // calculating character length
-  const maxCharsPerPage = 2265;
+  const maxCharsPerPage = 2225;
   const textPages = splitTextIntoPages(
     personalityInsight?.personality_insight || "",
     maxCharsPerPage
@@ -789,7 +790,7 @@ const AssessmentPdfPage = () => {
                         <div style={{ paddingTop: "30px" }}>
                           <ReactECharts
                             option={dynamicGraph(interestProfileData)}
-                            style={{ height: "400px", width: "100%" }}
+                            style={{ height: "340px", width: "100%" }}
                           />
                         </div>
                       </span>
@@ -814,6 +815,27 @@ const AssessmentPdfPage = () => {
                         </div>
                       </div>
                     </div>
+                    {interestProfileData?.results?.result?.slice(0,1)?.map(
+                      (sphere, index) => (
+                        <div key={index} style={{ marginBlock: "20px" }}>
+                          <div>
+                            <strong>
+                              Interest Sphere:{" "}
+                              <span
+                                style={{ color: "#720361", fontSize: "18px" }}
+                              >
+                                {sphere.area}
+                              </span>
+                            </strong>
+                          </div>
+                          <div>
+                            <strong>Score: {sphere.score}</strong>
+                          </div>
+                          <div>{raisecDefinitions[index]}</div>
+                          {/* <div>{sphere.description}</div> */}
+                        </div>
+                      )
+                    )}
                   </div>
                 </NewPage>
                 {/* Interest Sphere Scores */}
@@ -827,7 +849,7 @@ const AssessmentPdfPage = () => {
                     }}
                   >
                     <span>
-                      {interestProfileData?.results?.result?.map(
+                      {interestProfileData?.results?.result?.slice(1)?.map(
                         (sphere, index) => (
                           <div key={index} style={{ marginBottom: "20px" }}>
                             <div>
