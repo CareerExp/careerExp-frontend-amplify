@@ -262,9 +262,9 @@ export const careerDomains = [
     title: "Advanced Manufacturing & Industry 4.0",
     content:
       "Curious about how things are made, how machines work or how factories are becoming smarter? Here you’ll find careers that blend hands‑on making with robotics, automation and digital tech.",
-    focus: "95%",
+    focus: "85%",
     focusText:
-      "Exceptional demand driven by digital transformation and AI adoption.",
+      "High demand from automation, reshoring and advanced manufacturing investments.",
   },
   {
     icon: (
@@ -314,8 +314,8 @@ export const careerDomains = [
     title: "Advanced Engineering & Technical Specialisations",
     content:
       "Enjoy maths, physics or technical challenges and want to build big, complex things? This domain covers engineering roles in buildings, transport, energy, aerospace, biomedical and more. Infrastructure and technology projects continue to grow.",
-    focus: "82%",
-    focusText: "Steady high demand for analytical and advisory expertise.",
+    focus: "89%",
+    focusText: "Strong demand for skilled engineers across multiple sectors.",
   },
   {
     icon: (
