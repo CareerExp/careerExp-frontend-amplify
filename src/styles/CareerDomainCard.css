@@ -6,7 +6,7 @@
     position: relative;
     background: white;
     border-radius: 12px;
-    padding: 10px;
+    /* padding: 10px; */
     box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.08);
     overflow: visible;
 }
@@ -33,7 +33,6 @@
     top: 0;
     left: 0;
     height: 6px;
-    /* thickness */
     width: 100%;
     border-radius: 12px 12px 0 0;
     z-index: 1;
@@ -46,7 +45,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(176, 30, 255, 0.12);
+    box-shadow: 2px 8px 20px rgba(106, 103, 109, 0.25);
     flex-shrink: 0;
 }
 
@@ -61,7 +60,7 @@
 
 .title {
     font-size: 1.4rem;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
     color: #121212;
     padding-right: 4rem;
@@ -69,11 +68,11 @@
 
 /* description text */
 .desc {
-    color: gray;
-    font-size: 16px;
+    color: #787876 !important;
+    font-size: 16px !important;
     margin-top: 16px;
     margin-bottom: 24px;
-    line-height: 24px;
+    /* line-height: 24px; */
 }
 
 /* focus box */
@@ -92,7 +91,7 @@
 /* left focus icon container (circle) */
 .focus-left {
     display: flex;
-    gap: 1rem;
+    gap: 24px;
     align-items: center;
 }
 
@@ -110,36 +109,36 @@
 /* right side of focus box */
 .focus-right h4 {
     flex-shrink: 0;
-    font-size: 24px;
+    font-size: 28px;
 }
 
 .focus-label {
-    font-size: 0.95rem;
-    color: #3b3b3b;
-    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: black;
+    /* margin-bottom: 0.25rem; */
 }
 
 /* value row */
 .focus-value-row {
     display: flex;
     align-items: start;
-    gap: 1rem;
+    gap: 12px;
     margin-top: 10px;
 }
 
 .focus-value {
     margin: 0;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 500;
     flex-shrink: 0;
     /* padding-bottom: 1rem; */
 }
 
 .focus-text {
-    margin: 0;
-    color: #292C39;
+    margin: 5px !important;
     font-style: italic;
-    font-size: 14px;
+    font-size: 14px !important;
 }
 
 /* responsive tweaks */
@@ -168,6 +167,10 @@
         width: 40px;
         height: 40px;
     }
+
+    .title {
+        padding-right: 0;
+    }
 }
 
 .cardsGrid {
@@ -185,9 +188,15 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-           .career-card-content {
-               padding: 32px;
-           }
+    .career-card-content {
+        padding: 32px;
+    }
+
+    .focus-text {
+        margin: 5px !important;
+        font-style: italic;
+        font-size: 14px !important;
+    }
 }
 
 
@@ -205,24 +214,25 @@
 .ring {
     position: absolute;
     border-radius: 9999px;
-    background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
+    background: #f15b16;
+    /* background: linear-gradient(135deg, #f15b16 0%, #faa003 100%); */
 }
 
 .ring-ping {
     inset: -5px;
-    opacity: 0.2;
+    opacity: 0.6;
     animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 .ring-pulse-1 {
     inset: -4px;
-    opacity: 0.3;
+    opacity: 0.4;
     animation: pulse 2s ease-in-out infinite;
 }
 
 .ring-pulse-2 {
     inset: -3px;
-    opacity: 0.4;
+    opacity: 0.5;
     animation: pulse 2s ease-in-out infinite;
     animation-delay: 0.3s;
 }
@@ -232,7 +242,8 @@
     width: 22px;
     height: 22px;
     border-radius: 9999px;
-    background: linear-gradient(to bottom right, #f97316, #d97706);
+    background: #f15b16;
+    /* background: linear-gradient(to bottom right, #f15b16, #e47b02); */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -255,8 +266,8 @@
     position: absolute;
     inset: 0;
     border-radius: 9999px;
-    background: #ffffff;
-    opacity: 0.2;
+    background: #fe9b66;
+    opacity: 0.4;
     animation: pulse 3s ease-in-out infinite;
 }
 

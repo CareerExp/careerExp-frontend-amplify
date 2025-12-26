@@ -27,37 +27,52 @@ const getQuestions = createAsyncThunk("onet/getQuestions", async (payload) => {
   });
 });
 
-const getResultAndJob = createAsyncThunk("onet/getResultAndJob", async ({ answers, token, userId }) => {
-  return FetchApi.fetch(`${config.api}/api/onet/resultmatchingcareers`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ answers, userId }),
-  });
-});
+const getResultAndJob = createAsyncThunk(
+  "onet/getResultAndJob",
+  async ({ answers, token, userId }) => {
+    return FetchApi.fetch(`${config.api}/api/onet/resultmatchingcareers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ answers, userId }),
+    });
+  }
+);
 
-const getCareerByPrepration = createAsyncThunk("onet/getCareerByPrepration", async (payload) => {
-  return FetchApi.fetch(`${config.api}/api/onet/browsecareersortedbyjobpreparation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${payload.token}`,
-    },
-    body: JSON.stringify(payload),
-  });
-});
+const getCareerByPrepration = createAsyncThunk(
+  "onet/getCareerByPrepration",
+  async (payload) => {
+    return FetchApi.fetch(
+      `${config.api}/api/onet/browsecareersortedbyjobpreparation`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${payload.token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+  }
+);
 
-const getCareerInfo = createAsyncThunk("onet/getCareerInfo", async (payload) => {
-  return FetchApi.fetch(`${config.api}/api/onet/getcareerinfo/${payload.careercode}/${payload.topic}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${payload.token}`,
-    },
-  });
-});
+const getCareerInfo = createAsyncThunk(
+  "onet/getCareerInfo",
+  async (payload) => {
+    return FetchApi.fetch(
+      `${config.api}/api/onet/getcareerinfo/${payload.careercode}/${payload.topic}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${payload.token}`,
+        },
+      }
+    );
+  }
+);
 
 // const generateDeatiledDataOfCareers = createAsyncThunk(
 //   "onet/generateDeatiledDataOfCareers",
@@ -89,7 +104,6 @@ const generateDeatiledDataOfCareers = createAsyncThunk(
   }
 );
 
-
 const onetSlice = createSlice({
   name: "onet",
   initialState,
@@ -115,23 +129,31 @@ const onetSlice = createSlice({
     builder.addCase(getCareerInfo.fulfilled, (state, { payload }) => {
       state.careerInfo = payload;
     });
-
-    builder.addCase(generateDeatiledDataOfCareers.fulfilled, (state, { payload }) => {
-      // console.log("payload", payload);
-      state.detailedCareerData = payload?.totalData;
-      state.userName = payload?.fullname;
-      state.personalityInsight = payload?.userReportdata;
-      state.interestProfileData = payload?.interestProfileData;
+    builder.addCase(generateDeatiledDataOfCareers.rejected, (state) => {
+      console.log("testing");
     });
+
+    builder.addCase(
+      generateDeatiledDataOfCareers.fulfilled,
+      (state, { payload }) => {
+        console.log("payload", payload);
+        state.detailedCareerData = payload?.totalData;
+        state.userName = payload?.fullname;
+        state.personalityInsight = payload?.userReportdata;
+        state.interestProfileData = payload?.interestProfileData;
+      }
+    );
   },
 });
 
 const selectOnet = (state) => state.onet;
 const { saveAnswer } = onetSlice.actions;
-const selectDetailedCareerData = (state) => state.onet.detailedCareerData;
+const selectDetailedCareerData = (state) =>
+  state.interest.interestProfile.interestProfileDetails.careers.career;
 const selectFullName = (state) => state.onet.userName;
 const selectPersonalityInsight = (state) => state.onet.personalityInsight;
-const selectInterestProfileData = (state) => state.onet.interestProfileData;
+const selectInterestProfileData = (state) =>
+  state.interest.interestProfile.interestProfileDetails;
 export {
   selectOnet,
   selectDetailedCareerData,

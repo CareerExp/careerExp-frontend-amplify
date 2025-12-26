@@ -843,7 +843,8 @@ const AssessmentPdfPage = () => {
                             <div>
                               <strong>Score: {sphere.score}</strong>
                             </div>
-                            <div>{sphere.description}</div>
+                            <div>{raisecDefinitions[index]}</div>
+                            {/* <div>{sphere.description}</div> */}
                           </div>
                         )
                       )}

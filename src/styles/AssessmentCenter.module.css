@@ -28,13 +28,15 @@
 }
 
 .right h3 {
-  margin: 1rem 0;
-  font-size: 3.1rem;
+  margin: 20px 0;
+  font-size: 50px;
+  line-height: 55px;
+  color: #101010;
   /* border: 1px solid black; */
 }
 
 .right h4 {
-  margin: 1rem 0;
+  margin: 20px 0;
   font-size: 16px;
   color: #FF8A00;
   text-align: center;
@@ -45,7 +47,12 @@
   .right h4 {
     text-align: left;
   }
+
+    .right h3 {
+      line-height: 74px;
+    }
 }
+
 
 .right p {
   /* font-size: 0.9375rem; */
@@ -54,7 +61,7 @@
 }
 
 .right h3+p {
-  color: gray;
+  color: #787876;
 }
 
 .right span,
@@ -145,12 +152,17 @@
   flex-direction: column;
   align-items: center;
   margin: 1rem;
+  /* line-height: 55px; */
+}
+.domain h3{
+  line-height: 55px;
+  text-align: center;
 }
 
 /* Tablet & Desktop */
 @media (min-width: 768px) {
   .domain {
-    margin: 8rem;
+    margin: 5rem;
   }
 }
 
@@ -165,10 +177,10 @@
 
 .domain p {
   font-size: 1.1rem;
-  color: gray;
+  color: #787876;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 600px) {
   .header {
     width: 100%;
   }
@@ -182,6 +194,7 @@
   .main {
     flex-direction: column;
     margin: 1rem;
+    gap: 1rem;
   }
 
   .main .left {
@@ -202,7 +215,7 @@
 
   .main .right h3,
   .assessment-format h3 {
-    font-size: 2.3rem;
+    font-size: 3.1rem;
     text-align: center;
   }
 

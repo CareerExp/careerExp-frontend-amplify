@@ -212,7 +212,7 @@ export const careerDomains = [
         />
       </svg>
     ),
-    gradient: "#F49062 0%, #FD371F 100%",
+    gradient: "#47778E 0%, #014D72 100%",
     title: "Resilient Professional Services",
     content:
       "Like analysing information, solving business problems or working with money, law or strategy? This domain includes careers in finance, law, entrepreneurship, sales, consulting and HR. Professional services remain essential to economic growth.",
@@ -261,10 +261,10 @@ export const careerDomains = [
     gradient: "#00C6FB 0%, #005BEA 100%",
     title: "Advanced Manufacturing & Industry 4.0",
     content:
-      "Love solving problems with technology, data or digital tools? This domain covers the fast-growing roles that power AI, software, cyber security and the cloud. Careers here are shaping the next decade of innovation.",
-    focus: "95%",
+      "Curious about how things are made, how machines work or how factories are becoming smarter? Here you’ll find careers that blend hands‑on making with robotics, automation and digital tech.",
+    focus: "85%",
     focusText:
-      "Exceptional demand driven by digital transformation and AI adoption.",
+      "High demand from automation, reshoring and advanced manufacturing investments.",
   },
   {
     icon: (
@@ -313,9 +313,9 @@ export const careerDomains = [
     gradient: "#764BA2 0%, #667EEA 100%",
     title: "Advanced Engineering & Technical Specialisations",
     content:
-      "Like analysing information, solving business problems or working with money, law or strategy? This domain includes careers in finance, law, entrepreneurship, sales, consulting and HR. Professional services remain essential to economic growth.",
-    focus: "82%",
-    focusText: "Steady high demand for analytical and advisory expertise.",
+      "Enjoy maths, physics or technical challenges and want to build big, complex things? This domain covers engineering roles in buildings, transport, energy, aerospace, biomedical and more. Infrastructure and technology projects continue to grow.",
+    focus: "89%",
+    focusText: "Strong demand for skilled engineers across multiple sectors.",
   },
   {
     icon: (
