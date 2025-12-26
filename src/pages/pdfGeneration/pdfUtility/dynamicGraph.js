@@ -21,7 +21,7 @@ export const dynamicGraph = (interestProfileData) => {
       {
         name: "Nightingale Chart",
         type: "pie",
-        radius: [50, 200],
+        radius: [40, 150],
         center: ["50%", "50%"],
         roseType: "area",
         label: {

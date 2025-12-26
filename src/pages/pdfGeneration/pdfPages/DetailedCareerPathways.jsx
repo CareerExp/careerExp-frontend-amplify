@@ -1,10 +1,19 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import React from "react";
-import { highIndicator, lowIndicator, mediumIndicator } from "../../../assets/assest.js";
+import {
+  highIndicator,
+  lowIndicator,
+  mediumIndicator,
+} from "../../../assets/assest.js";
 import { fonts } from "../../../utility/fonts";
 import NewPage from "./NewPage";
 
-const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, pageNumber }) => {
+const DetailedCareerPathways = ({
+  key,
+  detailedCareerData,
+  interestProfileData,
+  pageNumber,
+}) => {
   const [primaryColor, secondaryColor] = ["#FF8A00", "#000"]; // Fallback colors
 
   return (
@@ -33,13 +42,18 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
               fontFamily: fonts.poppins,
             }}
           >
-            <span>{detailedCareerData?.career?.title}</span>
+            <span>{detailedCareerData?.title}</span>
           </div>
 
           {/* What They Do Section */}
           <div style={{ marginBottom: "10px" }}>
             <span
-              style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor, fontFamily: fonts.poppins }}
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+                fontFamily: fonts.poppins,
+              }}
             >
               What They Do:
             </span>
@@ -51,123 +65,155 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                 lineHeight: "1.4", // Tighter line height
               }}
             >
-              {detailedCareerData.career.what_they_do}
+              {detailedCareerData.what_they_do}
             </span>
           </div>
 
           {/* Knowledge Section */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>Knowledge:</span>
-            {detailedCareerData?.knowledge?.group?.map((el, i) => (
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
+              Knowledge:
+            </span>
+            {detailedCareerData?.knowledge?.map((kn, i) => (
               <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>
-                  • {el.title.name}:{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    color: secondaryColor,
+                  }}
+                >
+                  • {kn?.domain}:{" "}
                 </span>
-                {el.element.map((item, ind) => (
-                  <span
-                    key={ind}
-                    style={{
-                      paddingLeft: "0.5rem",
-                      textTransform: "capitalize",
-                      color: "#555",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item.name},
-                  </span>
-                ))}
+                <span>{kn.keys}</span>
               </div>
             ))}
           </div>
 
           {/* Skills Section */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>Skills:</span>
-            {detailedCareerData?.skills?.group?.map((el, i) => (
-              <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>
-                  • {el.title.name}:{" "}
-                </span>
-                {el.element.map((item, ind) => (
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
+              Skills:
+            </span>
+            {Object.entries(detailedCareerData?.skills)?.map(
+              ([cat, skills], i) => (
+                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
                   <span
-                    key={ind}
                     style={{
-                      paddingLeft: "0.5rem",
+                      fontWeight: "bold",
+                      fontSize: "14px",
                       textTransform: "capitalize",
-                      color: "#555",
-                      fontSize: "13px",
+                      color: secondaryColor,
                     }}
                   >
-                    {item.name},
+                    • {cat.split("_").join(" ")}:{" "}
                   </span>
-                ))}
-              </div>
-            ))}
+                  <span>{skills}</span>
+                </div>
+              )
+            )}
           </div>
 
           {/* Abilities Section */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>Abilities:</span>
-            {detailedCareerData?.abilities?.group?.map((el, i) => (
-              <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>
-                  • {el.title.name}:{" "}
-                </span>
-                {el.element.map((item, ind) => (
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
+              Abilities:
+            </span>
+            {Object.entries(detailedCareerData?.abilities)?.map(
+              ([cat, abilities], i) => (
+                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
                   <span
-                    key={ind}
                     style={{
-                      paddingLeft: "0.5rem",
+                      fontWeight: "bold",
+                      fontSize: "14px",
                       textTransform: "capitalize",
-                      color: "#555",
-                      fontSize: "13px",
+                      color: secondaryColor,
                     }}
                   >
-                    {item.name},
+                    • {cat.split("_").join(" ")}:{" "}
                   </span>
-                ))}
-              </div>
-            ))}
+                  <span>{abilities}</span>
+                </div>
+              )
+            )}
           </div>
 
           {/* Technology Section */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>Technology:</span>
-            {detailedCareerData?.technology?.category?.map((el, i) => (
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
+              Technology:
+            </span>
+            {detailedCareerData?.technology?.map((kn, i) => (
               <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>
-                  • {el.title.name}:{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    color: secondaryColor,
+                  }}
+                >
+                  • {kn?.domain}:{" "}
                 </span>
-                {el.example.map((item, ind) => (
-                  <span
-                    key={ind}
-                    style={{
-                      paddingLeft: "0.5rem",
-                      textTransform: "capitalize",
-                      color: "#555",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item.name},
-                  </span>
-                ))}
+                <span>{kn.tools}</span>
               </div>
             ))}
           </div>
 
           {/* Personality Section */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>Personality:</span>
-            <br />
-            <span style={{ fontSize: "14px", color: "#555", lineHeight: "1.4" }}>
-              {detailedCareerData?.personality?.top_interest?.description}
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
+              Personality:
             </span>
             <br />
-            <span style={{ fontSize: "14px", color: secondaryColor }}>They do well at jobs that need:</span>
-            {detailedCareerData?.personality?.work_styles?.element?.map((el, i) => (
+            <span
+              style={{ fontSize: "14px", color: "#555", lineHeight: "1.4" }}
+            >
+              {detailedCareerData?.personality?.top_interest}
+            </span>
+            <br />
+            <span style={{ fontSize: "14px", color: secondaryColor }}>
+              They do well at jobs that need:
+            </span>
+            {detailedCareerData?.personality?.work_styles?.map((el, i) => (
               <div key={i} style={{ paddingLeft: "10px", marginTop: "2px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>
-                  • {el.name}:{" "}
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    color: secondaryColor,
+                  }}
+                >
+                  • {el}
                 </span>
               </div>
             ))}
@@ -192,31 +238,63 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
           {/* EDUCATION REQUIRED */}
 
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
               Education Required:
             </span>
-            {detailedCareerData?.education?.education_usually_needed?.category?.map((el, i) => (
-              <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>• {el}: </span>
-              </div>
-            ))}
+            {detailedCareerData?.education_required
+              ?.split(",")
+              ?.map((el, i) => (
+                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
+                      color: secondaryColor,
+                    }}
+                  >
+                    • {el}{" "}
+                  </span>
+                </div>
+              ))}
           </div>
 
           {/* Job Outlook  */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>Job Outlook:</span>
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
+              Job Outlook:
+            </span>
             <br />
             <div style={{ paddingLeft: "10px", marginTop: "5px" }}>
-              <span style={{ fontWeight: "bold", fontSize: "14px", color: secondaryColor }}>
-                {detailedCareerData?.job_outlook?.outlook?.description}
+              <span
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  color: secondaryColor,
+                }}
+              >
+                {detailedCareerData?.job_outlook?.description}
               </span>
             </div>
             <div style={{ paddingLeft: "10px", marginTop: "5px" }}>
               <img
                 src={
-                  detailedCareerData?.job_outlook?.outlook?.category === "Below Average"
+                  detailedCareerData?.job_outlook?.category ===
+                  "Below Average"
                     ? lowIndicator
-                    : detailedCareerData?.job_outlook?.outlook?.category === "Bright"
+                    : detailedCareerData?.job_outlook?.category ===
+                        "Bright"
                       ? highIndicator
                       : mediumIndicator
                 }
@@ -230,19 +308,31 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
           {/* Sallery Information  */}
 
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "16px", color: primaryColor }}>
+            <span
+              style={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: primaryColor,
+              }}
+            >
               Annual Earnings:
             </span>
             <br />
-            <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "1rem",
+              }}
+            >
               {/* Low Salary (10th Percentile) */}
               <Box sx={{ width: "30%" }}>
                 <Typography sx={{ color: "#720361" }}>Low</Typography>
                 <LinearProgress
                   variant="determinate"
                   value={
-                    (detailedCareerData?.job_outlook?.salary.annual_10th_percentile /
-                      detailedCareerData?.job_outlook?.salary.annual_90th_percentile) *
+                    (detailedCareerData?.annual_earnings?.low /
+                      detailedCareerData?.annual_earnings?.high) *
                     100
                   }
                   sx={{
@@ -253,7 +343,7 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                   }}
                 />
                 <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  ${detailedCareerData?.job_outlook.salary?.annual_10th_percentile?.toLocaleString()}
+                  ${detailedCareerData?.annual_earnings?.low}
                 </Typography>
               </Box>
 
@@ -263,8 +353,8 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                 <LinearProgress
                   variant="determinate"
                   value={
-                    (detailedCareerData?.job_outlook?.salary?.annual_median /
-                      detailedCareerData?.job_outlook?.salary?.annual_90th_percentile) *
+                    (detailedCareerData?.annual_earnings?.median /
+                      detailedCareerData?.annual_earnings?.high) *
                     100
                   }
                   sx={{
@@ -275,7 +365,8 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                   }}
                 />
                 <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  ${detailedCareerData?.job_outlook.salary?.annual_median?.toLocaleString()}
+                  $
+                  {detailedCareerData?.annual_earnings?.median?.toLocaleString()}
                 </Typography>
               </Box>
 
@@ -285,8 +376,8 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                 <LinearProgress
                   variant="determinate"
                   value={
-                    (detailedCareerData?.job_outlook?.salary?.annual_90th_percentile /
-                      detailedCareerData?.job_outlook?.salary?.annual_90th_percentile) *
+                    (detailedCareerData?.annual_earnings?.high /
+                      detailedCareerData?.annual_earnings?.high) *
                     100
                   }
                   sx={{
@@ -297,7 +388,7 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                   }}
                 />
                 <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  ${detailedCareerData?.job_outlook?.salary?.annual_90th_percentile?.toLocaleString()}
+                  ${detailedCareerData?.annual_earnings?.high?.toLocaleString()}
                 </Typography>
               </Box>
             </Box>
@@ -305,18 +396,37 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
 
           {/* Available Courses  */}
           <div style={{ marginBottom: "10px" }}>
-            <span style={{ fontWeight: "bold", fontSize: "20px", color: "#FD8C0C" }}>
+            <span
+              style={{ fontWeight: "bold", fontSize: "20px", color: "#FD8C0C" }}
+            >
               Recommended Academic Programs:
             </span>
             <br />
 
             <div style={{ marginTop: "10px" }}>
-              {interestProfileData?.courses?.split("\n").map((course, index) => (
-                <div key={index} style={{ display: "flex", alignItems: "flex-start", marginBottom: "8px" }}>
-                  {/* <span style={{ fontSize: "16px", color: "#333", marginRight: "8px" }}>•</span> */}
-                  <span style={{ fontSize: "16px", color: "#555", lineHeight: "1.5" }}>{course.trim()}</span>
-                </div>
-              ))}
+              {interestProfileData?.courses
+                ?.split("\n")
+                .map((course, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {/* <span style={{ fontSize: "16px", color: "#333", marginRight: "8px" }}>•</span> */}
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#555",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      {course.trim()}
+                    </span>
+                  </div>
+                ))}
             </div>
           </div>
 
@@ -338,19 +448,49 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
           }}
         >
           <div>
-            <span style={{ fontWeight: "bold", fontSize: "20px", color: "#FD8C0C" }}>
+            <span
+              style={{ fontWeight: "bold", fontSize: "20px", color: "#FD8C0C" }}
+            >
               Colleges and Universities to explore:
             </span>
 
             <div style={{ marginTop: "20px", overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  textAlign: "left",
+                }}
+              >
                 <thead>
                   <tr style={{ backgroundColor: "#FD8C0C", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #ddd", fontSize: "18px" }}>Country</th>
-                    <th style={{ padding: "10px", border: "1px solid #ddd", fontSize: "18px" }}>
+                    <th
+                      style={{
+                        padding: "10px",
+                        border: "1px solid #ddd",
+                        fontSize: "18px",
+                      }}
+                    >
+                      Country
+                    </th>
+                    <th
+                      style={{
+                        padding: "10px",
+                        border: "1px solid #ddd",
+                        fontSize: "18px",
+                      }}
+                    >
                       University Name
                     </th>
-                    <th style={{ padding: "10px", border: "1px solid #ddd", fontSize: "18px" }}>Website</th>
+                    <th
+                      style={{
+                        padding: "10px",
+                        border: "1px solid #ddd",
+                        fontSize: "18px",
+                      }}
+                    >
+                      Website
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -363,7 +503,10 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                             return (
                               <tr
                                 key={`${index}-${i}`}
-                                style={{ backgroundColor: i % 2 === 0 ? "#f9f9f9" : "#fff" }}
+                                style={{
+                                  backgroundColor:
+                                    i % 2 === 0 ? "#f9f9f9" : "#fff",
+                                }}
                               >
                                 {i === 0 && (
                                   <td
@@ -379,14 +522,27 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                                     {country}
                                   </td>
                                 )}
-                                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                <td
+                                  style={{
+                                    padding: "10px",
+                                    border: "1px solid #ddd",
+                                  }}
+                                >
                                   {parts[0].substring(3)}
                                 </td>
-                                <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                <td
+                                  style={{
+                                    padding: "10px",
+                                    border: "1px solid #ddd",
+                                  }}
+                                >
                                   <a
                                     href={parts[1]}
                                     target="_blank"
-                                    style={{ color: "#007bff", textDecoration: "none" }}
+                                    style={{
+                                      color: "#007bff",
+                                      textDecoration: "none",
+                                    }}
                                     rel="noreferrer"
                                   >
                                     {parts[1]}
@@ -398,11 +554,17 @@ const DetailedCareerPathways = ({ key, detailedCareerData, interestProfileData, 
                           {/* Add a spacer row between different countries */}
                           {index < array.length - 1 && (
                             <tr>
-                              <td colSpan="3" style={{ height: "15px", backgroundColor: "#fff" }}></td>
+                              <td
+                                colSpan="3"
+                                style={{
+                                  height: "15px",
+                                  backgroundColor: "#fff",
+                                }}
+                              ></td>
                             </tr>
                           )}
                         </>
-                      ),
+                      )
                     )}
                 </tbody>
               </table>

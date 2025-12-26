@@ -130,14 +130,13 @@ const onetSlice = createSlice({
       state.careerInfo = payload;
     });
     builder.addCase(generateDeatiledDataOfCareers.rejected, (state) => {
-      console.log("testing");
+      console.log("rejected", state);
     });
-
     builder.addCase(
       generateDeatiledDataOfCareers.fulfilled,
       (state, { payload }) => {
         console.log("payload", payload);
-        state.detailedCareerData = payload?.totalData;
+        state.detailedCareerData = payload?.interestProfileData?.careers?.career;
         state.userName = payload?.fullname;
         state.personalityInsight = payload?.userReportdata;
         state.interestProfileData = payload?.interestProfileData;
@@ -148,12 +147,10 @@ const onetSlice = createSlice({
 
 const selectOnet = (state) => state.onet;
 const { saveAnswer } = onetSlice.actions;
-const selectDetailedCareerData = (state) =>
-  state.interest.interestProfile.interestProfileDetails.careers.career;
+const selectDetailedCareerData = (state) => state.onet.detailedCareerData;
 const selectFullName = (state) => state.onet.userName;
 const selectPersonalityInsight = (state) => state.onet.personalityInsight;
-const selectInterestProfileData = (state) =>
-  state.interest.interestProfile.interestProfileDetails;
+const selectInterestProfileData = (state) => state.onet.interestProfileData;
 export {
   selectOnet,
   selectDetailedCareerData,
