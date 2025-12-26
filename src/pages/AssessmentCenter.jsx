@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "../styles/CareerDomainCard.css";
 import { careerDomains } from "../utility/careerDomains.jsx";
-
 import {
   assessmentCardBg,
   assessmentHeaderImg,
