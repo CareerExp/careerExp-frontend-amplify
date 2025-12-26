@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "../styles/CareerDomainCard.css";
 import { careerDomains } from "../utility/careerDomains.jsx";
-
 import {
   assessmentCardBg,
   assessmentHeaderImg,
@@ -132,8 +131,8 @@ const AssessmentCenter = () => {
               <span>
                 The Career Directions Report brings together your strengths,
                 interests and personality and maps these on the 9 Career Domains
-                to help you in your exploration journey. Share with your
-                Counsellor, friends and family to help you make the best
+                to help you in your exploration journey. Share your report with
+                your Counsellor, friends and family to help you make the best
                 Educational and Career decisions.
               </span>
               <b>

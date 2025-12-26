@@ -26,7 +26,7 @@ const SurveyQuestionCards = ({
   clusterData,
 }) => {
   const [optionValue, setOptionValue] = useState(null);
-  const circleValues = [1, 2, 3, 4, 5, 6, 7, 8];
+  const circleValues = [1, 2, 3, 4, 5, 6, 7];
   const dispatchToRedux = useDispatch();
 
   const handleNext = () => {
