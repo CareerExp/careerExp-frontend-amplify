@@ -494,7 +494,7 @@ const AssessmentResult1 = () => {
                         </div>
                         <div className={assessmentResult1.userAndRating}>
                           <p className={assessmentResult1.description}>
-                            {item.fit === "Best" ? "Good" : item.fit} Fit
+                            {item.fit === "Best" ? "Good" : item.fit} 
                           </p>
 
                           <div
