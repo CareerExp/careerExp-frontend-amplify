@@ -77,6 +77,7 @@ const SurveyQuestion7Card = ({
       // if we collapsed the expanded cluster, close it
       if (expandedCluster === cluster.name) setExpandedCluster(null);
     } else {
+      setExpandedCluster(cluster.name);
       newClusters = [...selectedClusters, cluster];
     }
 

@@ -122,6 +122,30 @@ const SurveyPage = () => {
     if (IS_LOCAL) {
       updatedOverallAnswer = partCAnswers;
     }
+
+    if (updatedOverallAnswer[6]) {
+      if (updatedOverallAnswer[6].mostAppealingField.length === 0) {
+        dispatchToRedux(
+          notify({
+            type: "error",
+            message: "Please select at least 1 career cluster",
+          })
+        );
+        return;
+      } else if (
+        Object.keys(updatedOverallAnswer[6].mostAppealingFieldSubclusters)
+          .length !== updatedOverallAnswer[6].mostAppealingField.length
+      ) {
+        dispatchToRedux(
+          notify({
+            type: "error",
+            message:
+              "Please select at least 1 career's pathway for each career cluster",
+          })
+        );
+        return;
+      }
+    }
     try {
       const answers = updatedOverallAnswer.reduce((acc, answer) => {
         return { ...acc, ...answer };
