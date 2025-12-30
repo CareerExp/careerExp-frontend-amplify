@@ -242,10 +242,10 @@ const AssessmentResult1 = () => {
         return;
       }
       setCareerData(response.payload);
-      setIsOnetDetailedLoading(false);
       setOpenModal(true);
     } catch (error) {
       console.error("Error fetching career info:", error);
+    }finally{
       setIsOnetDetailedLoading(false);
     }
   };
@@ -494,7 +494,7 @@ const AssessmentResult1 = () => {
                         </div>
                         <div className={assessmentResult1.userAndRating}>
                           <p className={assessmentResult1.description}>
-                            {item.fit === "Best" ? "Good" : item.fit} 
+                            {item.fit === "Best" ? "Good Fit" : item.fit} 
                           </p>
 
                           <div

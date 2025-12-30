@@ -124,7 +124,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         padding: "0",
                       }}
                     >
-                      {item?.fit === "Best" ? "Good" : item?.fit} Fit
+                      {item?.fit === "Best" ? "Good Fit" : item?.fit}
                     </p>
                     <div
                       style={{
@@ -253,7 +253,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         padding: "0",
                       }}
                     >
-                      {item?.fit === "Best" ? "Good" : item?.fit} Fit
+                      {item?.fit === "Best" ? "Good Fit" : item?.fit}
                     </p>
                     <Rating
                       value={item?.match_score}
