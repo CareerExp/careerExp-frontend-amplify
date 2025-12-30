@@ -230,24 +230,8 @@ const AssessmentResult1 = () => {
 
   const handleOpenModal = async (item) => {
     setCareerData(null);
-    setIsOnetDetailedLoading(true);
-
-    try {
-      const response = await dispatchToRedux(
-        getCareerInfo({ careercode: item.code, topic: "report", token })
-      );
-
-      if (response.error) {
-        console.error("Error fetching career info:", response.error);
-        return;
-      }
-      setCareerData(response.payload);
-      setOpenModal(true);
-    } catch (error) {
-      console.error("Error fetching career info:", error);
-    }finally{
-      setIsOnetDetailedLoading(false);
-    }
+    setCareerData(item);
+    setOpenModal(true);
   };
 
   const handleCloseModal = () => {
@@ -494,7 +478,7 @@ const AssessmentResult1 = () => {
                         </div>
                         <div className={assessmentResult1.userAndRating}>
                           <p className={assessmentResult1.description}>
-                            {item.fit === "Best" ? "Good Fit" : item.fit} 
+                            {item.fit === "Best" ? "Good Fit" : item.fit}
                           </p>
 
                           <div
