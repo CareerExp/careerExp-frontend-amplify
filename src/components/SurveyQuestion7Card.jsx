@@ -169,8 +169,8 @@ const SurveyQuestion7Card = ({
     setOverallAnswers(updatedOverallAnswer);
 
     // reset local state
-    setSelectedClusters([]);
-    setSelectedSubclusters({});
+    // setSelectedClusters([]);
+    // setSelectedSubclusters({});
     setExpandedCluster(null);
 
     isLastQuestion

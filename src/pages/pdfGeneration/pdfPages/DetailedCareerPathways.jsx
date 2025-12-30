@@ -107,23 +107,27 @@ const DetailedCareerPathways = ({
             >
               Skills:
             </span>
-            {Object.entries(detailedCareerData?.skills)?.map(
-              ([cat, skills], i) => (
-                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      textTransform: "capitalize",
-                      color: secondaryColor,
-                    }}
+            {detailedCareerData?.skills &&
+              Object.entries(detailedCareerData?.skills)?.map(
+                ([cat, skills], i) => (
+                  <div
+                    key={i}
+                    style={{ paddingLeft: "10px", marginTop: "5px" }}
                   >
-                    • {cat.split("_").join(" ")}:{" "}
-                  </span>
-                  <span>{skills}</span>
-                </div>
-              )
-            )}
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        textTransform: "capitalize",
+                        color: secondaryColor,
+                      }}
+                    >
+                      • {cat.split("_").join(" ")}:{" "}
+                    </span>
+                    <span>{skills}</span>
+                  </div>
+                )
+              )}
           </div>
 
           {/* Abilities Section */}
@@ -137,23 +141,27 @@ const DetailedCareerPathways = ({
             >
               Abilities:
             </span>
-            {Object.entries(detailedCareerData?.abilities)?.map(
-              ([cat, abilities], i) => (
-                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      textTransform: "capitalize",
-                      color: secondaryColor,
-                    }}
+            {detailedCareerData?.abilities &&
+              Object.entries(detailedCareerData?.abilities)?.map(
+                ([cat, abilities], i) => (
+                  <div
+                    key={i}
+                    style={{ paddingLeft: "10px", marginTop: "5px" }}
                   >
-                    • {cat.split("_").join(" ")}:{" "}
-                  </span>
-                  <span>{abilities}</span>
-                </div>
-              )
-            )}
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        textTransform: "capitalize",
+                        color: secondaryColor,
+                      }}
+                    >
+                      • {cat.split("_").join(" ")}:{" "}
+                    </span>
+                    <span>{abilities}</span>
+                  </div>
+                )
+              )}
           </div>
 
           {/* Technology Section */}
@@ -290,11 +298,9 @@ const DetailedCareerPathways = ({
             <div style={{ paddingLeft: "10px", marginTop: "5px" }}>
               <img
                 src={
-                  detailedCareerData?.job_outlook?.category ===
-                  "Below Average"
+                  detailedCareerData?.job_outlook?.category === "Below Average"
                     ? lowIndicator
-                    : detailedCareerData?.job_outlook?.category ===
-                        "Bright"
+                    : detailedCareerData?.job_outlook?.category === "Bright"
                       ? highIndicator
                       : mediumIndicator
                 }
@@ -343,7 +349,7 @@ const DetailedCareerPathways = ({
                   }}
                 />
                 <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  ${detailedCareerData?.annual_earnings?.low}
+                  ${detailedCareerData?.annual_earnings?.low?.toLocaleString()}
                 </Typography>
               </Box>
 
@@ -466,6 +472,8 @@ const DetailedCareerPathways = ({
                   <tr style={{ backgroundColor: "#FD8C0C", color: "#fff" }}>
                     <th
                       style={{
+                        width: "180px",
+                        maxWidth: "180px",
                         padding: "10px",
                         border: "1px solid #ddd",
                         fontSize: "18px",
@@ -484,6 +492,7 @@ const DetailedCareerPathways = ({
                     </th>
                     <th
                       style={{
+                        width: "130px",
                         padding: "10px",
                         border: "1px solid #ddd",
                         fontSize: "18px",
@@ -495,7 +504,7 @@ const DetailedCareerPathways = ({
                 </thead>
                 <tbody>
                   {interestProfileData?.universities &&
-                    Object.entries(interestProfileData.universities).map(
+                    Object.entries(interestProfileData?.universities).map(
                       ([country, universities], index, array) => (
                         <>
                           {universities?.split("\n").map((university, i) => {
@@ -512,6 +521,8 @@ const DetailedCareerPathways = ({
                                   <td
                                     rowSpan={universities?.split("\n").length}
                                     style={{
+                                      width: "180px",
+                                      maxWidth: "180px",
                                       padding: "10px",
                                       border: "1px solid #ddd",
                                       fontWeight: "bold",
@@ -532,6 +543,7 @@ const DetailedCareerPathways = ({
                                 </td>
                                 <td
                                   style={{
+                                    width: "130px",
                                     padding: "10px",
                                     border: "1px solid #ddd",
                                   }}
@@ -545,7 +557,7 @@ const DetailedCareerPathways = ({
                                     }}
                                     rel="noreferrer"
                                   >
-                                    {parts[1]}
+                                    Visit Website
                                   </a>
                                 </td>
                               </tr>
