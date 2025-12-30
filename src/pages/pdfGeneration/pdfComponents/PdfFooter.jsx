@@ -1,6 +1,7 @@
 import React from "react";
 
 import { fonts } from "../../../utility/fonts.js";
+import { getCurrentYear } from "../pdfUtility/formatDate.js";
 
 const PdfFooter = ({ pageNumber }) => {
   return (
@@ -25,7 +26,7 @@ const PdfFooter = ({ pageNumber }) => {
           fontWeight: "bold",
         }}
       >
-        © CareerExplorer.me @2025
+        © CareerExplorer.me @{getCurrentYear()}
       </p>
       <p
         style={{
