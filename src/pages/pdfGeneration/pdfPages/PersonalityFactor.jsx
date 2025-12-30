@@ -294,7 +294,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               {getFirstName(fullName)} for each of the identified career
               pathways we have also analysed how well these fit with your
               current interests, educational preferences and aspirations. There
-              are 3 levels we have assigned to each career pathway:
+              are 6 levels we have assigned to each career pathway:
             </span>
 
             <ul
@@ -305,8 +305,11 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               }}
             >
               <li>Perfect fit </li>
-              <li>Great fit </li>
-              <li>Best fit </li>
+              <li>Great Fit </li>
+              <li>Must Explore </li>
+              <li>Explore further </li>
+              <li>Good fit </li>
+              <li>Worth considering</li>
             </ul>
           </div>
           <div style={{ marginBottom: "15px" }}>
