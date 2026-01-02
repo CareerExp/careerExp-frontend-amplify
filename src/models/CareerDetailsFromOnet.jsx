@@ -98,7 +98,6 @@ const CareerDetailsFromOnet = ({
                 On the Job:
               </Typography>
               <Typography
-                key={index}
                 sx={{
                   paddingLeft: "10px",
                   fontFamily: fonts.sans,
@@ -510,153 +509,234 @@ const CareerDetailsFromOnet = ({
                 padding: "1rem",
                 borderRadius: "5px",
                 marginBottom: "2rem",
+                gridColumn: {
+                  xs: "span 1",
+                  sm: "span 2",
+                  md: "span 3",
+                },
               }}
             >
-              <Button
-                sx={{
-                  fontSize: "16px",
-                  fontFamily: fonts.sans,
-                  background: "#FD8C0C",
-                  color: "white",
-                  marginBottom: "1rem",
-                  borderRadius: "5px",
-                  fontWeight: "bold",
-                  "&:hover": {
-                    backgroundColor: "#FD8C0C", // Keeps the background the same on hover
-                    boxShadow: "none", // Disables any shadow effect on hover
-                  },
-                }}
-              >
-                JOB OUTLOOK
-              </Button>
-              {/* <Typography
-                sx={{ fontFamily: fonts.sans, fontSize: "16px", color: "gray" }}
-              >
-                {careerData?.job_outlook?.description}
-              </Typography> */}
+              {/* Job Outlook  */}
+              {Object.keys(careerData?.job_outlook || {}).length > 0 && (
+                <div style={{ marginBottom: "10px" }}>
+                  <Button
+                    sx={{
+                      fontSize: "16px",
+                      fontFamily: fonts.sans,
+                      background: "#FD8C0C",
+                      color: "white",
+                      marginBottom: "1rem",
+                      borderRadius: "5px",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#FD8C0C", // Keeps the background the same on hover
+                        boxShadow: "none", // Disables any shadow effect on hover
+                      },
+                    }}
+                  >
+                    JOB OUTLOOK
+                  </Button>
+                  <br />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gap: 16,
+                      alignItems: "center",
+                      marginTop: 12,
+                    }}
+                  >
+                    {Object.keys(careerData?.job_outlook || {}).map((key) => (
+                      <div
+                        key={key}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            color: "black",
+                          }}
+                        >
+                          {careerData?.job_outlook?.[key]?.description}
+                        </span>
+                        <img
+                          src={
+                            careerData?.job_outlook?.[key]?.category ===
+                            "Below Average"
+                              ? lowIndicator
+                              : careerData?.job_outlook?.[key]?.category ===
+                                  "Bright"
+                                ? highIndicator
+                                : mediumIndicator
+                          }
+                          width={"100%"}
+                          alt="Indicator"
+                          style={{ alignSelf: "center", maxWidth: "150px" }}
+                        />
+                        <span
+                          style={{
+                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            fontSize: "14px",
+                            color: "black",
+                            alignSelf: "center",
+                          }}
+                        >
+                          {key}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              <img
-                src={
-                  careerData?.job_outlook?.category === "Below Average"
-                    ? lowIndicator
-                    : careerData?.job_outlook?.category === "Bright"
-                      ? highIndicator
-                      : mediumIndicator
-                }
-                width={"50%"}
-                alt="Indicator"
-                textAlign="center"
-              />
+              {/* Sallery Information  */}
+              {Object.keys(careerData?.job_outlook || {}).length > 0 && (
+                <div style={{ marginBottom: "10px" }}>
+                  <Button
+                    sx={{
+                      fontSize: "16px",
+                      fontFamily: fonts.sans,
+                      background: "#FD8C0C",
+                      color: "white",
+                      marginBottom: "1rem",
+                      borderRadius: "5px",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#FD8C0C", // Keeps the background the same on hover
+                        boxShadow: "none", // Disables any shadow effect on hover
+                      },
+                    }}
+                  >
+                    ANNUAL EARNINGS
+                  </Button>
+                  <br />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gap: 16,
+                      alignItems: "center",
+                      marginTop: 12,
+                    }}
+                  >
+                    {Object.keys(careerData?.job_outlook || {}).map((key) => {
+                      const { low, high, median } =
+                        careerData?.job_outlook?.[key]?.annual_earnings || {};
+                      return (
+                        <div
+                          key={key}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                            marginTop: "0.5em",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            {/* Low Salary (10th Percentile) */}
+                            <Box>
+                              <Typography sx={{ color: "#720361" }}>
+                                Low
+                              </Typography>
+                              <LinearProgress
+                                variant="determinate"
+                                value={(low / high) * 100}
+                                sx={{
+                                  height: "16px",
+                                  borderRadius: "10px",
+                                  backgroundColor: "#ddd",
+                                  marginTop: "0.5rem",
+                                }}
+                              />
+                              <Typography
+                                sx={{
+                                  textAlign: "center",
+                                  marginTop: "0.5rem",
+                                }}
+                              >
+                                ${low?.toLocaleString()}
+                              </Typography>
+                            </Box>
 
-              {/* <Typography sx={{ fontFamily: fonts.sans, fontSize: "16px", color: "gray" }}>
-                Category :
-              </Typography>
-              <Typography sx={{ color: "#720361" }}> {careerData?.job_outlook.outlook.category}</Typography> */}
+                            {/* Medium Salary (Median) */}
+                            <Box>
+                              <Typography sx={{ color: "#720361" }}>
+                                Median
+                              </Typography>
+                              <LinearProgress
+                                variant="determinate"
+                                value={(median / high) * 100}
+                                sx={{
+                                  height: "16px",
+                                  borderRadius: "10px",
+                                  backgroundColor: "#ddd",
+                                  marginTop: "0.5rem",
+                                }}
+                              />
+                              <Typography
+                                sx={{
+                                  textAlign: "center",
+                                  marginTop: "0.5rem",
+                                }}
+                              >
+                                ${median?.toLocaleString()}
+                              </Typography>
+                            </Box>
 
-              <Box sx={{ marginTop: "1rem", width: "100%" }}>
-                {/* <Typography
-                  sx={{ fontFamily: fonts.sans, fontSize: "21px", fontWeight: 600, color: "#FD8C0C" }}
-                >
-                  SALARY GUIDE
-                </Typography> */}
-                <Button
-                  sx={{
-                    fontSize: "16px",
-                    fontFamily: fonts.sans,
-                    background: "#FD8C0C",
-                    color: "white",
-                    marginBottom: "1rem",
-                    borderRadius: "5px",
-                    fontWeight: "bold",
-                    "&:hover": {
-                      backgroundColor: "#FD8C0C", // Keeps the background the same on hover
-                      boxShadow: "none", // Disables any shadow effect on hover
-                    },
-                  }}
-                >
-                  ANNUAL EARNINGS
-                </Button>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "1rem",
-                  }}
-                >
-                  {/* Low Salary (10th Percentile) */}
-                  <Box sx={{ width: "30%" }}>
-                    <Typography sx={{ color: "#720361" }}>Low</Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={
-                        (careerData?.annual_earnings?.low /
-                          careerData?.annual_earnings?.high) *
-                        100
-                      }
-                      sx={{
-                        height: "20px",
-                        borderRadius: "10px",
-                        backgroundColor: "#ddd",
-                        marginTop: "0.5rem",
-                      }}
-                    />
-                    <Typography
-                      sx={{ textAlign: "center", marginTop: "0.5rem" }}
-                    >
-                      ${careerData?.annual_earnings?.low?.toLocaleString()}
-                    </Typography>
-                  </Box>
-
-                  {/* Medium Salary (Median) */}
-                  <Box sx={{ width: "30%" }}>
-                    <Typography sx={{ color: "#720361" }}>Median</Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={
-                        (careerData?.annual_earnings?.median /
-                          careerData?.annual_earnings?.high) *
-                        100
-                      }
-                      sx={{
-                        height: "20px",
-                        borderRadius: "10px",
-                        backgroundColor: "#ddd",
-                        marginTop: "0.5rem",
-                      }}
-                    />
-                    <Typography
-                      sx={{ textAlign: "center", marginTop: "0.5rem" }}
-                    >
-                      ${careerData?.annual_earnings?.median?.toLocaleString()}
-                    </Typography>
-                  </Box>
-
-                  {/* High Salary (90th Percentile) */}
-                  <Box sx={{ width: "30%" }}>
-                    <Typography sx={{ color: "#720361" }}>High</Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={
-                        (careerData?.annual_earnings?.high /
-                          careerData?.annual_earnings?.high) *
-                        100
-                      }
-                      sx={{
-                        height: "20px",
-                        borderRadius: "10px",
-                        backgroundColor: "#ddd",
-                        marginTop: "0.5rem",
-                      }}
-                    />
-                    <Typography
-                      sx={{ textAlign: "center", marginTop: "0.5rem" }}
-                    >
-                      ${careerData?.annual_earnings?.high?.toLocaleString()}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
+                            {/* High Salary (90th Percentile) */}
+                            <Box>
+                              <Typography sx={{ color: "#720361" }}>
+                                High
+                              </Typography>
+                              <LinearProgress
+                                variant="determinate"
+                                value={(high / high) * 100}
+                                sx={{
+                                  height: "16px",
+                                  borderRadius: "10px",
+                                  backgroundColor: "#ddd",
+                                  marginTop: "0.5rem",
+                                }}
+                              />
+                              <Typography
+                                sx={{
+                                  textAlign: "center",
+                                  marginTop: "0.5rem",
+                                }}
+                              >
+                                ${high?.toLocaleString()}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <span
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: "14px",
+                              color: "black",
+                              alignSelf: "center",
+                            }}
+                          >
+                            {key}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </Box>
           </Box>
           <Box
