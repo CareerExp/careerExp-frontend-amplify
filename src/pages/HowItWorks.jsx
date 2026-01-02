@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MdArrowOutward } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import {
-  getUserProfile,
-  selectUserProfile,
-  updatePassword,
-  updateUserProfile,
-  uploadProfilePicture,
-} from "../redux/slices/profileSlice.js";
-import {
-  selectAuthenticated,
-  selectToken,
-  selectUserId,
-} from "../redux/slices/authSlice.js";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   assessmentHeaderImg,
   worksHeroImg,
@@ -24,29 +12,9 @@ import {
 } from "../assets/assest";
 import commonStyle from "../styles/Common.module.css";
 import worksStyles from "../styles/HowItWorks.module.css";
-import InterestsModal from "../models/InterestsModal";
 
 const HowItWorks = () => {
   const navigate = useNavigate();
-  const dispatchToRedux = useDispatch();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const userId = useSelector(selectUserId);
-  const userData = useSelector(selectUserProfile);
-  const authenticated = useSelector(selectAuthenticated);
-  const token = useSelector(selectToken);
-
-  useEffect(() => {
-    if (authenticated && !userData) {
-      dispatchToRedux(getUserProfile({ userId, token }));
-    }
-    if (userData?.hasLoggedIn === false) {
-      setIsModalOpen(true);
-    }
-  }, [authenticated, userData, userId, token, dispatchToRedux]);
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
 
   const handleExploreClick = () => {
     navigate("/explore");
@@ -186,10 +154,6 @@ const HowItWorks = () => {
           style={{ backgroundImage: `url(${worksStep4Img})` }}
         ></div>
       </section>
-
-      {userData?.hasLoggedIn === false && userData?.activeDashboard === "user" && (
-        <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
-      )}
     </div>
   );
 };

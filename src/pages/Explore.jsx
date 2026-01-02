@@ -17,7 +17,11 @@ import { useDispatch, useSelector } from "react-redux";
 import VideoCard from "../components/VideoCard";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 // import ExploreVideoPlayPopup from "../models/ExploreVideoPlayPopup.jsx";
-import { selectAuthenticated, selectUserId } from "../redux/slices/authSlice";
+import {
+  selectAuthenticated,
+  selectUserId,
+  selectToken,
+} from "../redux/slices/authSlice";
 import { resetState } from "../redux/slices/creatorSlice";
 import {
   getAllVideos,
@@ -38,6 +42,11 @@ import { fonts } from "../utility/fonts.js";
 import VideoSection from "../components/VideoSection.jsx";
 import { borderBottom } from "@mui/system";
 import CloseIcon from "@mui/icons-material/Close";
+import InterestsModal from "../models/InterestsModal";
+import {
+  getUserProfile,
+  selectUserProfile,
+} from "../redux/slices/profileSlice.js";
 
 // Helper function to convert to sentence case
 const toSentenceCase = (str) => {
@@ -59,8 +68,15 @@ const Explore = () => {
   const trendingVideosData = useSelector(selectTrendingVideos);
   const userInterestsVideosData = useSelector(selectUserInterestsVideos);
   const relatedSearchVideosData = useSelector(selectRelatedSearchVideos);
+  const userData = useSelector(selectUserProfile);
   const userId = useSelector(selectUserId);
   const allTags = useSelector(selectAllTags);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const token = useSelector(selectToken);
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
   // Convert to Sentence Case
   const formattedTags = allTags
     ?.map((tag) => ({
@@ -80,6 +96,15 @@ const Explore = () => {
   const [page3Loading, setPage3Loading] = useState(false);
   const [page4Loading, setPage4Loading] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+
+  useEffect(() => {
+    if (isAuthenticated && !userData) {
+      dispatchToRedux(getUserProfile({ userId, token }));
+    }
+    if (userData?.hasLoggedIn === false) {
+      setIsModalOpen(true);
+    }
+  }, [isAuthenticated, userData, userId, token, dispatchToRedux]);
 
   const scrollRef = useRef(null);
 
@@ -129,18 +154,6 @@ const Explore = () => {
   }, []);
 
   useEffect(() => {
-    // const fetchAllVideos = async () => {
-    //   try {
-    //     setPage1Loading(true);
-    //     await dispatchToRedux(getAllVideos({ page: page1 }));
-    //   } catch (error) {
-    //     console.error("Error fetching all videos:", error);
-    //   } finally {
-    //     setPage1Loading(false);
-    //   }
-    // };
-    // fetchAllVideos();
-
     dispatchToRedux(
       getAllVideos({
         page: page1,
@@ -600,6 +613,11 @@ const Explore = () => {
             />
           )}
       </Container>
+
+      {userData?.hasLoggedIn === false &&
+        userData?.activeDashboard === "user" && (
+          <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
+        )}
     </Box>
   );
 };

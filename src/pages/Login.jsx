@@ -132,7 +132,7 @@ const Login = () => {
 
           // Redirect based on role if needed
           const redirectPath =
-            role === "creator" ? "/creator-dashboard" : "/how-it-works";
+            role === "creator" ? "/creator-dashboard" : "/explore";
           navigate(redirectPath);
         }
       }
