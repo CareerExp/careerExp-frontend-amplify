@@ -107,23 +107,27 @@ const DetailedCareerPathways = ({
             >
               Skills:
             </span>
-            {Object.entries(detailedCareerData?.skills)?.map(
-              ([cat, skills], i) => (
-                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      textTransform: "capitalize",
-                      color: secondaryColor,
-                    }}
+            {detailedCareerData?.skills &&
+              Object.entries(detailedCareerData?.skills)?.map(
+                ([cat, skills], i) => (
+                  <div
+                    key={i}
+                    style={{ paddingLeft: "10px", marginTop: "5px" }}
                   >
-                    • {cat.split("_").join(" ")}:{" "}
-                  </span>
-                  <span>{skills}</span>
-                </div>
-              )
-            )}
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        textTransform: "capitalize",
+                        color: secondaryColor,
+                      }}
+                    >
+                      • {cat.split("_").join(" ")}:{" "}
+                    </span>
+                    <span>{skills}</span>
+                  </div>
+                )
+              )}
           </div>
 
           {/* Abilities Section */}
@@ -137,23 +141,27 @@ const DetailedCareerPathways = ({
             >
               Abilities:
             </span>
-            {Object.entries(detailedCareerData?.abilities)?.map(
-              ([cat, abilities], i) => (
-                <div key={i} style={{ paddingLeft: "10px", marginTop: "5px" }}>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      textTransform: "capitalize",
-                      color: secondaryColor,
-                    }}
+            {detailedCareerData?.abilities &&
+              Object.entries(detailedCareerData?.abilities)?.map(
+                ([cat, abilities], i) => (
+                  <div
+                    key={i}
+                    style={{ paddingLeft: "10px", marginTop: "5px" }}
                   >
-                    • {cat.split("_").join(" ")}:{" "}
-                  </span>
-                  <span>{abilities}</span>
-                </div>
-              )
-            )}
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        textTransform: "capitalize",
+                        color: secondaryColor,
+                      }}
+                    >
+                      • {cat.split("_").join(" ")}:{" "}
+                    </span>
+                    <span>{abilities}</span>
+                  </div>
+                )
+              )}
           </div>
 
           {/* Technology Section */}
@@ -265,134 +273,206 @@ const DetailedCareerPathways = ({
           </div>
 
           {/* Job Outlook  */}
-          <div style={{ marginBottom: "10px" }}>
-            <span
-              style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                color: primaryColor,
-              }}
-            >
-              Job Outlook:
-            </span>
-            <br />
-            <div style={{ paddingLeft: "10px", marginTop: "5px" }}>
+          {Object.keys(detailedCareerData?.job_outlook || {}).length > 0 && (
+            <div style={{ marginBottom: "10px" }}>
               <span
                 style={{
                   fontWeight: "bold",
-                  fontSize: "14px",
-                  color: secondaryColor,
+                  fontSize: "16px",
+                  color: primaryColor,
                 }}
               >
-                {detailedCareerData?.job_outlook?.description}
+                Job Outlook:
               </span>
+              <br />
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 12,
+                  alignItems: "center",
+                  marginTop: 12,
+                }}
+              >
+                {Object.keys(detailedCareerData?.job_outlook || {}).map(
+                  (key) => (
+                    <div
+                      key={key}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          color: secondaryColor,
+                        }}
+                      >
+                        {detailedCareerData?.job_outlook?.[key]?.description}
+                      </span>
+                      <img
+                        src={
+                          detailedCareerData?.job_outlook?.[key]?.category ===
+                          "Below Average"
+                            ? lowIndicator
+                            : detailedCareerData?.job_outlook?.[key]
+                                  ?.category === "Bright"
+                              ? highIndicator
+                              : mediumIndicator
+                        }
+                        width={"100%"}
+                        alt="Indicator"
+                        style={{ alignSelf: "center", maxWidth: "150px" }}
+                      />
+                      <span
+                        style={{
+                          textTransform: "capitalize",
+                          fontWeight: "bold",
+                          fontSize: "14px",
+                          color: secondaryColor,
+                          alignSelf: "center",
+                        }}
+                      >
+                        {key}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
-            <div style={{ paddingLeft: "10px", marginTop: "5px" }}>
-              <img
-                src={
-                  detailedCareerData?.job_outlook?.category ===
-                  "Below Average"
-                    ? lowIndicator
-                    : detailedCareerData?.job_outlook?.category ===
-                        "Bright"
-                      ? highIndicator
-                      : mediumIndicator
-                }
-                width={"25%"}
-                alt="Indicator"
-                textAlign="center"
-              />
-            </div>
-          </div>
+          )}
 
           {/* Sallery Information  */}
+          {Object.keys(detailedCareerData?.job_outlook || {}).length > 0 && (
+            <div style={{ marginBottom: "10px" }}>
+              <span
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  color: primaryColor,
+                }}
+              >
+                Annual Earnings:
+              </span>
+              <br />
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 16,
+                  alignItems: "center",
+                  marginTop: 12,
+                }}
+              >
+                {Object.keys(detailedCareerData?.job_outlook || {}).map(
+                  (key) => {
+                    const { low, high, median } =
+                      detailedCareerData?.job_outlook?.[key]?.annual_earnings ||
+                      {};
+                    return (
+                      <div
+                        key={key}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
+                          marginTop: "0.5em",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexDirection: "column",
+                            gap: "8px",
+                          }}
+                        >
+                          {/* Low Salary (10th Percentile) */}
+                          <Box>
+                            <Typography sx={{ color: "#720361" }}>
+                              Low
+                            </Typography>
+                            <LinearProgress
+                              variant="determinate"
+                              value={(low / high) * 100}
+                              sx={{
+                                height: "16px",
+                                borderRadius: "10px",
+                                backgroundColor: "#ddd",
+                                marginTop: "0.5rem",
+                              }}
+                            />
+                            <Typography
+                              sx={{ textAlign: "center", marginTop: "0.5rem" }}
+                            >
+                              ${low?.toLocaleString()}
+                            </Typography>
+                          </Box>
 
-          <div style={{ marginBottom: "10px" }}>
-            <span
-              style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                color: primaryColor,
-              }}
-            >
-              Annual Earnings:
-            </span>
-            <br />
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: "1rem",
-              }}
-            >
-              {/* Low Salary (10th Percentile) */}
-              <Box sx={{ width: "30%" }}>
-                <Typography sx={{ color: "#720361" }}>Low</Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={
-                    (detailedCareerData?.annual_earnings?.low /
-                      detailedCareerData?.annual_earnings?.high) *
-                    100
-                  }
-                  sx={{
-                    height: "20px",
-                    borderRadius: "10px",
-                    backgroundColor: "#ddd",
-                    marginTop: "0.5rem",
-                  }}
-                />
-                <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  ${detailedCareerData?.annual_earnings?.low}
-                </Typography>
-              </Box>
+                          {/* Medium Salary (Median) */}
+                          <Box>
+                            <Typography sx={{ color: "#720361" }}>
+                              Median
+                            </Typography>
+                            <LinearProgress
+                              variant="determinate"
+                              value={(median / high) * 100}
+                              sx={{
+                                height: "16px",
+                                borderRadius: "10px",
+                                backgroundColor: "#ddd",
+                                marginTop: "0.5rem",
+                              }}
+                            />
+                            <Typography
+                              sx={{ textAlign: "center", marginTop: "0.5rem" }}
+                            >
+                              ${median?.toLocaleString()}
+                            </Typography>
+                          </Box>
 
-              {/* Medium Salary (Median) */}
-              <Box sx={{ width: "30%" }}>
-                <Typography sx={{ color: "#720361" }}>Median</Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={
-                    (detailedCareerData?.annual_earnings?.median /
-                      detailedCareerData?.annual_earnings?.high) *
-                    100
+                          {/* High Salary (90th Percentile) */}
+                          <Box>
+                            <Typography sx={{ color: "#720361" }}>
+                              High
+                            </Typography>
+                            <LinearProgress
+                              variant="determinate"
+                              value={(high / high) * 100}
+                              sx={{
+                                height: "16px",
+                                borderRadius: "10px",
+                                backgroundColor: "#ddd",
+                                marginTop: "0.5rem",
+                              }}
+                            />
+                            <Typography
+                              sx={{ textAlign: "center", marginTop: "0.5rem" }}
+                            >
+                              ${high?.toLocaleString()}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <span
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: "14px",
+                            color: secondaryColor,
+                            alignSelf: "center",
+                          }}
+                        >
+                          {key}
+                        </span>
+                      </div>
+                    );
                   }
-                  sx={{
-                    height: "20px",
-                    borderRadius: "10px",
-                    backgroundColor: "#ddd",
-                    marginTop: "0.5rem",
-                  }}
-                />
-                <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  $
-                  {detailedCareerData?.annual_earnings?.median?.toLocaleString()}
-                </Typography>
-              </Box>
-
-              {/* High Salary (90th Percentile) */}
-              <Box sx={{ width: "30%" }}>
-                <Typography sx={{ color: "#720361" }}>High</Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={
-                    (detailedCareerData?.annual_earnings?.high /
-                      detailedCareerData?.annual_earnings?.high) *
-                    100
-                  }
-                  sx={{
-                    height: "20px",
-                    borderRadius: "10px",
-                    backgroundColor: "#ddd",
-                    marginTop: "0.5rem",
-                  }}
-                />
-                <Typography sx={{ textAlign: "center", marginTop: "0.5rem" }}>
-                  ${detailedCareerData?.annual_earnings?.high?.toLocaleString()}
-                </Typography>
-              </Box>
-            </Box>
-          </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Available Courses  */}
           <div style={{ marginBottom: "10px" }}>
@@ -412,7 +492,7 @@ const DetailedCareerPathways = ({
                     style={{
                       display: "flex",
                       alignItems: "flex-start",
-                      marginBottom: "8px",
+                      marginBottom: "5px",
                     }}
                   >
                     {/* <span style={{ fontSize: "16px", color: "#333", marginRight: "8px" }}>•</span> */}
@@ -466,6 +546,8 @@ const DetailedCareerPathways = ({
                   <tr style={{ backgroundColor: "#FD8C0C", color: "#fff" }}>
                     <th
                       style={{
+                        width: "180px",
+                        maxWidth: "180px",
                         padding: "10px",
                         border: "1px solid #ddd",
                         fontSize: "18px",
@@ -484,6 +566,7 @@ const DetailedCareerPathways = ({
                     </th>
                     <th
                       style={{
+                        width: "130px",
                         padding: "10px",
                         border: "1px solid #ddd",
                         fontSize: "18px",
@@ -495,7 +578,7 @@ const DetailedCareerPathways = ({
                 </thead>
                 <tbody>
                   {interestProfileData?.universities &&
-                    Object.entries(interestProfileData.universities).map(
+                    Object.entries(interestProfileData?.universities).map(
                       ([country, universities], index, array) => (
                         <>
                           {universities?.split("\n").map((university, i) => {
@@ -512,6 +595,8 @@ const DetailedCareerPathways = ({
                                   <td
                                     rowSpan={universities?.split("\n").length}
                                     style={{
+                                      width: "180px",
+                                      maxWidth: "180px",
                                       padding: "10px",
                                       border: "1px solid #ddd",
                                       fontWeight: "bold",
@@ -532,6 +617,7 @@ const DetailedCareerPathways = ({
                                 </td>
                                 <td
                                   style={{
+                                    width: "130px",
                                     padding: "10px",
                                     border: "1px solid #ddd",
                                   }}
@@ -545,7 +631,7 @@ const DetailedCareerPathways = ({
                                     }}
                                     rel="noreferrer"
                                   >
-                                    {parts[1]}
+                                    Visit Website
                                   </a>
                                 </td>
                               </tr>

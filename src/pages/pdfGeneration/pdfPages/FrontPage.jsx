@@ -1,7 +1,7 @@
 import React from "react";
 import { firstPageBg, pdfLogo } from "../../../assets/assest.js";
 import { fonts } from "../../../utility/fonts.js";
-import { formatDate } from "../pdfUtility/formatDate.js";
+import { formatDate, getCurrentYear } from "../pdfUtility/formatDate.js";
 const FrontPage = ({ fullName, assessmentDate }) => {
   return (
     <div
@@ -131,7 +131,7 @@ const FrontPage = ({ fullName, assessmentDate }) => {
               fontFamily: fonts.poppins,
             }}
           >
-            © CareerExplorer.me @2025
+            © CareerExplorer.me @{getCurrentYear()}
           </span>
         </div>
       </div>

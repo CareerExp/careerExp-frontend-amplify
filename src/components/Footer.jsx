@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { interestLogo } from "../assets/assest.js";
 import footerStyles from "../styles/Footer.module.css";
+import { getCurrentYear } from "../pages/pdfGeneration/pdfUtility/formatDate.js";
 
 const Footer = () => {
   return (
@@ -9,11 +10,17 @@ const Footer = () => {
       <div className={footerStyles.card}>
         <div>
           <Link to="/">
-            <img src={interestLogo} alt="Career-Explorer-Logo" width={150} style={{ marginBottom: "1rem" }} />
+            <img
+              src={interestLogo}
+              alt="Career-Explorer-Logo"
+              width={150}
+              style={{ marginBottom: "1rem" }}
+            />
           </Link>
           <p className="footer-text">
-            CareerExplorer.me seeks to help High School and Higher Education students to plan their career
-            journey, research and explore opportunities for education and early career employment.
+            CareerExplorer.me seeks to help High School and Higher Education
+            students to plan their career journey, research and explore
+            opportunities for education and early career employment.
           </p>
         </div>
         <div className={footerStyles["usefull-links"]}>
@@ -66,7 +73,8 @@ const Footer = () => {
       </div>
       <p>
         {" "}
-        &copy; COPYRIGHT 2025 <span className={footerStyles.yellowText}>Career Explorer.</span>{" "}
+        &copy; COPYRIGHT {getCurrentYear()}{" "}
+        <span className={footerStyles.yellowText}>Career Explorer.</span>{" "}
       </p>
     </section>
   );
