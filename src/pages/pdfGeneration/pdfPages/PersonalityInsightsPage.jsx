@@ -11,23 +11,50 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
     {
       title: "2. Building Blocks: Core elements of your personality",
       items: [
-        { label: "Motivational Factors", text: personalityInsight?.motivational_factors },
+        {
+          label: "Motivational Factors",
+          text: personalityInsight?.motivational_factors,
+        },
         { label: "Learning Style", text: personalityInsight?.learning_style },
-        { label: "Questioning Method", text: personalityInsight?.questioning_method },
+        {
+          label: "Questioning Method",
+          text: personalityInsight?.questioning_method,
+        },
         { label: "Decision Making", text: personalityInsight?.decision_making },
-        { label: "Relating to People", text: personalityInsight?.how_relates_to_people },
-        { label: "Understanding Timescales", text: personalityInsight?.time_scale },
-        { label: "Potential Strengths", text: personalityInsight?.potential_strengths },
-        { label: "Potential Weaknesses", text: personalityInsight?.potential_weaknesses },
+        {
+          label: "Relating to People",
+          text: personalityInsight?.how_relates_to_people,
+        },
+        {
+          label: "Understanding Timescales",
+          text: personalityInsight?.time_scale,
+        },
+        {
+          label: "Potential Strengths",
+          text: personalityInsight?.potential_strengths,
+        },
+        {
+          label: "Potential Weaknesses",
+          text: personalityInsight?.potential_weaknesses,
+        },
       ],
     },
     {
       title: "3. Potential Behavior in a Work Setting",
 
       items: [
-        { label: "Management Technique", text: personalityInsight?.management_technique },
-        { label: "Potential as a Team Leader", text: personalityInsight?.potential_as_a_team_leader },
-        { label: "Potential as a Team Member", text: personalityInsight?.potential_as_a_team_member },
+        {
+          label: "Management Technique",
+          text: personalityInsight?.management_technique,
+        },
+        {
+          label: "Potential as a Team Leader",
+          text: personalityInsight?.potential_as_a_team_leader,
+        },
+        {
+          label: "Potential as a Team Member",
+          text: personalityInsight?.potential_as_a_team_member,
+        },
         {
           label: "Acceptance of Management Responsibility",
           text: personalityInsight?.acceptance_of_management_responsibility,
@@ -36,7 +63,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           label: "Capability for Organization and Planning",
           text: personalityInsight?.capability_for_organization_and_planning,
         },
-        { label: "Response to Authority", text: personalityInsight?.response_to_authority },
+        {
+          label: "Response to Authority",
+          text: personalityInsight?.response_to_authority,
+        },
         {
           label: "Response to a Sales Environment",
           text: personalityInsight?.response_to_a_sales_environment,
@@ -51,7 +81,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
       title: "4. Good to Know",
 
       items: [
-        { label: "Factors that may demotivate", text: personalityInsight?.factors_that_demotivate },
+        {
+          label: "Factors that may demotivate",
+          text: personalityInsight?.factors_that_demotivate,
+        },
         {
           label: "Factors that affect self-esteem",
           text: personalityInsight?.factors_that_threaten_self_esteem,
@@ -73,7 +106,11 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           }}
         >
           <div style={{ textAlign: "left" }}>
-            <span style={{ fontSize: "24px", fontWeight: "bold", color: "#FF8A00" }}>Section 4</span>
+            <span
+              style={{ fontSize: "24px", fontWeight: "bold", color: "#FF8A00" }}
+            >
+              Section 4
+            </span>
           </div>
 
           <span
@@ -124,9 +161,13 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
           <div style={{ border: "1px solid #8C001B" }}></div>
 
-          <div style={{ textAlign: "left", paddingTop: "0px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+          <div style={{ textAlign: "left", paddingTop: "20px" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}
+              >
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -150,16 +191,19 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           <div
             style={{
               textAlign: "justify",
-              padding: "0 0 0 30px",
-              margintTop: "20px",
+              padding: "20px 0 0 30px",
             }}
           >
             <span>{personalityInsight?.motivational_factors}</span>
           </div>
 
-          <div style={{ textAlign: "left", paddingTop: "0px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+          <div style={{ textAlign: "left", paddingTop: "20px" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -183,8 +227,7 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           <div
             style={{
               textAlign: "justify",
-              padding: "0 0 0 30px",
-              margintTop: "20px",
+              padding: "20px 0 0 30px",
             }}
           >
             <span>{personalityInsight?.learning_style}</span>
@@ -203,8 +246,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           }}
         >
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -236,8 +281,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -269,8 +316,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -314,8 +363,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           }}
         >
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -347,8 +398,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -380,8 +433,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -441,8 +496,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           <div style={{ border: "1px solid #8C001B" }}></div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -474,8 +531,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -507,8 +566,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -552,8 +613,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           }}
         >
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -581,12 +644,16 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
               paddingTop: "20px",
             }}
           >
-            <span>{personalityInsight?.acceptance_of_management_responsibility}</span>
+            <span>
+              {personalityInsight?.acceptance_of_management_responsibility}
+            </span>
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -614,12 +681,16 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
               paddingTop: "20px",
             }}
           >
-            <span>{personalityInsight?.capability_for_organization_and_planning}</span>
+            <span>
+              {personalityInsight?.capability_for_organization_and_planning}
+            </span>
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -663,8 +734,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           }}
         >
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -696,8 +769,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -725,7 +800,9 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
               paddingTop: "20px",
             }}
           >
-            <span>{personalityInsight?.response_to_a_technical_environment}</span>
+            <span>
+              {personalityInsight?.response_to_a_technical_environment}
+            </span>
           </div>
         </div>
       </NewPage>
@@ -757,8 +834,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{
@@ -790,8 +869,10 @@ const PersonalityInsightsPage = ({ personalityInsight }) => {
           </div>
 
           <div style={{ textAlign: "left", paddingTop: "20px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0" }}>
+            <span
+              style={{ fontSize: "18px", fontWeight: "bold", color: "#720361" }}
+            >
+              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: 0 }}>
                 <li style={{ position: "relative", paddingLeft: "20px" }}>
                   <span
                     style={{

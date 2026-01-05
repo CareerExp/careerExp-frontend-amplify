@@ -614,10 +614,11 @@ const Explore = () => {
           )}
       </Container>
 
-      {userData?.hasLoggedIn === false &&
+      {/* {userData?.hasLoggedIn === false &&
         userData?.activeDashboard === "user" && (
           <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
-        )}
+          )} */}
+          <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
     </Box>
   );
 };
