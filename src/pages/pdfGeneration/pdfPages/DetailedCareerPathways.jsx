@@ -581,7 +581,7 @@ const DetailedCareerPathways = ({
                     Object.entries(interestProfileData?.universities).map(
                       ([country, universities], index, array) => (
                         <>
-                          {universities?.split("\n").map((university, i) => {
+                          {universities?.split("\n").filter(university => university.trim() !== "").map((university, i) => {
                             const parts = university.split(" - ");
                             return (
                               <tr
