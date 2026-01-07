@@ -14,6 +14,7 @@ import {
   mediumIndicator,
 } from "../assets/assest.js";
 import { fonts } from "../utility/fonts.js";
+import { getCountryFlagByName } from "../utility/getCountryFlagByName";
 
 const CareerDetailsFromOnet = ({
   open,
@@ -136,14 +137,9 @@ const CareerDetailsFromOnet = ({
             </Typography>
           ))}
 
-          {/* <Typography variant="h6" sx={{ marginTop: "2rem" }}>
-            Resources:
-          </Typography> */}
-          {/* Add resources rendering if needed */}
           <Box
             sx={{
               display: "grid",
-              // gridTemplateColumns: "repeat(3, 1fr)",
               gridTemplateColumns: {
                 xs: "1fr",
                 sm: "repeat(2, 1fr)",
@@ -399,11 +395,6 @@ const CareerDetailsFromOnet = ({
                 marginBottom: "2rem",
               }}
             >
-              {/* <Typography
-                sx={{ fontFamily: fonts.sans, fontSize: "21px", fontWeight: 600, color: "#FD8C0C" }}
-              >
-                PERSONALITY
-              </Typography> */}
               <Button
                 sx={{
                   fontSize: "16px",
@@ -504,7 +495,6 @@ const CareerDetailsFromOnet = ({
             <Box
               sx={{
                 minHeight: "100%",
-                // width: "25%",
                 boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
                 padding: "1rem",
                 borderRadius: "5px",
@@ -555,6 +545,37 @@ const CareerDetailsFromOnet = ({
                           gap: 8,
                         }}
                       >
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "12px",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <span
+                            style={{
+                              textTransform: "capitalize",
+                              fontWeight: "bold",
+                              fontSize: "14px",
+                              color: "black",
+                              alignSelf: "center",
+                            }}
+                          >
+                            {key}
+                          </span>
+                          {getCountryFlagByName(key) && (
+                            <img
+                              src={getCountryFlagByName(key)}
+                              alt={key}
+                              style={{
+                                width: 32,
+                                height: 20,
+                                objectFit: "contain",
+                              }}
+                            />
+                          )}
+                        </div>
                         <span
                           style={{
                             fontSize: "14px",
@@ -577,17 +598,6 @@ const CareerDetailsFromOnet = ({
                           alt="Indicator"
                           style={{ alignSelf: "center", maxWidth: "150px" }}
                         />
-                        <span
-                          style={{
-                            textTransform: "capitalize",
-                            fontWeight: "bold",
-                            fontSize: "14px",
-                            color: "black",
-                            alignSelf: "center",
-                          }}
-                        >
-                          {key}
-                        </span>
                       </div>
                     ))}
                   </div>
@@ -638,6 +648,36 @@ const CareerDetailsFromOnet = ({
                             marginTop: "0.5em",
                           }}
                         >
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "12px",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontWeight: "bold",
+                                fontSize: "14px",
+                                color: "black",
+                                alignSelf: "center",
+                              }}
+                            >
+                              {key}
+                            </span>
+                            {getCountryFlagByName(key) && (
+                              <img
+                                src={getCountryFlagByName(key)}
+                                alt={key}
+                                style={{
+                                  width: 32,
+                                  height: 20,
+                                  objectFit: "contain",
+                                }}
+                              />
+                            )}
+                          </div>
                           <Box
                             sx={{
                               display: "flex",
@@ -721,16 +761,6 @@ const CareerDetailsFromOnet = ({
                               </Typography>
                             </Box>
                           </Box>
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                              fontSize: "14px",
-                              color: "black",
-                              alignSelf: "center",
-                            }}
-                          >
-                            {key}
-                          </span>
                         </div>
                       );
                     })}

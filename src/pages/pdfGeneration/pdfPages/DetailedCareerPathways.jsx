@@ -530,9 +530,8 @@ const DetailedCareerPathways = ({
             <br />
 
             <div style={{ marginTop: "10px" }}>
-              {interestProfileData?.courses
-                ?.split("\n")
-                .map((course, index) => (
+              {interestProfileData &&
+                interestProfileData?.courses.map((course, index) => (
                   <div
                     key={index}
                     style={{
@@ -541,7 +540,6 @@ const DetailedCareerPathways = ({
                       marginBottom: "5px",
                     }}
                   >
-                    {/* <span style={{ fontSize: "16px", color: "#333", marginRight: "8px" }}>•</span> */}
                     <span
                       style={{
                         fontSize: "16px",
@@ -549,7 +547,7 @@ const DetailedCareerPathways = ({
                         lineHeight: "1.5",
                       }}
                     >
-                      {course.trim()}
+                      {index + 1}. {course.trim()}
                     </span>
                   </div>
                 ))}
