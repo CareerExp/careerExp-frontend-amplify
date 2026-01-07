@@ -7,6 +7,7 @@ import {
 } from "../../../assets/assest.js";
 import { fonts } from "../../../utility/fonts";
 import NewPage from "./NewPage";
+import { getCountryFlagByName } from "../../../utility/getCountryFlagByName";
 
 const DetailedCareerPathways = ({
   key,
@@ -292,6 +293,7 @@ const DetailedCareerPathways = ({
                   gap: 12,
                   alignItems: "center",
                   marginTop: 12,
+                  height: "220px",
                 }}
               >
                 {Object.keys(detailedCareerData?.job_outlook || {}).map(
@@ -301,13 +303,47 @@ const DetailedCareerPathways = ({
                       style={{
                         display: "flex",
                         flexDirection: "column",
+                        justifyContent: "between",
+                        height: "100%",
                         gap: "12px",
                       }}
                     >
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            color: secondaryColor,
+                            alignSelf: "center",
+                          }}
+                        >
+                          {key}
+                        </span>
+                        {getCountryFlagByName(key) && (
+                          <img
+                            src={getCountryFlagByName(key)}
+                            alt={key}
+                            style={{
+                              width: 32,
+                              height: 20,
+                              objectFit: "contain",
+                            }}
+                          />
+                        )}
+                      </div>
                       <span
                         style={{
                           fontSize: "14px",
                           color: secondaryColor,
+                          height: "80px",
                         }}
                       >
                         {detailedCareerData?.job_outlook?.[key]?.description}
@@ -326,17 +362,6 @@ const DetailedCareerPathways = ({
                         alt="Indicator"
                         style={{ alignSelf: "center", maxWidth: "150px" }}
                       />
-                      <span
-                        style={{
-                          textTransform: "capitalize",
-                          fontWeight: "bold",
-                          fontSize: "14px",
-                          color: secondaryColor,
-                          alignSelf: "center",
-                        }}
-                      >
-                        {key}
-                      </span>
                     </div>
                   )
                 )}
@@ -378,10 +403,41 @@ const DetailedCareerPathways = ({
                           flex: 1,
                           display: "flex",
                           flexDirection: "column",
+                          justifyContent: "start",
                           gap: 8,
                           marginTop: "0.5em",
                         }}
                       >
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "12px",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: "16px",
+                              color: secondaryColor,
+                              alignSelf: "center",
+                            }}
+                          >
+                            {key}
+                          </span>
+                          {getCountryFlagByName(key) && (
+                            <img
+                              src={getCountryFlagByName(key)}
+                              alt={key}
+                              style={{
+                                width: 32,
+                                height: 20,
+                                objectFit: "contain",
+                              }}
+                            />
+                          )}
+                        </div>
                         <Box
                           sx={{
                             display: "flex",
@@ -456,16 +512,6 @@ const DetailedCareerPathways = ({
                             </Typography>
                           </Box>
                         </Box>
-                        <span
-                          style={{
-                            fontWeight: "bold",
-                            fontSize: "14px",
-                            color: secondaryColor,
-                            alignSelf: "center",
-                          }}
-                        >
-                          {key}
-                        </span>
                       </div>
                     );
                   }
@@ -581,62 +627,65 @@ const DetailedCareerPathways = ({
                     Object.entries(interestProfileData?.universities).map(
                       ([country, universities], index, array) => (
                         <>
-                          {universities?.split("\n").filter(university => university.trim() !== "").map((university, i) => {
-                            const parts = university.split(" - ");
-                            return (
-                              <tr
-                                key={`${index}-${i}`}
-                                style={{
-                                  backgroundColor:
-                                    i % 2 === 0 ? "#f9f9f9" : "#fff",
-                                }}
-                              >
-                                {i === 0 && (
+                          {universities
+                            ?.split("\n")
+                            .filter((university) => university.trim() !== "")
+                            .map((university, i) => {
+                              const parts = university.split(" - ");
+                              return (
+                                <tr
+                                  key={`${index}-${i}`}
+                                  style={{
+                                    backgroundColor:
+                                      i % 2 === 0 ? "#f9f9f9" : "#fff",
+                                  }}
+                                >
+                                  {i === 0 && (
+                                    <td
+                                      rowSpan={universities?.split("\n").length}
+                                      style={{
+                                        width: "180px",
+                                        maxWidth: "180px",
+                                        padding: "10px",
+                                        border: "1px solid #ddd",
+                                        fontWeight: "bold",
+                                        verticalAlign: "top",
+                                        backgroundColor: "#f1f1f1",
+                                      }}
+                                    >
+                                      {country}
+                                    </td>
+                                  )}
                                   <td
-                                    rowSpan={universities?.split("\n").length}
                                     style={{
-                                      width: "180px",
-                                      maxWidth: "180px",
                                       padding: "10px",
                                       border: "1px solid #ddd",
-                                      fontWeight: "bold",
-                                      verticalAlign: "top",
-                                      backgroundColor: "#f1f1f1",
                                     }}
                                   >
-                                    {country}
+                                    {parts[0].substring(3)}
                                   </td>
-                                )}
-                                <td
-                                  style={{
-                                    padding: "10px",
-                                    border: "1px solid #ddd",
-                                  }}
-                                >
-                                  {parts[0].substring(3)}
-                                </td>
-                                <td
-                                  style={{
-                                    width: "130px",
-                                    padding: "10px",
-                                    border: "1px solid #ddd",
-                                  }}
-                                >
-                                  <a
-                                    href={parts[1]}
-                                    target="_blank"
+                                  <td
                                     style={{
-                                      color: "#007bff",
-                                      textDecoration: "none",
+                                      width: "130px",
+                                      padding: "10px",
+                                      border: "1px solid #ddd",
                                     }}
-                                    rel="noreferrer"
                                   >
-                                    Visit Website
-                                  </a>
-                                </td>
-                              </tr>
-                            );
-                          })}
+                                    <a
+                                      href={parts[1]}
+                                      target="_blank"
+                                      style={{
+                                        color: "#007bff",
+                                        textDecoration: "none",
+                                      }}
+                                      rel="noreferrer"
+                                    >
+                                      Visit Website
+                                    </a>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           {/* Add a spacer row between different countries */}
                           {index < array.length - 1 && (
                             <tr>

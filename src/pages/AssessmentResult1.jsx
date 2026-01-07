@@ -55,6 +55,15 @@ const AssessmentResult1 = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [progress, setProgress] = useState(0);
   const [buffer, setBuffer] = useState(10);
+  const [flag, setFlag] = useState();
+
+  useEffect(() => {
+    const mobile = userProfile?.mobile || "";
+
+    const country = countryList.find((c) => mobile.startsWith(c.dial_code));
+
+    setFlag(country?.image);
+  }, [userProfile]);
 
   const universities =
     interestsProfile?.interestProfileDetails?.careers?.career[19]?.universities;
@@ -290,7 +299,31 @@ const AssessmentResult1 = () => {
       <Headers />
       <div className={assessmentResult1.container}>
         <div className={assessmentResult1.left}>
-          <img src={india} alt="user" />
+          <div
+            style={{
+              borderRadius: "50%",
+              height: "50px",
+              width: "50px",
+              overflow: "hidden",
+              border: "1px solid",
+              position: "relative",
+            }}
+          >
+            {flag && (
+              <img
+                src={flag}
+                alt="Country flag"
+                style={{
+                  width: 100,
+                  height: 100,
+                  position: "absolute",
+                  top: -26,
+                  left: -26,
+                }}
+              />
+            )}
+          </div>
+
           <p className={assessmentResult1.name}>
             {userProfile?.firstName + " " + userProfile?.lastName}
           </p>
@@ -519,6 +552,7 @@ const AssessmentResult1 = () => {
                                   color: "inherit",
                                 },
                               }}
+                              precision={0.5}
                               name="read-only"
                               readOnly
                               value={item?.match_score}
