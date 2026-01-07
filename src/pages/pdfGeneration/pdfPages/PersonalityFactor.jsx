@@ -155,6 +155,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         readOnly
                         size="small"
                         style={{ fontSize: "1.2rem" }}
+                        precision={0.5}
                       />
                     </div>
                   </div>
@@ -275,7 +276,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             zIndex: 1,
             padding: "0px 45px",
             textAlign: "left",
-            marginBottom: "12px"
+            marginBottom: "12px",
           }}
         >
           <span
