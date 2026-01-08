@@ -671,8 +671,8 @@ const CareerDetailsFromOnet = ({
                                 src={getCountryFlagByName(key)}
                                 alt={key}
                                 style={{
-                                  width: 32,
-                                  height: 20,
+                                  width: 40,
+                                  height: 26,
                                   objectFit: "contain",
                                 }}
                               />
