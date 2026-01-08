@@ -332,8 +332,8 @@ const DetailedCareerPathways = ({
                             src={getCountryFlagByName(key)}
                             alt={key}
                             style={{
-                              width: 32,
-                              height: 20,
+                              width: 40,
+                              height: 26,
                               objectFit: "contain",
                             }}
                           />
@@ -431,8 +431,8 @@ const DetailedCareerPathways = ({
                               src={getCountryFlagByName(key)}
                               alt={key}
                               style={{
-                                width: 32,
-                                height: 20,
+                                width: 40,
+                                height: 26,
                                 objectFit: "contain",
                               }}
                             />
@@ -545,6 +545,7 @@ const DetailedCareerPathways = ({
                         fontSize: "16px",
                         color: "#555",
                         lineHeight: "1.5",
+                        fontWeight: "600",
                       }}
                     >
                       {index + 1}. {course.trim()}

@@ -1,10 +1,4 @@
-import {
-  Box,
-  IconButton,
-  LinearProgress,
-  Rating,
-  Typography,
-} from "@mui/material";
+import { Box, LinearProgress, Rating, Typography } from "@mui/material";
 import ReactECharts from "echarts-for-react";
 import React, { useEffect, useState } from "react";
 import { BsDownload } from "react-icons/bs";
@@ -24,7 +18,6 @@ import {
   selectEducationLevel,
   selectInterests,
 } from "../redux/slices/interestSlice.js";
-import { getCareerInfo } from "../redux/slices/onetSlice.js";
 import {
   getUserProfile,
   selectUserProfile,
@@ -32,7 +25,6 @@ import {
 import assessmentResult1 from "../styles/AssessmentResult1.module.css";
 import { countryList } from "../utility/countryList.js";
 import CircularProgress from "@mui/material/CircularProgress";
-import { selectIsFollowing } from "../redux/slices/creatorSlice.js";
 
 const AssessmentResult1 = () => {
   const dispatchToRedux = useDispatch();
@@ -522,22 +514,6 @@ const AssessmentResult1 = () => {
                             }}
                           >
                             <div className={assessmentResult1.logo}>P</div>
-                            {/* <IconButton
-                              sx={{
-                                marginTop: "-0.2rem",
-                                pointerEvents: "none",
-                              }}
-                            >
-                              <Typography
-                                sx={{
-                                  color: "gray",
-                                  mx: 0.25,
-                                  fontSize: "1rem",
-                                }}
-                              >
-                                {item?.match_score}
-                              </Typography>
-                            </IconButton> */}
                             <Rating
                               sx={{
                                 fontSize: "1rem",
