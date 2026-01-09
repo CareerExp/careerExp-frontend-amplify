@@ -15,6 +15,7 @@ import {
 } from "../assets/assest.js";
 import { fonts } from "../utility/fonts.js";
 import { getCountryFlagByName } from "../utility/getCountryFlagByName";
+import { getCountryEmojiByName } from "../utility/getCountryEmojiByName.jsx";
 
 const CareerDetailsFromOnet = ({
   open,
@@ -564,7 +565,7 @@ const CareerDetailsFromOnet = ({
                           >
                             {key}
                           </span>
-                          {getCountryFlagByName(key) && (
+                          {/* {getCountryFlagByName(key) && (
                             <img
                               src={getCountryFlagByName(key)}
                               alt={key}
@@ -574,7 +575,10 @@ const CareerDetailsFromOnet = ({
                                 objectFit: "contain",
                               }}
                             />
-                          )}
+                          )} */}
+                          <span style={{ fontSize: "28px" }}>
+                            {getCountryEmojiByName(key)}
+                          </span>
                         </div>
                         <span
                           style={{
@@ -666,7 +670,7 @@ const CareerDetailsFromOnet = ({
                             >
                               {key}
                             </span>
-                            {getCountryFlagByName(key) && (
+                            {/* {getCountryFlagByName(key) && (
                               <img
                                 src={getCountryFlagByName(key)}
                                 alt={key}
@@ -676,7 +680,10 @@ const CareerDetailsFromOnet = ({
                                   objectFit: "contain",
                                 }}
                               />
-                            )}
+                            )} */}
+                            <span style={{ fontSize: "28px" }}>
+                              {getCountryEmojiByName(key)}
+                            </span>
                           </div>
                           <Box
                             sx={{

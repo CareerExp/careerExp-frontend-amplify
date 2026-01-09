@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   highIndicator,
   lowIndicator,
@@ -8,9 +8,9 @@ import {
 import { fonts } from "../../../utility/fonts";
 import NewPage from "./NewPage";
 import { getCountryFlagByName } from "../../../utility/getCountryFlagByName";
+import { getCountryEmojiByName } from "../../../utility/getCountryEmojiByName.jsx";
 
 const DetailedCareerPathways = ({
-  key,
   detailedCareerData,
   interestProfileData,
   pageNumber,
@@ -327,7 +327,7 @@ const DetailedCareerPathways = ({
                         >
                           {key}
                         </span>
-                        {getCountryFlagByName(key) && (
+                        {/* {getCountryFlagByName(key) && (
                           <img
                             src={getCountryFlagByName(key)}
                             alt={key}
@@ -337,7 +337,11 @@ const DetailedCareerPathways = ({
                               objectFit: "contain",
                             }}
                           />
-                        )}
+                        )} */}
+                        {/* <PdfSafeFlag country={key} /> */}
+                        <span style={{ fontSize: "28px" }}>
+                          {getCountryEmojiByName(key)}
+                        </span>
                       </div>
                       <span
                         style={{
@@ -426,7 +430,7 @@ const DetailedCareerPathways = ({
                           >
                             {key}
                           </span>
-                          {getCountryFlagByName(key) && (
+                          {/* {getCountryFlagByName(key) && (
                             <img
                               src={getCountryFlagByName(key)}
                               alt={key}
@@ -436,7 +440,10 @@ const DetailedCareerPathways = ({
                                 objectFit: "contain",
                               }}
                             />
-                          )}
+                          )} */}
+                          <span style={{ fontSize: "28px" }}>
+                            {getCountryEmojiByName(key)}
+                          </span>
                         </div>
                         <Box
                           sx={{
