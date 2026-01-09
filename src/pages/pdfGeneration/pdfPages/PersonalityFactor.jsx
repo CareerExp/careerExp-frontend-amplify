@@ -133,7 +133,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         gap: "4px",
                       }}
                     >
-                      <div
+                      {/* <div
                         style={{
                           backgroundColor: "#bf2f75",
                           height: "24px",
@@ -149,7 +149,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         }}
                       >
                         P
-                      </div>
+                      </div> */}
                       <Rating
                         value={item?.match_score}
                         readOnly
@@ -219,7 +219,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                     >
                       {item.title}
                     </p>
-                    <div
+                    {/* <div
                       style={{
                         backgroundColor: "#bf2f75",
                         height: "24px",
@@ -235,7 +235,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                       }}
                     >
                       P
-                    </div>
+                    </div> */}
                   </div>
                   <div
                     style={{

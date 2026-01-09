@@ -513,7 +513,7 @@ const AssessmentResult1 = () => {
                               alignItems: "center",
                             }}
                           >
-                            <div className={assessmentResult1.logo}>P</div>
+                            {/* <div></div> */}
                             <Rating
                               sx={{
                                 fontSize: "1rem",
