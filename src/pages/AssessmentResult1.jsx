@@ -127,7 +127,7 @@ const AssessmentResult1 = () => {
     let progressValue = 0;
     let bufferValue = 10;
     const progressTimer = setInterval(() => {
-      progressValue += 0.33; // Adjusted for 5 minutes (300 seconds)
+      progressValue += 0.23; // Adjusted for 5 minutes (300 seconds)
       bufferValue = Math.min(progressValue + 10, 100);
       setProgress(progressValue);
       setBuffer(bufferValue);
@@ -141,7 +141,7 @@ const AssessmentResult1 = () => {
       setModalMessage(
         "Your report is compiled and generated! Click the download button to save it to your device."
       );
-    }, 300000); // 5 minutes (300,000 ms)
+    }, 420000); // 7 minutes (420,000 ms)
 
     return () => {
       clearInterval(progressTimer);
@@ -244,10 +244,6 @@ const AssessmentResult1 = () => {
     window.open(`/generate-assessmnet-pdf?attempt=${attemptNumber}`, "_blank");
   };
 
-  const handleCompressedDownloadAssessment = (attemptNumber) => {
-    window.open(`/generate-compressed-pdf?attempt=${attemptNumber}`, "_blank");
-  };
-
   function CircularProgressWithLabel({ value }) {
     return (
       <Box sx={{ position: "relative", display: "inline-flex" }}>
@@ -274,15 +270,12 @@ const AssessmentResult1 = () => {
 
   if (isInitialLoading) {
     return (
-      // <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
       <>
         {" "}
         <Headers />
         <InitialLoaders />
         <Footer />
       </>
-
-      // </Box>
     );
   }
 
@@ -413,27 +406,6 @@ const AssessmentResult1 = () => {
                 )}
                 Download Report
               </button>
-              {/* <button
-                className={assessmentResult1.navButton}
-                onClick={() =>
-                  handleCompressedDownloadAssessment(interestAttemptNumber)
-                }
-                disabled={isButtonDisabled}
-                style={{
-                  cursor: isButtonDisabled ? "not-allowed" : "pointer",
-                  opacity: isButtonDisabled ? 0.5 : 1,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                {isButtonDisabled ? (
-                  <CircularProgressWithLabel value={progress} />
-                ) : (
-                  <BsDownload />
-                )}
-                Download Compressed Report
-              </button> */}
             </div>
           </div>
 
