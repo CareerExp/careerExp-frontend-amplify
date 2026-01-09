@@ -6,7 +6,12 @@ import { background, discHero, discLogo } from "../assets/assest.js";
 import QuestionCard from "../components/disc/QuestionCard.jsx";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import { selectToken, selectUserId } from "../redux/slices/authSlice.js";
-import { getDiscQuestions, selectQuestions } from "../redux/slices/discSlice.js";
+import {
+  getDiscQuestions,
+  selectQuestions,
+} from "../redux/slices/discSlice.js";
+
+const IS_LOCAL = import.meta.env.VITE_REACT_APP_IS_LOCAL === "true";
 
 const DiscAssessment = () => {
   const userId = useSelector(selectUserId);
@@ -23,7 +28,9 @@ const DiscAssessment = () => {
     const fetchQuestions = async () => {
       try {
         setIsPageLoading(true);
-        const actionResult = await dispatchToRedux(getDiscQuestions({ userId, token })).unwrap();
+        const actionResult = await dispatchToRedux(
+          getDiscQuestions({ userId, token })
+        ).unwrap();
         setQuestions(actionResult.questions || []);
         setIsPageLoading(false);
       } catch (error) {
@@ -67,12 +74,18 @@ const DiscAssessment = () => {
               </Link>
               {questions.length > 0 && (
                 <QuestionCard
-                  questionNumber={questions[currentQuestionIndex].questionNumber}
-                  questionStatements={questions[currentQuestionIndex].statements}
+                  questionNumber={
+                    questions[currentQuestionIndex].questionNumber
+                  }
+                  questionStatements={
+                    questions[currentQuestionIndex].statements
+                  }
                   totalQuestions={questions.length}
                   onNext={handleNext}
                   onPrevious={handlePrevious}
-                  isLastQuestion={currentQuestionIndex === questions.length - 1}
+                  isLastQuestion={
+                    IS_LOCAL ? true : currentQuestionIndex === questions.length - 1
+                  }
                   isFirstQuestion={currentQuestionIndex === 0}
                   overallAnswers={overallAnswers}
                   setOverallAnswers={setOverallAnswers}

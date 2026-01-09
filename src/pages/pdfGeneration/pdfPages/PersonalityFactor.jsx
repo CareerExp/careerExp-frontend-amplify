@@ -124,7 +124,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         padding: "0",
                       }}
                     >
-                      {item?.fit === "Best" ? "Good" : item?.fit} Fit
+                      {item?.fit === "Best" ? "Good Fit" : item?.fit}
                     </p>
                     <div
                       style={{
@@ -133,7 +133,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         gap: "4px",
                       }}
                     >
-                      <div
+                      {/* <div
                         style={{
                           backgroundColor: "#bf2f75",
                           height: "24px",
@@ -149,12 +149,13 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         }}
                       >
                         P
-                      </div>
+                      </div> */}
                       <Rating
                         value={item?.match_score}
                         readOnly
                         size="small"
                         style={{ fontSize: "1.2rem" }}
+                        precision={0.5}
                       />
                     </div>
                   </div>
@@ -184,7 +185,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             }}
           >
             {interestProfileData?.careers?.career
-              .slice(8)
+              .slice(8, 20)
               .map((item, index) => (
                 <div
                   key={index}
@@ -218,7 +219,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                     >
                       {item.title}
                     </p>
-                    <div
+                    {/* <div
                       style={{
                         backgroundColor: "#bf2f75",
                         height: "24px",
@@ -234,7 +235,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                       }}
                     >
                       P
-                    </div>
+                    </div> */}
                   </div>
                   <div
                     style={{
@@ -253,7 +254,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
                         padding: "0",
                       }}
                     >
-                      {item?.fit === "Best" ? "Good" : item?.fit} Fit
+                      {item?.fit === "Best" ? "Good Fit" : item?.fit}
                     </p>
                     <Rating
                       value={item?.match_score}
@@ -275,6 +276,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             zIndex: 1,
             padding: "0px 45px",
             textAlign: "left",
+            marginBottom: "12px",
           }}
         >
           <span
@@ -289,34 +291,36 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
           >
             Best-fit Analysis
           </span>
-          <div style={{ marginBottom: "15px" }}>
+          <div style={{ marginBottom: "10px" }}>
             <span style={{ display: "block", lineHeight: "1.5" }}>
               {getFirstName(fullName)} for each of the identified career
               pathways we have also analysed how well these fit with your
               current interests, educational preferences and aspirations. There
-              are 3 levels we have assigned to each career pathway:
+              are 6 levels we have assigned to each career pathway:
             </span>
 
             <ul
               style={{
                 listStyleType: "disc",
                 paddingLeft: "40px",
-                margin: "15px 0",
+                margin: "10px 0 0",
               }}
             >
               <li>Perfect fit </li>
-              <li>Great fit </li>
-              <li>Best fit </li>
+              <li>Great Fit </li>
+              <li>Must Explore </li>
+              <li>Explore further </li>
+              <li>Good fit </li>
+              <li>Worth considering</li>
             </ul>
           </div>
-          <div style={{ marginBottom: "15px" }}>
+          <div style={{ marginBottom: "10px" }}>
             <span
               style={{
                 fontSize: "20px",
                 fontWeight: "bold",
                 color: "#FF8A00",
                 display: "block",
-                padding: "10px 0",
               }}
             >
               Detailed career pathways
@@ -337,7 +341,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             style={{
               listStyleType: "disc",
               paddingLeft: "40px",
-              margin: "15px 0",
+              margin: "10px 0 0",
             }}
           >
             <li>What people in these jobs do </li>
@@ -348,7 +352,7 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             <li>Technology competence </li>
           </ul>
           <span
-            style={{ display: "block", lineHeight: "1.5", margin: "15px 0" }}
+            style={{ display: "block", lineHeight: "1.5", margin: "10px 0" }}
           >
             Academic requirements for each Career pathway are also identified
             along with relevant Colleges and Universities that offer the
@@ -366,7 +370,6 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
             zIndex: 1,
             padding: "0px 45px",
             textAlign: "left",
-            marginTop: "20px",
           }}
         >
           <span
@@ -375,12 +378,11 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               fontWeight: "bold",
               color: "#FF8A00",
               display: "block",
-              padding: "10px 0",
             }}
           >
             Important
           </span>
-          <div style={{ marginBottom: "15px" }}>
+          <div style={{ marginBottom: "10px" }}>
             <span style={{ display: "block", lineHeight: "1.5" }}>
               You should not consider this as a closed or restricted list of
               careers. This is your starting point to use to investigate and dig
@@ -397,7 +399,6 @@ const PersonalityFactor = ({ interestProfileData, fullName }) => {
               fontWeight: "bold",
               color: "#FF8A00",
               display: "block",
-              padding: "10px 0",
             }}
           >
             What next?

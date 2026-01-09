@@ -1,10 +1,4 @@
-import {
-  Box,
-  IconButton,
-  LinearProgress,
-  Rating,
-  Typography,
-} from "@mui/material";
+import { Box, LinearProgress, Rating, Typography } from "@mui/material";
 import ReactECharts from "echarts-for-react";
 import React, { useEffect, useState } from "react";
 import { BsDownload } from "react-icons/bs";
@@ -24,7 +18,6 @@ import {
   selectEducationLevel,
   selectInterests,
 } from "../redux/slices/interestSlice.js";
-import { getCareerInfo } from "../redux/slices/onetSlice.js";
 import {
   getUserProfile,
   selectUserProfile,
@@ -32,7 +25,6 @@ import {
 import assessmentResult1 from "../styles/AssessmentResult1.module.css";
 import { countryList } from "../utility/countryList.js";
 import CircularProgress from "@mui/material/CircularProgress";
-import { selectIsFollowing } from "../redux/slices/creatorSlice.js";
 
 const AssessmentResult1 = () => {
   const dispatchToRedux = useDispatch();
@@ -55,6 +47,15 @@ const AssessmentResult1 = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [progress, setProgress] = useState(0);
   const [buffer, setBuffer] = useState(10);
+  const [flag, setFlag] = useState();
+
+  useEffect(() => {
+    const mobile = userProfile?.mobile || "";
+
+    const country = countryList.find((c) => mobile.startsWith(c.dial_code));
+
+    setFlag(country?.image);
+  }, [userProfile]);
 
   const universities =
     interestsProfile?.interestProfileDetails?.careers?.career[19]?.universities;
@@ -126,7 +127,7 @@ const AssessmentResult1 = () => {
     let progressValue = 0;
     let bufferValue = 10;
     const progressTimer = setInterval(() => {
-      progressValue += 0.33; // Adjusted for 5 minutes (300 seconds)
+      progressValue += 0.23; // Adjusted for 5 minutes (300 seconds)
       bufferValue = Math.min(progressValue + 10, 100);
       setProgress(progressValue);
       setBuffer(bufferValue);
@@ -140,7 +141,7 @@ const AssessmentResult1 = () => {
       setModalMessage(
         "Your report is compiled and generated! Click the download button to save it to your device."
       );
-    }, 300000); // 5 minutes (300,000 ms)
+    }, 420000); // 7 minutes (420,000 ms)
 
     return () => {
       clearInterval(progressTimer);
@@ -230,24 +231,8 @@ const AssessmentResult1 = () => {
 
   const handleOpenModal = async (item) => {
     setCareerData(null);
-    setIsOnetDetailedLoading(true);
-
-    try {
-      const response = await dispatchToRedux(
-        getCareerInfo({ careercode: item.code, topic: "report", token })
-      );
-
-      if (response.error) {
-        console.error("Error fetching career info:", response.error);
-        return;
-      }
-      setCareerData(response.payload);
-      setIsOnetDetailedLoading(false);
-      setOpenModal(true);
-    } catch (error) {
-      console.error("Error fetching career info:", error);
-      setIsOnetDetailedLoading(false);
-    }
+    setCareerData(item);
+    setOpenModal(true);
   };
 
   const handleCloseModal = () => {
@@ -257,10 +242,6 @@ const AssessmentResult1 = () => {
 
   const handleDownloadAssessment = (attemptNumber) => {
     window.open(`/generate-assessmnet-pdf?attempt=${attemptNumber}`, "_blank");
-  };
-
-  const handleCompressedDownloadAssessment = (attemptNumber) => {
-    window.open(`/generate-compressed-pdf?attempt=${attemptNumber}`, "_blank");
   };
 
   function CircularProgressWithLabel({ value }) {
@@ -289,15 +270,12 @@ const AssessmentResult1 = () => {
 
   if (isInitialLoading) {
     return (
-      // <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
       <>
         {" "}
         <Headers />
         <InitialLoaders />
         <Footer />
       </>
-
-      // </Box>
     );
   }
 
@@ -306,7 +284,31 @@ const AssessmentResult1 = () => {
       <Headers />
       <div className={assessmentResult1.container}>
         <div className={assessmentResult1.left}>
-          <img src={india} alt="user" />
+          <div
+            style={{
+              borderRadius: "50%",
+              height: "50px",
+              width: "50px",
+              overflow: "hidden",
+              border: "1px solid",
+              position: "relative",
+            }}
+          >
+            {flag && (
+              <img
+                src={flag}
+                alt="Country flag"
+                style={{
+                  width: 100,
+                  height: 100,
+                  position: "absolute",
+                  top: -26,
+                  left: -26,
+                }}
+              />
+            )}
+          </div>
+
           <p className={assessmentResult1.name}>
             {userProfile?.firstName + " " + userProfile?.lastName}
           </p>
@@ -404,27 +406,6 @@ const AssessmentResult1 = () => {
                 )}
                 Download Report
               </button>
-              {/* <button
-                className={assessmentResult1.navButton}
-                onClick={() =>
-                  handleCompressedDownloadAssessment(interestAttemptNumber)
-                }
-                disabled={isButtonDisabled}
-                style={{
-                  cursor: isButtonDisabled ? "not-allowed" : "pointer",
-                  opacity: isButtonDisabled ? 0.5 : 1,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                {isButtonDisabled ? (
-                  <CircularProgressWithLabel value={progress} />
-                ) : (
-                  <BsDownload />
-                )}
-                Download Compressed Report
-              </button> */}
             </div>
           </div>
 
@@ -494,7 +475,7 @@ const AssessmentResult1 = () => {
                         </div>
                         <div className={assessmentResult1.userAndRating}>
                           <p className={assessmentResult1.description}>
-                            {item.fit === "Best" ? "Good" : item.fit} Fit
+                            {item.fit === "Best" ? "Good Fit" : item.fit}
                           </p>
 
                           <div
@@ -504,23 +485,7 @@ const AssessmentResult1 = () => {
                               alignItems: "center",
                             }}
                           >
-                            <div className={assessmentResult1.logo}>P</div>
-                            {/* <IconButton
-                              sx={{
-                                marginTop: "-0.2rem",
-                                pointerEvents: "none",
-                              }}
-                            >
-                              <Typography
-                                sx={{
-                                  color: "gray",
-                                  mx: 0.25,
-                                  fontSize: "1rem",
-                                }}
-                              >
-                                {item?.match_score}
-                              </Typography>
-                            </IconButton> */}
+                            {/* <div></div> */}
                             <Rating
                               sx={{
                                 fontSize: "1rem",
@@ -535,6 +500,7 @@ const AssessmentResult1 = () => {
                                   color: "inherit",
                                 },
                               }}
+                              precision={0.5}
                               name="read-only"
                               readOnly
                               value={item?.match_score}

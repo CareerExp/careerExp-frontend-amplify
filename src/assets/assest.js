@@ -158,6 +158,7 @@ import backgroundVector from "./Vector.png";
 import profileOilPaintMobile from "./Profile/Subtractshivam.png";
 // shareIconInOrange
 import shareIconInOrange from "./icons/shareInOrange.png";
+import domainImage from "./domainWheel.svg";
 
 export {
   PageNotFound,
@@ -321,4 +322,5 @@ export {
   profileOilPaintMobile,
   // shareIconInOrange
   shareIconInOrange,
+  domainImage,
 };

@@ -29,7 +29,7 @@ export const getInterests = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
-  },
+  }
 );
 
 const interestSlice = createSlice({
