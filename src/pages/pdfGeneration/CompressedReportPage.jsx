@@ -397,12 +397,11 @@ const CompressedReportPage = () => {
                         when you are selecting the career path that is best
                         suited to you.
                         <br /> <br />
-                        Our predictive algorithms use the responses that you
-                        have given to present to you 20 different job profiles
-                        that you should investigate further and consider for
-                        your future. You will see a ‘Personality Factor’
-                        assigned to each job. This is based on our analysis of
-                        your personality as derived from your survey results.
+                        You will see a Future Focus Score attached to each the 9
+                        career domains on the Career Opportunity Framework,
+                        2025-35. This represents the State of the Employment
+                        Market and the confidence we have on the Opportunities
+                        available for early careers over this 10 year horizon.
                         <br /> <br />
                         Remember your future is in your hands to craft as you
                         choose. Initial choices will no doubt be refined as you
