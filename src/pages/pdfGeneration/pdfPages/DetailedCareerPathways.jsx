@@ -60,11 +60,13 @@ const DetailedCareerPathways = ({
             </span>
             <br />
             <span
-              style={{
-                fontSize: "14px",
-                color: "#555",
-                lineHeight: "1.4", // Tighter line height
-              }}
+              style={
+                {
+                  // fontSize: "14px",
+                  // color: "secondaryColor",
+                  // lineHeight: "1.4", // Tighter line height
+                }
+              }
             >
               {detailedCareerData.what_they_do}
             </span>
@@ -205,14 +207,12 @@ const DetailedCareerPathways = ({
             </span>
             <br />
             <span
-              style={{ fontSize: "14px", color: "#555", lineHeight: "1.4" }}
+            // style={{ fontSize: "14px", color: "#555", lineHeight: "1.4" }}
             >
               {detailedCareerData?.personality?.top_interest}
             </span>
             <br />
-            <span style={{ fontSize: "14px", color: secondaryColor }}>
-              They do well at jobs that need:
-            </span>
+            <span>They do well at jobs that need:</span>
             {detailedCareerData?.personality?.work_styles?.map((el, i) => (
               <div key={i} style={{ paddingLeft: "10px", marginTop: "2px" }}>
                 <span
