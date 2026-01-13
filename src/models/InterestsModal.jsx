@@ -23,6 +23,8 @@ import {
   selectUserId,
 } from "../redux/slices/authSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
+import { fontWeight } from "@mui/system";
+import styles from "../styles/SurveyQuestion7Card.module.css";
 
 const InterestsModal = ({ open, handleClose }) => {
   const dispatchToRedux = useDispatch();
@@ -69,6 +71,14 @@ const InterestsModal = ({ open, handleClose }) => {
     }
   };
 
+  const handleCheckboxToggle = (category) => {
+    setSelected((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+  };
+
   return (
     <Modal
       open={open}
@@ -88,9 +98,9 @@ const InterestsModal = ({ open, handleClose }) => {
           width: {
             xs: "90%", // mobile (480px and below)
             sm: "80%", // small devices (480px-600px)
-            md: 600, // desktop (600px and above)
+            md: 640, // desktop (600px and above)
           },
-          maxWidth: "95vw",
+          maxWidth: "96vw",
           maxHeight: "90vh",
           overflow: "auto",
           bgcolor: "background.paper",
@@ -101,7 +111,48 @@ const InterestsModal = ({ open, handleClose }) => {
       >
         <Box
           sx={{
-            background: "linear-gradient(to top left, #720361, #bf2f75)",
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            cursor: "pointer",
+            display: "grid",
+            placeContent: "center",
+            placeItems: "center",
+            background: "#FFFFFF33",
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            zIndex: 1000,
+          }}
+          onClick={handleClose}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15 5L5 15"
+              stroke="white"
+              strokeWidth="1.66667"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5 5L15 15"
+              stroke="white"
+              strokeWidth="1.66667"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Box>
+        <Box
+          sx={{
+            background:
+              "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
             p: {
               xs: 2, // mobile
               sm: 3, // desktop
@@ -116,34 +167,128 @@ const InterestsModal = ({ open, handleClose }) => {
               textAlign: "center",
               color: "white",
               fontSize: {
-                xs: "1rem", // mobile
-                sm: "1.25rem", // desktop
+                xs: "1.5rem", // mobile
+                sm: "2rem", // desktop
               },
             }}
           >
-            Select Interests
+            Start exploring
           </Typography>
         </Box>
-        <Typography
+        <Box
           sx={{
-            mt: 3,
-            px: {
-              xs: 2, // mobile
-              sm: "2rem", // desktop
-            },
-            textAlign: "center",
-            color: "#787878",
-            fontFamily: fonts.poppins,
-            fontSize: { xs: "14px", sm: "16px", md: "18px" },
+            display: "flex",
+            flexDirection: "column",
+            gap: "30px",
+            justifyContent: "between",
+            alignItems: "center",
+            padding: "30px 30px 12px",
           }}
         >
-          Pick atleast 2 interests to help us show better suggestions
-        </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "12px",
+              justifyContent: "between",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                textAlign: "left",
+                color: "#6B7280",
+                fontFamily: fonts.poppins,
+                fontSize: { xs: "14px", sm: "16px", md: "16px" },
+                lineHeight: 1.4,
+              }}
+            >
+              Pick atleast 3 interests to help us show better suggestions
+            </Typography>
+            <Box
+              sx={{
+                width: "90px",
+                border: "1px solid #E5E7EB",
+                background: "#F5F5F5",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: "0",
+                height: "26px",
+                fontSize: "14px",
+                color: "#720361",
+                padding: "3px 8px"
+              }}
+            >
+              <span style={{ fontWeight: "600", marginRight: "4px" }}>
+                {selected.length}{" "}
+              </span>{" "}
+              selected
+            </Box>
+          </Box>
+          {/* === THE INTEREST TILES === */}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px",
+              justifyContent: "start",
+            }}
+          >
+            {categories.map((category) => {
+              const isSelected = selected.includes(category);
+
+              return (
+                <Box
+                  key={category}
+                  sx={{
+                    borderRadius: "24px",
+                    border: "1px solid",
+                    borderColor: isSelected ? "#BF2F75" : "divider",
+                    px: 1.5,
+                    py: 1.2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                    minWidth: "fit-content",
+                    cursor: "pointer",
+                    bgcolor: isSelected ? "#EF5BA31F" : "transparent",
+
+                    "&:hover": {
+                      bgcolor: isSelected ? "#EF5BA31F" : "action.hover",
+                    },
+                  }}
+                  onClick={() => handleCheckboxToggle(category)}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      userSelect: "none",
+                      color: "#292C39",
+                    }}
+                  >
+                    {category}
+                  </Typography>
+
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => handleCheckboxToggle(category)}
+                    onClick={(e) => e.stopPropagation()} // prevents double toggle
+                    className={styles.checkbox}
+                  />
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
 
         {/* === THE INTEREST TILES === */}
-        <ToggleButtonGroup
-          value={selected}
-          onChange={handleSelect}
+        {/* <ToggleButtonGroup
+          // value={selected}
+          // onChange={handleSelect}
           aria-label="interests"
           sx={{
             mt: 3,
@@ -152,7 +297,7 @@ const InterestsModal = ({ open, handleClose }) => {
             gap: 2,
             justifyContent: "center",
             "& .MuiToggleButtonGroup-grouped": {
-              borderRadius: "12px", // full rounding on every button
+              borderRadius: "24px", // full rounding on every button
               border: "1px solid", // full border
               borderColor: "divider",
               margin: 0, // avoid collapse
@@ -164,6 +309,9 @@ const InterestsModal = ({ open, handleClose }) => {
                 borderRight: "1px solid", // force right border
                 borderColor: "divider",
               },
+              "&.Mui-selected": {
+                borderColor: "#BF2F75",
+              },
             },
           }}
         >
@@ -171,46 +319,53 @@ const InterestsModal = ({ open, handleClose }) => {
             <ToggleButton
               key={category}
               value={category}
+              selected={false}
+              disableRipple
               sx={{
-                borderRadius: 3,
+                borderRadius: "24px",
                 border: "1px solid",
                 textTransform: "none",
-                borderColor: "divider",
-                px: 2,
+                px: 1.5,
                 py: 1.2,
-                bgcolor: selected.includes(category)
-                  ? "primary.main"
-                  : "background.paper",
-                color: selected.includes(category)
-                  ? "common.black"
-                  : "text.primary",
                 "&:hover": {
                   bgcolor: selected.includes(category)
                     ? "primary.dark"
                     : "action.hover",
                 },
                 display: "flex",
+                "&.Mui-selected": {
+                  bgcolor: "#EF5BA31F",
+                  borderColor: "#BF2F75",
+                },
+
+                "&.Mui-selected:hover": {
+                  bgcolor: "#EF5BA31F",
+                  borderColor: "#BF2F75",
+                },
                 gap: 1,
               }}
             >
               {category}
+
+              <input
+                type="checkbox"
+                checked={selected.includes(category) ? true : false}
+                onChange={() => handleCheckboxToggle(category)}
+                onClick={(e) => e.stopPropagation()}
+                className={styles.checkbox}
+              />
             </ToggleButton>
           ))}
-        </ToggleButtonGroup>
+        </ToggleButtonGroup> */}
 
+        {/* interest tile */}
         <Box
           sx={{
-            mt: 3,
             display: "flex",
             justifyContent: "center",
-            p: {
-              xs: 2, // mobile
-              sm: 4, // desktop
-            },
-            flexDirection: {
-              xs: "column",
-              sm: "row",
-            },
+            width: "100%",
+            padding: "24px 30px",
+            borderTop: "1px solid #F3F4F6",
           }}
         >
           <Button
@@ -218,10 +373,7 @@ const InterestsModal = ({ open, handleClose }) => {
             sx={{
               background:
                 "linear-gradient(124.89deg, #BF2F75 -3.87%, #720361 63.8%)",
-              width: {
-                xs: "100%", // mobile - full width
-                sm: "40%", // desktop - 40% width
-              },
+              width: "100%", // mobile - full width
               "&:hover": {
                 background:
                   "linear-gradient(124.89deg, #BF2F75 -3.87%, #720361 63.8%)",
@@ -236,12 +388,13 @@ const InterestsModal = ({ open, handleClose }) => {
               color: "white",
             }}
             onClick={handleSubmit}
-            disabled={selected.length < 2}
+            disabled={selected.length < 3}
           >
             {isButtonLoading2 ? (
               <CircularProgress size={25} color="inherit" />
             ) : (
-              "Save"
+              <p style={{ textTransform: "capitalize" }}>Save</p>
+              // "Save"
             )}
           </Button>
         </Box>

@@ -3,3 +3,7 @@ export const formatDate = (isoDate) => {
   const options = { day: "2-digit", month: "long", year: "numeric" };
   return date.toLocaleDateString("en-US", options);
 };
+
+export const getCurrentYear = () => {
+  return new Date().getFullYear();
+}

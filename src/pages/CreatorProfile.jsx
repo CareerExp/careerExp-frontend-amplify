@@ -1,4 +1,10 @@
-import { Avatar, CircularProgress, Divider, Pagination, Rating } from "@mui/material";
+import {
+  Avatar,
+  CircularProgress,
+  Divider,
+  Pagination,
+  Rating,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -27,7 +33,10 @@ import {
   selectFollowerCount,
   selectIsFollowing,
 } from "../redux/slices/creatorSlice.js";
-import { getAuthorVideos, selectAuthorVideos } from "../redux/slices/creatorSlice.js";
+import {
+  getAuthorVideos,
+  selectAuthorVideos,
+} from "../redux/slices/creatorSlice.js";
 import creatorStyle from "../styles/CreatorProfile.module.css";
 import { shouldHideDetails } from "../utility/hiddenDetailsForEmailIds.js";
 
@@ -41,7 +50,8 @@ const Profile = () => {
   const creatorVideos = useSelector(selectAuthorVideos);
   const isFollowing = useSelector(selectIsFollowing);
   // Fix: ensure isFollowing is always boolean
-  const isFollowingBool = typeof isFollowing === "boolean" ? isFollowing : !!isFollowing?.isFollowing;
+  const isFollowingBool =
+    typeof isFollowing === "boolean" ? isFollowing : !!isFollowing?.isFollowing;
   const followerCount = useSelector(selectFollowerCount);
 
   const [activeTab, setActiveTab] = useState(1);
@@ -69,12 +79,19 @@ const Profile = () => {
 
   const handleFollow = async () => {
     if (!studentUserId) {
-      dispatchToRedux(notify({ message: "You need to login/signup first to follow", type: "error" }));
+      dispatchToRedux(
+        notify({
+          message: "You need to login/signup first to follow",
+          type: "error",
+        })
+      );
       return;
     }
 
     if (studentUserId === userId) {
-      dispatchToRedux(notify({ message: "You can't follow yourself", type: "error" }));
+      dispatchToRedux(
+        notify({ message: "You can't follow yourself", type: "error" })
+      );
       return;
     }
 
@@ -85,10 +102,12 @@ const Profile = () => {
           userId: studentUserId,
           targetUserId: userId,
           token: token,
-        }),
+        })
       );
       setIsButtonLoading(false);
-      dispatchToRedux(notify({ message: "Successfully performed action", type: "success" }));
+      dispatchToRedux(
+        notify({ message: "Successfully performed action", type: "success" })
+      );
     } catch (error) {
       setIsButtonLoading(false);
     }
@@ -97,7 +116,13 @@ const Profile = () => {
   //Already following
   useEffect(() => {
     if (studentUserId) {
-      dispatchToRedux(checkFollowStatus({ userId: studentUserId, targetUserId: userId, token: token }));
+      dispatchToRedux(
+        checkFollowStatus({
+          userId: studentUserId,
+          targetUserId: userId,
+          token: token,
+        })
+      );
     }
   }, []);
 
@@ -111,18 +136,31 @@ const Profile = () => {
     <div className={creatorStyle.container}>
       {/* top */}
       <div className={creatorStyle.profileTopContainer}>
-        <img src={profileOilPaint} alt="oilPaint" className={creatorStyle.profileBackgroundImage} />
+        <img
+          src={profileOilPaint}
+          alt="oilPaint"
+          className={creatorStyle.profileBackgroundImage}
+        />
 
         <div className={creatorStyle.avatarContainer}>
           <Avatar
             src={creatorProfile?.profilePicture || ""}
             alt="profile"
-            sx={{ height: { sm: "97px", xs: "140px" }, width: { sm: "97px", xs: "140px" } }}
+            sx={{
+              height: { sm: "97px", xs: "140px" },
+              width: { sm: "97px", xs: "140px" },
+            }}
           />
 
           <div className={creatorStyle.followersContainer}>
-            <p className={creatorStyle.followersText}>{followerCount} Followers</p>
-            <button className={creatorStyle.navButton} style={{ marginTop: ".5rem" }} onClick={handleFollow}>
+            <p className={creatorStyle.followersText}>
+              {followerCount} Followers
+            </p>
+            <button
+              className={creatorStyle.navButton}
+              style={{ marginTop: ".5rem" }}
+              onClick={handleFollow}
+            >
               {isButtonLoading ? (
                 <CircularProgress size={20} color="inherit" />
               ) : isFollowingBool ? (
@@ -141,7 +179,10 @@ const Profile = () => {
                 {creatorProfile?.firstName + " " + creatorProfile?.lastName}
               </p>
             </div>
-            <div className={creatorStyle.shareContainer} onClick={() => handleShareClick()}>
+            <div
+              className={creatorStyle.shareContainer}
+              onClick={() => handleShareClick()}
+            >
               <img src={shareIcon} className={creatorStyle.shareIcon} />
               <p>Share Profile</p>
             </div>
@@ -152,11 +193,15 @@ const Profile = () => {
             <>
               <div className={creatorStyle.specializationContainer}>
                 <p>Specialization :</p>
-                <p className={creatorStyle.specializationTag}>{creatorProfile?.specialization}</p>
+                <p className={creatorStyle.specializationTag}>
+                  {creatorProfile?.specialization}
+                </p>
               </div>
               <div className={creatorStyle.experienceContainer}>
                 <p>Years of experience :</p>
-                <p className={creatorStyle.experienceTag}>{creatorProfile?.experience + " Years" || ""}</p>
+                <p className={creatorStyle.experienceTag}>
+                  {creatorProfile?.experience + " Years" || ""}
+                </p>
               </div>
             </>
           )}
@@ -164,13 +209,25 @@ const Profile = () => {
           <div className={creatorStyle.contactInfoContainer}>
             {!hideDetails && (
               <>
-                <Information icon={creatorIconLocation} info={creatorProfile?.nationality} />
+                <Information
+                  icon={creatorIconLocation}
+                  info={creatorProfile?.nationality}
+                />
                 <Dot />
-                <Information icon={creatorIconMobile} info={creatorProfile?.mobile} />
+                <Information
+                  icon={creatorIconMobile}
+                  info={creatorProfile?.mobile}
+                />
                 <Dot />
-                <Information icon={creatorIconWhatsaap} info={creatorProfile?.telephone} />
+                <Information
+                  icon={creatorIconWhatsaap}
+                  info={creatorProfile?.telephone}
+                />
                 <Dot />
-                <Information icon={creatorIconMail} info={creatorProfile?.email} />
+                <Information
+                  icon={creatorIconMail}
+                  info={creatorProfile?.email}
+                />
               </>
             )}
           </div>
@@ -178,7 +235,9 @@ const Profile = () => {
           <div className={creatorStyle.aboutMeContainer}>
             <p className={creatorStyle.aboutMeTitle}>About me</p>
             <Divider />
-            <p className={creatorStyle.aboutMeText}>{creatorProfile?.introBio}</p>
+            <p className={creatorStyle.aboutMeText}>
+              {creatorProfile?.introBio}
+            </p>
           </div>
         </div>
       </div>
@@ -188,7 +247,9 @@ const Profile = () => {
           <p
             onClick={() => setActiveTab(1)}
             className={`${creatorStyle.tabItem} ${
-              activeTab === 1 ? creatorStyle.activeTab : creatorStyle.inactiveTab
+              activeTab === 1
+                ? creatorStyle.activeTab
+                : creatorStyle.inactiveTab
             }`}
           >
             Videos
@@ -196,7 +257,9 @@ const Profile = () => {
           <p
             onClick={() => setActiveTab(2)}
             className={`${creatorStyle.tabItem} ${
-              activeTab === 2 ? creatorStyle.activeTab : creatorStyle.inactiveTab
+              activeTab === 2
+                ? creatorStyle.activeTab
+                : creatorStyle.inactiveTab
             }`}
           >
             Articles
@@ -204,7 +267,9 @@ const Profile = () => {
           <p
             onClick={() => setActiveTab(3)}
             className={`${creatorStyle.tabItem} ${
-              activeTab === 3 ? creatorStyle.activeTab : creatorStyle.inactiveTab
+              activeTab === 3
+                ? creatorStyle.activeTab
+                : creatorStyle.inactiveTab
             }`}
           >
             Podcasts
@@ -239,16 +304,22 @@ const Profile = () => {
                   youtubeVideoId={youtubeVideoId}
                   averageRating={averageRating}
                   id={_id}
-                  name={creatorProfile?.firstName + " " + creatorProfile?.lastName}
+                  name={
+                    creatorProfile?.firstName + " " + creatorProfile?.lastName
+                  }
                 />
-              ),
+              )
             )}
 
           {activeTab === 2 && <p>Coming Soon</p>}
           {activeTab === 3 && <p>Coming Soon</p>}
         </div>
         <div className={creatorStyle.paginationContainer}>
-          <Pagination count={creatorVideos?.totalPages || 1} page={page} onChange={handlePageChange} />
+          <Pagination
+            count={creatorVideos?.totalPages || 1}
+            page={page}
+            onChange={handlePageChange}
+          />
         </div>
       </div>
       <SharingVideoModal
@@ -286,7 +357,10 @@ const Card = ({
   averageRating,
   name,
 }) => (
-  <div className={creatorStyle.videoCard} onClick={() => (window.location.href = `/video/${id}`)}>
+  <div
+    className={creatorStyle.videoCard}
+    onClick={() => (window.location.href = `/video/${id}`)}
+  >
     {youtubeLink ? (
       <img
         src={`https://img.youtube.com/vi/${youtubeVideoId}/0.jpg`}
@@ -294,14 +368,18 @@ const Card = ({
         className={creatorStyle.thumbnailImage}
       />
     ) : (
-      <img src={thumbnail} alt="thumbnail" className={creatorStyle.thumbnailImage} />
+      <img
+        src={thumbnail}
+        alt="thumbnail"
+        className={creatorStyle.thumbnailImage}
+      />
     )}
 
     <div>
       <div>
         <p className={creatorStyle.videoTitle}>{title}</p>
         <div className={creatorStyle.ratingContainer}>
-          <Rating value={averageRating} readOnly />
+          <Rating value={averageRating} readOnly precision={0.5} />
           <p className={creatorStyle.ratingText}>{`(${rating})`}</p>
         </div>
         <p className={creatorStyle.authorText}>

@@ -357,6 +357,21 @@ const Register = () => {
                     onChange={handleChange}
                     SelectProps={{
                       displayEmpty: true,
+                      renderValue: (selected) => {
+                        if (!selected) {
+                          return (
+                            <span
+                              style={{
+                                color: "#999999",
+                                fontFamily: fonts.poppins,
+                              }}
+                            >
+                              Select
+                            </span>
+                          );
+                        }
+                        return selected;
+                      },
                       MenuProps: {
                         PaperProps: {
                           style: {
@@ -372,8 +387,11 @@ const Register = () => {
                   >
                     {" "}
                     <MenuItem value="" disabled>
-                      +1
+                      Select
                     </MenuItem>
+                    {/* <MenuItem value="" disabled>
+                      +1
+                    </MenuItem> */}
                     {countryList.map((code) => (
                       <MenuItem
                         key={code.name}
