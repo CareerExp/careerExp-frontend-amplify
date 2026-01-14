@@ -567,13 +567,23 @@ const CareerDetailsFromOnet = ({
                             {key}
                           </span>
                           {getCountryFlagByName(key) && (
-                            <ReactCountryFlag
-                              countryCode={getCountryEmojiByName(key)}
+                            <img
+                              src={`https://flagcdn.com/w40/${getCountryEmojiByName(key).toLowerCase()}.png`}
+                              alt={key}
                               style={{
-                                fontSize: "36px",
-                                lineHeight: "1",
+                                width: 40,
+                                height: 28,
+                                objectFit: "cover",
+                                border: "0.5px solid",
                               }}
                             />
+                            // <ReactCountryFlag
+                            //   countryCode={getCountryEmojiByName(key)}
+                            //   style={{
+                            //     fontSize: "36px",
+                            //     lineHeight: "1",
+                            //   }}
+                            // />
                             // <img
                             //   src={getCountryFlagByName(key)}
                             //   alt={key}
@@ -679,13 +689,23 @@ const CareerDetailsFromOnet = ({
                               {key}
                             </span>
                             {getCountryFlagByName(key) && (
-                              <ReactCountryFlag
-                                countryCode={getCountryEmojiByName(key)}
+                              <img
+                                src={`https://flagcdn.com/w40/${getCountryEmojiByName(key).toLowerCase()}.png`}
+                                alt={key}
                                 style={{
-                                  fontSize: "36px",
-                                  lineHeight: "1",
+                                  width: 40,
+                                  height: 28,
+                                  objectFit: "cover",
+                                  border: "0.5px solid",
                                 }}
                               />
+                              // <ReactCountryFlag
+                              //   countryCode={getCountryEmojiByName(key)}
+                              //   style={{
+                              //     fontSize: "36px",
+                              //     lineHeight: "1",
+                              //   }}
+                              // />
                               // <img
                               //   src={getCountryFlagByName(key)}
                               //   alt={key}
