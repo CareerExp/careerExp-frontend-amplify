@@ -329,22 +329,23 @@ const DetailedCareerPathways = ({
                           {key}
                         </span>
                         {getCountryEmojiByName(key) && (
-                          // <img
-                          //   src={getCountryFlagByName(key)}
-                          //   alt={key}
-                          //   style={{
-                          //     width: 40,
-                          //     height: 26,
-                          //     objectFit: "contain",
-                          //   }}
-                          // />
-                          <ReactCountryFlag
-                            countryCode={getCountryEmojiByName(key)}
+                          <img
+                            src={`https://flagcdn.com/w40/${getCountryEmojiByName(key).toLowerCase()}.png`}
+                            alt={key}
                             style={{
-                              fontSize: "36px",
-                              lineHeight: "1",
+                              width: 40,
+                              height: 28,
+                              objectFit: "cover",
+                              border: "0.5px solid",
                             }}
                           />
+                          // <ReactCountryFlag
+                          //   countryCode={getCountryEmojiByName(key)}
+                          //   style={{
+                          //     fontSize: "36px",
+                          //     lineHeight: "1",
+                          //   }}
+                          // />
                         )}
                         {/* <PdfSafeFlag country={key} /> */}
                         {/* <span style={{ fontSize: "28px" }}>
@@ -439,17 +440,27 @@ const DetailedCareerPathways = ({
                             {key}
                           </span>
                           {getCountryFlagByName(key) && (
-                            <ReactCountryFlag
-                              countryCode={getCountryEmojiByName(key)}
+                            <img
+                              src={`https://flagcdn.com/w40/${getCountryEmojiByName(key).toLowerCase()}.png`}
+                              alt={key}
                               style={{
-                                fontSize: "36px",
-                                lineHeight: "1",
+                                width: 40,
+                                height: 28,
+                                objectFit: "cover",
+                                border: "0.5px solid",
                               }}
                             />
+                            // <ReactCountryFlag
+                            //   countryCode={getCountryEmojiByName(key)}
+                            //   style={{
+                            //     fontSize: "36px",
+                            //     lineHeight: "1",
+                            //   }}
+                            // />
                           )}
-                          <span style={{ fontSize: "28px" }}>
-                            {/* {getCountryEmojiByName(key)} */}
-                          </span>
+                          {/* <span style={{ fontSize: "28px" }}>
+                            {getCountryEmojiByName(key)}
+                          </span> */}
                         </div>
                         <Box
                           sx={{
