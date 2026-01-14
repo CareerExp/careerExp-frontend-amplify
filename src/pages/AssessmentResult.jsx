@@ -1,18 +1,26 @@
 import { Box, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BsDownload } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
-import { assessmentResult, assessmentResultbottom, sampleCDR } from "../assets/assest.js";
+import {
+  assessmentResult,
+  assessmentResultbottom,
+  sampleCDR,
+} from "../assets/assest.js";
 import Footer from "../components/Footer.jsx";
 import Headers from "../components/Headers.jsx";
 import PayNowModal from "../models/PayNowModal.jsx";
 import SchoolCodeModal from "../models/SchoolCodeModal.jsx";
 import SchoolContactFormModal from "../models/SchoolContactFormModal.jsx";
 import { selectToken, selectUserId } from "../redux/slices/authSlice.js";
-import { getInterests, selectInterests } from "../redux/slices/interestSlice.js";
+import {
+  getInterests,
+  selectInterests,
+} from "../redux/slices/interestSlice.js";
 import assessmentStyles from "../styles/AssessmentResult.module.css";
 import assessmentResult1 from "../styles/AssessmentResult1.module.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import CareersShimmer from "../components/CareersShimmer.jsx";
 
 const AssessmentResult = () => {
   const dispatchToRedux = useDispatch();
@@ -21,24 +29,57 @@ const AssessmentResult = () => {
   const interestsProfile = useSelector(selectInterests);
   const [activePathCard, setActivePathCard] = useState(1);
   const [payNowModalOpen, setPayNowModalOpen] = useState(false);
-  const [schoolContactFormModalOpen, setSchoolContactFormModalOpen] = useState(false);
+  const [schoolContactFormModalOpen, setSchoolContactFormModalOpen] =
+    useState(false);
   const [schoolCodeModalOpen, setSchoolCodeModalOpen] = useState(false);
-  const [top3CareerLoaders, setTop3CareerLoaders] = useState(false);
+  const [top3CareerLoaders, setTop3CareerLoaders] = useState(true);
+
+  const hasCareersRef = useRef(false);
+
+  const careers = interestsProfile?.interestProfileDetails?.careers?.career;
+
+  const isLoadingCareers = !Array.isArray(careers) || careers.length === 0;
 
   useEffect(() => {
+    if (Array.isArray(careers) && careers.length > 0) {
+      hasCareersRef.current = true;
+    }
+  }, [careers]);
+
+  // useEffect(() => {
+  //   const fetchInterests = async () => {
+  //     try {
+  //       // setTop3CareerLoaders(true);
+  //       await dispatchToRedux(getInterests({ userId, token }));
+  //       setTop3CareerLoaders(false);
+  //     } catch (error) {
+  //       console.error("Error fetching interests:", error);
+  //       setTop3CareerLoaders(false);
+  //     }
+  //   };
+
+  //   fetchInterests();
+  // }, []);
+  useEffect(() => {
+    let intervalId;
+
     const fetchInterests = async () => {
-      try {
-        setTop3CareerLoaders(true);
-        await dispatchToRedux(getInterests({ userId, token }));
-        setTop3CareerLoaders(false);
-      } catch (error) {
-        console.error("Error fetching interests:", error);
-        setTop3CareerLoaders(false);
-      }
+      await dispatchToRedux(getInterests({ userId, token }));
     };
 
+    // First call immediately
     fetchInterests();
-  }, []);
+
+    intervalId = setInterval(() => {
+      if (hasCareersRef.current) {
+        clearInterval(intervalId);
+      } else {
+        fetchInterests();
+      }
+    }, 8000);
+
+    return () => clearInterval(intervalId);
+  }, [dispatchToRedux, userId, token]);
 
   const handleButtonClick = async () => {
     setPayNowModalOpen(true);
@@ -81,23 +122,42 @@ const AssessmentResult = () => {
           <div className={assessmentStyles["result-text"]}>
             <h3>Assessment Results</h3>
             <p>
-              Great, you’ve completed our Career Assessment. You will now have a shortlist of 20 suitable
-              career pathways that are a best fit for you. This is your starting point to begin a more focused
-              exploration journey to see which careers might be most interesting for you. 
+              Great, you’ve completed our Career Assessment. You will now have a
+              shortlist of 20 suitable career pathways that are a best fit for
+              you. This is your starting point to begin a more focused
+              exploration journey to see which careers might be most interesting
+              for you. 
             </p>
             <p>
-              As a <b>‘thank you’</b> for spending the time to do the assessment, here are 3 of your Career
-              Pathway options FREE to give you a taster of the directions you can consider. 
+              As a <b>‘thank you’</b> for spending the time to do the
+              assessment, here are 3 of your Career Pathway options FREE to give
+              you a taster of the directions you can consider. 
             </p>
           </div>
         </section>
 
         <section className={assessmentStyles["career-paths"]}>
           <div>
-            {top3CareerLoaders ? (
-              <div style={{ display: "flex", justifyContent: "center", padding: "3rem" }}>
-                <CircularProgress color="inherit" />
-              </div>
+            {isLoadingCareers ? (
+              // <div style={{ display: "flex", justifyContent: "center", padding: "3rem" }}>
+              //   <CircularProgress color="inherit" />
+              // </div>
+              <>
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    mt: 2,
+                    color: "#6B7280",
+                    fontSize: "14px",
+                  }}
+                >
+                  Generating your personalised career recommendations…
+                  <br />
+                  This may take up to 1-2 minutes. Please don&#39;t refresh the
+                  page.
+                </Box>
+                <CareersShimmer />
+              </>
             ) : (
               <div>
                 <div>
@@ -114,7 +174,11 @@ const AssessmentResult = () => {
                         <li
                           key={index}
                           onClick={() => setActivePathCard(index + 1)}
-                          className={activePathCard == index + 1 ? assessmentStyles["activePathCard"] : ""}
+                          className={
+                            activePathCard == index + 1
+                              ? assessmentStyles["activePathCard"]
+                              : ""
+                          }
                         >
                           <h6>{item.title}</h6>
                           <p>{item.fit}</p>
@@ -172,33 +236,46 @@ const AssessmentResult = () => {
                   <Box sx={{ width: { xs: "100%", md: "47%" }, padding: 2 }}>
                     <ol>
                       <li style={{ fontSize: "16px", padding: 2 }}>
-                        <span style={{ fontWeight: "bold", color: "#720361" }}>Hyper-personalized</span>{" "}
+                        <span style={{ fontWeight: "bold", color: "#720361" }}>
+                          Hyper-personalized
+                        </span>{" "}
                         analysis and recommendations
                       </li>
                       <li style={{ fontSize: "16px", padding: 2 }}>
-                        <span style={{ fontWeight: "bold", color: "#720361" }}>20 Career Pathways</span> to
-                        choose from
+                        <span style={{ fontWeight: "bold", color: "#720361" }}>
+                          20 Career Pathways
+                        </span>{" "}
+                        to choose from
                       </li>
                       <li style={{ fontSize: "16px", padding: 2 }}>
-                        Your <span style={{ fontWeight: "bold", color: "#720361" }}>‘Perfect’ fit</span>{" "}
+                        Your{" "}
+                        <span style={{ fontWeight: "bold", color: "#720361" }}>
+                          ‘Perfect’ fit
+                        </span>{" "}
                         careers that you can excel in
                       </li>
                       <li style={{ fontSize: "16px", padding: 2 }}>
                         Recommended{" "}
-                        <span style={{ fontWeight: "bold", color: "#720361" }}>academic courses</span> for
-                        each career pathway
+                        <span style={{ fontWeight: "bold", color: "#720361" }}>
+                          academic courses
+                        </span>{" "}
+                        for each career pathway
                       </li>
                     </ol>
                   </Box>
                   <Box sx={{ width: { xs: "100%", md: "47%" } }}>
                     <ol start={5}>
                       <li style={{ fontSize: "16px", padding: 2 }}>
-                        <span style={{ fontWeight: "bold", color: "#720361" }}>University options</span> for
-                        your career pathway, in your chosen countries
+                        <span style={{ fontWeight: "bold", color: "#720361" }}>
+                          University options
+                        </span>{" "}
+                        for your career pathway, in your chosen countries
                       </li>
                       <li style={{ fontSize: "16px", padding: 2 }}>
                         Detailed Personality analysis to help you connect your{" "}
-                        <span style={{ fontWeight: "bold", color: "#720361" }}>strengths and passions</span>{" "}
+                        <span style={{ fontWeight: "bold", color: "#720361" }}>
+                          strengths and passions
+                        </span>{" "}
                         to your career
                       </li>
                     </ol>
@@ -231,32 +308,50 @@ const AssessmentResult = () => {
                   <BsDownload /> Download Report
                 </button>
 
-                <img src={sampleCDR} alt="Download CDR" width={"50%"} style={{ border: "1px solid black" }} />
+                <img
+                  src={sampleCDR}
+                  alt="Download CDR"
+                  width={"50%"}
+                  style={{ border: "1px solid black" }}
+                />
               </Box>
             </Box>
             <div>
               <ul className={assessmentStyles["pathItemCardsList"]}>
                 <li className={assessmentStyles["pathItemCard"]}>
-                  <p>Pay $49 now to review and download the Full Career Directions Report</p>
-                  <button className={assessmentStyles["navButton"]} onClick={handleButtonClick}>
+                  <p>
+                    Pay $49 now to review and download the Full Career
+                    Directions Report
+                  </p>
+                  <button
+                    className={assessmentStyles["navButton"]}
+                    onClick={handleButtonClick}
+                  >
                     Pay Now
                   </button>
                 </li>
                 <li className={assessmentStyles["pathItemCard"]}>
                   <p>
-                    If your School has paid on your behalf, please input your School Access Code here to get
-                    your Career Directions Report
+                    If your School has paid on your behalf, please input your
+                    School Access Code here to get your Career Directions Report
                   </p>
-                  <button className={assessmentStyles["navButton"]} onClick={handleSchoolCode}>
+                  <button
+                    className={assessmentStyles["navButton"]}
+                    onClick={handleSchoolCode}
+                  >
                     School Code
                   </button>
                 </li>
                 <li className={assessmentStyles["pathItemCard"]}>
                   <p>
-                    If you want your School to pay on your behalf please provide School details here and our
-                    Schools team will contact your School
+                    If you want your School to pay on your behalf please provide
+                    School details here and our Schools team will contact your
+                    School
                   </p>
-                  <button className={assessmentStyles["navButton"]} onClick={handleSchoolContactForm}>
+                  <button
+                    className={assessmentStyles["navButton"]}
+                    onClick={handleSchoolContactForm}
+                  >
                     Contact School
                   </button>
                 </li>
@@ -272,25 +367,31 @@ const AssessmentResult = () => {
             </p>
             <div>
               <p>
-                As time goes by and you continue in your education and build new experiences and skills, your
-                focus may change and you may want to look at alternative careers. This is very healthy and is
-                a sign of maturity. You are now evaluating different options and engaging your mind towards
-                new opportunities for you. You may now feel the need to re-assess yourself and check which
-                career pathways now constitute your best-fit.
+                As time goes by and you continue in your education and build new
+                experiences and skills, your focus may change and you may want
+                to look at alternative careers. This is very healthy and is a
+                sign of maturity. You are now evaluating different options and
+                engaging your mind towards new opportunities for you. You may
+                now feel the need to re-assess yourself and check which career
+                pathways now constitute your best-fit.
               </p>
               <p>
-                Once you feel ready to take the assessment again, go to your personal workspace and hit the{" "}
-                <b>RE-ASSESS</b> button to retake. 
+                Once you feel ready to take the assessment again, go to your
+                personal workspace and hit the <b>RE-ASSESS</b> button to
+                retake. 
               </p>
               <p>
-                We advise you to spread your 3 attempts over one or two years to reflect the changes in your
-                interests and attitudes 
+                We advise you to spread your 3 attempts over one or two years to
+                reflect the changes in your interests and attitudes 
               </p>
             </div>
           </div>
           <img src={assessmentResultbottom} alt="" />
         </section>
-        <SchoolCodeModal open={schoolCodeModalOpen} onClose={handleCloseSchoolCodeModal} />
+        <SchoolCodeModal
+          open={schoolCodeModalOpen}
+          onClose={handleCloseSchoolCodeModal}
+        />
         <PayNowModal open={payNowModalOpen} onClose={handleClosePayModal} />
         <SchoolContactFormModal
           open={schoolContactFormModalOpen}

@@ -9,6 +9,7 @@ import { fonts } from "../../../utility/fonts";
 import NewPage from "./NewPage";
 import { getCountryFlagByName } from "../../../utility/getCountryFlagByName";
 import { getCountryEmojiByName } from "../../../utility/getCountryEmojiByName.jsx";
+import ReactCountryFlag from "react-country-flag";
 
 const DetailedCareerPathways = ({
   detailedCareerData,
@@ -327,21 +328,28 @@ const DetailedCareerPathways = ({
                         >
                           {key}
                         </span>
-                        {/* {getCountryFlagByName(key) && (
-                          <img
-                            src={getCountryFlagByName(key)}
-                            alt={key}
+                        {getCountryEmojiByName(key) && (
+                          // <img
+                          //   src={getCountryFlagByName(key)}
+                          //   alt={key}
+                          //   style={{
+                          //     width: 40,
+                          //     height: 26,
+                          //     objectFit: "contain",
+                          //   }}
+                          // />
+                          <ReactCountryFlag
+                            countryCode={getCountryEmojiByName(key)}
                             style={{
-                              width: 40,
-                              height: 26,
-                              objectFit: "contain",
+                              fontSize: "36px",
+                              lineHeight: "1",
                             }}
                           />
-                        )} */}
+                        )}
                         {/* <PdfSafeFlag country={key} /> */}
-                        <span style={{ fontSize: "28px" }}>
+                        {/* <span style={{ fontSize: "28px" }}>
                           {getCountryEmojiByName(key)}
-                        </span>
+                        </span> */}
                       </div>
                       <span
                         style={{
@@ -430,19 +438,17 @@ const DetailedCareerPathways = ({
                           >
                             {key}
                           </span>
-                          {/* {getCountryFlagByName(key) && (
-                            <img
-                              src={getCountryFlagByName(key)}
-                              alt={key}
+                          {getCountryFlagByName(key) && (
+                            <ReactCountryFlag
+                              countryCode={getCountryEmojiByName(key)}
                               style={{
-                                width: 40,
-                                height: 26,
-                                objectFit: "contain",
+                                fontSize: "36px",
+                                lineHeight: "1",
                               }}
                             />
-                          )} */}
+                          )}
                           <span style={{ fontSize: "28px" }}>
-                            {getCountryEmojiByName(key)}
+                            {/* {getCountryEmojiByName(key)} */}
                           </span>
                         </div>
                         <Box

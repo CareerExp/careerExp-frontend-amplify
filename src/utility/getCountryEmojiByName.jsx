@@ -7,5 +7,5 @@ export const getCountryEmojiByName = (countryName) => {
     (c) => c.name.toLowerCase() === countryName.toLowerCase()
   );
 
-  return country?.emoji || "";
+  return country?.code || "";
 };
