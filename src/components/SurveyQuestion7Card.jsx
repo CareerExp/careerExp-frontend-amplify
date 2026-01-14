@@ -8,6 +8,7 @@ import styles from "../styles/SurveyQuestion7Card.module.css";
 import globalStyle from "../styles/Questions.module.css";
 import { notify } from "../redux/slices/alertSlice.js";
 import { rotateDegrees } from "pdf-lib";
+import { Box } from "@mui/material";
 
 const SurveyQuestion7Card = ({
   questionNumber,
@@ -111,7 +112,9 @@ const SurveyQuestion7Card = ({
     }
 
     const newForCluster = already
-      ? selectedSubclusters[clusterName].filter((s) => s.name !== subcluster.name)
+      ? selectedSubclusters[clusterName].filter(
+          (s) => s.name !== subcluster.name
+        )
       : [...(selectedSubclusters[clusterName] ?? []), subcluster];
     setSelectedSubclusters({
       ...selectedSubclusters,
@@ -182,13 +185,17 @@ const SurveyQuestion7Card = ({
     onPrevious();
   };
 
-  // UI helpers: get cluster list from `clusterData`. It may come in different shapes;
-  // we assume clusterData is an array of objects with `CareerClusters` and `CareerPathways`.
-  // We'll coerce to a structure: [{ clusterName, pathways: [...] }, ...]
   const clusters = (clusterData || []).map((c) => ({
     cluster: c.cluster,
     pathways: Array.isArray(c.sub_clusters) ? c.sub_clusters : [],
   }));
+
+  const totalSelectedSubclusters = useMemo(() => {
+    return Object.values(selectedSubclusters).reduce(
+      (total, subclusters) => total + subclusters.length,
+      0
+    );
+  }, [selectedSubclusters]);
 
   return (
     <>
@@ -215,9 +222,58 @@ const SurveyQuestion7Card = ({
 
         <div className={styles.cardBody}>
           <p className={styles.hint}>
-            Select up to 3 Career Clusters. Then expand a cluster and pick up to
-            2 pathways inside each.
+            Select up to 3 Career Clusters and choose up to 2 sub-clusters
+            within each.
           </p>
+
+          <div
+            style={{ display: "flex", width: "100%", justifyContent: "start" }}
+          >
+            <Box
+              sx={{
+                width: "110px",
+                border: "1px solid #E5E7EB",
+                background: "#F5F5F5",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: "0",
+                height: "26px",
+                fontSize: "14px",
+                color: "#720361",
+                padding: "3px 8px",
+                marginRight: "12px",
+              }}
+            >
+              <span style={{ fontWeight: "600", marginRight: "4px" }}>
+                {selectedClusters?.length}/3{" "}
+              </span>{" "}
+              clusters
+            </Box>
+            <Box
+              sx={{
+                width: "145px",
+                border: "1px solid #E5E7EB",
+                background: "#F5F5F5",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: "0",
+                height: "26px",
+                fontSize: "14px",
+                color: "#720361",
+                padding: "3px 8px",
+                textWrap: "nowrap",
+              }}
+            >
+              <span style={{ fontWeight: "600", marginRight: "4px" }}>
+                {totalSelectedSubclusters || 0}/6{" "}
+              </span>{" "}
+              sub-clusters
+            </Box>
+          </div>
 
           {/* options container is scrollable */}
           <div className={styles.optionsContainer}>
@@ -273,7 +329,10 @@ const SurveyQuestion7Card = ({
                           pathways.map((p) => {
                             const pathChecked = chosenPaths.includes(p.name);
                             return (
-                              <label key={p.name} className={styles.subclusterRow}>
+                              <label
+                                key={p.name}
+                                className={styles.subclusterRow}
+                              >
                                 <input
                                   type="checkbox"
                                   checked={pathChecked}

@@ -1,8 +1,20 @@
 import { Box, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { asstaken, consumed, enrolled, followed, liked, resumecreated, shared } from "../../assets/assest";
-import { selectAuthenticated, selectToken, selectUserId } from "../../redux/slices/authSlice.js";
+import {
+  asstaken,
+  consumed,
+  enrolled,
+  followed,
+  liked,
+  resumecreated,
+  shared,
+} from "../../assets/assest";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../../redux/slices/authSlice.js";
 import { getUserAnalytics } from "../../redux/slices/userHistory.js";
 
 const CareerSummary = () => {
@@ -16,7 +28,9 @@ const CareerSummary = () => {
     const fetchAnalytics = async () => {
       if (authenticated && userId && token) {
         // Dispatch action to fetch user analytics
-        const response = await dispatchToRedux(getUserAnalytics({ userId, token }));
+        const response = await dispatchToRedux(
+          getUserAnalytics({ userId, token })
+        );
 
         // Set analytics if the response payload is available
         if (response.payload) {
@@ -29,13 +43,33 @@ const CareerSummary = () => {
   }, [authenticated, userId, token, dispatchToRedux]);
 
   let stats = [
-    { label: "Videos consumed", value: analytics?.watchedCount || 0, img: consumed },
+    {
+      label: "Videos consumed",
+      value: analytics?.watchedCount || 0,
+      img: consumed,
+    },
     { label: "Videos liked", value: analytics?.likesCount || 0, img: liked },
     { label: "Videos shared", value: analytics?.sharesCount || 0, img: shared },
-    { label: "Career counsellors followed", value: analytics?.followCount || 0, img: followed },
-    { label: "Assessments taken", value: analytics?.totalAssessments || 0, img: asstaken },
-    { label: "Remaining Attempt Count", value: analytics?.remainingAttempts || 0, img: asstaken },
-    { label: "Resumes created", value: analytics?.resumeCount || 0, img: resumecreated },
+    {
+      label: "Career counsellors followed",
+      value: analytics?.followCount || 0,
+      img: followed,
+    },
+    {
+      label: "Assessments taken",
+      value: analytics?.totalAssessments || 0,
+      img: asstaken,
+    },
+    {
+      label: "Remaining Attempt Count",
+      value: analytics?.remainingAttempts || 0,
+      img: asstaken,
+    },
+    {
+      label: "Resumes created",
+      value: analytics?.resumeCount || 0,
+      img: resumecreated,
+    },
     { label: "Short Courses enrolled for", value: 0, img: enrolled },
   ];
 
@@ -47,7 +81,8 @@ const CareerSummary = () => {
           mb: 2,
           fontWeight: "bold",
           color: "#fff",
-          backgroundImage: "linear-gradient(to right, white, #800080, #800080, white)",
+          backgroundImage:
+            "linear-gradient(to right, white, #800080, #800080, white)",
           p: 2,
         }}
       >
@@ -89,16 +124,28 @@ const CareerSummary = () => {
                   overflow: "hidden",
                 }}
               >
-                <Typography
+                {/* <Typography
                   variant="h6"
                   sx={{
                     fontSize: "100px",
                     marginTop: 1,
-                    fontFamily: '"Segoe UI Emoji", "NotoColorEmoji", sans-serif',
+                    fontFamily:
+                      '"Segoe UI Emoji", "NotoColorEmoji", sans-serif',
                   }}
-                >
+                > 
                   {language.flag}
-                </Typography>
+                </Typography> */}
+                <img
+                  src={language.flag}
+                  alt="Country flag"
+                  style={{
+                    width: 100,
+                    height: 100,
+                    // position: "absolute",
+                    // top: -26,
+                    // left: -15,
+                  }}
+                />
               </Box>
               <Typography variant="subtitle1">{language.language}</Typography>
             </Box>

@@ -16,6 +16,7 @@ import {
 import { fonts } from "../utility/fonts.js";
 import { getCountryFlagByName } from "../utility/getCountryFlagByName";
 import { getCountryEmojiByName } from "../utility/getCountryEmojiByName.jsx";
+import ReactCountryFlag from "react-country-flag";
 
 const CareerDetailsFromOnet = ({
   open,
@@ -565,20 +566,27 @@ const CareerDetailsFromOnet = ({
                           >
                             {key}
                           </span>
-                          {/* {getCountryFlagByName(key) && (
-                            <img
-                              src={getCountryFlagByName(key)}
-                              alt={key}
+                          {getCountryFlagByName(key) && (
+                            <ReactCountryFlag
+                              countryCode={getCountryEmojiByName(key)}
                               style={{
-                                width: 40,
-                                height: 26,
-                                objectFit: "contain",
+                                fontSize: "36px",
+                                lineHeight: "1",
                               }}
                             />
-                          )} */}
-                          <span style={{ fontSize: "28px" }}>
+                            // <img
+                            //   src={getCountryFlagByName(key)}
+                            //   alt={key}
+                            //   style={{
+                            //     width: 40,
+                            //     height: 26,
+                            //     objectFit: "contain",
+                            //   }}
+                            // />
+                          )}
+                          {/* <span style={{ fontSize: "28px" }}>
                             {getCountryEmojiByName(key)}
-                          </span>
+                          </span> */}
                         </div>
                         <span
                           style={{
@@ -670,20 +678,27 @@ const CareerDetailsFromOnet = ({
                             >
                               {key}
                             </span>
-                            {/* {getCountryFlagByName(key) && (
-                              <img
-                                src={getCountryFlagByName(key)}
-                                alt={key}
+                            {getCountryFlagByName(key) && (
+                              <ReactCountryFlag
+                                countryCode={getCountryEmojiByName(key)}
                                 style={{
-                                  width: 40,
-                                  height: 26,
-                                  objectFit: "contain",
+                                  fontSize: "36px",
+                                  lineHeight: "1",
                                 }}
                               />
-                            )} */}
-                            <span style={{ fontSize: "28px" }}>
+                              // <img
+                              //   src={getCountryFlagByName(key)}
+                              //   alt={key}
+                              //   style={{
+                              //     width: 40,
+                              //     height: 26,
+                              //     objectFit: "contain",
+                              //   }}
+                              // />
+                            )}
+                            {/* <span style={{ fontSize: "28px" }}>
                               {getCountryEmojiByName(key)}
-                            </span>
+                            </span> */}
                           </div>
                           <Box
                             sx={{
