@@ -24,6 +24,7 @@ import assessmentStyle from "../styles/AssessmentCenter.module.css";
 import commonStyle from "../styles/Common.module.css";
 import RechargeAssessmentModal from "../models/RechargeAssessmentModal.jsx";
 import CareerDomainCard from "../components/CareerDomainCard.jsx";
+import { reconcileAssessmentAttempts } from "../redux/slices/assessmentSlice.js";
 
 const AssessmentCenter = () => {
   const navigate = useNavigate();
@@ -72,31 +73,38 @@ const AssessmentCenter = () => {
     setOpenPaymentModal(false);
   };
 
-  const handleAssessmentClick = () => {
+  const handleAssessmentClick = async () => {
     if (!isAuthenticated) {
       navigate("/login");
     }
 
-    if (isAuthenticated) {
-      if (
-        unifiedRecord?.combinedPayment.isPaid &&
-        unifiedRecord?.combinedPayment.remainingAttempts > 0
-      ) {
-        navigate("/interest-profiler");
-      } else if (
-        !unifiedRecord?.combinedPayment.isPaid &&
-        unifiedRecord?.combinedPayment.remainingAttempts === 3
-      ) {
-        navigate("/interest-profiler");
-      } else {
-        setOpenPaymentModal(true);
-        // dispatchToRedux(
-        //   notify({
-        //     message: "You have reached your assessment limit, Please upgrade your plan to continue",
-        //     type: "error",
-        //   }),
-        // );
+    try {
+      await dispatchToRedux(
+        reconcileAssessmentAttempts({ userId, token })
+      ).unwrap();
+
+      if (isAuthenticated) {
+        if (
+          unifiedRecord?.combinedPayment.isPaid &&
+          unifiedRecord?.combinedPayment.remainingAttempts > 0
+        ) {
+          navigate("/interest-profiler");
+        } else if (
+          !unifiedRecord?.combinedPayment.isPaid &&
+          unifiedRecord?.combinedPayment.remainingAttempts === 3
+        ) {
+          navigate("/interest-profiler");
+        } else {
+          setOpenPaymentModal(true);
+        }
       }
+    } catch (error) {
+      dispatchToRedux(
+        notify({
+          type: "error",
+          message: "Unable to start assessment. Please try again.",
+        })
+      );
     }
   };
 
