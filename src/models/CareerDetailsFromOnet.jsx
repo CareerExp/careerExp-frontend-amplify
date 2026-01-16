@@ -16,6 +16,7 @@ import {
 import { fonts } from "../utility/fonts.js";
 import { getCountryFlagByName } from "../utility/getCountryFlagByName";
 import { getCountryEmojiByName } from "../utility/getCountryEmojiByName.jsx";
+import ReactCountryFlag from "react-country-flag";
 
 const CareerDetailsFromOnet = ({
   open,
@@ -565,20 +566,37 @@ const CareerDetailsFromOnet = ({
                           >
                             {key}
                           </span>
-                          {/* {getCountryFlagByName(key) && (
+                          {getCountryFlagByName(key) && (
                             <img
-                              src={getCountryFlagByName(key)}
+                              src={`https://flagcdn.com/w40/${getCountryEmojiByName(key).toLowerCase()}.png`}
                               alt={key}
                               style={{
                                 width: 40,
-                                height: 26,
-                                objectFit: "contain",
+                                height: 28,
+                                objectFit: "cover",
+                                border: "0.5px solid",
                               }}
                             />
-                          )} */}
-                          <span style={{ fontSize: "28px" }}>
+                            // <ReactCountryFlag
+                            //   countryCode={getCountryEmojiByName(key)}
+                            //   style={{
+                            //     fontSize: "36px",
+                            //     lineHeight: "1",
+                            //   }}
+                            // />
+                            // <img
+                            //   src={getCountryFlagByName(key)}
+                            //   alt={key}
+                            //   style={{
+                            //     width: 40,
+                            //     height: 26,
+                            //     objectFit: "contain",
+                            //   }}
+                            // />
+                          )}
+                          {/* <span style={{ fontSize: "28px" }}>
                             {getCountryEmojiByName(key)}
-                          </span>
+                          </span> */}
                         </div>
                         <span
                           style={{
@@ -670,20 +688,37 @@ const CareerDetailsFromOnet = ({
                             >
                               {key}
                             </span>
-                            {/* {getCountryFlagByName(key) && (
+                            {getCountryFlagByName(key) && (
                               <img
-                                src={getCountryFlagByName(key)}
+                                src={`https://flagcdn.com/w40/${getCountryEmojiByName(key).toLowerCase()}.png`}
                                 alt={key}
                                 style={{
                                   width: 40,
-                                  height: 26,
-                                  objectFit: "contain",
+                                  height: 28,
+                                  objectFit: "cover",
+                                  border: "0.5px solid",
                                 }}
                               />
-                            )} */}
-                            <span style={{ fontSize: "28px" }}>
+                              // <ReactCountryFlag
+                              //   countryCode={getCountryEmojiByName(key)}
+                              //   style={{
+                              //     fontSize: "36px",
+                              //     lineHeight: "1",
+                              //   }}
+                              // />
+                              // <img
+                              //   src={getCountryFlagByName(key)}
+                              //   alt={key}
+                              //   style={{
+                              //     width: 40,
+                              //     height: 26,
+                              //     objectFit: "contain",
+                              //   }}
+                              // />
+                            )}
+                            {/* <span style={{ fontSize: "28px" }}>
                               {getCountryEmojiByName(key)}
-                            </span>
+                            </span> */}
                           </div>
                           <Box
                             sx={{

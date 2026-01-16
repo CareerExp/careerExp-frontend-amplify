@@ -286,9 +286,8 @@ const AssessmentResult1 = () => {
         <div className={assessmentResult1.left}>
           <div
             style={{
-              borderRadius: "50%",
               height: "50px",
-              width: "50px",
+              width: "72px",
               overflow: "hidden",
               border: "1px solid",
               position: "relative",
@@ -303,7 +302,7 @@ const AssessmentResult1 = () => {
                   height: 100,
                   position: "absolute",
                   top: -26,
-                  left: -26,
+                  left: -15,
                 }}
               />
             )}
@@ -365,7 +364,10 @@ const AssessmentResult1 = () => {
           <div className={assessmentResult1.howYouScored}>
             <div>
               <h6>How you scored</h6>
-              <p>Full details in your Career Directions Report</p>
+              <p>
+                Generating your Career Directions Report. This may take up to{" "}
+                <b>5-6</b> minutes...
+              </p>
               <LinearProgress
                 variant="buffer"
                 value={progress}

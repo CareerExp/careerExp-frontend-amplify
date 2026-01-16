@@ -624,7 +624,7 @@ const surveyQuesAns = [
   },
   {
     question:
-      "At this point in your career journey, which Career Cluster most appeal to you? Choose up to 3 Career Cluster.",
+      "At this point in your career journey, which Career Cluster most appeal to you? Choose up to 3 Career Cluster AND 2 sub-Clusters.",
     key: "mostAppealingField",
     isMutiple: true,
     options: [
