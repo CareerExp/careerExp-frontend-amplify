@@ -1,6 +1,6 @@
 run prettier and eslint command
 
-Now you can run:
+Now you run:
 
 npm run lint: To check for linting errors.
 npm run lint:fix: To automatically fix lint errors.
