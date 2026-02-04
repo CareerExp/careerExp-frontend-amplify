@@ -16,8 +16,16 @@ import UsersData from "./adminDashboard/UsersData.jsx";
 import Profile from "./Profile.jsx";
 import CareerPlanning from "./userDashboard/CareerPlanning.jsx";
 import UserResume from "./userDashboard/UserResume.jsx";
+import OrgHome from "./orgDashboard/OrgHome.jsx";
+import OrgAboutUs from "./orgDashboard/OrgAboutUs.jsx";
+import OrgMyCounsellors from "./orgDashboard/OrgMyCounsellors.jsx";
+import OrgMyAnnouncements from "./orgDashboard/OrgMyAnnouncements.jsx";
+import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
+import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
+import MyCompany from "./creatorDashboard/MyCompany.jsx";
 
-const renderCurrentPage = (currentPage, userData) => {
+const renderCurrentPage = (currentPage, userData, orgProfile) => {
+  console.log(orgProfile);
   if (userData.activeDashboard === "admin") {
     switch (currentPage) {
       case "Dashboard":
@@ -58,6 +66,37 @@ const renderCurrentPage = (currentPage, userData) => {
         return <CreatorAnalytics />;
       case "Social Media":
         return <CreatorSocialMedia />;
+      case "My Company":
+        return <MyCompany />;
+      case "Profile":
+        return <Profile />;
+      default:
+        return null;
+    }
+  }
+
+  if (userData.activeDashboard === "organization") {
+    if (userData.status === "pending") {
+      return <PendingStatePopup message={"Your Organization Account is in Pending State."} />;
+    }
+    if (userData?.status === "blocked") {
+      return <PendingStatePopup message={"Your Organization Account has been blocked. Please contact support for further assistance."} />;
+    }
+    switch (currentPage) {
+      case "Dashboard":
+        if (orgProfile?.organizationType === "ESP") {
+          return <OrgESPHome />;
+        }
+        if (orgProfile?.organizationType === "HEI") {
+          return <OrgHEIHome />;
+        }
+        return null;
+      case "About Us":
+        return <OrgAboutUs />;
+      case "My Counsellors":
+        return <OrgMyCounsellors />;
+      case "My Announcements":
+        return <OrgMyAnnouncements />;
       case "Profile":
         return <Profile />;
       default:

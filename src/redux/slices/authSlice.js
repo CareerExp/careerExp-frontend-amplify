@@ -30,12 +30,13 @@ const login = createAsyncThunk("auth/login", async (credentials, { rejectWithVal
 
 const signup = createAsyncThunk("auth/signup", async (payload, { rejectWithValue }) => {
   try {
+    const isFormData = payload instanceof FormData;
     const response = await FetchApi.fetch(`${config.api}/api/auth/signup`, {
       method: "POST",
-      headers: {
+      headers: isFormData ? {} : {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: isFormData ? payload : JSON.stringify(payload),
     });
 
     if (!response.success) {

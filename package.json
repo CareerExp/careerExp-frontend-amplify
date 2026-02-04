@@ -21,6 +21,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@reduxjs/toolkit": "^2.2.3",
     "@stripe/react-stripe-js": "^2.7.1",
+    "country-state-city": "^3.2.1",
     "dotenv": "^16.4.5",
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",

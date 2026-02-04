@@ -1,0 +1,16 @@
+---
+name: 03-coding-constraints
+description:Enforcesafecodingandchangediscipline
+alwaysApply:true
+---
+
+When implementing changes:
+-Followexistingfolderstructureandpatterns
+-Reuseexistingutilitiesandservices
+-Donotintroducenewlibrarieswithoutinstruction
+-Donotrefactorunrelatedcode
+Before writing code:
+-Explainwhichfileswillbechanged
+-Explainwhyeachchangeisrequired
+
+Preferminimal,incrementalchanges.

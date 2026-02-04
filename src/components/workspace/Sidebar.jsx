@@ -1,17 +1,23 @@
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
+import CampaignIcon from "@mui/icons-material/Campaign";
 import ContactPageIcon from "@mui/icons-material/ContactPage";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import EventIcon from "@mui/icons-material/Event";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import HistoryIcon from "@mui/icons-material/History";
+import InfoIcon from "@mui/icons-material/Info";
 import LogoutIcon from "@mui/icons-material/Logout";
+import MessageIcon from "@mui/icons-material/Message";
 import OutlinedFlagIcon from "@mui/icons-material/OutlinedFlag";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PsychologyIcon from "@mui/icons-material/Psychology";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import SchoolIcon from "@mui/icons-material/School";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShareIcon from "@mui/icons-material/Share";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import PsychologyIcon from "@mui/icons-material/Psychology";
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -19,7 +25,9 @@ import { useNavigate } from "react-router-dom";
 
 import { logout } from "../../redux/slices/authSlice.js";
 import { fonts } from "../../utility/fonts.js";
-const Sidebar = ({ userRole, handleMenuItemClick, currentPage }) => {
+
+
+const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType }) => {
   const dispatchToRedux = useDispatch();
   const navigate = useNavigate();
   let sideBarMenues = [];
@@ -68,9 +76,33 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage }) => {
         { name: "My Content", icon: <VideoLibraryIcon />, route: "/mycontent" },
         { name: "Analytics", icon: <AssessmentIcon />, route: "/analytics" },
         { name: "Social Media", icon: <ShareIcon />, route: "/socialmedia" },
+        { name: "My Company", icon: <BusinessCenterIcon />, route: "/mycompany" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
       ];
       break;
+      case "organization":
+        if (organizationType === "ESP") {
+          sideBarMenues = [
+            { name: "Dashboard", icon: <DashboardIcon />, route: "/organizationdashboard" },
+            { name: "About Us", icon: <InfoIcon />, route: "/aboutus" },
+            { name: "My Counsellors", icon: <PsychologyIcon />, route: "/mycounsellors" },
+            { name: "My Announcements", icon: <CampaignIcon />, route: "/myannouncements" },
+            { name: "My Events", icon: <EventIcon />, route: "/myevents" },
+            { name: "My Services", icon: <BusinessCenterIcon />, route: "/myservices" },
+            { name: "Messages", icon: <MessageIcon />, route: "/messages" },
+            { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
+            { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
+          ];
+        }
+        if (organizationType === "HEI") {
+          sideBarMenues = [
+            { name: "Dashboard", icon: <DashboardIcon />, route: "/organizationdashboard" },
+            { name: "About Us", icon: <InfoIcon />, route: "/aboutus" },
+            { name: "My Counsellors", icon: <PsychologyIcon />, route: "/mycounsellors" },
+            { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
+          ];
+        }
+        break;
     default:
       sideBarMenues = [];
   }
@@ -135,23 +167,8 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage }) => {
           </ListItem>
         ))}
       </List>
-      {/* <button
-        onClick={handleLogout}
-        style={{
-          width: "263px",
-          height: "45px",
-          borderRadius: "11px",
-          fontSize: "1rem",
-          color: "#777777",
-          margin: ".5rem",
-          border: "1px solid #00000033",
-          backgroundColor: "#FFFFFF",
-          boxShadow: "2px 2px 10px #a9a9a977",
-          cursor: "pointer",
-        }}
-      >
-        <LogoutIcon color="red" /> Logout
-      </button> */}
+  
+        <Box>
       <button
         onClick={() => {
           navigate("/explore");
@@ -171,7 +188,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage }) => {
           justifyContent: "center", // Center items horizontally
           alignItems: "center", // Center items vertically
           gap: "8px",
-          marginTop: "12rem",
+          // marginTop: "12rem",
         }}
       >
         To Continue Exploring Click Here
@@ -198,6 +215,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage }) => {
         <LogoutIcon style={{ color: "red" }} /> {/* Set icon color to red */}
         Logout
       </button>
+      </Box>
     </Box>
   );
 };

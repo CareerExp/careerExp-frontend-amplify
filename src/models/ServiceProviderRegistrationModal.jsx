@@ -1,0 +1,957 @@
+import React, { useState } from "react";
+import {
+  Dialog,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  CircularProgress,
+  Autocomplete,
+} from "@mui/material";
+import { Visibility, VisibilityOff, ExpandMore, Close } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
+import { countryList } from "../utility/countryList";
+import { fonts } from "../utility/fonts";
+import { uploadDocument } from "../assets/assest";
+import { notify } from "../redux/slices/alertSlice.js";
+import { signup } from "../redux/slices/authSlice.js";
+import {
+  checkPassStrength,
+  isValidEmail,
+  isValidMobileNumber,
+} from "../utility/validate.js";
+
+import { State } from "country-state-city";
+import AddLinkModal from "./AddLinkModal";
+
+const ServiceProviderRegistrationModal = ({ open, onClose }) => {
+  const dispatchToRedux = useDispatch();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    password: "",
+    confirmPassword: "",
+    countryCode: "+1",
+    // New fields
+    corporateName: "",
+    registeredAddress: "",
+    state: "",
+    country: "",
+    registrationNo: "",
+    telephone: "",
+    website: "",
+  });
+
+  const [availableStates, setAvailableStates] = useState([]);
+  const [addedLinks, setAddedLinks] = useState([]);
+  const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "country") {
+      const selectedCountry = countryList.find((c) => c.name === value);
+      setFormData({
+        ...formData,
+        country: value,
+        state: "", // Reset state when country changes
+      });
+
+      if (selectedCountry) {
+        setAvailableStates(State.getStatesOfCountry(selectedCountry.code));
+      } else {
+        setAvailableStates([]);
+      }
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUploadedFile(file);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setUploadedFile(file);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const removeFile = () => {
+    setUploadedFile(null);
+  };
+
+  const handleSignUp = async () => {
+    // Validations matching Register.jsx
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.mobile ||
+      !formData.password ||
+      !formData.countryCode ||
+      !formData.corporateName ||
+      !formData.registrationNo ||
+      !formData.telephone
+    ) {
+      dispatchToRedux(
+        notify({
+          type: "warning",
+          message: "Please fill all the required fields",
+        })
+      );
+      return;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      dispatchToRedux(
+        notify({
+          type: "warning",
+          message: "Please enter a valid email address",
+        })
+      );
+      return;
+    }
+
+    if (!isValidMobileNumber(formData.mobile)) {
+      dispatchToRedux(
+        notify({
+          type: "warning",
+          message: "Please enter a valid mobile number.",
+        })
+      );
+      return;
+    }
+
+    if (!checkPassStrength(formData.password)) {
+      dispatchToRedux(
+        notify({
+          type: "warning",
+          message:
+            "Password must contain at least one uppercase letter, one number, one special character, and minimum 8 characters",
+        })
+      );
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      dispatchToRedux(
+        notify({
+          type: "warning",
+          message: "Passwords do not match",
+        })
+      );
+      return;
+    }
+
+    const fullMobile = `${formData.countryCode} ${formData.mobile}`;
+
+    // Construct payload using FormData to support file uploads
+    const data = new FormData();
+    data.append("firstName", formData.firstName);
+    data.append("lastName", formData.lastName);
+    data.append("email", formData.email);
+    data.append("mobile", fullMobile);
+    data.append("password", formData.password);
+    data.append("role", "organization");
+    data.append("organizationType", "ESP");
+    data.append("organizationName", formData.corporateName);
+    data.append("registrationNo", formData.registrationNo);
+    data.append("telephone", formData.telephone);
+    data.append("website", formData.website);
+    data.append("address", formData.registeredAddress);
+    data.append("state", formData.state);
+    data.append("country", formData.country);
+
+    if (uploadedFile) {
+      data.append("documents", uploadedFile);
+    }
+
+    // Append links if any (assuming API supports them in documents or similar field)
+    addedLinks.forEach((link) => {
+      data.append("links", link);
+    });
+
+    try {
+      setIsButtonLoading(true);
+      const resultAction = await dispatchToRedux(signup(data));
+      setIsButtonLoading(false);
+
+      if (signup.fulfilled.match(resultAction)) {
+        dispatchToRedux(
+          notify({
+            type: "success",
+            message: resultAction.payload.message || "Registration successful!",
+          })
+        );
+        onClose(); // Close modal on success
+      } else if (signup.rejected.match(resultAction)) {
+        const error = resultAction.payload || resultAction.error;
+        dispatchToRedux(
+          notify({
+            type: "error",
+            message: error.message || "Registration failed",
+          })
+        );
+      }
+    } catch (error) {
+      setIsButtonLoading(false);
+      dispatchToRedux(
+        notify({
+          type: "error",
+          message: error.message || "An unexpected error occurred",
+        })
+      );
+    }
+  };
+
+  const inputStyle = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#f6f6f6",
+      borderRadius: "10px",
+      "& fieldset": {
+        border: "none",
+      },
+    },
+    "& .MuiInputBase-input": {
+      fontFamily: fonts.poppins,
+      fontSize: "16px",
+      padding: "13px 20px",
+      "&::placeholder": {
+        color: "#999",
+        opacity: 1,
+      },
+    },
+    "& .MuiFormLabel-root": {
+      fontFamily: fonts.poppins,
+      fontSize: "16px",
+      fontWeight: 500,
+      color: "#545454",
+      mb: 1,
+      position: "relative",
+      transform: "none",
+    },
+  };
+
+  const emailInputStyle = {
+    ...inputStyle,
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#f6f6f6",
+      borderRadius: "10px",
+      border: "1px solid #bf2f75",
+      "& fieldset": {
+        border: "none",
+      },
+    },
+    "& .MuiInputBase-input": {
+      ...inputStyle["& .MuiInputBase-input"],
+      color: "#212121",
+      fontWeight: 500,
+    },
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      PaperProps={{
+        sx: {
+          borderRadius: "29px",
+          width: "100%",
+          maxWidth: "896px",
+          p: { xs: 2, md: "42px 46px" },
+          boxShadow: "0px 14px 44px 0px rgba(0,0,0,0.1)",
+          position: "relative",
+        },
+      }}
+    >
+      {/* Close Button */}
+      <IconButton
+        onClick={onClose}
+        sx={{
+          position: "absolute",
+          right: "15px",
+          top: "15px",
+          color: "#000",
+        }}
+      >
+        <Close />
+      </IconButton>
+
+      {/* Header */}
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography
+          sx={{
+            fontFamily: fonts.poppins,
+            fontWeight: 700,
+            fontSize: "35px",
+            color: "black",
+            mb: 0.5,
+          }}
+        >
+          Education Service Provider Registration
+        </Typography>
+        <Typography
+          sx={{
+            fontFamily: fonts.poppins,
+            fontSize: "16px",
+            color: "#787878",
+            letterSpacing: "0.32px",
+          }}
+        >
+          Complete your registration to create your service provider profile
+        </Typography>
+      </Box>
+
+      {/* Form */}
+      <Stack spacing={2.5}>
+        <Typography
+          sx={{
+            fontFamily: fonts.poppins,
+            fontWeight: 600,
+            fontSize: "20px",
+            color: "#bc2876", // 👈 updated color
+            mb: -1,
+          }}
+        >
+          Contact Person Information
+        </Typography>
+
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>First Name</Typography>
+            <TextField
+              fullWidth
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="First Name"
+              sx={inputStyle}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Last Name</Typography>
+            <TextField
+              fullWidth
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Last Name"
+              sx={inputStyle}
+            />
+          </Box>
+        </Stack>
+
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ ...inputStyle["& .MuiFormLabel-root"], color: "#720361" }}>
+              Email
+            </Typography>
+            <TextField
+              fullWidth
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Liampayne@gmail.com"
+              sx={emailInputStyle}
+            />
+          </Box>
+
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Mobile No</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                backgroundColor: "#f6f6f6",
+                borderRadius: "10px",
+                height: "50px",
+                alignItems: "center",
+                px: 2,
+                gap: 1,
+              }}
+            >
+              <Autocomplete
+                sx={{
+                  width: "80px", // Reduced width slightly
+                }}
+                options={countryList}
+                autoHighlight
+                getOptionLabel={(option) => option.dial_code || ""}
+                value={countryList.find((c) => c.dial_code === formData.countryCode) || null}
+                onChange={(event, newValue) => {
+                  setFormData({ ...formData, countryCode: newValue ? newValue.dial_code : "" });
+                }}
+                slotProps={{
+                  popper: {
+                    sx: {
+                      width: "200px !important", // 👈 dropdown width
+                      "& .MuiPaper-root": {
+                        borderRadius: "12px",
+                        boxShadow: "0px 4px 20px rgba(0,0,0,0.15)",
+                        marginLeft: "30px",
+                        marginTop: "11px",
+                      },
+                    },
+                  },
+                }}
+                filterOptions={(options, { inputValue }) => {
+                  return options.filter(
+                    (item) =>
+                      item.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+                      item.dial_code.includes(inputValue)
+                  );
+                }}
+                renderOption={(props, option) => (
+                  <Box
+                    component="li"
+                    width={"200px"}
+                    {...props}
+                    sx={{
+                      fontFamily: fonts.poppins,
+                      fontSize: "14px",
+                      px: 1,
+                      py: 1
+                    }}
+                  >
+                    {option.dial_code} ({option.name})
+                  </Box>
+                )}
+                PopperProps={{
+                  sx: {
+                    "& .MuiPaper-root": {
+                      width: "400px",
+                      borderRadius: "10px",
+                      mt: 1,
+                      boxShadow: "0px 4px 20px rgba(0,0,0,0.1)",
+                    }
+                  }
+                }}
+                ListboxProps={{
+                  sx: {
+                    maxHeight: "300px",
+                    "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-thumb": { backgroundColor: "#ddd", borderRadius: "10px" },
+                  }
+                }}
+                popupIcon={<ExpandMore sx={{ fontSize: "20px", color: "#101010" }} />}
+                forcePopupIcon={true}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    placeholder="+1"
+                    InputProps={{
+                      ...params.InputProps,
+                      disableUnderline: true,
+                    }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        p: 0,
+                        display: "flex",
+                        alignItems: "center",
+                      },
+                      "& .MuiInputBase-input": {
+                        fontFamily: fonts.poppins,
+                        fontSize: "16px",
+                        color: "#101010",
+                        p: 0,
+                        width: "90px !important",
+                      },
+                    }}
+                  />
+                )}
+              />
+              <Box sx={{ width: "1px", height: "24px", bgcolor: "#E0E0E0", flexShrink: 0 }} />
+              <TextField
+                fullWidth
+                variant="standard"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Enter mobile number"
+                InputProps={{
+                  disableUnderline: true,
+                  inputProps: {
+                    inputMode: "numeric",
+                    pattern: "[0-9]*",
+                  },
+                }}
+                sx={{
+                  "& .MuiInputBase-input": {
+                    fontFamily: fonts.poppins,
+                    fontSize: "16px",
+                    color: "#212121",
+                    p: 0,
+                  },
+                }}
+                onKeyPress={(event) => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
+              />
+            </Box>
+          </Box>
+        </Stack>
+
+        <Box>
+          <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Create Password</Typography>
+          <TextField
+            fullWidth
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            type={showPassword ? "text" : "password"}
+            placeholder="Create Password"
+            sx={inputStyle}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
+        <Box>
+          <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Confirm Password</Typography>
+          <TextField
+            fullWidth
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            type={showConfirmPassword ? "text" : "password"}
+            placeholder="Enter Password"
+            sx={inputStyle}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
+        <Typography
+          sx={{
+            fontFamily: fonts.poppins,
+            fontWeight: 600,
+            fontSize: "20px",
+            color: "#bc2876", // 👈 updated color
+            mt: 2,
+            mb: -1,
+          }}
+        >
+          Business Entity Information
+        </Typography>
+
+        <Box>
+          <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
+            Corporate Name <span style={{ color: "red" }}>*</span>
+          </Typography>
+          <TextField
+            fullWidth
+            name="corporateName"
+            value={formData.corporateName}
+            onChange={handleChange}
+            placeholder="Enter corporate/company name"
+            sx={inputStyle}
+          />
+        </Box>
+
+        <Box>
+          <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Registered Address</Typography>
+          <TextField
+            fullWidth
+            name="registeredAddress"
+            value={formData.registeredAddress}
+            onChange={handleChange}
+            placeholder="Enter location"
+            sx={inputStyle}
+          />
+        </Box>
+
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Select Country</Typography>
+            <TextField
+              select
+              fullWidth
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              placeholder="Select Country"
+              sx={inputStyle}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 300,
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="">Select Country</MenuItem>
+              {countryList.map((c) => (
+                <MenuItem key={c.code} value={c.name}>
+                  <Box
+                    component="img"
+                    src={c.image}
+                    sx={{ width: 20, height: 15, mr: 1, objectFit: "cover" }}
+                  />
+                  {c.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Select State</Typography>
+            <TextField
+              select
+              fullWidth
+              name="state"
+              value={formData.state}
+              onChange={handleChange}
+              disabled={!formData.country}
+              placeholder="Select State/City"
+              sx={{
+                ...inputStyle,
+                "& .MuiOutlinedInput-root": {
+                  ...inputStyle["& .MuiOutlinedInput-root"],
+                  backgroundColor: !formData.country ? "#e0e0e0" : "#f6f6f6",
+                },
+              }}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 300,
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="">Select State/City</MenuItem>
+              {availableStates.map((s) => (
+                <MenuItem key={s.name} value={s.name}>
+                  {s.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </Stack>
+
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
+              Company Registration No <span style={{ color: "red" }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              name="registrationNo"
+              value={formData.registrationNo}
+              onChange={handleChange}
+              placeholder="Enter registration number"
+              sx={inputStyle}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
+              Telephone No <span style={{ color: "red" }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              name="telephone"
+              value={formData.telephone}
+              onChange={handleChange}
+              placeholder="Enter telephone number"
+              sx={inputStyle}
+            />
+          </Box>
+        </Stack>
+
+        <Box>
+          <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Website</Typography>
+          <TextField
+            fullWidth
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+            placeholder="https://example.com"
+            sx={inputStyle}
+          />
+        </Box>
+
+        <Typography
+          sx={{
+            fontFamily: fonts.poppins,
+            fontWeight: 600,
+            fontSize: "20px",
+            color: "#bc2876", // 👈 updated color
+            mt: 2,
+            mb: -1,
+          }}
+        >
+          Required Documents
+        </Typography>
+
+        <Box sx={{ mt: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontWeight: 600,
+                fontSize: "18px",
+                color: "#545454",
+              }}
+            >
+              Upload Verification Documents
+            </Typography>
+            <Stack direction="row" spacing={1.5}>
+              <Button
+                component="label"
+                variant="contained"
+                startIcon={<Box sx={{ width: 16, height: 16, border: '2px solid #fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', color: '#fff' }}>+</Box>}
+                sx={{
+                  borderRadius: "8px",
+                  background: "#bc2876",
+                  color: "#fff",
+                  textTransform: "none",
+                  fontFamily: fonts.poppins,
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  height: "40px",
+                  boxShadow: "none",
+                  "&:hover": { background: "#720361", boxShadow: "none" }
+                }}
+              >
+                Upload File
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                />
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => setIsAddLinkModalOpen(true)}
+                startIcon={<Box sx={{ width: 16, height: 16, border: '2px solid #bc2876', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', color: '#bc2876' }}>+</Box>}
+                sx={{
+                  borderRadius: "8px",
+                  borderColor: "#bc2876",
+                  color: "#bc2876",
+                  textTransform: "none",
+                  fontFamily: fonts.poppins,
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  height: "40px",
+                  "&:hover": { borderColor: "#720361", backgroundColor: "rgba(188, 40, 118, 0.04)" }
+                }}
+              >
+                Add Link
+              </Button>
+            </Stack>
+          </Box>
+
+          <Box
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            sx={{
+              backgroundColor: "#f9fafb",
+              border: "1px dashed #EAECF0",
+              borderRadius: "12px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "32px",
+              minHeight: "111px",
+              textAlign: "center",
+              gap: 2
+            }}
+          >
+            {(!uploadedFile && addedLinks.length === 0) ? (
+              <>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontSize: "14px",
+                    color: "#667085",
+                    mb: 1
+                  }}
+                >
+                  No documents added yet. Click "Upload File" or "Add Link" to get started.
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontSize: "12px",
+                    color: "#98A2B3",
+                  }}
+                >
+                  Examples: Accreditation certificates, licenses, registrations, or relevant links.
+                </Typography>
+              </>
+            ) : (
+              <Stack spacing={1} width="100%">
+                {uploadedFile && (
+                  <Box sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    backgroundColor: "#fff",
+                    p: 1.5,
+                    borderRadius: "8px",
+                    border: "1px solid #EAECF0"
+                  }}>
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.poppins,
+                        fontSize: "14px",
+                        color: "#101828",
+                        fontWeight: 500,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
+                      }}
+                    >
+                      📄 {uploadedFile.name}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={removeFile}
+                    >
+                      <Close sx={{ fontSize: "18px", color: "#bc2876" }} />
+                    </IconButton>
+                  </Box>
+                )}
+                {addedLinks.map((link, idx) => (
+                  <Box key={idx} sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    backgroundColor: "#fff",
+                    p: 1.5,
+                    borderRadius: "8px",
+                    border: "1px solid #EAECF0"
+                  }}>
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.poppins,
+                        fontSize: "14px",
+                        color: "#bc2876",
+                        fontWeight: 500,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        textDecoration: "underline"
+                      }}
+                    >
+                      🔗 {link}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => setAddedLinks(addedLinks.filter((_, i) => i !== idx))}
+                    >
+                      <Close sx={{ fontSize: "18px", color: "#bc2876" }} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Stack>
+            )}
+          </Box>
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "center", pt: 1 }}>
+          <Button
+            variant="contained"
+            onClick={handleSignUp}
+            disabled={isButtonLoading}
+            sx={{
+              width: "350px",
+              height: "48px",
+              borderRadius: "58px",
+              background: "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
+              boxShadow: "0px 6px 18px 0px rgba(191, 47, 117, 0.4)",
+              fontFamily: fonts.poppins,
+              fontWeight: 700,
+              fontSize: "16px",
+              color: "white",
+              textTransform: "none",
+              letterSpacing: "0.32px",
+              "&:hover": {
+                background: "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
+                opacity: 0.9,
+              },
+            }}
+          >
+            {isButtonLoading ? <CircularProgress size={24} color="inherit" /> : "Continue registration"}
+          </Button>
+        </Box>
+
+        <AddLinkModal
+          open={isAddLinkModalOpen}
+          onClose={() => setIsAddLinkModalOpen(false)}
+          onAdd={(link) => setAddedLinks([...addedLinks, link])}
+        />
+
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          <Typography
+            sx={{
+              fontFamily: fonts.poppins,
+              fontSize: "16px",
+              color: "#0d1833",
+              opacity: 0.5,
+            }}
+          >
+            Already have an account?
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: fonts.poppins,
+              fontWeight: 600,
+              fontSize: "16px",
+              color: "#ff8a00",
+              cursor: "pointer",
+            }}
+          >
+            Sign In
+          </Typography>
+        </Box>
+      </Stack>
+    </Dialog>
+  );
+};
+
+export default ServiceProviderRegistrationModal;

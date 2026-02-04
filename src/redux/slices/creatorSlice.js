@@ -12,6 +12,10 @@ const initialState = {
   isFollowing: false, // changed from { isFollowing: false } to false
   followerCount: 0,
   CounsellorAnalytics: null,
+  invitations: [],
+  myOrganization: null,
+  loading: false,
+  error: null,
 };
 
 export const uploadVideo = createAsyncThunk(
@@ -369,6 +373,54 @@ export const getCounsellorAnalytics = createAsyncThunk(
   },
 );
 
+export const getMyCompanyInvitations = createAsyncThunk(
+  "creator/getMyCompanyInvitations",
+  async ({ token }, thunkAPI) => {
+    try {
+      const response = await FetchApi.fetch(`${config.api}/api/creator/invitations`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message });
+      }
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+export const respondToInvitation = createAsyncThunk(
+  "creator/respondToInvitation",
+  async ({ invitationId, organizationUserId, status, token }, thunkAPI) => {
+    try {
+      const endpoint = status === "accepted" 
+        ? "/api/creator/invitations/accept" 
+        : "/api/creator/invitations/reject";
+        
+      const response = await FetchApi.fetch(`${config.api}${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ invitationId, organizationUserId }),
+      });
+      
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message });
+      }
+      return { ...response, status };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
 const creatorSlice = createSlice({
   name: "creator",
   initialState,
@@ -456,6 +508,39 @@ const creatorSlice = createSlice({
       // console.log("payload", payload);
       state.CounsellorAnalytics = payload;
     });
+
+    builder.addCase(getMyCompanyInvitations.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(getMyCompanyInvitations.fulfilled, (state, { payload }) => {
+      state.loading = false;
+      state.invitations = payload.data || [];
+    });
+    builder.addCase(getMyCompanyInvitations.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload?.error || "Failed to fetch invitations";
+    });
+
+    builder.addCase(respondToInvitation.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(respondToInvitation.fulfilled, (state, { payload }) => {
+      state.loading = false;
+      // Remove the invitation from the list if it was accepted or rejected
+      const invitationId = payload.data?._id || payload.invitationId;
+      state.invitations = state.invitations.filter(
+        (inv) => inv._id !== invitationId
+      );
+      if (payload.status === "accepted") {
+        state.myOrganization = payload.data; // Store the full membership document
+      }
+    });
+    builder.addCase(respondToInvitation.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload?.error || "Failed to respond to invitation";
+    });
   },
 });
 
@@ -470,5 +555,8 @@ export const selectCreatorProfile = (state) => state.creator.creatorProfile;
 export const selectIsFollowing = (state) => state.creator.isFollowing;
 export const selectFollowerCount = (state) => state.creator.followerCount;
 export const selectCounsellorAnalytics = (state) => state.creator.CounsellorAnalytics;
+export const selectCreatorInvitations = (state) => state.creator.invitations;
+export const selectMyOrganization = (state) => state.creator.myOrganization;
+export const selectCreatorLoading = (state) => state.creator.loading;
 
 export default creatorSlice.reducer;

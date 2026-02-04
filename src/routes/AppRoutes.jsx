@@ -18,12 +18,16 @@ const VerifyEmail = React.lazy(() => import("../pages/EmailVerification.jsx"));
 
 const Layout = React.lazy(() => import("../components/Layout"));
 const Home = React.lazy(() => import("../pages/Home"));
+const OrgHome = React.lazy(() => import("../pages/OrgHome"));
+const OrgESP = React.lazy(() => import("../pages/OrgESP"));
+const OrgHEI = React.lazy(() => import("../pages/OrgHEI"));
 const Explore = React.lazy(() => import("../pages/Explore"));
 const AssessmentCenter = React.lazy(() => import("../pages/AssessmentCenter"));
 const ResumeBuilderPage = React.lazy(
   () => import("../pages/ResumeBuilder.jsx")
 );
 const HowItWorks = React.lazy(() => import("../pages/HowItWorks.jsx"));
+const Partners = React.lazy(() => import("../pages/Partners.jsx"));
 const Pricing = React.lazy(() => import("../pages/Pricing.jsx"));
 const Workspace = React.lazy(() => import("../pages/Workspace.jsx"));
 
@@ -104,6 +108,30 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/org-home"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgHome />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-esp"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgESP />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-hei"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
           path="/explore"
           element={
             <Suspense fallback={<InitialLoaders />}>
@@ -143,6 +171,14 @@ const AppRoutes = () => {
             </Suspense>
           }
         />{" "}
+        <Route
+          path="/partners"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <Partners />
+            </Suspense>
+          }
+        />
         <Route
           path="/profile/:userId"
           element={

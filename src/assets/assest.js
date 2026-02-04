@@ -94,7 +94,7 @@ import commingSoon from "./Pricing/commingSoon.png";
 import Councellers from "./Pricing/Councellers.png";
 import HighSchools from "./Pricing/HighSchools.png";
 import student from "./Pricing/Student.png";
-// profile
+import partners from "./Pricing/partners.png";
 import profileOilPaint from "./Profile/profileOilPaint.png";
 //creator Profile Icon
 import creatorIconWhatsaap from "./profileIcon/ph_whatsapp-logo-thin.png";
@@ -159,6 +159,17 @@ import profileOilPaintMobile from "./Profile/Subtractshivam.png";
 // shareIconInOrange
 import shareIconInOrange from "./icons/shareInOrange.png";
 import domainImage from "./domainWheel.svg";
+
+// organization
+import defaultHeroBG from "./organization/defaultHeroBG.svg";
+import organizationLogo from "./organization/logo.svg";
+import uploadDocument from "./uploadDocument.svg";
+
+// announcements
+import announce1 from "./announcements/announce1.png";
+import announce2 from "./announcements/announce2.png";
+import announce3 from "./announcements/announce3.png";
+import announce4 from "./announcements/announce4.png";
 
 export {
   PageNotFound,
@@ -238,6 +249,7 @@ export {
   Councellers,
   student,
   HighSchools,
+  partners,
   //auth
   leftPannelAuth,
   background,
@@ -323,4 +335,11 @@ export {
   // shareIconInOrange
   shareIconInOrange,
   domainImage,
+  defaultHeroBG,
+  organizationLogo,
+  uploadDocument,
+  announce1,
+  announce2,
+  announce3,
+  announce4,
 };
