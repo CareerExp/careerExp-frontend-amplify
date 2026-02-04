@@ -6,13 +6,22 @@ function fetchApi(url, options = {}) {
     // Please use regular fetch for outside api.
     throw new Error(`Use regular fetch to make request to '${url}'`);
   }
-  if (options.body) {
-    options.body = typeof options.body === "string" ? options.body : JSON.stringify(options.body);
-  }
-  options.credentials = options.credentials || "include";
+
   options.headers = options.headers || {};
+
+  if (options.body && options.body instanceof FormData) {
+    // For FormData, we let the browser set the Content-Type with the correct boundary.
+    // Do not stringify and do not set Content-Type.
+  } else {
+    if (options.body) {
+      options.body = typeof options.body === "string" ? options.body : JSON.stringify(options.body);
+    }
+    options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
+  }
+
+  options.credentials = options.credentials || "include";
   options.headers.Accept = options.headers.Accept || "application/json";
-  options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
+
   return fetch(url, options).then(checkStatus).then(parseJSON).catch(logError);
 }
 

@@ -1,0 +1,35 @@
+---
+name: image-usage-rule
+description:Enforceimageusagerule
+alwaysApply: true
+---
+
+When using images in this project, always follow this asset convention strictly:
+
+1. All images must be sourced only from the `assets/` directory.
+2. Images are organized into subfolders inside `assets/`, usually by page or feature name.
+3. Every image used in components MUST be:
+   - Imported in `assets/assets.js`
+   - Exported from `assets/assets.js`
+   - Consumed only via named imports from `assets/assets.js`
+
+4. If a required image is not already present:
+   - Assume the image has already been added to the correct subfolder before coding
+   - Add a new import for that image in `assets/assets.js`
+   - Add it to the existing export block
+   - Do NOT modify, remove, reorder, or refactor any existing imports or exports
+
+5. Never import images directly inside React components.
+   - ❌ `import img from "../../assets/..."`
+   - ✅ `import { imageName } from "@/assets/assets"`
+
+6. Do not:
+   - Rename existing asset variables
+   - Change folder paths
+   - Group, alphabetize, or clean up `assets.js`
+   - Convert exports to default or objects
+
+7. Treat `assets/assets.js` as append-only:
+   - Only add new imports and exports when needed
+   - Leave all existing code untouched
+

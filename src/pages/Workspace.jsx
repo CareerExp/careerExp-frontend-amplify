@@ -30,6 +30,7 @@ import {
   getUserProfile,
   selectUserProfile,
 } from "../redux/slices/profileSlice.js";
+import { selectOrganizationProfile, getMyOrganizationProfile } from "../redux/slices/organizationSlice.js";
 import { fonts } from "../utility/fonts.js";
 const drawerWidth = 280;
 
@@ -61,6 +62,19 @@ const Workspace = (props) => {
 
     fetchUserProfile();
   }, [authenticate, userId, dispatchToRedux, token, navigate]);
+
+  const orgType = userData?.organization?.organizationType;
+  const orgProfile = useSelector(selectOrganizationProfile);
+  console.log(orgProfile, orgType, userData?.organization?.organizationId)
+
+  useEffect(() => {
+    if (
+      userData?.role?.includes("organization") &&
+      userData?.organization?.organizationId
+    ) {
+      dispatchToRedux(getMyOrganizationProfile({ token }));
+    }
+  }, [dispatchToRedux, token, userData?.organization?.organizationId]);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -125,6 +139,7 @@ const Workspace = (props) => {
           userRole={userData?.activeDashboard}
           handleMenuItemClick={handleMenuItemClick}
           currentPage={currentPage}
+          organizationType={userData?.organization?.organizationType}
         />
       )}
       <Divider />
@@ -135,7 +150,7 @@ const Workspace = (props) => {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box sx={{ display: "flex", backgroundColor: "#f9fafb" }}>
+    <Box sx={{ display: "flex", backgroundColor: "#f9fafb", minHeight: "95vh" }}>
       {isLoading ? (
         <Box
           sx={{
@@ -335,7 +350,13 @@ const Workspace = (props) => {
                 <MenuItem onClick={handleCloseUserMenu}>
                   <Box
                     component={Link}
-                    to="/"
+                    to={
+                      orgType
+                        ? orgType === "ESP"
+                          ? "/org-esp"
+                          : "/org-hei"
+                        : "/"
+                    }
                     sx={{
                       display: "flex",
                       flexDirection: "column",
@@ -428,7 +449,7 @@ const Workspace = (props) => {
           >
             <Toolbar />
 
-            {userData && renderCurrentPage(currentPage, userData)}
+            {userData && renderCurrentPage(currentPage, userData, orgProfile)}
           </Box>
         </>
       )}

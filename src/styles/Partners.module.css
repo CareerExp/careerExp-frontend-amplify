@@ -1,0 +1,43 @@
+.autocomplete-country {
+    width: 150px;
+}
+
+.autocomplete-programs {
+    width: 150px;
+}
+
+.autocomplete-language {
+    width: 250px;
+}
+
+.tabs-box {
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 2rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+.tabs-content {
+    width: 82rem;
+    margin: auto;
+    margin-top: 32px;
+}
+
+@media (max-width: 900px) {
+
+    .autocomplete-country,
+    .autocomplete-programs,
+    .autocomplete-language {
+        width: 100% !important;
+    }
+
+    .tabs-box {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .tabs-content {
+        width: 100%;
+        max-width: 100%;
+    }
+}
