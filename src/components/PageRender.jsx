@@ -2,6 +2,7 @@ import CreatorAnalytics from "../components/creatorDashboard/CreatorAnalytics.js
 import CreatorHome from "../components/creatorDashboard/CreatorHome.jsx";
 import CreatorSocialMedia from "../components/creatorDashboard/CreatorSocialMedia.jsx";
 import CreatorVideos from "../components/creatorDashboard/CreatorVideos.jsx";
+import CounsellorFollowers from "../components/creatorDashboard/CounsellorFollowers.jsx";
 // import UserHistory from "../components/userDashboard/UserHistory.jsx";
 import UserHome from "../components/userDashboard/UserHome.jsx";
 import UserMyAssessment from "../components/userDashboard/UserMyAssessment.jsx";
@@ -20,6 +21,9 @@ import OrgHome from "./orgDashboard/OrgHome.jsx";
 import OrgAboutUs from "./orgDashboard/OrgAboutUs.jsx";
 import OrgMyCounsellors from "./orgDashboard/OrgMyCounsellors.jsx";
 import OrgMyAnnouncements from "./orgDashboard/OrgMyAnnouncements.jsx";
+import OrgMyEvents from "./orgDashboard/OrgMyEvents.jsx";
+import OrgMyServices from "./orgDashboard/OrgMyServices.jsx";
+import OrgFollowers from "./orgDashboard/OrgFollowers.jsx";
 import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
 import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
 import MyCompany from "./creatorDashboard/MyCompany.jsx";
@@ -66,6 +70,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile) => {
         return <CreatorAnalytics />;
       case "Social Media":
         return <CreatorSocialMedia />;
+      case "My Followers":
+        return <CounsellorFollowers />;
       case "My Company":
         return <MyCompany />;
       case "Profile":
@@ -97,6 +103,12 @@ const renderCurrentPage = (currentPage, userData, orgProfile) => {
         return <OrgMyCounsellors />;
       case "My Announcements":
         return <OrgMyAnnouncements />;
+      case "My Events":
+        return <OrgMyEvents />;
+      case "My Services":
+        return <OrgMyServices />;
+      case "My Followers":
+        return <OrgFollowers />;
       case "Profile":
         return <Profile />;
       default:
