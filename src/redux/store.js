@@ -36,6 +36,9 @@ import userSlice from "./slices/userSlice.js";
 import zylaSlice from "./slices/zylaSlice.js";
 import organizationSlice from "./slices/organizationSlice.js";
 import announcementSlice from "./slices/announcementSlice.js";
+import eventSlice from "./slices/eventSlice.js";
+import serviceSlice from "./slices/serviceSlice.js";
+import followerSlice from "./slices/followerSlice.js";
 
 const persistConfig = {
   key: "user",
@@ -70,6 +73,9 @@ const rootReducer = combineReducers({
   careerPlanning: careerPlanningSlice,
   organization: organizationSlice,
   announcement: announcementSlice,
+  event: eventSlice,
+  service: serviceSlice,
+  follower: followerSlice,
 });
 
 const store = configureStore({

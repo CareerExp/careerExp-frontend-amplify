@@ -76,6 +76,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType 
         { name: "My Content", icon: <VideoLibraryIcon />, route: "/mycontent" },
         { name: "Analytics", icon: <AssessmentIcon />, route: "/analytics" },
         { name: "Social Media", icon: <ShareIcon />, route: "/socialmedia" },
+        { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
         { name: "My Company", icon: <BusinessCenterIcon />, route: "/mycompany" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
       ];
@@ -99,6 +100,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType 
             { name: "Dashboard", icon: <DashboardIcon />, route: "/organizationdashboard" },
             { name: "About Us", icon: <InfoIcon />, route: "/aboutus" },
             { name: "My Counsellors", icon: <PsychologyIcon />, route: "/mycounsellors" },
+            { name: "My Events", icon: <EventIcon />, route: "/myevents" },
             { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
           ];
         }
