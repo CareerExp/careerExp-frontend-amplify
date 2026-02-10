@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
@@ -50,10 +50,26 @@ import { selectToken } from '../../redux/slices/authSlice';
 import {
   getMyOrganizationProfile,
   updateMyOrganizationProfile,
+  uploadOrganizationMedia,
   selectOrganizationProfile,
   selectOrganizationLoading
 } from '../../redux/slices/organizationSlice';
+import {
+  logoPlaceholder,
+  bannerPlaceholder,
+  defaultHeroBG,
+  organizationLogo,
+  edit,
+  trash,
+  locationPin,
+  building4,
+  callIcon,
+  sms,
+} from '../../assets/assest';
 import { notify } from '../../redux/slices/alertSlice';
+
+const bannerPlaceholderUrl = bannerPlaceholder || defaultHeroBG;
+const logoPlaceholderUrl = logoPlaceholder || organizationLogo;
 import { State } from 'country-state-city';
 
 const AddLocationModal = ({ open, handleClose, handleSave, initialData }) => {
@@ -299,6 +315,7 @@ const AddLocationModal = ({ open, handleClose, handleSave, initialData }) => {
 const LocationCard = ({ location, index, onEdit, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const countryFlag = location.countryFlag || countryList.find((c) => c.name === location.country)?.image;
 
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -344,7 +361,7 @@ const LocationCard = ({ location, index, onEdit, onDelete }) => {
             }}
             sx={{ fontSize: '13px', fontFamily: fonts.sans, color: '#787876' }}
           >
-            <Box component="img" src="https://www.figma.com/api/mcp/asset/a89f8b68-3606-47d0-857f-d5f14b2df4b0" sx={{ width: 20, height: 20, mr: 1 }} /> Edit
+            <Box component="img" src={edit} alt="" sx={{ width: 20, height: 20, mr: 1 }} /> Edit
           </MenuItem>
           <Divider />
           <MenuItem
@@ -354,38 +371,45 @@ const LocationCard = ({ location, index, onEdit, onDelete }) => {
             }}
             sx={{ fontSize: '13px', fontFamily: fonts.sans, color: '#787876' }}
           >
-            <Box component="img" src="https://www.figma.com/api/mcp/asset/f548a0c0-faff-4904-b474-0ad5306de2a3" sx={{ width: 20, height: 20, mr: 1 }} /> Delete
+            <Box component="img" src={trash} alt="" sx={{ width: 20, height: 20, mr: 1 }} /> Delete
           </MenuItem>
         </Menu>
       </Box>
       <Divider sx={{ mb: 1.5 }} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flexGrow: 1, overflow: 'hidden' }}>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Box component="img" src="https://www.figma.com/api/mcp/asset/d65b2ec5-0b04-49aa-ab13-72486b8377da" sx={{ width: 20, height: 20, flexShrink: 0 }} />
+          <Box component="img" src={locationPin} alt="" sx={{ width: 20, height: 20, flexShrink: 0 }} />
           <Typography sx={{ fontFamily: fonts.sans, fontSize: '13px', color: 'rgba(0,0,0,0.5)', lineHeight: 1.4 }}>
             {location.address}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Box component="img" src={location.countryFlag || "https://www.figma.com/api/mcp/asset/b7575811-3196-432c-8469-b8b40ffbad6e"} sx={{ width: 20, height: 20, flexShrink: 0, objectFit: 'cover', borderRadius: '50%' }} />
+          {countryFlag && (
+            <Box
+              component="img"
+              src={countryFlag}
+              alt=""
+              sx={{ width: 20, height: 20, flexShrink: 0, objectFit: 'cover', borderRadius: '50%' }}
+            />
+          )}
           <Typography sx={{ fontFamily: fonts.sans, fontSize: '13px', color: 'rgba(0,0,0,0.5)' }}>
             {location.country}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Box component="img" src="https://www.figma.com/api/mcp/asset/d73f5eda-2372-4258-8ae8-d00cb755f000" sx={{ width: 20, height: 20, flexShrink: 0 }} />
+          <Box component="img" src={building4} alt="" sx={{ width: 20, height: 20, flexShrink: 0 }} />
           <Typography sx={{ fontFamily: fonts.sans, fontSize: '13px', color: 'rgba(0,0,0,0.5)' }}>
             {location.state}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Box component="img" src="https://www.figma.com/api/mcp/asset/7097e9ff-8337-4f24-8c70-660cc18bc125" sx={{ width: 20, height: 20, flexShrink: 0 }} />
+          <Box component="img" src={sms} alt="" sx={{ width: 20, height: 20, flexShrink: 0 }} />
           <Typography sx={{ fontFamily: fonts.sans, fontSize: '12px', color: 'rgba(0,0,0,0.5)' }}>
             {location.email}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Box component="img" src="https://www.figma.com/api/mcp/asset/bfbcffe9-45aa-43f6-8e0d-5ec5ca983c74" sx={{ width: 20, height: 20, flexShrink: 0 }} />
+          <Box component="img" src={callIcon} alt="" sx={{ width: 20, height: 20, flexShrink: 0 }} />
           <Typography sx={{ fontFamily: fonts.sans, fontSize: '12px', color: 'rgba(0,0,0,0.5)' }}>
             {location.mobile}
           </Typography>
@@ -860,7 +884,7 @@ const Offices = ({ profile }) => {
             <Button
               variant="contained"
               onClick={() => handleOpenModal()}
-              startIcon={<Box component="img" src="https://www.figma.com/api/mcp/asset/e6b4438f-4457-42fb-b3b5-d80a6a413329" sx={{ width: 21, height: 24 }} />}
+              startIcon={<AddIcon sx={{ fontSize: '28px', color: '#FFFFFF' }} />}
               sx={{
                 background: 'linear-gradient(158deg, #BF2F75 3.87%, #720361 63.8%)',
                 borderRadius: '90px',
@@ -901,7 +925,7 @@ const Offices = ({ profile }) => {
                 '&:hover': { backgroundColor: '#f5f5f5' }
               }}
             >
-              <Box component="img" src="https://www.figma.com/api/mcp/asset/95f48c99-513a-4d96-85db-a0ecc6cd07a4" sx={{ width: 71, height: 81, mb: 1 }} />
+              <AddIcon sx={{ fontSize: '64px', color: '#9e9e9e' }} />
               <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#9e9e9e' }}>
                 Add Location
               </Typography>
@@ -1184,6 +1208,12 @@ const OrgAboutUs = () => {
   const isLoading = useSelector(selectOrganizationLoading);
   const token = useSelector(selectToken);
   const [tabValue, setTabValue] = useState(0);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const logoInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
+
+  console.log(orgProfile.logo)
 
   useEffect(() => {
     if (token) {
@@ -1193,6 +1223,48 @@ const OrgAboutUs = () => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    const formData = new FormData();
+    formData.append('logo', file);
+    dispatch(uploadOrganizationMedia({ formData, token }))
+      .unwrap()
+      .then(() => {
+        dispatch(notify({ type: 'success', message: 'Logo updated successfully' }));
+        dispatch(getMyOrganizationProfile({ token }));
+      })
+      .catch(() => {
+        dispatch(notify({ type: 'error', message: 'Failed to upload logo' }));
+      })
+      .finally(() => {
+        setUploadingLogo(false);
+        e.target.value = '';
+      });
+  };
+
+  const handleBannerChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingBanner(true);
+    const formData = new FormData();
+    formData.append('bannerImage', file);
+    dispatch(uploadOrganizationMedia({ formData, token }))
+      .unwrap()
+      .then(() => {
+        dispatch(notify({ type: 'success', message: 'Banner updated successfully' }));
+        dispatch(getMyOrganizationProfile({ token }));
+      })
+      .catch(() => {
+        dispatch(notify({ type: 'error', message: 'Failed to upload banner' }));
+      })
+      .finally(() => {
+        setUploadingBanner(false);
+        e.target.value = '';
+      });
   };
 
   return (
@@ -1227,14 +1299,26 @@ const OrgAboutUs = () => {
       >
         {/* Banner and Logo Section */}
         <Box sx={{ position: 'relative', mb: 10 }}>
-          {/* Banner */}
+          <input
+            type="file"
+            accept="image/*"
+            ref={bannerInputRef}
+            onChange={handleBannerChange}
+            style={{ display: 'none' }}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            ref={logoInputRef}
+            onChange={handleLogoChange}
+            style={{ display: 'none' }}
+          />
+          {/* Banner – use img with referrerPolicy so S3/CDN don't block cross-origin requests */}
           <Box
+            onClick={() => bannerInputRef.current?.click()}
             sx={{
               height: '182px',
               backgroundColor: '#ff8a00',
-              backgroundImage: `url(${orgProfile?.bannerImage || 'https://www.figma.com/api/mcp/asset/e6e68a41-fb9f-4ecd-894f-3169eb600bf1'})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
               borderRadius: '20px 20px 0 0',
               display: 'flex',
               flexDirection: 'column',
@@ -1242,6 +1326,7 @@ const OrgAboutUs = () => {
               justifyContent: 'center',
               cursor: 'pointer',
               position: 'relative',
+              overflow: 'hidden',
               '&::after': {
                 content: '""',
                 position: 'absolute',
@@ -1252,6 +1337,37 @@ const OrgAboutUs = () => {
               },
             }}
           >
+            <Box
+              component="img"
+              src={orgProfile?.bannerImage || bannerPlaceholderUrl}
+              alt="Banner"
+              referrerPolicy="no-referrer"
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: 'inherit',
+                zIndex: 0,
+              }}
+            />
+            {uploadingBanner && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: 'inherit',
+                  backgroundColor: 'rgba(0,0,0,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 2,
+                }}
+              >
+                <CircularProgress sx={{ color: '#fff' }} size={40} />
+              </Box>
+            )}
             <Box
               sx={{
                 position: 'absolute',
@@ -1284,6 +1400,7 @@ const OrgAboutUs = () => {
             }}
           >
             <Box
+              onClick={() => logoInputRef.current?.click()}
               sx={{
                 width: '126px',
                 height: '126px',
@@ -1299,14 +1416,28 @@ const OrgAboutUs = () => {
                 position: 'relative',
               }}
             >
-              {orgProfile?.logo ? (
+              <Box
+                component="img"
+                key={orgProfile?.logo || 'logo-placeholder'}
+                src={orgProfile?.logo || logoPlaceholderUrl}
+                alt="Organization logo"
+                referrerPolicy="no-referrer"
+                sx={{ width: '80%', height: '80%', objectFit: 'contain', borderRadius: '50%' }}
+              />
+              {uploadingLogo && (
                 <Box
-                  component="img"
-                  src={orgProfile.logo}
-                  sx={{ width: '80%', height: '80%', objectFit: 'contain' }}
-                />
-              ) : (
-                <AddPhotoAlternateIcon sx={{ fontSize: 46, color: 'rgba(0,0,0,0.2)' }} />
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CircularProgress sx={{ color: '#fff' }} size={32} />
+                </Box>
               )}
               <Box
                 sx={{

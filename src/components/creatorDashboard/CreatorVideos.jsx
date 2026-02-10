@@ -24,41 +24,81 @@ import {
   videoViewsIcon,
   videoLikeIcon,
   shareIconInOrange,
+  PViews,
+  PLikes,
+  PShared,
+  PRating,
 } from "../../assets/assest.js";
+import AddArticleModal from "../../models/AddArticleModal.jsx";
+import AddPodcastModal from "../../models/AddPodcastModal.jsx";
 import DeleteModal from "../../models/DeleteModal.jsx";
 import EditVideoModal from "../../models/EditVideoModal.jsx";
+import UploadVideoModal from "../../models/UploadVideoModal.jsx";
+import ArticleDetailContent from "./ArticleDetailContent.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
 import {
   deleteVideo,
+  deleteArticle,
+  deletePodcast,
   getAuthorVideos,
+  getAuthorArticles,
+  getAuthorPodcasts,
   selectAuthorVideos,
+  selectAuthorArticles,
+  selectAuthorPodcasts,
   updateVideo,
 } from "../../redux/slices/creatorSlice.js";
 import creatorStyles from "../../styles/CreatorVideo.module.css";
 import { colors } from "../../utility/color.js";
-import { convertUTCDateToLocalDate } from "../../utility/convertTimeToUTC.js";
+import { convertUTCDateToLocalDate, formatDateDDMMYYYY } from "../../utility/convertTimeToUTC.js";
 import { fonts } from "../../utility/fonts.js";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const CreatorVideos = () => {
   const dispatchToRedux = useDispatch();
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const authorVideos = useSelector(selectAuthorVideos);
+  const authorArticles = useSelector(selectAuthorArticles);
+  const authorPodcasts = useSelector(selectAuthorPodcasts);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [videoIdToDelete, setVideoIdToDelete] = useState(null);
+  const [articleIdToDelete, setArticleIdToDelete] = useState(null);
+  const [podcastIdToDelete, setPodcastIdToDelete] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [videoToEdit, setVideoToEdit] = useState(null);
+  const [addArticleModalOpen, setAddArticleModalOpen] = useState(false);
+  const [articleToEditId, setArticleToEditId] = useState(null);
+  const [selectedArticleId, setSelectedArticleId] = useState(null);
+  const [addPodcastModalOpen, setAddPodcastModalOpen] = useState(false);
+  const [podcastToEditId, setPodcastToEditId] = useState(null);
+  const [uploadVideoModalOpen, setUploadVideoModalOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // pagination
+  // pagination (videos)
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10); // Default rows per page
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState("");
+
+  // pagination (articles)
+  const [articlesPage, setArticlesPage] = useState(0);
+  const [articlesRowsPerPage, setArticlesRowsPerPage] = useState(10);
+  const [articlesSearchApplied, setArticlesSearchApplied] = useState("");
+
+  // pagination (podcasts)
+  const [podcastsPage, setPodcastsPage] = useState(0);
+  const [podcastsRowsPerPage, setPodcastsRowsPerPage] = useState(10);
+  const [podcastsSearchApplied, setPodcastsSearchApplied] = useState("");
+
+  const [activeTab, setActiveTab] = useState(1);
 
   const tableHead = {
     fontFamily: fonts.sans,
@@ -94,16 +134,88 @@ const CreatorVideos = () => {
     fetchAuthorVideos();
   }, [page, rowsPerPage, userId]);
 
+  useEffect(() => {
+    if (userId && activeTab === 2) {
+      const fetchAuthorArticles = async () => {
+        try {
+          await dispatchToRedux(
+            getAuthorArticles({
+              userId,
+              page: articlesPage + 1,
+              limit: articlesRowsPerPage,
+              search: articlesSearchApplied,
+            }),
+          ).unwrap();
+        } catch (error) {
+          console.error("Failed to fetch author articles:", error.message);
+          dispatchToRedux(notify({ type: "error", message: error.message || "Failed to load articles" }));
+        }
+      };
+      fetchAuthorArticles();
+    }
+  }, [activeTab, articlesPage, articlesRowsPerPage, userId, articlesSearchApplied]);
+
+  useEffect(() => {
+    if (userId && activeTab === 3) {
+      const fetchAuthorPodcasts = async () => {
+        try {
+          await dispatchToRedux(
+            getAuthorPodcasts({
+              userId,
+              page: podcastsPage + 1,
+              limit: podcastsRowsPerPage,
+              search: podcastsSearchApplied,
+            }),
+          ).unwrap();
+        } catch (error) {
+          dispatchToRedux(
+            notify({
+              type: "error",
+              message: error.message || "Failed to load podcasts",
+            }),
+          );
+        }
+      };
+      fetchAuthorPodcasts();
+    }
+  }, [activeTab, podcastsPage, podcastsRowsPerPage, userId, podcastsSearchApplied]);
+
   const handleSearchClick = () => {
-    setPage(0);
-    dispatchToRedux(
-      getAuthorVideos({
-        userId,
-        page: 1,
-        limit: rowsPerPage,
-        search: searchValue,
-      }),
-    );
+    if (activeTab === 1) {
+      setPage(0);
+      dispatchToRedux(
+        getAuthorVideos({
+          userId,
+          page: 1,
+          limit: rowsPerPage,
+          search: searchValue,
+        }),
+      );
+    } else if (activeTab === 2) {
+      setArticlesSearchApplied(searchValue);
+      setArticlesPage(0);
+    } else if (activeTab === 3) {
+      setPodcastsSearchApplied(searchValue);
+      setPodcastsPage(0);
+    }
+  };
+
+  const handlePodcastsPageChange = (event, newPage) => {
+    setPodcastsPage(newPage);
+  };
+
+  const handlePodcastsRowsPerPageChange = (event) => {
+    setPodcastsRowsPerPage(parseInt(event.target.value, 10));
+    setPodcastsPage(0);
+  };
+
+  const handleArticlesPageChange = (event, newPage) => {
+    setArticlesPage(newPage);
+  };
+
+  const handleArticlesRowsPerPageChange = (event) => {
+    setArticlesRowsPerPage(parseInt(event.target.value, 10));
+    setArticlesPage(0);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -158,14 +270,26 @@ const CreatorVideos = () => {
   const handleConfirmDelete = async () => {
     try {
       setIsButtonLoading(true);
-      await dispatchToRedux(deleteVideo({ userId, videoId: videoIdToDelete, token }));
-      dispatchToRedux(notify({ type: "success", message: "Video deleted successfully" }));
+      if (podcastIdToDelete) {
+        await dispatchToRedux(deletePodcast({ userId, podcastId: podcastIdToDelete, token }));
+        dispatchToRedux(notify({ type: "success", message: "Podcast deleted successfully" }));
+        setPodcastIdToDelete(null);
+      } else if (articleIdToDelete) {
+        await dispatchToRedux(deleteArticle({ userId, articleId: articleIdToDelete, token }));
+        dispatchToRedux(notify({ type: "success", message: "Article deleted successfully" }));
+        setArticleIdToDelete(null);
+      } else {
+        await dispatchToRedux(deleteVideo({ userId, videoId: videoIdToDelete, token }));
+        dispatchToRedux(notify({ type: "success", message: "Video deleted successfully" }));
+        setVideoIdToDelete(null);
+      }
       setIsButtonLoading(false);
       setDeleteModalOpen(false);
-      setVideoIdToDelete(null);
     } catch (error) {
       setIsButtonLoading(false);
-      setVideoIdToDelete(null);
+      if (podcastIdToDelete) setPodcastIdToDelete(null);
+      else if (articleIdToDelete) setArticleIdToDelete(null);
+      else setVideoIdToDelete(null);
       dispatchToRedux(
         notify({
           type: "error",
@@ -175,12 +299,46 @@ const CreatorVideos = () => {
     }
   };
 
+  const handleAddArticleModalClose = () => {
+    setAddArticleModalOpen(false);
+    setArticleToEditId(null);
+  };
+
+  const handleArticleSuccess = () => {
+    dispatchToRedux(
+      getAuthorArticles({
+        userId,
+        page: articlesPage + 1,
+        limit: articlesRowsPerPage,
+        search: articlesSearchApplied,
+      }),
+    );
+  };
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const [activeTab, setActiveTab] = useState(1);
+  const handleArticleView = (id) => {
+    setSelectedArticleId(id);
+  };
+
+  const handleArticleDetailBack = () => {
+    setSelectedArticleId(null);
+  };
+
+  const handleArticleDeleteSuccess = () => {
+    setSelectedArticleId(null);
+    dispatchToRedux(
+      getAuthorArticles({
+        userId,
+        page: articlesPage + 1,
+        limit: articlesRowsPerPage,
+        search: articlesSearchApplied,
+      }),
+    );
+  };
 
   const DesktopView = () => (
     <Box
@@ -190,60 +348,131 @@ const CreatorVideos = () => {
         borderRadius: "1rem",
       }}
     >
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
-          justifyContent: "center",
-          gap: "4rem",
-          fontSize: "1.1rem",
-          fontWeight: "500",
+          justifyContent: "space-between",
+          alignItems: "center",
           borderBottom: "1px solid #dedede",
           marginBottom: "1.3rem",
         }}
       >
-        <p
-          onClick={() => {
-            setActiveTab(1);
-          }}
+        <div
           style={{
-            color: activeTab === 1 ? "#BC2876" : colors.lightGray,
-            padding: ".5rem 2rem",
-            fontWeight: activeTab === 1 ? "600" : "",
-            borderBottom: activeTab === 1 ? "2px solid #BC2876" : "",
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "center",
+            gap: "4rem",
+            fontSize: "1.1rem",
+            fontWeight: "500",
           }}
         >
-          Videos
-        </p>
-        <p
-          onClick={() => {
-            setActiveTab(2);
-          }}
-          style={{
-            color: activeTab === 2 ? "#BC2876" : colors.lightGray,
-            padding: ".5rem 2rem",
-            fontWeight: activeTab === 2 ? "600" : "",
-            borderBottom: activeTab === 2 ? "2px solid #BC2876" : "",
-            cursor: "pointer",
-          }}
-        >
-          Articles
-        </p>
-        <p
-          onClick={() => {
-            setActiveTab(3);
-          }}
-          style={{
-            color: activeTab === 3 ? "#BC2876" : colors.lightGray,
-            padding: ".5rem 2rem",
-            fontWeight: activeTab === 3 ? "600" : "",
-            borderBottom: activeTab === 3 ? "2px solid #BC2876" : "",
-            cursor: "pointer",
-          }}
-        >
-          Podcasts
-        </p>
-      </div>
+          <p
+            onClick={() => setActiveTab(1)}
+            style={{
+              color: activeTab === 1 ? "#BC2876" : colors.lightGray,
+              padding: ".5rem 2rem",
+              fontWeight: activeTab === 1 ? "600" : "",
+              borderBottom: activeTab === 1 ? "2px solid #BC2876" : "2px solid transparent",
+              cursor: "pointer",
+            }}
+          >
+            Videos
+          </p>
+          <p
+            onClick={() => setActiveTab(2)}
+            style={{
+              color: activeTab === 2 ? "#BC2876" : colors.lightGray,
+              padding: ".5rem 2rem",
+              fontWeight: activeTab === 2 ? "600" : "",
+              borderBottom: activeTab === 2 ? "2px solid #BC2876" : "2px solid transparent",
+              cursor: "pointer",
+            }}
+          >
+            Articles
+          </p>
+          <p
+            onClick={() => setActiveTab(3)}
+            style={{
+              color: activeTab === 3 ? "#BC2876" : colors.lightGray,
+              padding: ".5rem 2rem",
+              fontWeight: activeTab === 3 ? "600" : "",
+              borderBottom: activeTab === 3 ? "2px solid #BC2876" : "2px solid transparent",
+              cursor: "pointer",
+            }}
+          >
+            Podcasts
+          </p>
+        </div>
+        {activeTab === 1 && (
+          <Button
+            startIcon={<CloudUploadIcon />}
+            onClick={() => setUploadVideoModalOpen(true)}
+            sx={{
+              background: "linear-gradient(to top left, #720361, #bf2f75)",
+              color: colors.white,
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: "1rem",
+              padding: "0.5rem 1.25rem",
+              borderRadius: "25px",
+              "&:hover": {
+                background: "linear-gradient(to top left, #720361, #bf2f75)",
+                opacity: 0.92,
+              },
+            }}
+          >
+            Upload Videos
+          </Button>
+        )}
+        {activeTab === 2 && (
+          <Button
+            startIcon={<CloudUploadIcon />}
+            onClick={() => {
+              setArticleToEditId(null);
+              setAddArticleModalOpen(true);
+            }}
+            sx={{
+              background: "linear-gradient(to top left, #720361, #bf2f75)",
+              color: colors.white,
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: "1rem",
+              padding: "0.5rem 1.25rem",
+              borderRadius: "25px",
+              "&:hover": {
+                background: "linear-gradient(to top left, #720361, #bf2f75)",
+                opacity: 0.92,
+              },
+            }}
+          >
+            Upload Articles
+          </Button>
+        )}
+        {activeTab === 3 && (
+          <Button
+            startIcon={<CloudUploadIcon />}
+            onClick={() => {
+              setPodcastToEditId(null);
+              setAddPodcastModalOpen(true);
+            }}
+            sx={{
+              background: "linear-gradient(to top left, #720361, #bf2f75)",
+              color: colors.white,
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: "1rem",
+              padding: "0.5rem 1.25rem",
+              borderRadius: "25px",
+              "&:hover": {
+                background: "linear-gradient(to top left, #720361, #bf2f75)",
+                opacity: 0.92,
+              },
+            }}
+          >
+            Upload Podcasts
+          </Button>
+        )}
+      </Box>
       <TableContainer sx={{ width: "100%" }}>
         {activeTab === 1 && (
           <Table
@@ -356,8 +585,278 @@ const CreatorVideos = () => {
             </TableBody>
           </Table>
         )}
-        {activeTab === 2 && <div style={{ textAlign: "center", fontWeight: "bold" }}>Coming Soon</div>}
-        {activeTab === 3 && <div style={{ textAlign: "center", fontWeight: "bold" }}>Coming Soon</div>}
+        {activeTab === 2 && (
+          <Table
+            size="large"
+            aria-label="articles table"
+            sx={{
+              boxShadow: "none",
+              "& .MuiTableCell-root": {
+                padding: "15px 0px",
+                border: "1px solid #dddddd65",
+              },
+            }}
+          >
+            <TableHead sx={{ height: "50px" }}>
+              <TableRow sx={{ backgroundColor: "#720361" }}>
+                <TableCell sx={{ ...tableHead, width: "12%" }}>Date published</TableCell>
+                <TableCell sx={{ ...tableHead, width: "18%" }}>Thumbnail</TableCell>
+                <TableCell sx={{ ...tableHead, width: "22%" }}>Title</TableCell>
+                <TableCell sx={{ ...tableHead, width: "8%" }}>Views</TableCell>
+                <TableCell sx={{ ...tableHead, width: "8%" }}>Likes</TableCell>
+                <TableCell sx={{ ...tableHead, width: "8%" }}>Shares</TableCell>
+                <TableCell sx={{ ...tableHead, width: "10%" }}>Rating</TableCell>
+                <TableCell sx={{ ...tableHead, width: "14%" }}>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {authorArticles?.articles?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} sx={{ ...tableData, textAlign: "center", py: 4 }}>
+                    No articles yet. Add your first article.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                authorArticles?.articles?.map((article) => (
+                  <TableRow
+                    key={article._id}
+                    sx={{
+                      "&:hover": { backgroundColor: "#fafafa" },
+                      "& .MuiTableCell-root": { padding: "10px 0px" },
+                    }}
+                  >
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {formatDateDDMMYYYY(article?.createdAt)}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {article?.coverImage ? (
+                        <img
+                          src={article.coverImage}
+                          alt=""
+                          style={{
+                            width: "160px",
+                            height: "90px",
+                            objectFit: "cover",
+                            borderRadius: "4px",
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            width: 160,
+                            height: 90,
+                            bgcolor: "#eee",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <Typography variant="caption" color="text.secondary">
+                            No image
+                          </Typography>
+                        </Box>
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, paddingLeft: "1rem", paddingRight: "1rem" }}>
+                      {article?.title}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {article?.totalViews ?? 0}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {article?.totalLikes ?? 0}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {article?.totalShares ?? 0}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData }}>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Rating value={Math.round(article?.averageRating ?? 0)} readOnly size="small" />
+                        <Typography component="span" sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}>
+                          ({Math.round(article?.averageRating ?? 0)})
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 0.5,
+                          "& .MuiIconButton-root": { padding: "6px" },
+                        }}
+                      >
+                        <IconButton
+                          aria-label="view article"
+                          onClick={() => handleArticleView(article._id)}
+                          sx={{ color: "#720361" }}
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          aria-label="edit article"
+                          sx={{ color: "#BC2876" }}
+                          onClick={() => {
+                            setArticleToEditId(article._id);
+                            setAddArticleModalOpen(true);
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete article"
+                          sx={{ color: colors.red }}
+                          onClick={() => {
+                            setArticleIdToDelete(article._id);
+                            setDeleteModalOpen(true);
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
+        {activeTab === 3 && (
+          <Table
+            size="large"
+            aria-label="podcasts table"
+            sx={{
+              boxShadow: "none",
+              "& .MuiTableCell-root": {
+                padding: "15px 0px",
+                border: "1px solid #dddddd65",
+              },
+            }}
+          >
+            <TableHead sx={{ height: "50px" }}>
+              <TableRow sx={{ backgroundColor: "#720361" }}>
+                <TableCell sx={{ ...tableHead, width: "12%" }}>Date published</TableCell>
+                <TableCell sx={{ ...tableHead, width: "18%" }}>Thumbnail</TableCell>
+                <TableCell sx={{ ...tableHead, width: "22%" }}>Title</TableCell>
+                <TableCell sx={{ ...tableHead, width: "8%" }}>Views</TableCell>
+                <TableCell sx={{ ...tableHead, width: "8%" }}>Likes</TableCell>
+                <TableCell sx={{ ...tableHead, width: "8%" }}>Shares</TableCell>
+                <TableCell sx={{ ...tableHead, width: "10%" }}>Rating</TableCell>
+                <TableCell sx={{ ...tableHead, width: "14%" }}>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {authorPodcasts?.podcasts?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} sx={{ ...tableData, textAlign: "center", py: 4 }}>
+                    No podcasts yet. Add your first podcast.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                authorPodcasts?.podcasts?.map((podcast) => (
+                  <TableRow
+                    key={podcast._id}
+                    sx={{
+                      "&:hover": { backgroundColor: "#fafafa" },
+                      "& .MuiTableCell-root": { padding: "10px 0px" },
+                    }}
+                  >
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {formatDateDDMMYYYY(podcast?.createdAt)}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {podcast?.thumbnail ? (
+                        <img
+                          src={podcast.thumbnail}
+                          alt=""
+                          style={{
+                            width: "160px",
+                            height: "90px",
+                            objectFit: "cover",
+                            borderRadius: "4px",
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            width: 160,
+                            height: 90,
+                            bgcolor: "#eee",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <Typography variant="caption" color="text.secondary">
+                            No image
+                          </Typography>
+                        </Box>
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, paddingLeft: "1rem", paddingRight: "1rem" }}>
+                      {podcast?.title}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {podcast?.totalViews ?? 0}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {podcast?.totalLikes ?? 0}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                      {podcast?.totalShares ?? 0}
+                    </TableCell>
+                    <TableCell sx={{ ...tableData }}>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Rating value={Math.round(podcast?.averageRating ?? 0)} readOnly size="small" />
+                        <Typography component="span" sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}>
+                          ({Math.round(podcast?.averageRating ?? 0)})
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 0.5,
+                          "& .MuiIconButton-root": { padding: "6px" },
+                        }}
+                      >
+                        <IconButton aria-label="view podcast" sx={{ color: "#720361" }} size="small" disabled>
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          aria-label="edit podcast"
+                          sx={{ color: "#BC2876" }}
+                          onClick={() => {
+                            setPodcastToEditId(podcast._id);
+                            setAddPodcastModalOpen(true);
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete podcast"
+                          sx={{ color: colors.red }}
+                          onClick={() => {
+                            setPodcastIdToDelete(podcast._id);
+                            setDeleteModalOpen(true);
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </TableContainer>
     </Box>
   );
@@ -562,36 +1061,273 @@ const CreatorVideos = () => {
         </Box>
       )}
       {activeTab === 2 && (
-        <div style={{ textAlign: "center", fontWeight: "bold", padding: "2rem 0" }}>Coming Soon</div>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {authorArticles?.articles?.length === 0 ? (
+            <Typography sx={{ textAlign: "center", py: 4, color: colors.darkGray }}>
+              No articles yet. Add your first article.
+            </Typography>
+          ) : (
+            authorArticles?.articles?.map((article) => (
+              <Box
+                key={article._id}
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "0.5rem",
+                  overflow: "hidden",
+                  marginBottom: "1rem",
+                  border: "1px solid #dedede",
+                }}
+              >
+                <Box sx={{ position: "relative" }}>
+                  {article?.coverImage ? (
+                    <img
+                      src={article.coverImage}
+                      alt=""
+                      style={{ width: "100%", height: "auto", maxHeight: 180, objectFit: "cover" }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: 120,
+                        bgcolor: "#eee",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary">
+                        No image
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+                <Box sx={{ padding: "0.75rem" }}>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: "500",
+                      fontSize: "1rem",
+                      marginBottom: "0.5rem",
+                      color: colors.darkGray,
+                    }}
+                  >
+                    {article?.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#666", fontSize: "0.8rem", marginBottom: "0.5rem" }}
+                  >
+                    Published on: {formatDateDDMMYYYY(article?.createdAt)}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <Rating value={Math.round(article?.averageRating ?? 0)} readOnly size="small" />
+                    <Typography variant="body2" sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}>
+                      ({Math.round(article?.averageRating ?? 0)})
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <img src={PViews} alt="Views" style={{ width: "20px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                          {article?.totalViews ?? 0}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <img src={PLikes} alt="Likes" style={{ width: "20px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                          {article?.totalLikes ?? 0}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <img src={PShared} alt="Shares" style={{ width: "18px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                          {article?.totalShares ?? 0}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: "0.25rem" }}>
+                      <IconButton
+                        aria-label="view"
+                        onClick={() => handleArticleView(article._id)}
+                        sx={{ color: "#720361", padding: "0.25rem" }}
+                      >
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="edit"
+                        sx={{ color: "#BC2876", padding: "0.25rem" }}
+                        onClick={() => {
+                          setArticleToEditId(article._id);
+                          setAddArticleModalOpen(true);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        sx={{ color: colors.red, padding: "0.25rem" }}
+                        onClick={() => {
+                          setArticleIdToDelete(article._id);
+                          setDeleteModalOpen(true);
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            ))
+          )}
+        </Box>
       )}
       {activeTab === 3 && (
-        <div style={{ textAlign: "center", fontWeight: "bold", padding: "2rem 0" }}>Coming Soon</div>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {authorPodcasts?.podcasts?.length === 0 ? (
+            <Typography sx={{ textAlign: "center", py: 4, color: colors.darkGray }}>
+              No podcasts yet. Add your first podcast.
+            </Typography>
+          ) : (
+            authorPodcasts?.podcasts?.map((podcast) => (
+              <Box
+                key={podcast._id}
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "0.5rem",
+                  overflow: "hidden",
+                  marginBottom: "1rem",
+                  border: "1px solid #dedede",
+                }}
+              >
+                <Box sx={{ position: "relative" }}>
+                  {podcast?.thumbnail ? (
+                    <img
+                      src={podcast.thumbnail}
+                      alt=""
+                      style={{ width: "100%", height: "auto", maxHeight: 180, objectFit: "cover" }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: 120,
+                        bgcolor: "#eee",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary">
+                        No image
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+                <Box sx={{ padding: "0.75rem" }}>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: "500",
+                      fontSize: "1rem",
+                      marginBottom: "0.5rem",
+                      color: colors.darkGray,
+                    }}
+                  >
+                    {podcast?.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#666", fontSize: "0.8rem", marginBottom: "0.5rem" }}
+                  >
+                    Published on: {formatDateDDMMYYYY(podcast?.createdAt)}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <Rating value={Math.round(podcast?.averageRating ?? 0)} readOnly size="small" />
+                    <Typography variant="body2" sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}>
+                      ({Math.round(podcast?.averageRating ?? 0)})
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <img src={PViews} alt="Views" style={{ width: "20px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                          {podcast?.totalViews ?? 0}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <img src={PLikes} alt="Likes" style={{ width: "20px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                          {podcast?.totalLikes ?? 0}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <img src={PShared} alt="Shares" style={{ width: "18px" }} />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                          {podcast?.totalShares ?? 0}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: "0.25rem" }}>
+                      <IconButton
+                        aria-label="edit podcast"
+                        sx={{ color: "#BC2876", padding: "0.25rem" }}
+                        onClick={() => {
+                          setPodcastToEditId(podcast._id);
+                          setAddPodcastModalOpen(true);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        sx={{ color: colors.red, padding: "0.25rem" }}
+                        onClick={() => {
+                          setPodcastIdToDelete(podcast._id);
+                          setDeleteModalOpen(true);
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            ))
+          )}
+        </Box>
       )}
     </Box>
   );
 
+  const showListOrTabs = !(activeTab === 2 && selectedArticleId);
+
   return (
     <>
-      <Box
-        sx={{
-          marginBottom: "1rem",
-          display: "flex",
-          flexDirection: { xs: "column", sm: "column", md: "row" },
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          variant="h5"
+      {showListOrTabs && (
+        <Box
           sx={{
-            fontFamily: fonts.poppins,
-            fontWeight: "600",
-            padding: { xs: "0.5rem", sm: "0.5rem", md: "1rem" },
-            fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
+            marginBottom: "1rem",
+            marginTop: "1rem",
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          Manage My Content
-        </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: fonts.poppins,
+              fontWeight: "600",
+              padding: { xs: "0.5rem", sm: "0.5rem", md: "1rem" },
+              fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
+            }}
+          >
+            Manage My Content
+          </Typography>
         <Box
           sx={{
             width: { xs: "100%", sm: "100%", md: "50%" },
@@ -666,34 +1402,81 @@ const CreatorVideos = () => {
           </Box>
         </Box>
       </Box>
+      )}
 
-      {isMobile ? <MobileView /> : <DesktopView />}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "1rem",
-          gap: "1rem",
-          padding: "1rem",
-        }}
-      >
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={authorVideos?.totalVideos || 0}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        ></TablePagination>
-      </Box>
+      {activeTab === 2 && selectedArticleId ? (
+        <Box
+          sx={{
+            backgroundColor: colors.white,
+            padding: "1.5rem",
+            borderRadius: "1rem",
+          }}
+        >
+          <ArticleDetailContent
+            articleId={selectedArticleId}
+            onBack={handleArticleDetailBack}
+            onDeleteSuccess={handleArticleDeleteSuccess}
+            embedded={true}
+          />
+        </Box>
+      ) : (
+        <>
+          {isMobile ? <MobileView /> : <DesktopView />}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              margin: "1rem",
+              gap: "1rem",
+              padding: "1rem",
+            }}
+          >
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={
+                activeTab === 1
+                  ? authorVideos?.totalVideos || 0
+                  : activeTab === 2
+                    ? authorArticles?.totalArticles || 0
+                    : authorPodcasts?.totalPodcasts || 0
+              }
+              rowsPerPage={
+                activeTab === 1 ? rowsPerPage : activeTab === 2 ? articlesRowsPerPage : podcastsRowsPerPage
+              }
+              page={activeTab === 1 ? page : activeTab === 2 ? articlesPage : podcastsPage}
+              onPageChange={
+                activeTab === 1 ? handleChangePage : activeTab === 2 ? handleArticlesPageChange : handlePodcastsPageChange
+              }
+              onRowsPerPageChange={
+                activeTab === 1
+                  ? handleChangeRowsPerPage
+                  : activeTab === 2
+                    ? handleArticlesRowsPerPageChange
+                    : handlePodcastsRowsPerPageChange
+              }
+            />
+          </Box>
+        </>
+      )}
       <DeleteModal
         open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setVideoIdToDelete(null);
+          setArticleIdToDelete(null);
+          setPodcastIdToDelete(null);
+        }}
         onDelete={handleConfirmDelete}
         title="Confirm Delete?"
-        text="Are you sure you want to delete this video?"
+        text={
+          podcastIdToDelete
+            ? "Are you sure you want to delete this podcast?"
+            : articleIdToDelete
+              ? "Are you sure you want to delete this article?"
+              : "Are you sure you want to delete this video?"
+        }
         fonts={fonts}
         colors={colors}
         isButtonLoading={isButtonLoading}
@@ -704,6 +1487,44 @@ const CreatorVideos = () => {
         video={videoToEdit}
         onUpdate={handleUpdateVideo}
         isButtonLoading={isButtonLoading}
+      />
+      <AddArticleModal
+        open={addArticleModalOpen}
+        onClose={handleAddArticleModalClose}
+        onSuccess={handleArticleSuccess}
+        articleId={articleToEditId}
+      />
+      <AddPodcastModal
+        open={addPodcastModalOpen}
+        onClose={() => {
+          setAddPodcastModalOpen(false);
+          setPodcastToEditId(null);
+        }}
+        onSuccess={() => {
+          dispatchToRedux(
+            getAuthorPodcasts({
+              userId,
+              page: podcastsPage + 1,
+              limit: podcastsRowsPerPage,
+              search: podcastsSearchApplied,
+            }),
+          );
+        }}
+        podcastId={podcastToEditId}
+      />
+      <UploadVideoModal
+        open={uploadVideoModalOpen}
+        handleClose={() => setUploadVideoModalOpen(false)}
+        onSuccess={() => {
+          dispatchToRedux(
+            getAuthorVideos({
+              userId,
+              page: page + 1,
+              limit: rowsPerPage,
+              search: searchValue,
+            }),
+          );
+        }}
       />
     </>
   );

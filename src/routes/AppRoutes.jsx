@@ -52,6 +52,7 @@ const TechSupport = React.lazy(
 const InvalidPages = React.lazy(() => import("../pages/InvalidPages"));
 
 const ExploreVideoPlay = React.lazy(() => import("../pages/ExploreVideoPlay"));
+const ArticleDetail = React.lazy(() => import("../pages/ArticleDetail.jsx"));
 const CreatorProfile = React.lazy(() => import("../pages/CreatorProfile.jsx"));
 
 const InterestProfiler = React.lazy(
@@ -242,6 +243,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <ExploreVideoPlay />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/article/:articleId"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <ArticleDetail />
           </Suspense>
         }
       />

@@ -68,10 +68,22 @@ import infoCircleIcon from "./icons/info-circle.png";
 import likeIcon from "./icons/like.svg";
 // hamburger icon
 import menu from "./icons/menu.png";
+import messagesIcon from "./icons/messages.svg";
+import removeUserIcon from "./icons/remove-user.svg";
+import sub1Icon from "./icons/sub1.svg";
+import sub2Icon from "./icons/sub2.svg";
+import sub3Icon from "./icons/sub3.svg";
+import sub4Icon from "./icons/sub4.svg";
+import sub5Icon from "./icons/sub5.svg";
+import sub6Icon from "./icons/sub6.svg";
+import sub7Icon from "./icons/sub7.svg";
 import search from "./icons/search.png";
 import shareIcon from "./icons/share.png";
 import sms from "./icons/sms.svg";
 import trash from "./icons/trash.png";
+import locationPin from "./icons/location-pin.svg";
+import building4 from "./icons/building-4.svg";
+import callIcon from "./icons/call.svg";
 import interestHero from "./Interest/hero.png";
 import interestLogo from "./Interest/logo.png.png";
 import mayConsider from "./Interest/MayConsider.png";
@@ -164,6 +176,8 @@ import domainImage from "./domainWheel.svg";
 import defaultHeroBG from "./organization/defaultHeroBG.svg";
 import organizationLogo from "./organization/logo.svg";
 import uploadDocument from "./uploadDocument.svg";
+import logoPlaceholder from "./logo-placeholder.svg";
+import bannerPlaceholder from "./banner-placeholder.svg";
 
 // announcements
 import announce1 from "./announcements/announce1.png";
@@ -267,10 +281,22 @@ export {
   insideGraph,
   // hamburger icon
   menu,
+  messagesIcon,
+  removeUserIcon,
+  sub1Icon,
+  sub2Icon,
+  sub3Icon,
+  sub4Icon,
+  sub5Icon,
+  sub6Icon,
+  sub7Icon,
   // creator
   creator,
   edit,
   trash,
+  locationPin,
+  building4,
+  callIcon,
   search,
   linkedin,
   upload,
@@ -338,6 +364,8 @@ export {
   defaultHeroBG,
   organizationLogo,
   uploadDocument,
+  logoPlaceholder,
+  bannerPlaceholder,
   announce1,
   announce2,
   announce3,

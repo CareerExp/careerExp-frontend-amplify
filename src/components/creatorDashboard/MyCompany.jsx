@@ -241,9 +241,8 @@ const MyCompany = () => {
             <Box sx={{ p: 4, backgroundColor: '#f9fafb', minHeight: '100%' }}>
                 <Typography
                     sx={{
-                        fontFamily: fonts.sans,
-                        fontWeight: 700,
-                        fontSize: '26px',
+                        fontFamily: fonts.poppins,
+                        fontWeight: 600, fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
                         color: '#000',
                         mb: 3,
                     }}

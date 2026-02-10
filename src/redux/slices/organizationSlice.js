@@ -62,6 +62,37 @@ export const updateMyOrganizationProfile = createAsyncThunk(
   }
 );
 
+/** PUT /api/organization/profile/me with multipart/form-data (logo and/or bannerImage files). */
+export const uploadOrganizationMedia = createAsyncThunk(
+  "organization/uploadOrganizationMedia",
+  async ({ formData, token }, thunkAPI) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/organization/profile/me`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({
+          error: response.message,
+        });
+      }
+
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({
+        error: error.message,
+      });
+    }
+  }
+);
+
 export const sendInvitation = createAsyncThunk(
   "organization/sendInvitation",
   async ({ inviteData, token }, thunkAPI) => {
@@ -172,11 +203,33 @@ const organizationSlice = createSlice({
       })
       .addCase(updateMyOrganizationProfile.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.profile = payload.data;
+        // Preserve existing profile if API doesn't return data; otherwise merge so we keep all fields
+        state.profile = payload.data
+          ? { ...state.profile, ...payload.data }
+          : state.profile;
       })
       .addCase(updateMyOrganizationProfile.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to update organization profile";
+      })
+      .addCase(uploadOrganizationMedia.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadOrganizationMedia.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        const updated =
+          payload.data ??
+          payload.profile ??
+          payload.organization ??
+          (payload.logo != null || payload.bannerImage != null ? payload : null);
+        if (updated) {
+          state.profile = { ...state.profile, ...updated };
+        }
+      })
+      .addCase(uploadOrganizationMedia.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload?.error || "Failed to upload logo/banner";
       })
       .addCase(sendInvitation.pending, (state) => {
         state.loading = true;

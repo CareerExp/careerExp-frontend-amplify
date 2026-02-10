@@ -27,4 +27,30 @@ function convertUTCtoMonthAndYear(utcDate) {
   return formattedDate;
 }
 
-export { convertToUTC, convertUTCDateToLocalDate, convertUTCtoMonthAndYear };
+/** Format as dd/mm/yyyy for articles table (Figma) */
+function formatDateDDMMYYYY(utcDate) {
+  if (!utcDate) return "";
+  const date = new Date(utcDate);
+  const day = date.getUTCDate();
+  const month = date.getUTCMonth() + 1;
+  const year = date.getUTCFullYear();
+  return `${day < 10 ? "0" + day : day}/${month < 10 ? "0" + month : month}/${year}`;
+}
+
+/** Format as "Jan 18, 2026" for article detail page */
+function formatArticleDetailDate(utcDate) {
+  if (!utcDate) return "";
+  return new Date(utcDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export {
+  convertToUTC,
+  convertUTCDateToLocalDate,
+  convertUTCtoMonthAndYear,
+  formatDateDDMMYYYY,
+  formatArticleDetailDate,
+};
