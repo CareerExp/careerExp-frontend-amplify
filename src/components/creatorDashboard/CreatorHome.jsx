@@ -97,7 +97,7 @@ const CreatorHome = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: ".6rem",
+          marginTop: "1rem",
           width: { xs: "100%", sm: "100%", md: "100%" },
         }}
       >
@@ -105,9 +105,9 @@ const CreatorHome = () => {
           variant="h5"
           sx={{
             fontFamily: fonts.poppins,
-            fontWeight: "800",
+            fontWeight: "600",
             padding: "1rem",
-            fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
+            fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
           }}
         >
           Dashboard

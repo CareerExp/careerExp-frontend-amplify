@@ -24,6 +24,7 @@ import OrgMyAnnouncements from "./orgDashboard/OrgMyAnnouncements.jsx";
 import OrgMyEvents from "./orgDashboard/OrgMyEvents.jsx";
 import OrgMyServices from "./orgDashboard/OrgMyServices.jsx";
 import OrgFollowers from "./orgDashboard/OrgFollowers.jsx";
+import OrgProfile from "./orgDashboard/OrgProfile.jsx";
 import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
 import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
 import MyCompany from "./creatorDashboard/MyCompany.jsx";
@@ -110,7 +111,7 @@ const renderCurrentPage = (currentPage, userData, orgProfile) => {
       case "My Followers":
         return <OrgFollowers />;
       case "Profile":
-        return <Profile />;
+        return <OrgProfile />;
       default:
         return null;
     }

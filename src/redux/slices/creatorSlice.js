@@ -6,12 +6,15 @@ const initialState = {
   uploadingVideoData: null,
   uploadingThumbnailData: null,
   authorVideos: [],
+  authorArticles: { articles: [], totalArticles: 0, currentPage: 1, totalPages: 0 },
+  authorPodcasts: { podcasts: [], totalPodcasts: 0, currentPage: 1, totalPages: 0 },
   getGeneralStates: null,
   allVideos: [],
   creatorProfile: null,
   isFollowing: false, // changed from { isFollowing: false } to false
   followerCount: 0,
   CounsellorAnalytics: null,
+  generalArticleData: null,
   invitations: [],
   myOrganization: null,
   loading: false,
@@ -123,6 +126,376 @@ export const getAuthorVideos = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getAuthorArticles = createAsyncThunk(
+  "creator/getAuthorArticles",
+  async ({ userId, page = 1, limit = 10, search = "" }, thunkAPI) => {
+    const queryParams = new URLSearchParams({
+      search: search || "",
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/getauthorarticles/${userId}?${queryParams}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getAuthorPodcasts = createAsyncThunk(
+  "creator/getAuthorPodcasts",
+  async ({ userId, page = 1, limit = 10, search = "" }, thunkAPI) => {
+    const queryParams = new URLSearchParams({
+      search: search || "",
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/getauthorpodcasts/${userId}?${queryParams}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const deletePodcast = createAsyncThunk(
+  "creator/deletePodcast",
+  async ({ userId, podcastId, token }, thunkAPI) => {
+    try {
+      await FetchApi.fetch(`${config.api}/api/creator/deletepodcast/${userId}/${podcastId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return { podcastId };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const uploadPodcast = createAsyncThunk(
+  "creator/uploadPodcast",
+  async ({ userId, formData, token }, thunkAPI) => {
+    try {
+      const response = await fetch(`${config.api}/api/creator/uploadpodcast/${userId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      return await response.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const uploadPodcastThumbnail = createAsyncThunk(
+  "creator/uploadPodcastThumbnail",
+  async ({ userId, formData, token }, thunkAPI) => {
+    try {
+      const response = await fetch(`${config.api}/api/creator/uploadpodcastthumbnail/${userId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      return await response.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const uploadPodcastBanner = createAsyncThunk(
+  "creator/uploadPodcastBanner",
+  async ({ userId, formData, token }, thunkAPI) => {
+    try {
+      const response = await fetch(`${config.api}/api/creator/uploadpodcastbanner/${userId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      return await response.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const addPodcastSpotify = createAsyncThunk(
+  "creator/addPodcastSpotify",
+  async ({ userId, body, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/addpodcastspotify/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const addPodcastManual = createAsyncThunk(
+  "creator/addPodcastManual",
+  async ({ userId, body, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/addpodcastmanual/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getPodcastDetail = createAsyncThunk(
+  "creator/getPodcastDetail",
+  async ({ podcastId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/podcast/${podcastId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const updatePodcast = createAsyncThunk(
+  "creator/updatePodcast",
+  async ({ userId, podcastId, body, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/updatepodcast/${userId}/${podcastId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getArticleDetail = createAsyncThunk(
+  "creator/getArticleDetail",
+  async ({ articleId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/article/${articleId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const uploadArticleCover = createAsyncThunk(
+  "creator/uploadArticleCover",
+  async ({ userId, formData, token }, thunkAPI) => {
+    try {
+      const response = await fetch(`${config.api}/api/creator/uploadarticlecover/${userId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      return await response.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const addArticle = createAsyncThunk(
+  "creator/addArticle",
+  async ({ userId, payload, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/addarticle/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const updateArticle = createAsyncThunk(
+  "creator/updateArticle",
+  async ({ userId, articleId, payload, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/creator/updatearticle/${userId}/${articleId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const deleteArticle = createAsyncThunk(
+  "creator/deleteArticle",
+  async ({ userId, articleId, token }, thunkAPI) => {
+    try {
+      await FetchApi.fetch(`${config.api}/api/creator/deletearticle/${userId}/${articleId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return { articleId };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const increaseArticleViewsCount = createAsyncThunk(
+  "creator/increaseArticleViewsCount",
+  async ({ articleId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increasearticleviewscount/${articleId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const increaseArticleSharesCount = createAsyncThunk(
+  "creator/increaseArticleSharesCount",
+  async ({ articleId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increasearticlesharescount/${articleId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getArticleLikeStatus = createAsyncThunk(
+  "creator/getArticleLikeStatus",
+  async ({ articleId, userId, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/like/getarticlelikestatus/${articleId}/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const toggleArticleLike = createAsyncThunk(
+  "creator/toggleArticleLike",
+  async ({ articleId, userId, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/like/togglelikearticle`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ articleId, userId }),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getArticleRatingStatus = createAsyncThunk(
+  "creator/getArticleRatingStatus",
+  async ({ articleId, userId, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/rating/getarticleratingstatus/${articleId}/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const rateArticle = createAsyncThunk(
+  "creator/rateArticle",
+  async ({ articleId, userId, token, rating }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/rating/ratearticle`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ articleId, userId, rating }),
       });
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
@@ -373,6 +746,26 @@ export const getCounsellorAnalytics = createAsyncThunk(
   },
 );
 
+export const getGeneralArticleData = createAsyncThunk(
+  "creator/getGeneralArticleData",
+  async ({ userId, token }) => {
+    try {
+      return await FetchApi.fetch(
+        `${config.api}/api/creator/getgeneralarticledata/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+);
+
 export const getMyCompanyInvitations = createAsyncThunk(
   "creator/getMyCompanyInvitations",
   async ({ token }, thunkAPI) => {
@@ -458,6 +851,38 @@ const creatorSlice = createSlice({
       // console.log("authorpayload", payload);
       state.authorVideos = payload;
     });
+    builder.addCase(getAuthorArticles.fulfilled, (state, { payload }) => {
+      state.authorArticles = {
+        articles: payload.articles || [],
+        totalArticles: payload.totalArticles ?? 0,
+        currentPage: payload.currentPage ?? 1,
+        totalPages: payload.totalPages ?? 0,
+      };
+    });
+    builder.addCase(deleteArticle.fulfilled, (state, { payload }) => {
+      if (state.authorArticles?.articles) {
+        state.authorArticles.articles = state.authorArticles.articles.filter(
+          (a) => a._id !== payload.articleId,
+        );
+        state.authorArticles.totalArticles = Math.max(0, (state.authorArticles.totalArticles ?? 1) - 1);
+      }
+    });
+    builder.addCase(getAuthorPodcasts.fulfilled, (state, { payload }) => {
+      state.authorPodcasts = {
+        podcasts: payload.podcasts || [],
+        totalPodcasts: payload.totalPodcasts ?? 0,
+        currentPage: payload.currentPage ?? 1,
+        totalPages: payload.totalPages ?? 0,
+      };
+    });
+    builder.addCase(deletePodcast.fulfilled, (state, { payload }) => {
+      if (state.authorPodcasts?.podcasts) {
+        state.authorPodcasts.podcasts = state.authorPodcasts.podcasts.filter(
+          (p) => p._id !== payload.podcastId,
+        );
+        state.authorPodcasts.totalPodcasts = Math.max(0, (state.authorPodcasts.totalPodcasts ?? 1) - 1);
+      }
+    });
     builder.addCase(deleteVideo.fulfilled, (state, { payload }) => {
       state.authorVideos.videos = state.authorVideos.videos.filter((video) => video._id !== payload.videoId);
     });
@@ -508,6 +933,9 @@ const creatorSlice = createSlice({
       // console.log("payload", payload);
       state.CounsellorAnalytics = payload;
     });
+    builder.addCase(getGeneralArticleData.fulfilled, (state, { payload }) => {
+      state.generalArticleData = payload?.data ?? null;
+    });
 
     builder.addCase(getMyCompanyInvitations.pending, (state) => {
       state.loading = true;
@@ -549,12 +977,15 @@ export const { resetState, resetVideoData } = creatorSlice.actions;
 export const selectVideoLink = (state) => state.creator.uploadingVideoData;
 export const selectThumbnailLink = (state) => state.creator.uploadingThumbnailData;
 export const selectAuthorVideos = (state) => state.creator.authorVideos;
+export const selectAuthorArticles = (state) => state.creator.authorArticles;
+export const selectAuthorPodcasts = (state) => state.creator.authorPodcasts;
 export const selectGeneralVideoData = (state) => state.creator.getGeneralStates;
 export const selectAllVideosData = (state) => state.creator.allVideos;
 export const selectCreatorProfile = (state) => state.creator.creatorProfile;
 export const selectIsFollowing = (state) => state.creator.isFollowing;
 export const selectFollowerCount = (state) => state.creator.followerCount;
 export const selectCounsellorAnalytics = (state) => state.creator.CounsellorAnalytics;
+export const selectGeneralArticleData = (state) => state.creator.generalArticleData;
 export const selectCreatorInvitations = (state) => state.creator.invitations;
 export const selectMyOrganization = (state) => state.creator.myOrganization;
 export const selectCreatorLoading = (state) => state.creator.loading;

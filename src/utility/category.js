@@ -314,4 +314,44 @@ const tags = [
   { option: "Europe" },
 ];
 
-export { categories, languages, tags };
+// Article categories (aligned with backend API enum)
+const articleCategories = [
+  "Education",
+  "Guidance",
+  "Career Development",
+  "College Tour",
+  "Admission",
+  "Other",
+  "Internships",
+  "Scholarships",
+  "SoftSkills",
+  "Career Planning",
+  "Career Paths",
+  "Study Abroad",
+  "Soft Skills",
+  "Hard Skills",
+  "Future Careers",
+  "Work Based Learning",
+  "Certifications",
+  "University Choices",
+  "Subject Selection",
+  "Resume Writing",
+  "Interview Skills",
+  "Job Search",
+  "Personal Branding",
+  "Entrepreneurship",
+  "Industry Insights",
+  "Day in the Life",
+  "Work Experience",
+  "Professional Growth",
+  "Self discovery",
+  "Skill Development",
+  "Career Stories",
+  "Financial Planning",
+  "Vocational Training",
+  "Mentorship Advice",
+  "Misc",
+  "Career Guide",
+];
+
+export { categories, languages, tags, articleCategories };

@@ -5,14 +5,15 @@ import SocialConnectionsContainer from '../workspace/SocialConnectionsContainer'
 
 const CounsellorFollowers = () => {
     return (
-        <Box sx={{ p: 4, minHeight: '100%' }}>
+        <Box sx={{  minHeight: '100%' }}>
             <Typography
                 sx={{
-                    fontFamily: fonts.sans,
-                    fontWeight: 700,
-                    fontSize: '26px',
+                    fontFamily: fonts.poppins,
+                    fontWeight: 600,
+                    fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
                     color: '#000',
-                    mb: 4
+                    mb: 4,
+                    marginTop: "2rem"
                 }}
             >
                 My Community

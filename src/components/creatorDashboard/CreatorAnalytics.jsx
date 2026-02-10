@@ -4,9 +4,31 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "../../redux/slices/alertSlice.js";
 import { selectAuthenticated, selectToken, selectUserId } from "../../redux/slices/authSlice.js";
-import { getCounsellorAnalytics, selectCounsellorAnalytics } from "../../redux/slices/creatorSlice.js";
+import {
+  getCounsellorAnalytics,
+  getGeneralArticleData,
+  selectCounsellorAnalytics,
+  selectGeneralArticleData,
+} from "../../redux/slices/creatorSlice.js";
 import { fonts } from "../../utility/fonts";
 import InitialLoaders from "../../loaders/InitialLoaders.jsx";
+import { colors } from "../../utility/color.js";
+
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** Build 12-month series from aggregate article data for chart display */
+function buildArticleMonthlySeries(articleData) {
+  if (!articleData) return { names: MONTH_NAMES, likes: [], shares: [] };
+  const totalLikes = articleData.totalLikes ?? 0;
+  const totalShares = articleData.totalShares ?? 0;
+  const len = 12;
+  const likes = new Array(len).fill(0);
+  const shares = new Array(len).fill(0);
+  const lastIdx = len - 1;
+  likes[lastIdx] = totalLikes;
+  shares[lastIdx] = totalShares;
+  return { names: MONTH_NAMES, likes, shares };
+}
 
 const CreatorAnalytics = () => {
   const dispatchToRedux = useDispatch();
@@ -14,10 +36,12 @@ const CreatorAnalytics = () => {
   const authenticated = useSelector(selectAuthenticated);
   const token = useSelector(selectToken);
   const counsellorAnalyticsData = useSelector(selectCounsellorAnalytics);
+  const generalArticleData = useSelector(selectGeneralArticleData);
   const userData = counsellorAnalyticsData?.userData;
   const demographicsData = counsellorAnalyticsData?.demographicsData;
   const monthlyData = counsellorAnalyticsData?.monthlyData;
   const [isLoading, setIsLoading] = useState(false);
+  const [engagementTab, setEngagementTab] = useState(1); // 1 = Videos, 2 = Articles, 3 = Podcasts
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -46,6 +70,12 @@ const CreatorAnalytics = () => {
     }
   }, [dispatchToRedux, userId, authenticated, token]);
 
+  useEffect(() => {
+    if (authenticated && engagementTab === 2) {
+      dispatchToRedux(getGeneralArticleData({ userId, token })).catch(() => {});
+    }
+  }, [authenticated, engagementTab, userId, token, dispatchToRedux]);
+
   return (
     <>
       {isLoading ? (
@@ -59,6 +89,8 @@ const CreatorAnalytics = () => {
               fontWeight: "600",
               paddingTop: "1rem",
               marginLeft: "1.5rem",
+              fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
+              marginTop: "1rem",
             }}
           >
             Analytics
@@ -74,7 +106,7 @@ const CreatorAnalytics = () => {
               }}
             >
               <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid item xs={12} >
                   <Card
                     sx={{
                       backgroundColor: "#720361",
@@ -83,107 +115,204 @@ const CreatorAnalytics = () => {
                     }}
                   >
                     <CardContent>
-                      <Typography variant="h6" gutterBottom sx={{ color: "white", fontWeight: "600" }}>
-                        Video Engagement
+                      {/* Tabs: Videos | Articles | Podcasts */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 0,
+                          marginBottom: 1,
+                          borderBottom: "1px solid #E0E0E0" 
+                        }}
+                      >
+                        {[
+                          { id: 1, label: "Videos" },
+                          { id: 2, label: "Articles" },
+                          { id: 3, label: "Podcasts" },
+                        ].map((tab) => (
+                          <Box
+                            key={tab.id}
+                            onClick={() => setEngagementTab(tab.id)}
+                            sx={{
+                              px: 2,
+                              py: 1,
+                              cursor: "pointer",
+                              backgroundColor:
+                                engagementTab === tab.id
+                                  ? "#FFFFFF"
+                                  : "#720361",
+                              color: engagementTab === tab.id ? "#720361" : "#FFFFFF",
+                              fontFamily: fonts.sans,
+                              fontWeight: engagementTab === tab.id ? 600 : 500,
+                              fontSize: "0.9375rem",
+                            }}
+                          >
+                            {tab.label}
+                          </Box>
+                        ))}
+                      </Box>
+                      <Typography variant="h6" gutterBottom sx={{ color: "white", fontWeight: "500", fontSize: "20px" }}>
+                        {engagementTab === 1 && "Video Engagement"}
+                        {engagementTab === 2 && "Article Engagement"}
+                        {engagementTab === 3 && "Podcast Engagement"}
                       </Typography>
-                      <ReactEcharts
-                        option={{
-                          xAxis: {
-                            type: "category",
-                            data: monthlyData?.map((item) => item.name),
-                            axisLine: { lineStyle: { color: "#ffffff" } },
-                            axisTick: { show: false },
-                            axisLabel: { color: "#ffffff" },
-                          },
-                          yAxis: {
-                            type: "value",
-                            axisLine: { show: false },
-                            axisTick: { show: false },
-                            axisLabel: { color: "#ffffff" },
-                            splitLine: {
-                              show: true,
-                              lineStyle: {
-                                type: "dashed",
-                                color: "#886d6d9f",
+                      {engagementTab === 1 && (
+                        <ReactEcharts
+                          option={{
+                            xAxis: {
+                              type: "category",
+                              data: monthlyData?.map((item) => item.name),
+                              axisLine: { lineStyle: { color: "#ffffff" } },
+                              axisTick: { show: false },
+                              axisLabel: { color: "#ffffff" },
+                            },
+                            yAxis: {
+                              type: "value",
+                              axisLine: { show: false },
+                              axisTick: { show: false },
+                              axisLabel: { color: "#ffffff" },
+                              splitLine: {
+                                show: true,
+                                lineStyle: { type: "dashed", color: "#886d6d9f" },
                               },
                             },
-                          },
-                          tooltip: { trigger: "axis" },
-                          legend: {
-                            data: [
+                            tooltip: { trigger: "axis" },
+                            legend: {
+                              data: [
+                                { name: "Likes", icon: "circle", itemStyle: { color: "#FF5B8F" } },
+                                { name: "Followers", icon: "circle", itemStyle: { color: "#FD8C0C" } },
+                              ],
+                              top: "5%",
+                              right: "10%",
+                              textStyle: { color: "#FFFFFF" },
+                            },
+                            series: [
                               {
                                 name: "Likes",
-                                icon: "circle",
-                                itemStyle: { color: "#FF5B8F" },
+                                type: "line",
+                                data: monthlyData?.map((item) => item.likes),
+                                smooth: true,
+                                lineStyle: { width: 4, color: "#FF5B8F" },
+                                areaStyle: {
+                                  color: {
+                                    type: "linear",
+                                    x: 0, y: 0, x2: 0, y2: 1,
+                                    colorStops: [
+                                      { offset: 0, color: "#EE469F" },
+                                      { offset: 1, color: "#ee46a03f" },
+                                    ],
+                                  },
+                                },
                               },
                               {
                                 name: "Followers",
-                                icon: "circle",
-                                itemStyle: { color: "#FD8C0C" },
+                                type: "line",
+                                data: monthlyData?.map((item) => item.followers),
+                                smooth: true,
+                                lineStyle: { width: 4, color: "#FD8C0C" },
+                                areaStyle: {
+                                  color: {
+                                    type: "linear",
+                                    x: 0, y: 0, x2: 0, y2: 1,
+                                    colorStops: [
+                                      { offset: 0, color: "#FD8C0C" },
+                                      { offset: 1, color: "#fd8c0c14" },
+                                    ],
+                                  },
+                                },
                               },
                             ],
-                            top: "5%",
-                            right: "10%",
-                            textStyle: {
-                              color: "#FFFFFF",
-                            },
-                          },
-                          series: [
-                            {
-                              name: "Likes",
-                              type: "line",
-                              data: monthlyData?.map((item) => item.likes),
-                              smooth: true,
-                              lineStyle: {
-                                width: 4,
-                                color: "#FF5B8F",
+                          }}
+                          style={{ height: "260px" }}
+                        />
+                      )}
+                      {engagementTab === 2 && (() => {
+                        const { names, likes, shares } = buildArticleMonthlySeries(generalArticleData);
+                        return (
+                          <ReactEcharts
+                            option={{
+                              xAxis: {
+                                type: "category",
+                                data: names,
+                                axisLine: { lineStyle: { color: "#ffffff" } },
+                                axisTick: { show: false },
+                                axisLabel: { color: "#ffffff" },
                               },
-                              areaStyle: {
-                                color: {
-                                  type: "linear",
-                                  x: 0,
-                                  y: 0,
-                                  x2: 0,
-                                  y2: 1,
-                                  colorStops: [
-                                    { offset: 0, color: "#EE469F" },
-                                    { offset: 1, color: "#ee46a03f" },
-                                  ],
+                              yAxis: {
+                                type: "value",
+                                axisLine: { show: false },
+                                axisTick: { show: false },
+                                axisLabel: { color: "#ffffff" },
+                                splitLine: {
+                                  show: true,
+                                  lineStyle: { type: "dashed", color: "#886d6d9f" },
                                 },
                               },
-                            },
-                            {
-                              name: "Followers",
-                              type: "line",
-                              data: monthlyData?.map((item) => item.followers),
-                              smooth: true,
-                              lineStyle: {
-                                width: 4,
-                                color: "#FD8C0C",
+                              tooltip: { trigger: "axis" },
+                              legend: {
+                                data: [
+                                  { name: "Likes", icon: "circle", itemStyle: { color: "#FD8C0C" } },
+                                  { name: "Shares", icon: "circle", itemStyle: { color: "#FF5B8F" } },
+                                ],
+                                top: "5%",
+                                right: "10%",
+                                textStyle: { color: "#FFFFFF" },
                               },
-                              areaStyle: {
-                                color: {
-                                  type: "linear",
-                                  x: 0,
-                                  y: 0,
-                                  x2: 0,
-                                  y2: 1,
-                                  colorStops: [
-                                    { offset: 0, color: "#FD8C0C" },
-                                    { offset: 1, color: "#fd8c0c14" },
-                                  ],
+                              series: [
+                                {
+                                  name: "Likes",
+                                  type: "line",
+                                  data: likes,
+                                  smooth: true,
+                                  lineStyle: { width: 4, color: "#FD8C0C" },
+                                  areaStyle: {
+                                    color: {
+                                      type: "linear",
+                                      x: 0, y: 0, x2: 0, y2: 1,
+                                      colorStops: [
+                                        { offset: 0, color: "#FD8C0C" },
+                                        { offset: 1, color: "#fd8c0c14" },
+                                      ],
+                                    },
+                                  },
                                 },
-                              },
-                            },
-                          ],
-                        }}
-                        style={{
-                          height: "300px",
-                          backgroundImage: "url('/path/to/your/image.png')",
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                        }}
-                      />
+                                {
+                                  name: "Shares",
+                                  type: "line",
+                                  data: shares,
+                                  smooth: true,
+                                  lineStyle: { width: 4, color: "#FF5B8F" },
+                                  areaStyle: {
+                                    color: {
+                                      type: "linear",
+                                      x: 0, y: 0, x2: 0, y2: 1,
+                                      colorStops: [
+                                        { offset: 0, color: "#EE469F" },
+                                        { offset: 1, color: "#ee46a03f" },
+                                      ],
+                                    },
+                                  },
+                                },
+                              ],
+                            }}
+                            style={{ height: "260px" }}
+                          />
+                        );
+                      })()}
+                      {engagementTab === 3 && (
+                        <Box
+                          sx={{
+                            height: "260px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "rgba(255,255,255,0.8)",
+                            fontFamily: fonts.sans,
+                            fontSize: "1rem",
+                          }}
+                        >
+                          Coming soon
+                        </Box>
+                      )}
                     </CardContent>
                   </Card>
                 </Grid>
