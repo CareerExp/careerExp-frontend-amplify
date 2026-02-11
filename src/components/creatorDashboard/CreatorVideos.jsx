@@ -767,21 +767,22 @@ const CreatorVideos = () => {
                       {formatDateDDMMYYYY(podcast?.createdAt)}
                     </TableCell>
                     <TableCell sx={{ ...tableData, textAlign: "center" }}>
-                      {podcast?.thumbnail ? (
+                      {(podcast?.spotifyThumbnailUrl || podcast?.thumbnail) ? (
                         <img
-                          src={podcast.thumbnail}
+                          src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
                           alt=""
                           style={{
-                            width: "160px",
+                            width: "90px",
                             height: "90px",
-                            objectFit: "cover",
+                            objectFit: "contain",
                             borderRadius: "4px",
+                            backgroundColor: "#f5f5f5",
                           }}
                         />
                       ) : (
                         <Box
                           sx={{
-                            width: 160,
+                            width: 90,
                             height: 90,
                             bgcolor: "#eee",
                             display: "flex",
@@ -1202,11 +1203,11 @@ const CreatorVideos = () => {
                 }}
               >
                 <Box sx={{ position: "relative" }}>
-                  {podcast?.thumbnail ? (
+                  {(podcast?.spotifyThumbnailUrl || podcast?.thumbnail) ? (
                     <img
-                      src={podcast.thumbnail}
+                      src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
                       alt=""
-                      style={{ width: "100%", height: "auto", maxHeight: 180, objectFit: "cover" }}
+                      style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "contain", backgroundColor: "#f5f5f5" }}
                     />
                   ) : (
                     <Box

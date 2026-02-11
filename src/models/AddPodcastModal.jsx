@@ -187,8 +187,8 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
     if (isEdit) {
       setIsSubmitting(true);
       try {
-        const thumbUrl = await uploadThumbnailIfNeeded();
-        const bannerUrl = await uploadBannerIfNeeded();
+        const thumbUrl = tabValue === 1 ? await uploadThumbnailIfNeeded() : undefined;
+        const bannerUrl = tabValue === 1 ? await uploadBannerIfNeeded() : undefined;
         const body = {
           title: title.trim(),
           description: description.trim() || undefined,
@@ -221,8 +221,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
       setIsSubmitting(true);
       setIsUploading(true);
       try {
-        const thumbUrl = await uploadThumbnailIfNeeded();
-        const bannerUrl = await uploadBannerIfNeeded();
         setIsUploading(false);
         await dispatch(
           addPodcastSpotify({
@@ -232,8 +230,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               spotifyUrl: spotifyUrl.trim(),
               title: title.trim(),
               description: description.trim() || "",
-              thumbnail: thumbUrl || "",
-              bannerImage: bannerUrl || "",
               tags: selectedTags.filter(Boolean),
               language: language || "",
               category,
@@ -443,67 +439,72 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               sx={{ mb: 2, "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
             />
 
-            <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
-              Upload Podcast Thumbnail
-            </Typography>
-            <Box
-              component="label"
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "2px dashed #BC2876",
-                borderRadius: "12px",
-                backgroundColor: "#fafafa",
-                py: 2,
-                px: 2,
-                cursor: "pointer",
-                mb: 2,
-                "&:hover": { backgroundColor: "#f5f5f5" },
-              }}
-            >
-              <input type="file" accept="image/*" hidden onChange={handleThumbnailChange} />
-              {thumbnailPreview ? (
-                <img src={thumbnailPreview} alt="Thumbnail" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 8 }} />
-              ) : (
-                <CloudUploadIcon sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }} />
-              )}
-              <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
-                Upload Podcast Thumbnail
-              </Typography>
-            </Box>
+            {/* Thumbnail and banner only for manual upload; Spotify provides thumbnail */}
+            {tabValue === 1 && (
+              <>
+                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
+                  Upload Podcast Thumbnail
+                </Typography>
+                <Box
+                  component="label"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "2px dashed #BC2876",
+                    borderRadius: "12px",
+                    backgroundColor: "#fafafa",
+                    py: 2,
+                    px: 2,
+                    cursor: "pointer",
+                    mb: 2,
+                    "&:hover": { backgroundColor: "#f5f5f5" },
+                  }}
+                >
+                  <input type="file" accept="image/*" hidden onChange={handleThumbnailChange} />
+                  {thumbnailPreview ? (
+                    <img src={thumbnailPreview} alt="Thumbnail" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 8 }} />
+                  ) : (
+                    <CloudUploadIcon sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }} />
+                  )}
+                  <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
+                    Upload Podcast Thumbnail
+                  </Typography>
+                </Box>
 
-            <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
-              Upload Banner Image
-            </Typography>
-            <Box
-              component="label"
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "2px dashed #BC2876",
-                borderRadius: "12px",
-                backgroundColor: "#fafafa",
-                py: 2,
-                px: 2,
-                cursor: "pointer",
-                mb: 2,
-                "&:hover": { backgroundColor: "#f5f5f5" },
-              }}
-            >
-              <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
-              {bannerPreview ? (
-                <img src={bannerPreview} alt="Banner" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 8 }} />
-              ) : (
-                <CloudUploadIcon sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }} />
-              )}
-              <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
-                Upload Banner Image
-              </Typography>
-            </Box>
+                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
+                  Upload Banner Image
+                </Typography>
+                <Box
+                  component="label"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "2px dashed #BC2876",
+                    borderRadius: "12px",
+                    backgroundColor: "#fafafa",
+                    py: 2,
+                    px: 2,
+                    cursor: "pointer",
+                    mb: 2,
+                    "&:hover": { backgroundColor: "#f5f5f5" },
+                  }}
+                >
+                  <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
+                  {bannerPreview ? (
+                    <img src={bannerPreview} alt="Banner" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 8 }} />
+                  ) : (
+                    <CloudUploadIcon sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }} />
+                  )}
+                  <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
+                    Upload Banner Image
+                  </Typography>
+                </Box>
+              </>
+            )}
 
             <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
               Podcast Description

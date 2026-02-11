@@ -1,4 +1,5 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
@@ -7,14 +8,17 @@ import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {
+  Avatar,
   Box,
   Button,
+  Divider,
   IconButton,
   Rating,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import DeleteModal from "../../models/DeleteModal.jsx";
 import AddArticleModal from "../../models/AddArticleModal.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
@@ -52,6 +56,7 @@ function formatViews(num) {
  */
 const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = false }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const authenticated = useSelector(selectAuthenticated);
@@ -233,77 +238,118 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
 
   const content = (
     <>
-      {/* Header: Back + Title + Edit/Delete */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 1,
-          mb: 2,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton onClick={onBack} sx={{ color: "#FFFFFF", backgroundColor: "#BC2876" }} size="small">
-            <ArrowBackIcon />
-          </IconButton>
+      {/* Header: Dashboard = Back + Title + Edit/Delete; Public = "Back to Articles" link only */}
+      {embedded ? (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 1,
+            mb: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton onClick={onBack} sx={{ color: "#FFFFFF", backgroundColor: "#BC2876" }} size="small">
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontWeight: 700,
+                fontSize: { xs: "1.5rem", sm: "1.75rem" },
+                color: colors.darkGray,
+              }}
+            >
+              Article Detail
+            </Typography>
+          </Box>
+          {isCreator && (
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleDeleteClick}
+                sx={{
+                  backgroundColor: colors.white,
+                  border: "1px solid #F04438",
+                  borderRadius: "25px",
+                  color: "#F04438",
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#BC2876", color: "#FFFFFF", border: "none" },
+                }}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => setEditModalOpen(true)}
+                sx={{
+                  background: "linear-gradient(to top left, #720361, #bf2f75)",
+                  borderRadius: "25px",
+                  textTransform: "none",
+                  "&:hover": {
+                    background: "linear-gradient(to top left, #720361, #bf2f75)",
+                    opacity: 0.92,
+                  },
+                }}
+              >
+                Edit Article
+              </Button>
+            </Box>
+          )}
+        </Box>
+      ) : (
+        <Box sx={{ mb: 2 }}>
           <Typography
+            component="button"
+            onClick={onBack}
             sx={{
-              fontFamily: fonts.poppins,
-              fontWeight: 700,
-              fontSize: { xs: "1.5rem", sm: "1.75rem" },
-              color: colors.darkGray,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              fontFamily: fonts.sans,
+              fontSize: "0.9375rem",
+              color: "#720361",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              "&:hover": { textDecoration: "underline" },
             }}
           >
-            Article Detail
+            <ArrowBackIcon sx={{ fontSize: "1.25rem" }} />
+            Back to Articles
           </Typography>
         </Box>
-        {isCreator && (
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleDeleteClick}
-              sx={{
-                backgroundColor: colors.white,
-                border: "1px solid #F04438",
-                borderRadius: "25px",
-                color: "#F04438",
-                textTransform: "none",
-                "&:hover": { backgroundColor: "#BC2876", color: "#FFFFFF", border: "none" },
-              }}
-            >
-              Delete
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => setEditModalOpen(true)}
-              sx={{
-                background: "linear-gradient(to top left, #720361, #bf2f75)",
-                borderRadius: "25px",
-                textTransform: "none",
-                "&:hover": {
-                  background: "linear-gradient(to top left, #720361, #bf2f75)",
-                  opacity: 0.92,
-                },
-              }}
-            >
-              Edit Article
-            </Button>
-          </Box>
-        )}
-      </Box>
+      )}
 
-<Box sx={{
-        // backgroundColor: "#fafafa",
-        minHeight: "100vh",
-        marginTop: "1rem",
-        pb: 4,
-        pt: 2,
-        px: 2,
-      }}>
+<Box
+        sx={{
+          display: embedded ? "block" : "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+          minHeight: "100vh",
+          marginTop: "1rem",
+          pb: 4,
+          pt: 2,
+        }}
+      >
+        <Box
+          sx={{
+            flex: embedded ? "none" : 1,
+            minWidth: 0,
+            ...(!embedded && {
+              backgroundColor: "#ffffff",
+              borderRadius: "12px",
+              boxShadow: "2px 2px 10px #a7a7a764",
+              border: "1px solid #eeeeee",
+              p: 3,
+            }),
+          }}
+        >
       {/* Category pill */}
       <Box sx={{ mb: 3 }}>
         <Box
@@ -365,9 +411,16 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
             {formatViews(totalViews)}
           </Typography>
         </Box>
-        <IconButton onClick={handleShare} size="small" sx={{ color: "#720361", ml: "auto" }}>
-          <ShareIcon />
-        </IconButton>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0, ml: "auto" }}>
+          <IconButton onClick={handleShare} size="small" sx={{ color: "#720361" }}>
+            <ShareIcon />
+          </IconButton>
+          {!embedded && (
+            <IconButton size="small" sx={{ color: "#720361" }} aria-label="Bookmark">
+              <BookmarkBorderIcon />
+            </IconButton>
+          )}
+        </Box>
       </Box>
 
       {/* Cover image */}
@@ -454,6 +507,88 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
           </Typography>
         </Box>
       </Box>
+        </Box>
+
+        {/* About the Author card - public page only */}
+        {!embedded && creator && (
+          <Box
+            sx={{
+              width: { xs: "100%", md: 340 },
+              flexShrink: 0,
+              border: "1px solid #eeeeee",
+              backgroundColor: "#ffffff",
+              borderRadius: "12px",
+              boxShadow: "2px 2px 10px #a7a7a764",
+              p: 2.5,
+              height: "fit-content",
+              alignSelf: { md: "flex-start" },
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontWeight: 600,
+                fontSize: "1.125rem",
+                color: colors.darkGray,
+                mb: 2,
+              }}
+            >
+              About the Author
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Avatar
+                src={creator.profilePicture}
+                sx={{ width: 72, height: 72 }}
+              />
+              <Box>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontWeight: 600,
+                    fontSize: "1.0625rem",
+                    color: "#720361",
+                    cursor: "pointer",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
+                  onClick={() => navigate(`/profile/${creator._id}`)}
+                >
+                  {[creator.firstName, creator.lastName].filter(Boolean).join(" ") || "Author"}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "0.8125rem",
+                    color: colors.lightGray,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Counsellor
+                </Typography>
+              </Box>
+            </Box>
+            {(creator.introBio || creator.bio) && (
+              <Typography
+                variant="body2"
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "0.9375rem",
+                  color: "text.secondary",
+                  lineHeight: 1.55,
+                }}
+              >
+                {creator.introBio || creator.bio}
+              </Typography>
+            )}
+          </Box>
+        )}
       </Box>
     </>
   );
@@ -485,34 +620,20 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
   return (
     <Box
       sx={{
-        // backgroundColor: "#fafafa",
         minHeight: "100vh",
-        marginTop: "1rem",
+        marginTop: "8.5rem",
         pb: 4,
         pt: 2,
-        px: 2,
         boxSizing: "border-box",
+        marginLeft: "5rem",
+        marginRight: "5rem",
+        "@media (max-width: 480px)": {
+          marginLeft: "1rem",
+          marginRight: "1rem",
+        },
       }}
     >
-      <Box sx={{ maxWidth: 800, margin: "0 auto", pb: 2 }}>
-        {content}
-      </Box>
-      <DeleteModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onDelete={handleConfirmDelete}
-        title="Confirm Delete?"
-        text="Are you sure you want to delete this article?"
-        fonts={fonts}
-        colors={colors}
-        isButtonLoading={isDeleting}
-      />
-      <AddArticleModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onSuccess={handleEditSuccess}
-        articleId={articleId}
-      />
+      {content}
     </Box>
   );
 };

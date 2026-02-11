@@ -7,6 +7,10 @@ const initialState = {
   allVideos: [],
   mostViewedThumbnails: [],
   allTags: [],
+  allArticles: null,
+  trendingArticles: null,
+  allPodcasts: null,
+  trendingPodcasts: null,
 };
 
 export const getAllVideos = createAsyncThunk(
@@ -141,6 +145,118 @@ export const getRelatedSearchVideos = createAsyncThunk(
   }
 );
 
+// Articles (same params as getAllVideos + sortBy: views | newest)
+export const getAllArticles = createAsyncThunk(
+  "explore/getAllArticles",
+  async ({
+    page = 1,
+    limit = 12,
+    category = "",
+    tags = [],
+    search = "",
+    sortBy = "newest",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        category,
+        tags: tags.join(","),
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallarticles?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+export const getTrendingArticles = createAsyncThunk(
+  "explore/getTrendingArticles",
+  async ({ page = 1 } = {}) => {
+    try {
+      const query = new URLSearchParams({ page }).toString();
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/gettrendingarticles?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Podcasts (same params as getAllVideos + sortBy)
+export const getAllPodcasts = createAsyncThunk(
+  "explore/getAllPodcasts",
+  async ({
+    page = 1,
+    limit = 12,
+    category = "",
+    tags = [],
+    search = "",
+    sortBy = "newest",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        category,
+        tags: tags.join(","),
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallpodcasts?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+export const getTrendingPodcasts = createAsyncThunk(
+  "explore/getTrendingPodcasts",
+  async ({ page = 1 } = {}) => {
+    try {
+      const query = new URLSearchParams({ page }).toString();
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/gettrendingpodcasts?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
 export const getMostViewedThumbnails = createAsyncThunk(
   "explore/getMostViewedThumbnails",
   async () => {
@@ -209,6 +325,18 @@ const exploreSlice = createSlice({
     builder.addCase(getRelatedSearchVideos.fulfilled, (state, { payload }) => {
       state.relatedSearchVideos = payload;
     });
+    builder.addCase(getAllArticles.fulfilled, (state, { payload }) => {
+      state.allArticles = payload;
+    });
+    builder.addCase(getTrendingArticles.fulfilled, (state, { payload }) => {
+      state.trendingArticles = payload;
+    });
+    builder.addCase(getAllPodcasts.fulfilled, (state, { payload }) => {
+      state.allPodcasts = payload;
+    });
+    builder.addCase(getTrendingPodcasts.fulfilled, (state, { payload }) => {
+      state.trendingPodcasts = payload;
+    });
     builder.addCase(getMostViewedThumbnails.fulfilled, (state, { payload }) => {
       state.mostViewedThumbnails = payload.thumbnails;
     });
@@ -227,5 +355,11 @@ export const selectRelatedSearchVideos = (state) =>
   state.explore.relatedSearchVideos;
 export const selectMostViewedThumbnails = (state) =>
   state.explore.mostViewedThumbnails;
+export const selectAllArticles = (state) => state.explore.allArticles;
+export const selectTrendingArticles = (state) =>
+  state.explore.trendingArticles;
+export const selectAllPodcasts = (state) => state.explore.allPodcasts;
+export const selectTrendingPodcasts = (state) =>
+  state.explore.trendingPodcasts;
 export const { resetRelatedSearchVideos } = exploreSlice.actions;
 export default exploreSlice.reducer;
