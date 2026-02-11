@@ -1,12 +1,12 @@
 import React from "react";
 import { Box, Typography, Pagination } from "@mui/material";
-import VideoCard from "./VideoCard";
+import PodcastCard from "./PodcastCard";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import { fonts } from "../utility/fonts.js";
 
-const VideoSection = ({
+const PodcastSection = ({
   title = "",
-  videos = [],
+  podcasts = [],
   isLoading = false,
   currentPage = 1,
   totalPages = 1,
@@ -51,11 +51,12 @@ const VideoSection = ({
               height: "40vh",
               width: "85vw",
               margin: "auto",
+              gridColumn: "1 / -1",
             }}
           >
             <InitialLoaders />
           </Box>
-        ) : videos.length === 0 ? (
+        ) : podcasts.length === 0 ? (
           <Box
             sx={{
               display: "flex",
@@ -64,6 +65,7 @@ const VideoSection = ({
               height: "30vh",
               width: "90vw",
               margin: "auto",
+              gridColumn: "1 / -1",
             }}
           >
             <Typography
@@ -74,15 +76,16 @@ const VideoSection = ({
                 textAlign: "center",
               }}
             >
-              No Videos Found
+              No Podcasts Found
             </Typography>
           </Box>
         ) : (
-          videos.map((video) => <VideoCard key={video._id} video={video} />)
+          podcasts.map((podcast) => (
+            <PodcastCard key={podcast._id} podcast={podcast} />
+          ))
         )}
       </Box>
 
-      {/* {totalPages > 1 && ( */}
       <Box
         sx={{
           display: "flex",
@@ -98,9 +101,8 @@ const VideoSection = ({
           onChange={onPageChange}
         />
       </Box>
-      {/* )} */}
     </Box>
   );
 };
 
-export default VideoSection;
+export default PodcastSection;

@@ -1,21 +1,20 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
   Button,
   Chip,
-  Container,
+  FormControl,
+  InputLabel,
   MenuItem,
   Pagination,
+  Select,
   TextField,
   Typography,
   Autocomplete,
 } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import VideoCard from "../components/VideoCard";
-import InitialLoaders from "../loaders/InitialLoaders.jsx";
 // import ExploreVideoPlayPopup from "../models/ExploreVideoPlayPopup.jsx";
 import {
   selectAuthenticated,
@@ -28,10 +27,18 @@ import {
   getTrendingVideos,
   getVideosByUserInterests,
   getRelatedSearchVideos,
+  getAllArticles,
+  getTrendingArticles,
+  getAllPodcasts,
+  getTrendingPodcasts,
   selectAllVideos,
   selectTrendingVideos,
   selectUserInterestsVideos,
   selectRelatedSearchVideos,
+  selectAllArticles,
+  selectTrendingArticles,
+  selectAllPodcasts,
+  selectTrendingPodcasts,
   resetRelatedSearchVideos,
   getAllTags,
   selectAllTags,
@@ -40,7 +47,8 @@ import exploreStyles from "../styles/Explore.module.css";
 import { categories, tags } from "../utility/category";
 import { fonts } from "../utility/fonts.js";
 import VideoSection from "../components/VideoSection.jsx";
-import { borderBottom } from "@mui/system";
+import ArticleSection from "../components/ArticleSection.jsx";
+import PodcastSection from "../components/PodcastSection.jsx";
 import CloseIcon from "@mui/icons-material/Close";
 import InterestsModal from "../models/InterestsModal";
 import {
@@ -62,12 +70,28 @@ const processedTags = tags
   }))
   .sort((a, b) => a.option.localeCompare(b.option));
 
+// Explore page tabs (config-driven for future content)
+const EXPLORE_TABS = [
+  { id: "videos", label: "Videos" },
+  { id: "articles", label: "Articles" },
+  { id: "podcasts", label: "Podcasts" },
+  { id: "courses", label: "Courses" },
+  { id: "announcements", label: "Announcements" },
+  { id: "events", label: "Events" },
+  { id: "services", label: "Services" },
+  { id: "counsellors", label: "Counsellors" },
+];
+
 const Explore = () => {
   const dispatchToRedux = useDispatch();
   let allVideosData = useSelector(selectAllVideos);
   const trendingVideosData = useSelector(selectTrendingVideos);
   const userInterestsVideosData = useSelector(selectUserInterestsVideos);
   const relatedSearchVideosData = useSelector(selectRelatedSearchVideos);
+  const allArticlesData = useSelector(selectAllArticles);
+  const trendingArticlesData = useSelector(selectTrendingArticles);
+  const allPodcastsData = useSelector(selectAllPodcasts);
+  const trendingPodcastsData = useSelector(selectTrendingPodcasts);
   const userData = useSelector(selectUserProfile);
   const userId = useSelector(selectUserId);
   const allTags = useSelector(selectAllTags);
@@ -96,6 +120,21 @@ const Explore = () => {
   const [page3Loading, setPage3Loading] = useState(false);
   const [page4Loading, setPage4Loading] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [activeTab, setActiveTab] = useState("videos");
+  // Applied filters (sent to API when user clicks Apply)
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedCategory, setAppliedCategory] = useState("");
+  const [appliedTags, setAppliedTags] = useState([]);
+  // Articles pagination & loading
+  const [page1Articles, setPage1Articles] = useState(1);
+  const [page3Articles, setPage3Articles] = useState(1);
+  const [page1ArticlesLoading, setPage1ArticlesLoading] = useState(false);
+  const [page3ArticlesLoading, setPage3ArticlesLoading] = useState(false);
+  // Podcasts pagination & loading
+  const [page1Podcasts, setPage1Podcasts] = useState(1);
+  const [page3Podcasts, setPage3Podcasts] = useState(1);
+  const [page1PodcastsLoading, setPage1PodcastsLoading] = useState(false);
+  const [page3PodcastsLoading, setPage3PodcastsLoading] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !userData) {
@@ -105,18 +144,6 @@ const Explore = () => {
       setIsModalOpen(true);
     }
   }, [isAuthenticated, userData, userId, token, dispatchToRedux]);
-
-  const scrollRef = useRef(null);
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 200; // Adjust this value as needed
-      scrollRef.current.scrollBy({
-        left: direction === "right" ? scrollAmount : -scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
 
   // useEffect(() => {
   //   const fetchVideos = async () => {
@@ -157,22 +184,22 @@ const Explore = () => {
     dispatchToRedux(
       getAllVideos({
         page: page1,
-        search: searchValue,
-        tags: selectedTags,
-        category: selectedCatagory,
+        search: appliedSearch,
+        tags: appliedTags,
+        category: appliedCategory,
       })
     );
-  }, [page1, searchValue, selectedTags, selectedCatagory]);
+  }, [page1, appliedSearch, appliedTags, appliedCategory]);
 
-  // related searches
+  // related searches (uses applied filters)
   useEffect(() => {
     const fetchRelated = async () => {
       try {
         setPage2Loading(true);
         await dispatchToRedux(
           getRelatedSearchVideos({
-            category: selectedCatagory,
-            tags: selectedTags,
+            category: appliedCategory,
+            tags: appliedTags,
             page: page2,
           })
         );
@@ -183,7 +210,7 @@ const Explore = () => {
       }
     };
     fetchRelated();
-  }, [page2, selectedCatagory, selectedTags, searchValue]);
+  }, [page2, appliedCategory, appliedTags, appliedSearch]);
 
   // trending videos
   useEffect(() => {
@@ -218,21 +245,108 @@ const Explore = () => {
     fetchUserInterests();
   }, [page4, userId, isAuthenticated]);
 
-  const handleCategorySelection = useCallback(
-    (category) => {
-      dispatchToRedux(getAllVideos({ category }));
-    },
-    [dispatchToRedux]
-  );
+  // Articles: search results (same filters as videos)
+  useEffect(() => {
+    if (activeTab !== "articles") return;
+    const fetch = async () => {
+      try {
+        setPage1ArticlesLoading(true);
+        await dispatchToRedux(
+          getAllArticles({
+            page: page1Articles,
+            search: appliedSearch,
+            tags: appliedTags,
+            category: appliedCategory,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      } finally {
+        setPage1ArticlesLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Articles, appliedSearch, appliedTags, appliedCategory]);
 
-  const handleSearchClick = useCallback(() => {
-    if (selectedTags?.length > 0) {
-      dispatchToRedux(getAllVideos({ tags: selectedTags }));
-    }
-    if (searchValue) {
-      dispatchToRedux(getAllVideos({ search: searchValue }));
-    }
-  }, [selectedTags?.length, searchValue, dispatchToRedux]);
+  // Articles: trending
+  useEffect(() => {
+    if (activeTab !== "articles") return;
+    const fetch = async () => {
+      try {
+        setPage3ArticlesLoading(true);
+        await dispatchToRedux(getTrendingArticles({ page: page3Articles }));
+      } catch (error) {
+        console.error("Error fetching trending articles:", error);
+      } finally {
+        setPage3ArticlesLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page3Articles]);
+
+  // Podcasts: search results
+  useEffect(() => {
+    if (activeTab !== "podcasts") return;
+    const fetch = async () => {
+      try {
+        setPage1PodcastsLoading(true);
+        await dispatchToRedux(
+          getAllPodcasts({
+            page: page1Podcasts,
+            search: appliedSearch,
+            tags: appliedTags,
+            category: appliedCategory,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching podcasts:", error);
+      } finally {
+        setPage1PodcastsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Podcasts, appliedSearch, appliedTags, appliedCategory]);
+
+  // Podcasts: trending
+  useEffect(() => {
+    if (activeTab !== "podcasts") return;
+    const fetch = async () => {
+      try {
+        setPage3PodcastsLoading(true);
+        await dispatchToRedux(getTrendingPodcasts({ page: page3Podcasts }));
+      } catch (error) {
+        console.error("Error fetching trending podcasts:", error);
+      } finally {
+        setPage3PodcastsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page3Podcasts]);
+
+  const handleApply = useCallback(() => {
+    setAppliedSearch(searchValue);
+    setAppliedCategory(selectedCatagory);
+    setAppliedTags([...selectedTags]);
+    setPage1(1);
+    setPage1Articles(1);
+    setPage1Podcasts(1);
+  }, [searchValue, selectedCatagory, selectedTags]);
+
+  const handleReset = useCallback(() => {
+    setSearchValue("");
+    setSelectedCatagory("");
+    setSelectedTags([]);
+    setAppliedSearch("");
+    setAppliedCategory("");
+    setAppliedTags([]);
+    setPage1(1);
+    setPage1Articles(1);
+    setPage1Podcasts(1);
+    setPage3Articles(1);
+    setPage3Podcasts(1);
+    dispatchToRedux(resetState());
+    dispatchToRedux(resetRelatedSearchVideos());
+  }, [dispatchToRedux]);
 
   const handlePageChange1 = useCallback((event, value) => {
     setPage1(value);
@@ -250,6 +364,19 @@ const Explore = () => {
     setPage4(value);
   }, []);
 
+  const handlePageChange1Articles = useCallback((event, value) => {
+    setPage1Articles(value);
+  }, []);
+  const handlePageChange3Articles = useCallback((event, value) => {
+    setPage3Articles(value);
+  }, []);
+  const handlePageChange1Podcasts = useCallback((event, value) => {
+    setPage1Podcasts(value);
+  }, []);
+  const handlePageChange3Podcasts = useCallback((event, value) => {
+    setPage3Podcasts(value);
+  }, []);
+
   useEffect(() => {}, [
     allVideosData,
     trendingVideosData,
@@ -257,274 +384,220 @@ const Explore = () => {
     dispatchToRedux,
   ]);
 
-  const handleReset = () => {
-    setSelectedTags([]);
-    setSelectedCatagory("");
-    setSearchValue("");
-    setPage1(1);
-    setPage2(1);
-    setPage3(1);
-    setPage4(1);
-    dispatchToRedux(resetState());
-    dispatchToRedux(getAllVideos({ page: page1 }));
-    dispatchToRedux(resetRelatedSearchVideos());
-    dispatchToRedux(getTrendingVideos({ page: page3 }));
-    if (userId && isAuthenticated) {
-      dispatchToRedux(
-        getVideosByUserInterests({
-          userId: userId,
-          page: page4,
-        })
-      );
-    }
-  };
-
   return (
-    <Box sx={{ mt: "8.5rem" }}>
-      <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
+    <Box sx={{ mt: "9.25rem" }}>
+      <Box
+        sx={{
+          marginTop: "2rem",
+          marginLeft: "5rem",
+          marginRight: "5rem",
+          "@media (max-width: 480px)": {
+            marginLeft: "1rem",
+            marginRight: "1rem",
+          },
+        }}
+      >
+        {/* Single white box: tabs inside top, then filters row */}
+        
         <Box
           sx={{
             backgroundColor: "#ffffff",
             boxShadow: "2px 2px 10px #a7a7a764",
-            width: "80rem",
-            maxWidth: "100%",
-            margin: "auto",
+            width: "100%",
             marginBottom: "2rem",
             borderRadius: "19px",
+            marginTop: "2rem",
+            paddingX: "2rem",
           }}
         >
-          <Box
-            sx={{
-              borderBottom: "1px solid #dddddd",
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-            }}
+          {/* Tabs inside box, equally distributed */}
+          <div
+            className={`${exploreStyles.tabBar} ${exploreStyles.tabBarInside}`}
+            role="tablist"
           >
-            <ArrowBackIosNewIcon
-              sx={{
-                cursor: "pointer",
-                color: "#42424275",
-                fontSize: "1.5rem",
-              }}
-              onClick={() => scroll("left")}
-            />
-            {/* Categories Filter */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                maxWidth: "100%",
-                padding: "15px 0px",
-                overflowX: "auto",
-                overflowY: "hidden",
-                // margin: {
-                //   xs: "0px 15px",
-                //   sm: "0px 30px",
-                // },
-              }}
-              className="scrollbar-hide"
-              ref={scrollRef}
-            >
-              {" "}
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: "bold", fontSize: "15px" }}
-              >
-                Categories:
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "nowrap",
-                  padding: "5px 10px",
-                }}
-              >
-                {categories.map((category, index) => (
-                  <Button
-                    key={`${category}-index-${index}`}
-                    onClick={() => {
-                      handleCategorySelection(category);
-                      setSelectedCatagory(category);
-                    }}
-                    variant="contained"
-                    sx={{
-                      minWidth: "fit-content",
-                      borderRadius: "90px",
-                      padding: "6px 10px",
-                      fontFamily: fonts.sans,
-                      margin: "0 5px",
-                      textTransform: "none",
-                      backgroundColor:
-                        selectedCatagory === category ? "#FF8A00" : "#ff880033",
-                      color:
-                        selectedCatagory === category ? "white" : "#FF8A00",
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      whiteSpace: "nowrap",
-                      // width: "90px",
-                      "&:hover": {
-                        backgroundColor: "#FF8A00",
-                        color: "white",
-                      },
-                    }}
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </Box>
-            </Box>
-            <ArrowForwardIosIcon
-              sx={{
-                cursor: "pointer",
-                color: "#42424275",
-                fontSize: "1.5rem",
-              }}
-              onClick={() => scroll("right")}
-            />
-          </Box>
-
+            <div className={exploreStyles.tabList}>
+              {EXPLORE_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`explore-panel-${tab.id}`}
+                  id={`explore-tab-${tab.id}`}
+                  className={`${exploreStyles.tab} ${activeTab === tab.id ? exploreStyles.tabActive : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Filters row: Search | Categories | Tags | Apply | Reset */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
+              flexWrap: "wrap",
               alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
               width: "100%",
-              margin: "auto",
-              padding: "4px 0",
+              padding: "15px 24px 20px",
+              borderTop: "1px solid #eeeeee",
             }}
             className={exploreStyles["filters"]}
           >
-            {/* Search Input */}
+            {/* Search input - reduced width, magnifying glass on right */}
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                margin: "auto",
                 position: "relative",
-                padding: {
-                  xs: "14px 12px",
-                  sm: "15px 30px",
-                },
+                flex: "1 1 280px",
+                minWidth: 0,
+                maxWidth: { xs: "100%", sm: "400px" },
               }}
             >
               <input
-                placeholder="Search here"
-                variant="outlined"
+                placeholder="Search by title, topic, or name"
                 style={{
-                  marginRight: "10px",
-                  flexGrow: 1,
-                  width: "23.6875rem",
-                  height: "3rem",
+                  width: "100%",
+                  height: "46px",
                   outline: "none",
                   border: "1px solid #dddddd",
                   borderRadius: "90px",
-                  padding: "12px 64px 12px 15px",
+                  padding: "10px 48px 10px 16px",
                   backgroundColor: "#F6F6F6",
+                  fontFamily: fonts.sans,
+                  fontSize: "1rem",
                 }}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
-              <Button
-                variant="contained"
-                onClick={handleSearchClick}
-                className={exploreStyles["applyBtn"]}
+              <SearchIcon
                 sx={{
                   position: "absolute",
+                  right: "14px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  right: "10px",
-                  textTransform: "capitalize",
-                  borderRadius: "90px",
-                  padding: "12px 24px",
-                  // borderRadius: "50%",
+                  color: "#720361",
+                  fontSize: "1.4rem",
+                  pointerEvents: "none",
                 }}
-              >
-                Search
-              </Button>
-            </Box>
-
-            {/* Tags Filter  */}
-            <div className={exploreStyles["select-and-buttons"]}>
-              {/* Multiple tag selection filter */}
-              <Autocomplete
-                multiple
-                options={formattedTags}
-                getOptionLabel={(option) => option.label}
-                value={formattedTags.filter((tag) =>
-                  selectedTags.includes(tag.value)
-                )}
-                onChange={(event, newValue) => {
-                  const selectedLowercaseTags = newValue.map(
-                    (tag) => tag.value
-                  );
-                  setSelectedTags(selectedLowercaseTags);
-                }}
-                filterSelectedOptions
-                disableCloseOnSelect
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    placeholder="Filter by Tags"
-                    sx={{
-                      marginRight: "10px",
-                      width: "169px",
-                      maxWidth: "100%",
-                      height: "46px",
-                      backgroundColor: "#F6F6F6",
-                      borderRadius: "90px",
-                      border: "1px solid #dddddd",
-                      "& .MuiOutlinedInput-root": {
-                        height: "100%",
-                        borderRadius: "90px",
-                        padding: "0 35px 0 15px",
-                      },
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        border: "none",
-                      },
-                    }}
-                  />
-                )}
-                renderTags={() => null}
               />
-
-              {/* Apply and Reset Buttons */}
-              <Box
+            </Box>
+                 <Box sx={{ display: "flex", alignItems: "center", gap: "12px",}}>
+            {/* Categories dropdown */}
+            <FormControl
+              sx={{
+                minWidth: { xs: "140px", sm: "180px" },
+                height: "46px",
+                "& .MuiOutlinedInput-root": {
+                  height: "100%",
+                  borderRadius: "90px",
+                  backgroundColor: "#F6F6F6",
+                  fontSize: "0.9375rem",
+                  fontFamily: fonts.sans,
+                },
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#dddddd",
+                },
+              }}
+              size="small"
+            >
+              <InputLabel id="explore-category-label">Categories</InputLabel>
+              <Select
+                labelId="explore-category-label"
+                id="explore-category-select"
+                value={selectedCatagory || ""}
+                label="Categories"
+                onChange={(e) => setSelectedCatagory(e.target.value || "")}
+                IconComponent={KeyboardArrowDownIcon}
                 sx={{
-                  display: "flex",
-                  gap: "10px",
+                  "& .MuiSelect-icon": {
+                    color: "#720361",
+                  },
                 }}
-                className={exploreStyles["buttons"]}
               >
-                <Button
-                  onClick={handleReset}
-                  className={exploreStyles["resetBtn"]}
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                {categories.map((cat) => (
+                  <MenuItem key={cat} value={cat} sx={{ fontFamily: fonts.sans }}>
+                    {cat}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Tags */}
+            <Autocomplete
+              multiple
+              options={formattedTags}
+              getOptionLabel={(option) => option.label}
+              value={formattedTags.filter((tag) =>
+                selectedTags.includes(tag.value)
+              )}
+              onChange={(event, newValue) => {
+                setSelectedTags(newValue.map((tag) => tag.value));
+              }}
+              filterSelectedOptions
+              disableCloseOnSelect
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder="Tags"
+                  size="small"
                   sx={{
-                    textTransform: "capitalize",
-                    backgroundColor: "transparent",
-                    border: "1px solid #dddddd",
-                    padding: "0rem 1rem",
-                    borderRadius: "90px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "fit-content",
-                    fontSize: "1.125rem",
-                    gap: ".875rem",
-                    color: "#717171",
-                    cursor: "pointer",
-                    "&:hover": {
+                    width: { xs: "140px", sm: "169px" },
+                    "& .MuiOutlinedInput-root": {
+                      height: "46px",
+                      borderRadius: "90px",
+                      backgroundColor: "#F6F6F6",
+                      padding: "0 35px 0 15px",
+                      fontFamily: fonts.sans,
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#dddddd",
                     },
                   }}
-                >
-                  Reset
-                </Button>
-              </Box>
-            </div>
+                />
+              )}
+              renderTags={() => null}
+            />
+
+            {/* Apply & Reset */}
+            <Box sx={{ display: "flex", gap: "10px", flexShrink: 0 }}>
+              <Button
+                variant="contained"
+                onClick={handleApply}
+                className={exploreStyles["applyBtn"]}
+                sx={{
+                  textTransform: "capitalize",
+                  borderRadius: "90px",
+                  padding: "10px 24px",
+                  fontFamily: fonts.sans,
+                }}
+              >
+                Apply
+              </Button>
+              <Button
+                onClick={handleReset}
+                className={exploreStyles["resetBtn"]}
+                sx={{
+                  textTransform: "capitalize",
+                  borderRadius: "90px",
+                  padding: "10px 24px",
+                  fontFamily: fonts.sans,
+                  backgroundColor: "#717171",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "#5a5a5a",
+                  },
+                }}
+              >
+                Reset
+              </Button>
+            </Box>
+            </Box>
           </Box>
 
           {/* Show Selected Tags */}
@@ -566,53 +639,146 @@ const Explore = () => {
             </Box>
           )}
         </Box>
+        
 
-        <VideoSection
-          title={
-            searchValue || selectedTags.length > 0 || selectedCatagory
-              ? "Search Results"
-              : ""
-          }
-          videos={allVideosData?.videos || []}
-          isLoading={page1Loading}
-          currentPage={page1}
-          totalPages={allVideosData?.totalPages || 1}
-          onPageChange={handlePageChange1}
-        />
+        {/* Row 3: Tab content */}
+        <div
+          id="explore-panel-videos"
+          role="tabpanel"
+          aria-labelledby="explore-tab-videos"
+          hidden={activeTab !== "videos"}
+        >
+          {activeTab === "videos" && (
+            <>
+              <VideoSection
+                title={
+                  appliedSearch || appliedTags.length > 0 || appliedCategory
+                    ? "Search Results"
+                    : ""
+                }
+                videos={allVideosData?.videos || []}
+                isLoading={page1Loading}
+                currentPage={page1}
+                totalPages={allVideosData?.totalPages || 1}
+                onPageChange={handlePageChange1}
+              />
 
-        {relatedSearchVideosData?.videos?.length > 0 && (
-          <VideoSection
-            title="Related Searches"
-            videos={relatedSearchVideosData?.videos || []}
-            isLoading={page2Loading}
-            currentPage={page2}
-            totalPages={relatedSearchVideosData?.totalPages || 1}
-            onPageChange={handlePageChange2}
-          />
-        )}
+              {relatedSearchVideosData?.videos?.length > 0 && (
+                <VideoSection
+                  title="Related Searches"
+                  videos={relatedSearchVideosData?.videos || []}
+                  isLoading={page2Loading}
+                  currentPage={page2}
+                  totalPages={relatedSearchVideosData?.totalPages || 1}
+                  onPageChange={handlePageChange2}
+                />
+              )}
 
-        <VideoSection
-          title="Trending"
-          videos={trendingVideosData?.videos || []}
-          isLoading={page3Loading}
-          currentPage={page3}
-          totalPages={trendingVideosData?.totalPages || 1}
-          onPageChange={handlePageChange3}
-        />
+              <VideoSection
+                title="Trending"
+                videos={trendingVideosData?.videos || []}
+                isLoading={page3Loading}
+                currentPage={page3}
+                totalPages={trendingVideosData?.totalPages || 1}
+                onPageChange={handlePageChange3}
+              />
 
-        {userId &&
-          isAuthenticated &&
-          userInterestsVideosData?.videos?.length > 0 && (
-            <VideoSection
-              title="Curated For You"
-              videos={userInterestsVideosData?.videos.slice(0, 12) || []}
-              isLoading={page4Loading}
-              currentPage={page4}
-              totalPages={userInterestsVideosData?.totalPages || 1}
-              onPageChange={handlePageChange4}
-            />
+              {userId &&
+                isAuthenticated &&
+                userInterestsVideosData?.videos?.length > 0 && (
+                  <VideoSection
+                    title="Curated For You"
+                    videos={userInterestsVideosData?.videos.slice(0, 12) || []}
+                    isLoading={page4Loading}
+                    currentPage={page4}
+                    totalPages={userInterestsVideosData?.totalPages || 1}
+                    onPageChange={handlePageChange4}
+                  />
+                )}
+            </>
           )}
-      </Container>
+        </div>
+
+        {/* Articles tab content */}
+        <div
+          id="explore-panel-articles"
+          role="tabpanel"
+          aria-labelledby="explore-tab-articles"
+          hidden={activeTab !== "articles"}
+        >
+          {activeTab === "articles" && (
+            <>
+              <ArticleSection
+                title={
+                  appliedSearch || appliedTags.length > 0 || appliedCategory
+                    ? "Search Results"
+                    : ""
+                }
+                articles={allArticlesData?.articles || []}
+                isLoading={page1ArticlesLoading}
+                currentPage={page1Articles}
+                totalPages={allArticlesData?.totalPages || 1}
+                onPageChange={handlePageChange1Articles}
+              />
+              <ArticleSection
+                title="Trending"
+                articles={trendingArticlesData?.articles || []}
+                isLoading={page3ArticlesLoading}
+                currentPage={page3Articles}
+                totalPages={trendingArticlesData?.totalPages || 1}
+                onPageChange={handlePageChange3Articles}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Podcasts tab content */}
+        <div
+          id="explore-panel-podcasts"
+          role="tabpanel"
+          aria-labelledby="explore-tab-podcasts"
+          hidden={activeTab !== "podcasts"}
+        >
+          {activeTab === "podcasts" && (
+            <>
+              <PodcastSection
+                title={
+                  appliedSearch || appliedTags.length > 0 || appliedCategory
+                    ? "Search Results"
+                    : ""
+                }
+                podcasts={allPodcastsData?.podcasts || []}
+                isLoading={page1PodcastsLoading}
+                currentPage={page1Podcasts}
+                totalPages={allPodcastsData?.totalPages || 1}
+                onPageChange={handlePageChange1Podcasts}
+              />
+              <PodcastSection
+                title="Trending"
+                podcasts={trendingPodcastsData?.podcasts || []}
+                isLoading={page3PodcastsLoading}
+                currentPage={page3Podcasts}
+                totalPages={trendingPodcastsData?.totalPages || 1}
+                onPageChange={handlePageChange3Podcasts}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Placeholder for other tabs */}
+        {!["videos", "articles", "podcasts"].includes(activeTab) && (
+          <div
+            role="tabpanel"
+            id={`explore-panel-${activeTab}`}
+            aria-labelledby={`explore-tab-${activeTab}`}
+            className={exploreStyles.placeholderContent}
+          >
+            <Typography sx={{ fontFamily: fonts.sans }}>
+              {EXPLORE_TABS.find((t) => t.id === activeTab)?.label} — Coming soon
+            </Typography>
+          </div>
+        )}
+      </Box>
 
       {/* {userData?.hasLoggedIn === false &&
         userData?.activeDashboard === "user" && (

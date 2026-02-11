@@ -1,12 +1,12 @@
 import React from "react";
 import { Box, Typography, Pagination } from "@mui/material";
-import VideoCard from "./VideoCard";
+import ArticleCard from "./ArticleCard";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import { fonts } from "../utility/fonts.js";
 
-const VideoSection = ({
+const ArticleSection = ({
   title = "",
-  videos = [],
+  articles = [],
   isLoading = false,
   currentPage = 1,
   totalPages = 1,
@@ -35,7 +35,7 @@ const VideoSection = ({
           gridTemplateColumns: {
             xs: "1fr",
             sm: "repeat(2, 1fr)",
-            lg: "repeat(4, 1fr)",
+            lg: "repeat(3, 1fr)",
           },
           gap: "30px",
           margin: "auto",
@@ -51,11 +51,12 @@ const VideoSection = ({
               height: "40vh",
               width: "85vw",
               margin: "auto",
+              gridColumn: "1 / -1",
             }}
           >
             <InitialLoaders />
           </Box>
-        ) : videos.length === 0 ? (
+        ) : articles.length === 0 ? (
           <Box
             sx={{
               display: "flex",
@@ -64,6 +65,7 @@ const VideoSection = ({
               height: "30vh",
               width: "90vw",
               margin: "auto",
+              gridColumn: "1 / -1",
             }}
           >
             <Typography
@@ -74,15 +76,16 @@ const VideoSection = ({
                 textAlign: "center",
               }}
             >
-              No Videos Found
+              No Articles Found
             </Typography>
           </Box>
         ) : (
-          videos.map((video) => <VideoCard key={video._id} video={video} />)
+          articles.map((article) => (
+            <ArticleCard key={article._id} article={article} />
+          ))
         )}
       </Box>
 
-      {/* {totalPages > 1 && ( */}
       <Box
         sx={{
           display: "flex",
@@ -98,9 +101,8 @@ const VideoSection = ({
           onChange={onPageChange}
         />
       </Box>
-      {/* )} */}
     </Box>
   );
 };
 
-export default VideoSection;
+export default ArticleSection;

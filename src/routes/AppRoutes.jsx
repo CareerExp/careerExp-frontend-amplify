@@ -53,6 +53,7 @@ const InvalidPages = React.lazy(() => import("../pages/InvalidPages"));
 
 const ExploreVideoPlay = React.lazy(() => import("../pages/ExploreVideoPlay"));
 const ArticleDetail = React.lazy(() => import("../pages/ArticleDetail.jsx"));
+const PodcastDetail = React.lazy(() => import("../pages/PodcastDetail.jsx"));
 const CreatorProfile = React.lazy(() => import("../pages/CreatorProfile.jsx"));
 
 const InterestProfiler = React.lazy(
@@ -196,8 +197,23 @@ const AppRoutes = () => {
             </Suspense>
           }
         />
+        <Route
+          path="article/:articleId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <ArticleDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="podcast/:podcastId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <PodcastDetail />
+            </Suspense>
+          }
+        />
       </Route>
-      \
       <Route
         path="/register"
         element={
@@ -243,14 +259,6 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <ExploreVideoPlay />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/article/:articleId"
-        element={
-          <Suspense fallback={<InitialLoaders />}>
-            <ArticleDetail />
           </Suspense>
         }
       />
