@@ -9,8 +9,11 @@ import UserMyAssessment from "../components/userDashboard/UserMyAssessment.jsx";
 import UserMyLikes from "../components/userDashboard/UserMyLikes.jsx";
 import UserPlaylist from "../components/userDashboard/UserPlaylist.jsx";
 import PendingStatePopup from "../models/PendingStatePopup.jsx";
+import OrgUnderReviewScreen from "../models/OrgUnderReviewScreen.jsx";
+import OrgSubscriptionRequiredScreen from "../models/OrgSubscriptionRequiredScreen.jsx";
 import AdminHome from "./adminDashboard/AdminHome.jsx";
 import CollaboratorsData from "./adminDashboard/CollaboratorsData.jsx";
+import EspEiUsersData from "./adminDashboard/EspEiUsersData.jsx";
 import SchoolDirectory from "./adminDashboard/SchoolDirectory.jsx";
 import UnifiedRecord from "./adminDashboard/UnifiedRecord.jsx";
 import UsersData from "./adminDashboard/UsersData.jsx";
@@ -29,7 +32,7 @@ import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
 import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
 import MyCompany from "./creatorDashboard/MyCompany.jsx";
 
-const renderCurrentPage = (currentPage, userData, orgProfile) => {
+const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
   console.log(orgProfile);
   if (userData.activeDashboard === "admin") {
     switch (currentPage) {
@@ -39,6 +42,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile) => {
         return <UsersData />;
       case "Counsellors":
         return <CollaboratorsData />;
+      case "ESP & EI User":
+        return <EspEiUsersData />;
       case "Records":
         return <UnifiedRecord />;
       case "School Directory":
@@ -83,11 +88,23 @@ const renderCurrentPage = (currentPage, userData, orgProfile) => {
   }
 
   if (userData.activeDashboard === "organization") {
-    if (userData.status === "pending") {
-      return <PendingStatePopup message={"Your Organization Account is in Pending State."} />;
-    }
-    if (userData?.status === "blocked") {
+    const orgStatus = orgProfile?.status ?? userData.status;
+    const isOrgActive = orgStatus === "active";
+    const subscriptionStatus = orgProfile?.subscription?.status;
+    const hasActiveSubscription = subscriptionStatus === "active" || subscriptionStatus === "trialing";
+
+    if (!isOrgActive && orgStatus === "blocked") {
       return <PendingStatePopup message={"Your Organization Account has been blocked. Please contact support for further assistance."} />;
+    }
+    if (!isOrgActive) {
+      return <OrgUnderReviewScreen />;
+    }
+    if (isOrgActive && orgProfile != null && !hasActiveSubscription) {
+      return (
+        <OrgSubscriptionRequiredScreen
+          onProceedToPayment={options.onProceedToSubscription}
+        />
+      );
     }
     switch (currentPage) {
       case "Dashboard":

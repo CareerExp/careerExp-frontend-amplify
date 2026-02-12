@@ -61,6 +61,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType 
         },
         { name: "Users", icon: <PeopleAltIcon />, route: "/users" },
         { name: "Counsellors", icon: <PsychologyIcon />, route: "/creator" },
+        { name: "ESP & EI User", icon: <BusinessCenterIcon />, route: "/esp-ei-users" },
         { name: "Records", icon: <AssessmentIcon />, route: "/records" },
         { name: "School Directory", icon: <SchoolIcon />, route: "/schoolcontactinfo" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
@@ -100,7 +101,11 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType 
             { name: "Dashboard", icon: <DashboardIcon />, route: "/organizationdashboard" },
             { name: "About Us", icon: <InfoIcon />, route: "/aboutus" },
             { name: "My Counsellors", icon: <PsychologyIcon />, route: "/mycounsellors" },
+            { name: "My Announcements", icon: <CampaignIcon />, route: "/myannouncements" },
             { name: "My Events", icon: <EventIcon />, route: "/myevents" },
+            { name: "My Services", icon: <BusinessCenterIcon />, route: "/myservices" },
+            { name: "Messages", icon: <MessageIcon />, route: "/messages" },
+            { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
             { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
           ];
         }

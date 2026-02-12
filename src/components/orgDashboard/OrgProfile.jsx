@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Box } from "@mui/material";
 import { notify } from "../../redux/slices/alertSlice";
 import {
@@ -54,6 +55,8 @@ const businessEntityToOrgPayload = (businessEntity, existingProfile) => {
 
 const OrgProfile = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const userId = useSelector(selectUserId);
   const userData = useSelector(selectUserProfile);
   const orgProfile = useSelector(selectOrganizationProfile);
@@ -61,6 +64,13 @@ const OrgProfile = () => {
   const token = useSelector(selectToken);
 
   const [tabValue, setTabValue] = useState(0);
+
+  useEffect(() => {
+    if (location.state?.openSubscriptionTab) {
+      setTabValue(0);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state?.openSubscriptionTab, location.pathname, navigate]);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isButtonLoading2, setIsButtonLoading2] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

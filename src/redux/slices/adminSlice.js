@@ -6,6 +6,7 @@ import { config } from "../../config/config";
 const initialState = {
   users: [],
   creators: [],
+  organizations: null,
   generalData: {},
 };
 
@@ -38,6 +39,26 @@ export const getAllCreators = createAsyncThunk(
     });
 
     return FetchApi.fetch(`${config.api}/api/admin/all-creators-data?${queryParams}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+);
+
+export const getAllOrganizations = createAsyncThunk(
+  "admin/getAllOrganizations",
+  async ({ token, organizationType, search = "", page = 1, limit = 10 }) => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (organizationType) queryParams.set("organizationType", organizationType);
+    if (search) queryParams.set("search", search);
+
+    return FetchApi.fetch(`${config.api}/api/admin/all-organizations?${queryParams}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -124,6 +145,10 @@ const adminSlice = createSlice({
     builder.addCase(getAllCreators.fulfilled, (state, action) => {
       state.creators = action.payload;
     });
+    builder.addCase(getAllOrganizations.fulfilled, (state, action) => {
+      state.organizations = action.payload;
+    });
+
     builder.addCase(getGeneralUserData.fulfilled, (state, action) => {
       state.generalData = action.payload.data;
     });
@@ -151,12 +176,22 @@ const adminSlice = createSlice({
           return creator;
         });
       }
+
+      if (state.organizations && state.organizations.organizations) {
+        state.organizations.organizations = state.organizations.organizations.map((org) => {
+          if (org.userId === userId || org.userId?._id === userId) {
+            return { ...org, status: user.status };
+          }
+          return org;
+        });
+      }
     });
   },
 });
 
 export const selectUsersData = (state) => state.admin.users;
 export const selectCreatorsData = (state) => state.admin.creators;
+export const selectOrganizationsData = (state) => state.admin.organizations;
 export const selectGeneralData = (state) => state.admin.generalData;
 
 export default adminSlice.reducer;
