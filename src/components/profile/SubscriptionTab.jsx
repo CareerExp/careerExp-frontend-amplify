@@ -4,9 +4,11 @@ import {
   Typography,
   Button,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Check from "@mui/icons-material/Check";
+import { useDispatch, useSelector } from "react-redux";
 import { fonts } from "../../utility/fonts";
 import {
   sub1Icon,
@@ -17,6 +19,15 @@ import {
   sub6Icon,
   sub7Icon,
 } from "../../assets/assest";
+import { selectToken } from "../../redux/slices/authSlice.js";
+import { selectUserProfile } from "../../redux/slices/profileSlice.js";
+import { selectOrganizationProfile } from "../../redux/slices/organizationSlice.js";
+import {
+  createSubscriptionCheckoutSession,
+  selectSubscriptionLoading,
+  selectSubscriptionError,
+} from "../../redux/slices/subscriptionSlice.js";
+import { notify } from "../../redux/slices/alertSlice.js";
 
 const gradientBtn = {
   background: "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
@@ -50,9 +61,54 @@ const whatYouGetItems = [
 /**
  * Organization Profile – Subscription tab.
  * Left: What You Get (Figma 951-72872). Right: Available Plans with dynamic selection (Figma 951-73082).
+ * "Proceed to Payment" / "Renew Subscription" starts Stripe Checkout for organization subscription.
  */
-const SubscriptionTab = ({ onRenewSubscription }) => {
+const SubscriptionTab = () => {
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const userData = useSelector(selectUserProfile);
+  const orgProfile = useSelector(selectOrganizationProfile);
+  const loading = useSelector(selectSubscriptionLoading);
+  const subscriptionError = useSelector(selectSubscriptionError);
+
   const [selectedPlan, setSelectedPlan] = useState("monthly"); // 'annual' | 'monthly'
+
+  const organizationId = userData?.organization?.organizationId;
+  const organizationType =
+    userData?.organization?.organizationType || orgProfile?.organizationType;
+  const isValidType = organizationType === "ESP" || organizationType === "HEI";
+  const canProceed = organizationId && isValidType && token;
+
+  const handleProceedToPayment = async () => {
+    if (!canProceed) return;
+    try {
+      const result = await dispatch(
+        createSubscriptionCheckoutSession({
+          organizationId,
+          organizationType,
+          token,
+        })
+      ).unwrap();
+      const checkoutUrl = result?.url ?? result?.data?.url;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        dispatch(
+          notify({
+            type: "error",
+            message: "Could not start checkout. Please try again.",
+          })
+        );
+      }
+    } catch (err) {
+      dispatch(
+        notify({
+          type: "error",
+          message: err || "Could not start checkout. Please try again.",
+        })
+      );
+    }
+  };
 
   return (
     <Box sx={{ py: 3 }}>
@@ -306,13 +362,42 @@ const SubscriptionTab = ({ onRenewSubscription }) => {
         </Grid>
       </Grid>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 4 }}>
+        {subscriptionError && (
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontSize: "14px",
+              color: "#d32f2f",
+              mb: 1,
+            }}
+          >
+            {subscriptionError}
+          </Typography>
+        )}
+        {!canProceed && !loading && (
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontSize: "14px",
+              color: "#667085",
+              mb: 1,
+            }}
+          >
+            Loading organization details…
+          </Typography>
+        )}
         <Button
           variant="contained"
-          onClick={onRenewSubscription}
+          onClick={handleProceedToPayment}
+          disabled={!canProceed || loading}
           sx={gradientBtn}
         >
-          Renew Subscription
+          {loading ? (
+            <CircularProgress color="inherit" size={24} />
+          ) : (
+            "Proceed to Payment"
+          )}
         </Button>
       </Box>
     </Box>

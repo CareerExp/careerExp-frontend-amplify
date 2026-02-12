@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CelebrationIcon from "@mui/icons-material/Celebration";
+import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { fonts } from "../utility/fonts.js";
+import { selectToken } from "../redux/slices/authSlice.js";
+import { selectUserProfile } from "../redux/slices/profileSlice.js";
+import { selectOrganizationProfile } from "../redux/slices/organizationSlice.js";
+import {
+  createSubscriptionCheckoutSession,
+} from "../redux/slices/subscriptionSlice.js";
+import { notify } from "../redux/slices/alertSlice.js";
 
 // Figma 951-73126: colors and theme
 const BG = "#F8F8FC";
@@ -31,14 +40,56 @@ const whatYouGetItems = [
 
 /**
  * Full-page screen when org is approved but subscription is not active/trialing.
- * Matches Figma 951-73126: approval banner + Choose Your Plan card. "Proceed to Payment" opens Profile > Subscription.
+ * "Proceed to Payment" starts Stripe Checkout and redirects to the checkout page.
  */
 const OrgSubscriptionRequiredScreen = ({ onProceedToPayment }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const userData = useSelector(selectUserProfile);
+  const orgProfile = useSelector(selectOrganizationProfile);
+  const [loading, setLoading] = useState(false);
 
-  const handleProceed = () => {
-    if (onProceedToPayment) {
+  const organizationId = userData?.organization?.organizationId;
+  const organizationType =
+    userData?.organization?.organizationType || orgProfile?.organizationType;
+  const isValidType = organizationType === "ESP" || organizationType === "HEI";
+  const canProceed = organizationId && isValidType && token;
+
+  const handleProceed = async () => {
+    if (canProceed) {
+      try {
+        setLoading(true);
+        const result = await dispatch(
+          createSubscriptionCheckoutSession({
+            organizationId,
+            organizationType,
+            token,
+          })
+        ).unwrap();
+        const checkoutUrl = result?.url ?? result?.data?.url;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        } else {
+          dispatch(
+            notify({
+              type: "error",
+              message: "Could not start checkout. Please try again.",
+            })
+          );
+        }
+      } catch (err) {
+        dispatch(
+          notify({
+            type: "error",
+            message: err || "Could not start checkout. Please try again.",
+          })
+        );
+      } finally {
+        setLoading(false);
+      }
+    } else if (onProceedToPayment) {
       onProceedToPayment();
     } else {
       navigate(location.pathname, { state: { openSubscriptionTab: true }, replace: true });
@@ -243,11 +294,12 @@ const OrgSubscriptionRequiredScreen = ({ onProceedToPayment }) => {
             </Box>
           </Box>
 
-          {/* Proceed to Payment */}
+          {/* Proceed to Payment – redirects to Stripe Checkout */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             <Box
               component="button"
               onClick={handleProceed}
+              disabled={loading}
               sx={{
                 fontFamily: fonts.poppins,
                 fontWeight: 700,
@@ -258,11 +310,16 @@ const OrgSubscriptionRequiredScreen = ({ onProceedToPayment }) => {
                 borderRadius: "12px",
                 px: 4,
                 py: 1.5,
-                cursor: "pointer",
-                "&:hover": { opacity: 0.95 },
+                cursor: loading ? "wait" : "pointer",
+                "&:hover": { opacity: loading ? 1 : 0.95 },
+                "&:disabled": { opacity: 0.8 },
               }}
             >
-              Proceed to Payment
+              {loading ? (
+                <CircularProgress size={24} sx={{ color: "#fff" }} />
+              ) : (
+                "Proceed to Payment"
+              )}
             </Box>
           </Box>
         </Box>

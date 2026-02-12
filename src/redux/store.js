@@ -35,6 +35,7 @@ import userHistorySlice from "./slices/userHistory.js";
 import userSlice from "./slices/userSlice.js";
 import zylaSlice from "./slices/zylaSlice.js";
 import organizationSlice from "./slices/organizationSlice.js";
+import subscriptionSlice from "./slices/subscriptionSlice.js";
 import announcementSlice from "./slices/announcementSlice.js";
 import eventSlice from "./slices/eventSlice.js";
 import serviceSlice from "./slices/serviceSlice.js";
@@ -72,6 +73,7 @@ const rootReducer = combineReducers({
   payment: paymentSlice,
   careerPlanning: careerPlanningSlice,
   organization: organizationSlice,
+  subscription: subscriptionSlice,
   announcement: announcementSlice,
   event: eventSlice,
   service: serviceSlice,
