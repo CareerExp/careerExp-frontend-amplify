@@ -32,11 +32,13 @@ const OrgProfileTabs = ({ tabValue, onChange }) => {
         sx: { backgroundColor: indicatorColor, height: 3, borderRadius: 2 },
       }}
       sx={{
+        width: "100%",
         fontFamily: fonts.poppins,
         fontWeight: 300,
         minHeight: 48,
         ".MuiTabs-flexContainer": {
           justifyContent: "center",
+          width: "100%",
         },
         borderBottom: "1px solid #e0e0e0",
       }}

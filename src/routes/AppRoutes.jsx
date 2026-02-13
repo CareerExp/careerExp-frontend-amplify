@@ -87,6 +87,9 @@ const SubscriptionSuccess = React.lazy(
 const SubscriptionCancel = React.lazy(
   () => import("../pages/SubscriptionCancelPage.jsx")
 );
+const BillingReturn = React.lazy(
+  () => import("../pages/BillingReturnPage.jsx")
+);
 
 const ResumeDashboardPage = React.lazy(
   () => import("../components/resumeBuilder/ResumeDashboard.jsx")
@@ -397,6 +400,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <SubscriptionCancel />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/billing/return"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <BillingReturn />
           </Suspense>
         }
       />
