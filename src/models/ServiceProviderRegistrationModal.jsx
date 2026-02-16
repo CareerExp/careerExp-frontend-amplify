@@ -27,9 +27,11 @@ import {
 
 import { State } from "country-state-city";
 import AddLinkModal from "./AddLinkModal";
+import OrgRegistrationSuccessModal from "./OrgRegistrationSuccessModal";
 
 const ServiceProviderRegistrationModal = ({ open, onClose }) => {
   const dispatchToRedux = useDispatch();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -200,13 +202,7 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
       setIsButtonLoading(false);
 
       if (signup.fulfilled.match(resultAction)) {
-        dispatchToRedux(
-          notify({
-            type: "success",
-            message: resultAction.payload.message || "Registration successful!",
-          })
-        );
-        onClose(); // Close modal on success
+        setShowSuccessModal(true);
       } else if (signup.rejected.match(resultAction)) {
         const error = resultAction.payload || resultAction.error;
         dispatchToRedux(
@@ -273,7 +269,15 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog
+    <>
+      <OrgRegistrationSuccessModal
+        open={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          onClose();
+        }}
+      />
+      <Dialog
       open={open}
       onClose={onClose}
       maxWidth="md"
@@ -951,6 +955,7 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
         </Box>
       </Stack>
     </Dialog>
+    </>
   );
 };
 

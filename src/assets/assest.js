@@ -184,6 +184,9 @@ import announce1 from "./announcements/announce1.png";
 import announce2 from "./announcements/announce2.png";
 import announce3 from "./announcements/announce3.png";
 import announce4 from "./announcements/announce4.png";
+import announcementsPlaceholder from "./announcements/announcements.jpg";
+import eventsPlaceholder from "./announcements/EventsPlaceholder.svg";
+import servicesPlaceholder from "./announcements/ServicesPlaceholder.svg";
 
 export {
   PageNotFound,
@@ -370,4 +373,7 @@ export {
   announce2,
   announce3,
   announce4,
+  announcementsPlaceholder,
+  eventsPlaceholder,
+  servicesPlaceholder,
 };

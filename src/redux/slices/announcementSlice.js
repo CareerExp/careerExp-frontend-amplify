@@ -103,6 +103,43 @@ export const deleteAnnouncement = createAsyncThunk(
   }
 );
 
+/** Public: get announcement by id for detail page. GET /api/announcements/:id */
+export const getAnnouncementById = createAsyncThunk(
+  "announcement/getById",
+  async (id) => {
+    const response = await FetchApi.fetch(`${config.api}/api/announcements/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.success) {
+      throw new Error(response.message || "Failed to fetch announcement");
+    }
+    return response;
+  }
+);
+
+/** Register CTA click/submission. POST /api/announcements/:id/cta. Auth required. */
+export const registerAnnouncementCta = createAsyncThunk(
+  "announcement/registerCta",
+  async ({ id, actionType = "CLICK", token }, thunkAPI) => {
+    const response = await FetchApi.fetch(
+      `${config.api}/api/announcements/${id}/cta`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ actionType }),
+      }
+    );
+    if (!response.success) {
+      return thunkAPI.rejectWithValue({ error: response.message || "Failed to record CTA" });
+    }
+    return response;
+  }
+);
+
 const announcementSlice = createSlice({
   name: "announcement",
   initialState,
@@ -156,7 +193,11 @@ const announcementSlice = createSlice({
       .addCase(deleteAnnouncement.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to delete announcement";
-      });
+      })
+      .addCase(getAnnouncementById.fulfilled, () => {})
+      .addCase(getAnnouncementById.rejected, () => {})
+      .addCase(registerAnnouncementCta.fulfilled, () => {})
+      .addCase(registerAnnouncementCta.rejected, () => {});
   },
 });
 

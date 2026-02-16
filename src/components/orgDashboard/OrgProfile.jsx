@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Container, Box } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Box, Typography } from "@mui/material";
 import { notify } from "../../redux/slices/alertSlice";
 import {
   selectAuthenticated,
@@ -12,7 +13,6 @@ import {
   selectUserProfile,
   updatePassword,
   updateUserProfile,
-  uploadProfilePicture,
 } from "../../redux/slices/profileSlice";
 import {
   getMyOrganizationProfile,
@@ -21,12 +21,12 @@ import {
 } from "../../redux/slices/organizationSlice";
 import { convertUTCDateToLocalDate } from "../../utility/convertTimeToUTC";
 import { checkPassStrength } from "../../utility/validate";
-import ProfileAvatar from "../profile/ProfileAvatar";
 import OrgPersonalInfoForm from "./OrgPersonalInfoForm";
 import PasswordForm from "../profile/PasswordForm";
 import SubscriptionTab from "../profile/SubscriptionTab";
 import SharedContentVisibilityTab from "../profile/SharedContentVisibilityTab";
 import OrgProfileTabs from "./OrgProfileTabs";
+import { fonts } from "../../utility/fonts";
 
 // Map organization profile API ↔ Business Entity form fields
 const orgProfileToBusinessEntity = (profile) => {
@@ -54,6 +54,8 @@ const businessEntityToOrgPayload = (businessEntity, existingProfile) => {
 
 const OrgProfile = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const userId = useSelector(selectUserId);
   const userData = useSelector(selectUserProfile);
   const orgProfile = useSelector(selectOrganizationProfile);
@@ -61,10 +63,16 @@ const OrgProfile = () => {
   const token = useSelector(selectToken);
 
   const [tabValue, setTabValue] = useState(0);
+
+  useEffect(() => {
+    if (location.state?.openSubscriptionTab) {
+      setTabValue(0);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state?.openSubscriptionTab, location.pathname, navigate]);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isButtonLoading2, setIsButtonLoading2] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [imageUploadingLoader, setImageUploadingLoader] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -240,24 +248,6 @@ const OrgProfile = () => {
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
-    setImageUploadingLoader(true);
-    const data = new FormData();
-    data.append("file", selectedFile);
-    dispatch(
-      uploadProfilePicture({ formData: data, userId: userData?._id, token })
-    )
-      .then(() => {
-        dispatch(notify({ type: "success", message: "Profile picture uploaded successfully" }));
-      })
-      .catch(() => {
-        dispatch(notify({ type: "error", message: "Failed to upload profile picture" }));
-      })
-      .finally(() => setImageUploadingLoader(false));
-  };
-
   const renderTabContent = () => {
     switch (tabValue) {
       case 0:
@@ -293,26 +283,40 @@ const OrgProfile = () => {
   };
 
   return (
-    <Container
-      maxWidth="lg"
-      sx={{
-        backgroundColor: "white",
-        borderRadius: "10px",
-        padding: "1rem",
-      }}
-    >
-      <ProfileAvatar
-        userData={userData}
-        imageUploadingLoader={imageUploadingLoader}
-        handleFileChange={handleFileChange}
-      />
+    <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, minHeight: "100%", width: "100%", maxWidth: "100%" }}>
+      {/* Internal header and avatar outside the white box – same style as My Announcements */}
+      <Typography
+        component="h1"
+        sx={{
+          fontFamily: fonts.sans,
+          fontWeight: 700,
+          fontSize: "26px",
+          color: "#000",
+          mb: 2,
+        }}
+      >
+        Profile
+      </Typography>
 
-      <OrgProfileTabs tabValue={tabValue} onChange={setTabValue} />
-
-      <Box mt={4} flex={1}>
-        {renderTabContent()}
+      {/* White box only for tabs section (tabs + tab content) – same card style as Announcements */}
+      <Box
+        sx={{
+          backgroundColor: "white",
+          borderRadius: "10px",
+          boxShadow: "0px 6px 24px 0px rgba(0,0,0,0.05)",
+          border: "1px solid #EAECF0",
+          overflow: "hidden",
+          mt: 3,
+        }}
+      >
+        <Box sx={{ p: { xs: 2, sm: 2 } }}>
+          <OrgProfileTabs tabValue={tabValue} onChange={setTabValue} />
+        </Box>
+        <Box sx={{ px: { xs: 2, sm: 3 }, py: 3, pt: 2 }}>
+          {renderTabContent()}
+        </Box>
       </Box>
-    </Container>
+    </Box>
   );
 };
 

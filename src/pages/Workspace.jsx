@@ -449,7 +449,12 @@ const Workspace = (props) => {
           >
             <Toolbar />
 
-            {userData && renderCurrentPage(currentPage, userData, orgProfile)}
+            {userData && renderCurrentPage(currentPage, userData, orgProfile, {
+              onProceedToSubscription: () => {
+                setCurrentPage("Profile");
+                navigate(".", { state: { openSubscriptionTab: true }, replace: true });
+              },
+            })}
           </Box>
         </>
       )}

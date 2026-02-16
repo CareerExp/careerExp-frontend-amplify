@@ -28,9 +28,11 @@ import {
 
 import { State } from "country-state-city";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import OrgRegistrationSuccessModal from "./OrgRegistrationSuccessModal";
 
 const EducationalInstitutionModal = ({ open, onClose }) => {
   const dispatchToRedux = useDispatch();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -256,13 +258,7 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
       setIsButtonLoading(false);
 
       if (signup.fulfilled.match(resultAction)) {
-        dispatchToRedux(
-          notify({
-            type: "success",
-            message: resultAction.payload.message || "Registration successful!",
-          })
-        );
-        onClose();
+        setShowSuccessModal(true);
       } else if (signup.rejected.match(resultAction)) {
         const error = resultAction.payload || resultAction.error;
         dispatchToRedux(
@@ -329,7 +325,15 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog
+    <>
+      <OrgRegistrationSuccessModal
+        open={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          onClose();
+        }}
+      />
+      <Dialog
       open={open}
       onClose={onClose}
       maxWidth="md"
@@ -1078,6 +1082,7 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
         </Box>
       </Stack>
     </Dialog>
+    </>
   );
 };
 

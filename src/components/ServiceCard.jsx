@@ -1,0 +1,465 @@
+import React, { useState } from "react";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Box, Rating, Typography } from "@mui/material";
+import { fonts } from "../utility/fonts.js";
+import { servicesPlaceholder } from "../assets/assest.js";
+import { registerServiceCta } from "../redux/slices/serviceSlice.js";
+import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
+import { notify } from "../redux/slices/alertSlice.js";
+
+const ACCENT = "#BC2876";
+const ACCENT_PURPLE = "#720361";
+
+// Service mode pill styles (Figma: Hybrid = cream/orange, In person = pink, Online = green)
+const SERVICE_MODE_STYLES = {
+  hybrid: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
+  HYBRID: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
+  "in person": { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  in_person: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  IN_PERSON: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  online: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
+  ONLINE: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
+};
+
+const ServiceCard = ({ service }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const isAuthenticated = useSelector(selectAuthenticated);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const stripHtml = (html) => {
+    if (!html || typeof html !== "string") return "";
+    return html
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  const title = service?.title || "";
+  const description = service?.description
+    ? stripHtml(service.description)
+    : "";
+  const hasCoverImage = service?.coverImage || service?.image;
+  const imageUrl = hasCoverImage
+    ? service.coverImage || service.image
+    : servicesPlaceholder;
+  const isPlaceholder = !hasCoverImage;
+  const id = service?._id;
+
+  const durationStr = service?.duration
+    ? `${service.duration.value ?? ""} ${(service.duration.unit || "min").toLowerCase()}`.trim()
+    : "";
+
+  const priceLabel =
+    service?.priceType === "FREE"
+      ? "Free"
+      : service?.priceType === "CUSTOM"
+        ? "Custom"
+        : service?.price != null
+          ? `${service.currency || "INR"} ${service.price}`
+          : null;
+
+  const rawMode = (service?.serviceMode || "Online").toString().toLowerCase().replace(/\s+/g, "_");
+  const modeStyle =
+    SERVICE_MODE_STYLES[rawMode] ??
+    SERVICE_MODE_STYLES[service?.serviceMode] ?? { bg: "#f5f5f5", textColor: "#717171", label: "Online" };
+
+  const providerName =
+    service?.organizationDetails?.organizationName ||
+    service?.organizationId?.organizationName ||
+    (service?.createdBy
+      ? [service.createdBy.firstName, service.createdBy.lastName].filter(Boolean).join(" ")
+      : "") ||
+    "—";
+  const providerLogo =
+    service?.organizationDetails?.logo ||
+    service?.organizationId?.logo ||
+    service?.createdBy?.profilePicture ||
+    null;
+
+  const averageRating = service?.averageRating != null ? Number(service.averageRating) : null;
+  const totalRatings = service?.totalRatings != null ? Number(service.totalRatings) : null;
+
+  const handleCardClick = () => {
+    if (id) navigate(`/explore/service/${id}`);
+  };
+
+  const handleCtaClick = async (e) => {
+    e.stopPropagation();
+    if (!id) return;
+    if (isAuthenticated && token) {
+      try {
+        await dispatch(
+          registerServiceCta({ id, actionType: "CLICK", token })
+        ).unwrap();
+        dispatch(notify({ type: "success", message: "Response recorded successfully." }));
+      } catch (err) {
+        dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
+      }
+    }
+    navigate(`/explore/service/${id}`);
+  };
+
+  const handleShare = (e) => {
+    e.stopPropagation();
+    const url = window.location.origin + (id ? `/explore/service/${id}` : window.location.pathname);
+    if (navigator.share) {
+      navigator.share({ title, text: description, url }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(url);
+      dispatch(notify({ type: "success", message: "Link copied" }));
+    }
+  };
+
+  const providerInitials = providerName !== "—"
+    ? providerName
+        .split(/\s+/)
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "—";
+
+  return (
+    <Box
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+      sx={{
+        borderRadius: "20px",
+        overflow: "hidden",
+        backgroundColor: "#ffffff",
+        cursor: "pointer",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        border: "1px solid #eeeeee",
+      }}
+    >
+      {/* Cover image with "Free" badge top-right */}
+      <Box
+        sx={{
+          position: "relative",
+          height: "200px",
+          flexShrink: 0,
+          overflow: "hidden",
+          backgroundColor: "#e8e8e8",
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            inset: "-40px",
+            backgroundImage: `url(${imageUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "blur(14px)",
+            transform: "scale(1.15)",
+          }}
+          aria-hidden
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.06)",
+            pointerEvents: "none",
+          }}
+          aria-hidden
+        />
+        <Box
+          component="img"
+          src={imageUrl}
+          alt=""
+          sx={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: isPlaceholder ? "cover" : "cover",
+            objectPosition: "center",
+          }}
+        />
+        {priceLabel && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+              px: 1.5,
+              py: 0.5,
+              borderRadius: "999px",
+              backgroundColor: "rgba(114, 3, 97, 0.85)",
+              color: "#ffffff",
+              fontFamily: fonts.sans,
+              fontSize: "0.8125rem",
+              fontWeight: 600,
+            }}
+          >
+            {priceLabel}
+          </Box>
+        )}
+      </Box>
+
+      {/* Meta row: duration (clock + text) left, share + bookmark right */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 16px 0",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <AccessTimeIcon sx={{ color: "#E65100", fontSize: "1.1rem" }} />
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontSize: "0.875rem",
+              color: "#737373",
+            }}
+          >
+            {durationStr || "—"}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Box
+            component="button"
+            type="button"
+            onClick={handleShare}
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              border: "1px solid #e0e0e0",
+              background: "#ffffff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+            aria-label="Share"
+          >
+            <ShareOutlinedIcon sx={{ color: "#717171", fontSize: "1.1rem" }} />
+          </Box>
+          <Box
+            component="button"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setBookmarked((b) => !b);
+            }}
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              border: "1px solid #e0e0e0",
+              background: "#ffffff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+            aria-label="Save"
+          >
+            <BookmarkBorderIcon
+              sx={{ color: bookmarked ? ACCENT : "#717171", fontSize: "1.1rem" }}
+            />
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Title */}
+      <Typography
+        sx={{
+          fontFamily: fonts.sans,
+          fontWeight: 700,
+          fontSize: "1.0625rem",
+          lineHeight: 1.35,
+          color: "#000000",
+          px: 2,
+          pt: 1,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
+      >
+        {title}
+      </Typography>
+
+      {/* Description – 3 lines */}
+      {description && (
+        <Typography
+          sx={{
+            fontFamily: fonts.sans,
+            fontSize: "0.875rem",
+            color: "#737373",
+            lineHeight: 1.45,
+            px: 2,
+            pt: 0.75,
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {description}
+        </Typography>
+      )}
+
+      {/* Provider + rating row */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 2,
+          pt: 1.25,
+          pb: 1.5,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
+          {providerLogo ? (
+            <Box
+              component="img"
+              src={providerLogo}
+              alt=""
+              sx={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                objectFit: "cover",
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                backgroundColor: "rgba(114, 3, 97, 0.12)",
+                color: ACCENT_PURPLE,
+                fontFamily: fonts.sans,
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              {providerInitials}
+            </Box>
+          )}
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontSize: "0.8125rem",
+              color: "#737373",
+              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            By{" "}
+            <Box
+              component="span"
+              sx={{ color: ACCENT, fontWeight: 700 }}
+            >
+              {providerName}
+            </Box>
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, flexShrink: 0 }}>
+          <Rating
+            value={averageRating ?? 0}
+            readOnly
+            precision={0.5}
+            size="small"
+            sx={{
+              "& .MuiRating-iconFilled": { color: "#FF8A00" },
+              "& .MuiRating-iconEmpty": { color: "#D0D5DD" },
+            }}
+          />
+          {totalRatings != null && totalRatings > 0 && (
+            <Typography
+              component="span"
+              sx={{ fontFamily: fonts.sans, fontSize: "0.75rem", color: "#737373" }}
+            >
+              ({totalRatings})
+            </Typography>
+          )}
+        </Box>
+      </Box>
+
+      {/* Footer: service mode pill + Enquire Now button */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          padding: "0 16px 16px",
+          mt: "auto",
+        }}
+      >
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            px: 1.5,
+            py: 0.75,
+            borderRadius: "999px",
+            backgroundColor: modeStyle.bg,
+            color: modeStyle.textColor,
+            fontFamily: fonts.sans,
+            fontSize: "0.8125rem",
+            fontWeight: 600,
+          }}
+        >
+          {modeStyle.label}
+        </Box>
+        <Box
+          component="button"
+          type="button"
+          onClick={handleCtaClick}
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            py: 1,
+            px: 1.5,
+            borderRadius: "999px",
+            border: "none",
+            background: ACCENT,
+            color: "#ffffff",
+            fontFamily: fonts.sans,
+            fontSize: "0.9375rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "none",
+            "&:hover": { opacity: 0.92 },
+          }}
+        >
+          Enquire Now
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default ServiceCard;

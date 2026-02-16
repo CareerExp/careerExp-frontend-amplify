@@ -54,6 +54,9 @@ const InvalidPages = React.lazy(() => import("../pages/InvalidPages"));
 const ExploreVideoPlay = React.lazy(() => import("../pages/ExploreVideoPlay"));
 const ArticleDetail = React.lazy(() => import("../pages/ArticleDetail.jsx"));
 const PodcastDetail = React.lazy(() => import("../pages/PodcastDetail.jsx"));
+const AnnouncementDetail = React.lazy(() => import("../pages/AnnouncementDetail.jsx"));
+const EventDetail = React.lazy(() => import("../pages/EventDetail.jsx"));
+const ServiceDetail = React.lazy(() => import("../pages/ServiceDetail.jsx"));
 const CreatorProfile = React.lazy(() => import("../pages/CreatorProfile.jsx"));
 
 const InterestProfiler = React.lazy(
@@ -80,6 +83,15 @@ const PaymentSuccess = React.lazy(
 );
 const PaymentCancel = React.lazy(
   () => import("../pages/PaymentCancelPage.jsx")
+);
+const SubscriptionSuccess = React.lazy(
+  () => import("../pages/SubscriptionSuccessPage.jsx")
+);
+const SubscriptionCancel = React.lazy(
+  () => import("../pages/SubscriptionCancelPage.jsx")
+);
+const BillingReturn = React.lazy(
+  () => import("../pages/BillingReturnPage.jsx")
 );
 
 const ResumeDashboardPage = React.lazy(
@@ -130,6 +142,30 @@ const AppRoutes = () => {
           element={
             <Suspense fallback={<InitialLoaders />}>
               <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/announcement/:announcementId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <AnnouncementDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/event/:eventId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <EventDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/service/:serviceId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <ServiceDetail />
             </Suspense>
           }
         />
@@ -375,6 +411,30 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <PaymentCancel />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/subscription-success"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <SubscriptionSuccess />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/subscription-cancelled"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <SubscriptionCancel />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/billing/return"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <BillingReturn />
           </Suspense>
         }
       />
