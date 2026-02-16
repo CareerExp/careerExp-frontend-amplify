@@ -11,6 +11,9 @@ const initialState = {
   trendingArticles: null,
   allPodcasts: null,
   trendingPodcasts: null,
+  allAnnouncements: null,
+  allEvents: null,
+  allServices: null,
 };
 
 export const getAllVideos = createAsyncThunk(
@@ -257,6 +260,102 @@ export const getTrendingPodcasts = createAsyncThunk(
   }
 );
 
+// Announcements: GET /api/explore/getallannouncements — page, limit, search, sortBy (recent | popular)
+export const getAllAnnouncements = createAsyncThunk(
+  "explore/getAllAnnouncements",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallannouncements?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Events: GET /api/explore/getallevents — page, limit, search, sortBy (recent | popular)
+export const getAllEvents = createAsyncThunk(
+  "explore/getAllEvents",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallevents?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Services: GET /api/explore/getallservices — page, limit, search, sortBy (recent | popular), providerType ("" | ESP | HEI)
+export const getAllServices = createAsyncThunk(
+  "explore/getAllServices",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+    providerType = "",
+  }) => {
+    try {
+      const params = { page, limit, search, sortBy };
+      if (providerType && providerType !== "all") {
+        params.providerType = providerType;
+      }
+      const query = new URLSearchParams(params).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallservices?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
 export const getMostViewedThumbnails = createAsyncThunk(
   "explore/getMostViewedThumbnails",
   async () => {
@@ -337,6 +436,15 @@ const exploreSlice = createSlice({
     builder.addCase(getTrendingPodcasts.fulfilled, (state, { payload }) => {
       state.trendingPodcasts = payload;
     });
+    builder.addCase(getAllAnnouncements.fulfilled, (state, { payload }) => {
+      state.allAnnouncements = payload;
+    });
+    builder.addCase(getAllEvents.fulfilled, (state, { payload }) => {
+      state.allEvents = payload;
+    });
+    builder.addCase(getAllServices.fulfilled, (state, { payload }) => {
+      state.allServices = payload;
+    });
     builder.addCase(getMostViewedThumbnails.fulfilled, (state, { payload }) => {
       state.mostViewedThumbnails = payload.thumbnails;
     });
@@ -361,5 +469,8 @@ export const selectTrendingArticles = (state) =>
 export const selectAllPodcasts = (state) => state.explore.allPodcasts;
 export const selectTrendingPodcasts = (state) =>
   state.explore.trendingPodcasts;
+export const selectAllAnnouncements = (state) => state.explore.allAnnouncements;
+export const selectAllEvents = (state) => state.explore.allEvents;
+export const selectAllServices = (state) => state.explore.allServices;
 export const { resetRelatedSearchVideos } = exploreSlice.actions;
 export default exploreSlice.reducer;

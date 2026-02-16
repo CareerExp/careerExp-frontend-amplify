@@ -103,6 +103,45 @@ export const deleteService = createAsyncThunk(
   }
 );
 
+/** Public: get service by id for detail page. GET /api/services/:id. No auth. */
+export const getServiceById = createAsyncThunk(
+  "service/getById",
+  async (id) => {
+    const response = await FetchApi.fetch(`${config.api}/api/services/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.success) {
+      throw new Error(response.message || "Failed to fetch service");
+    }
+    return response;
+  }
+);
+
+/** Register service CTA. POST /api/services/:id/cta. Auth required. */
+export const registerServiceCta = createAsyncThunk(
+  "service/registerCta",
+  async ({ id, actionType = "CLICK", token }, thunkAPI) => {
+    const response = await FetchApi.fetch(
+      `${config.api}/api/services/${id}/cta`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ actionType }),
+      }
+    );
+    if (!response.success) {
+      return thunkAPI.rejectWithValue({
+        error: response.message || "Failed to record CTA",
+      });
+    }
+    return response;
+  }
+);
+
 const serviceSlice = createSlice({
   name: "service",
   initialState,
@@ -156,7 +195,11 @@ const serviceSlice = createSlice({
       .addCase(deleteService.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to delete service";
-      });
+      })
+      .addCase(getServiceById.fulfilled, () => {})
+      .addCase(getServiceById.rejected, () => {})
+      .addCase(registerServiceCta.fulfilled, () => {})
+      .addCase(registerServiceCta.rejected, () => {});
   },
 });
 

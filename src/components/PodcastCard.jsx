@@ -8,7 +8,8 @@ const PodcastCard = ({ podcast }) => {
 
   const title = podcast?.title || "";
   // Use Spotify thumbnail from API when available, else fall back to thumbnail/image
-  const thumbnail = podcast?.spotifyThumbnailUrl || podcast?.thumbnail || podcast?.image || "";
+  const imageUrl =
+    podcast?.spotifyThumbnailUrl || podcast?.thumbnail || podcast?.image || "https://via.placeholder.com/400x225?text=Podcast";
   const averageRating = podcast?.averageRating ?? 0;
   const totalRatings = podcast?.totalRatings ?? 0;
   const totalViews = podcast?.totalViews ?? 0;
@@ -31,20 +32,51 @@ const PodcastCard = ({ podcast }) => {
       }}
       onClick={() => podcast?._id && navigate(`/podcast/${podcast._id}`)}
     >
-      <img
-        src={
-          thumbnail ||
-          "https://via.placeholder.com/400x225?text=Podcast"
-        }
-        alt=""
+      {/* Image: blurred same image as background, sharp image contained on top */}
+      <div
         style={{
+          position: "relative",
           width: "100%",
           aspectRatio: "1 / 1",
-          objectFit: "contain",
           borderRadius: "8px",
-          backgroundColor: "#f5f5f5",
+          overflow: "hidden",
+          backgroundColor: "#e8e8e8",
         }}
-      />
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: "-30px",
+            backgroundImage: `url(${imageUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "blur(14px)",
+            transform: "scale(1.15)",
+          }}
+          aria-hidden
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.12)",
+            pointerEvents: "none",
+          }}
+          aria-hidden
+        />
+        <img
+          src={imageUrl}
+          alt=""
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            objectPosition: "center",
+          }}
+        />
+      </div>
       <div
         style={{
           display: "flex",

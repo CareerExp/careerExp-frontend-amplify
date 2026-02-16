@@ -284,7 +284,7 @@ const SubscriptionTab = () => {
               }}
             >
               <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#667085" }}>
-                Next Billing Date
+                {cancelAtPeriodEnd ? "End date" : "Next Billing Date"}
               </Typography>
               <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", fontWeight: 600, color: "#101828" }}>
                 {nextBillingDate}
@@ -307,22 +307,24 @@ const SubscriptionTab = () => {
                 {billedWithLabel}
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              onClick={handleManageSubscription}
-              disabled={loading}
-              fullWidth
-              sx={{
-                ...gradientBtn,
-                mb: 1.5,
-              }}
-            >
-              {loading ? (
-                <CircularProgress color="inherit" size={24} />
-              ) : (
-                "Manage Subscription"
-              )}
-            </Button>
+            {!cancelAtPeriodEnd && (
+              <Button
+                variant="contained"
+                onClick={handleManageSubscription}
+                disabled={loading}
+                fullWidth
+                sx={{
+                  ...gradientBtn,
+                  mb: 1.5,
+                }}
+              >
+                {loading ? (
+                  <CircularProgress color="inherit" size={24} />
+                ) : (
+                  "Manage Subscription"
+                )}
+              </Button>
+            )}
             
             {cancelAtPeriodEnd && (
               <Button

@@ -103,6 +103,43 @@ export const deleteEvent = createAsyncThunk(
   }
 );
 
+/** Public: get event by id for detail page. GET /api/events/:id */
+export const getEventById = createAsyncThunk(
+  "event/getById",
+  async (id) => {
+    const response = await FetchApi.fetch(`${config.api}/api/events/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.success) {
+      throw new Error(response.message || "Failed to fetch event");
+    }
+    return response;
+  }
+);
+
+/** Register event CTA. POST /api/events/:id/cta. Auth required. */
+export const registerEventCta = createAsyncThunk(
+  "event/registerCta",
+  async ({ id, actionType = "CLICK", token }, thunkAPI) => {
+    const response = await FetchApi.fetch(
+      `${config.api}/api/events/${id}/cta`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ actionType }),
+      }
+    );
+    if (!response.success) {
+      return thunkAPI.rejectWithValue({ error: response.message || "Failed to record CTA" });
+    }
+    return response;
+  }
+);
+
 const eventSlice = createSlice({
   name: "event",
   initialState,
@@ -156,7 +193,11 @@ const eventSlice = createSlice({
       .addCase(deleteEvent.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to delete event";
-      });
+      })
+      .addCase(getEventById.fulfilled, () => {})
+      .addCase(getEventById.rejected, () => {})
+      .addCase(registerEventCta.fulfilled, () => {})
+      .addCase(registerEventCta.rejected, () => {});
   },
 });
 

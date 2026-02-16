@@ -31,6 +31,9 @@ import {
   getTrendingArticles,
   getAllPodcasts,
   getTrendingPodcasts,
+  getAllAnnouncements,
+  getAllEvents,
+  getAllServices,
   selectAllVideos,
   selectTrendingVideos,
   selectUserInterestsVideos,
@@ -39,6 +42,9 @@ import {
   selectTrendingArticles,
   selectAllPodcasts,
   selectTrendingPodcasts,
+  selectAllAnnouncements,
+  selectAllEvents,
+  selectAllServices,
   resetRelatedSearchVideos,
   getAllTags,
   selectAllTags,
@@ -49,6 +55,9 @@ import { fonts } from "../utility/fonts.js";
 import VideoSection from "../components/VideoSection.jsx";
 import ArticleSection from "../components/ArticleSection.jsx";
 import PodcastSection from "../components/PodcastSection.jsx";
+import AnnouncementSection from "../components/AnnouncementSection.jsx";
+import EventSection from "../components/EventSection.jsx";
+import ServiceSection from "../components/ServiceSection.jsx";
 import CloseIcon from "@mui/icons-material/Close";
 import InterestsModal from "../models/InterestsModal";
 import {
@@ -92,6 +101,9 @@ const Explore = () => {
   const trendingArticlesData = useSelector(selectTrendingArticles);
   const allPodcastsData = useSelector(selectAllPodcasts);
   const trendingPodcastsData = useSelector(selectTrendingPodcasts);
+  const allAnnouncementsData = useSelector(selectAllAnnouncements);
+  const allEventsData = useSelector(selectAllEvents);
+  const allServicesData = useSelector(selectAllServices);
   const userData = useSelector(selectUserProfile);
   const userId = useSelector(selectUserId);
   const allTags = useSelector(selectAllTags);
@@ -135,6 +147,23 @@ const Explore = () => {
   const [page3Podcasts, setPage3Podcasts] = useState(1);
   const [page1PodcastsLoading, setPage1PodcastsLoading] = useState(false);
   const [page3PodcastsLoading, setPage3PodcastsLoading] = useState(false);
+  // Announcements: single list, search + sortBy only
+  const [page1Announcements, setPage1Announcements] = useState(1);
+  const [page1AnnouncementsLoading, setPage1AnnouncementsLoading] = useState(false);
+  const [selectedSortByAnnouncements, setSelectedSortByAnnouncements] = useState("recent");
+  const [appliedSortByAnnouncements, setAppliedSortByAnnouncements] = useState("recent");
+  // Events: single list, search + sortBy only
+  const [page1Events, setPage1Events] = useState(1);
+  const [page1EventsLoading, setPage1EventsLoading] = useState(false);
+  const [selectedSortByEvents, setSelectedSortByEvents] = useState("recent");
+  const [appliedSortByEvents, setAppliedSortByEvents] = useState("recent");
+  // Services: single list, search + sortBy + providerType
+  const [page1Services, setPage1Services] = useState(1);
+  const [page1ServicesLoading, setPage1ServicesLoading] = useState(false);
+  const [selectedSortByServices, setSelectedSortByServices] = useState("recent");
+  const [appliedSortByServices, setAppliedSortByServices] = useState("recent");
+  const [selectedProviderType, setSelectedProviderType] = useState("all");
+  const [appliedProviderType, setAppliedProviderType] = useState("all");
 
   useEffect(() => {
     if (isAuthenticated && !userData) {
@@ -323,14 +352,94 @@ const Explore = () => {
     fetch();
   }, [activeTab, page3Podcasts]);
 
+  // Announcements: single list with search + sortBy
+  useEffect(() => {
+    if (activeTab !== "announcements") return;
+    const fetch = async () => {
+      try {
+        setPage1AnnouncementsLoading(true);
+        await dispatchToRedux(
+          getAllAnnouncements({
+            page: page1Announcements,
+            search: appliedSearch,
+            sortBy: appliedSortByAnnouncements,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      } finally {
+        setPage1AnnouncementsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Announcements, appliedSearch, appliedSortByAnnouncements]);
+
+  // Events: single list with search + sortBy
+  useEffect(() => {
+    if (activeTab !== "events") return;
+    const fetch = async () => {
+      try {
+        setPage1EventsLoading(true);
+        await dispatchToRedux(
+          getAllEvents({
+            page: page1Events,
+            search: appliedSearch,
+            sortBy: appliedSortByEvents,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setPage1EventsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Events, appliedSearch, appliedSortByEvents]);
+
+  // Services: single list with search + sortBy + providerType
+  useEffect(() => {
+    if (activeTab !== "services") return;
+    const fetch = async () => {
+      try {
+        setPage1ServicesLoading(true);
+        await dispatchToRedux(
+          getAllServices({
+            page: page1Services,
+            search: appliedSearch,
+            sortBy: appliedSortByServices,
+            providerType: appliedProviderType === "all" ? "" : appliedProviderType,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setPage1ServicesLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Services, appliedSearch, appliedSortByServices, appliedProviderType]);
+
   const handleApply = useCallback(() => {
     setAppliedSearch(searchValue);
     setAppliedCategory(selectedCatagory);
     setAppliedTags([...selectedTags]);
+    if (activeTab === "announcements") {
+      setAppliedSortByAnnouncements(selectedSortByAnnouncements);
+      setPage1Announcements(1);
+    }
+    if (activeTab === "events") {
+      setAppliedSortByEvents(selectedSortByEvents);
+      setPage1Events(1);
+    }
+    if (activeTab === "services") {
+      setAppliedSortByServices(selectedSortByServices);
+      setAppliedProviderType(selectedProviderType);
+      setPage1Services(1);
+    }
     setPage1(1);
     setPage1Articles(1);
     setPage1Podcasts(1);
-  }, [searchValue, selectedCatagory, selectedTags]);
+  }, [searchValue, selectedCatagory, selectedTags, activeTab, selectedSortByAnnouncements, selectedSortByEvents, selectedSortByServices, selectedProviderType]);
 
   const handleReset = useCallback(() => {
     setSearchValue("");
@@ -342,8 +451,19 @@ const Explore = () => {
     setPage1(1);
     setPage1Articles(1);
     setPage1Podcasts(1);
+    setPage1Announcements(1);
+    setPage1Events(1);
     setPage3Articles(1);
     setPage3Podcasts(1);
+    setSelectedSortByAnnouncements("recent");
+    setAppliedSortByAnnouncements("recent");
+    setSelectedSortByEvents("recent");
+    setAppliedSortByEvents("recent");
+    setPage1Services(1);
+    setSelectedSortByServices("recent");
+    setAppliedSortByServices("recent");
+    setSelectedProviderType("all");
+    setAppliedProviderType("all");
     dispatchToRedux(resetState());
     dispatchToRedux(resetRelatedSearchVideos());
   }, [dispatchToRedux]);
@@ -375,6 +495,15 @@ const Explore = () => {
   }, []);
   const handlePageChange3Podcasts = useCallback((event, value) => {
     setPage3Podcasts(value);
+  }, []);
+  const handlePageChange1Announcements = useCallback((event, value) => {
+    setPage1Announcements(value);
+  }, []);
+  const handlePageChange1Events = useCallback((event, value) => {
+    setPage1Events(value);
+  }, []);
+  const handlePageChange1Services = useCallback((event, value) => {
+    setPage1Services(value);
   }, []);
 
   useEffect(() => {}, [
@@ -484,85 +613,182 @@ const Explore = () => {
               />
             </Box>
                  <Box sx={{ display: "flex", alignItems: "center", gap: "12px",}}>
-            {/* Categories dropdown */}
-            <FormControl
-              sx={{
-                minWidth: { xs: "140px", sm: "180px" },
-                height: "46px",
-                "& .MuiOutlinedInput-root": {
-                  height: "100%",
-                  borderRadius: "90px",
-                  backgroundColor: "#F6F6F6",
-                  fontSize: "0.9375rem",
-                  fontFamily: fonts.sans,
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#dddddd",
-                },
-              }}
-              size="small"
-            >
-              <InputLabel id="explore-category-label">Categories</InputLabel>
-              <Select
-                labelId="explore-category-label"
-                id="explore-category-select"
-                value={selectedCatagory || ""}
-                label="Categories"
-                onChange={(e) => setSelectedCatagory(e.target.value || "")}
-                IconComponent={KeyboardArrowDownIcon}
+            {/* Announcements/Events/Services: SortBy */}
+            {(activeTab === "announcements" || activeTab === "events" || activeTab === "services") && (
+              <FormControl
                 sx={{
-                  "& .MuiSelect-icon": {
-                    color: "#720361",
+                  minWidth: { xs: "140px", sm: "180px" },
+                  height: "46px",
+                  "& .MuiOutlinedInput-root": {
+                    height: "100%",
+                    borderRadius: "90px",
+                    backgroundColor: "#F6F6F6",
+                    fontSize: "0.9375rem",
+                    fontFamily: fonts.sans,
                   },
                 }}
+                size="small"
               >
-                <MenuItem value="">
-                  <em>All</em>
-                </MenuItem>
-                {categories.map((cat) => (
-                  <MenuItem key={cat} value={cat} sx={{ fontFamily: fonts.sans }}>
-                    {cat}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* Tags */}
-            <Autocomplete
-              multiple
-              options={formattedTags}
-              getOptionLabel={(option) => option.label}
-              value={formattedTags.filter((tag) =>
-                selectedTags.includes(tag.value)
-              )}
-              onChange={(event, newValue) => {
-                setSelectedTags(newValue.map((tag) => tag.value));
-              }}
-              filterSelectedOptions
-              disableCloseOnSelect
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  placeholder="Tags"
-                  size="small"
+                <Select
+                  id="explore-sortby-select"
+                  value={
+                    activeTab === "announcements"
+                      ? selectedSortByAnnouncements
+                      : activeTab === "events"
+                        ? selectedSortByEvents
+                        : selectedSortByServices
+                  }
+                  displayEmpty
+                  renderValue={(v) => (v === "popular" ? "Most popular" : "Most recent")}
+                  onChange={(e) => {
+                    if (activeTab === "announcements") setSelectedSortByAnnouncements(e.target.value);
+                    else if (activeTab === "events") setSelectedSortByEvents(e.target.value);
+                    else setSelectedSortByServices(e.target.value);
+                  }}
+                  IconComponent={KeyboardArrowDownIcon}
                   sx={{
-                    width: { xs: "140px", sm: "169px" },
-                    "& .MuiOutlinedInput-root": {
-                      height: "46px",
-                      borderRadius: "90px",
-                      backgroundColor: "#F6F6F6",
-                      padding: "0 35px 0 15px",
-                      fontFamily: fonts.sans,
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#dddddd",
+                    "& .MuiSelect-icon": {
+                      color: "#720361",
                     },
                   }}
-                />
-              )}
-              renderTags={() => null}
-            />
+                >
+                  <MenuItem value="recent" sx={{ fontFamily: fonts.sans }}>
+                    Most recent
+                  </MenuItem>
+                  <MenuItem value="popular" sx={{ fontFamily: fonts.sans }}>
+                    Most popular
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Services only: Provider type dropdown */}
+            {activeTab === "services" && (
+              <FormControl
+                sx={{
+                  minWidth: { xs: "140px", sm: "180px" },
+                  height: "46px",
+                  "& .MuiOutlinedInput-root": {
+                    height: "100%",
+                    borderRadius: "90px",
+                    backgroundColor: "#F6F6F6",
+                    fontSize: "0.9375rem",
+                    fontFamily: fonts.sans,
+                  },
+                }}
+                size="small"
+              >
+                <Select
+                  id="explore-provider-type-select"
+                  value={selectedProviderType}
+                  displayEmpty
+                  renderValue={(v) =>
+                    v === "all" ? "All services" : v === "ESP" ? "ESP" : v === "HEI" ? "HEI" : "All services"
+                  }
+                  onChange={(e) => setSelectedProviderType(e.target.value)}
+                  IconComponent={KeyboardArrowDownIcon}
+                  sx={{
+                    "& .MuiSelect-icon": {
+                      color: "#720361",
+                    },
+                  }}
+                >
+                  <MenuItem value="all" sx={{ fontFamily: fonts.sans }}>
+                    All services
+                  </MenuItem>
+                  <MenuItem value="ESP" sx={{ fontFamily: fonts.sans }}>
+                    ESP
+                  </MenuItem>
+                  <MenuItem value="HEI" sx={{ fontFamily: fonts.sans }}>
+                    HEI
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Categories dropdown (hidden for announcements/events/services) */}
+            {activeTab !== "announcements" && activeTab !== "events" && activeTab !== "services" && (
+              <FormControl
+                sx={{
+                  minWidth: { xs: "140px", sm: "180px" },
+                  height: "46px",
+                  "& .MuiOutlinedInput-root": {
+                    height: "100%",
+                    borderRadius: "90px",
+                    backgroundColor: "#F6F6F6",
+                    fontSize: "0.9375rem",
+                    fontFamily: fonts.sans,
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dddddd",
+                  },
+                }}
+                size="small"
+              >
+                <InputLabel id="explore-category-label">Categories</InputLabel>
+                <Select
+                  labelId="explore-category-label"
+                  id="explore-category-select"
+                  value={selectedCatagory || ""}
+                  label="Categories"
+                  onChange={(e) => setSelectedCatagory(e.target.value || "")}
+                  IconComponent={KeyboardArrowDownIcon}
+                  sx={{
+                    "& .MuiSelect-icon": {
+                      color: "#720361",
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                </MenuItem>
+                  {categories.map((cat) => (
+                    <MenuItem key={cat} value={cat} sx={{ fontFamily: fonts.sans }}>
+                      {cat}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Tags (hidden for announcements/events/services) */}
+            {activeTab !== "announcements" && activeTab !== "events" && activeTab !== "services" && (
+              <Autocomplete
+                multiple
+                options={formattedTags}
+                getOptionLabel={(option) => option.label}
+                value={formattedTags.filter((tag) =>
+                  selectedTags.includes(tag.value)
+                )}
+                onChange={(event, newValue) => {
+                  setSelectedTags(newValue.map((tag) => tag.value));
+                }}
+                filterSelectedOptions
+                disableCloseOnSelect
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Tags"
+                    size="small"
+                    sx={{
+                      width: { xs: "140px", sm: "169px" },
+                      "& .MuiOutlinedInput-root": {
+                        height: "46px",
+                        borderRadius: "90px",
+                        backgroundColor: "#F6F6F6",
+                        padding: "0 35px 0 15px",
+                        fontFamily: fonts.sans,
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#dddddd",
+                      },
+                    }}
+                  />
+                )}
+                renderTags={() => null}
+              />
+            )}
 
             {/* Apply & Reset */}
             <Box sx={{ display: "flex", gap: "10px", flexShrink: 0 }}>
@@ -600,8 +826,11 @@ const Explore = () => {
             </Box>
           </Box>
 
-          {/* Show Selected Tags */}
-          {selectedTags?.length > 0 && (
+          {/* Show Selected Tags (hidden for announcements/events/services) */}
+          {selectedTags?.length > 0 &&
+            activeTab !== "announcements" &&
+            activeTab !== "events" &&
+            activeTab !== "services" && (
             <Box
               sx={{
                 display: "flex",
@@ -639,7 +868,6 @@ const Explore = () => {
             </Box>
           )}
         </Box>
-        
 
         {/* Row 3: Tab content */}
         <div
@@ -765,8 +993,62 @@ const Explore = () => {
           )}
         </div>
 
+        {/* Announcements tab content */}
+        <div
+          id="explore-panel-announcements"
+          role="tabpanel"
+          aria-labelledby="explore-tab-announcements"
+          hidden={activeTab !== "announcements"}
+        >
+          {activeTab === "announcements" && (
+            <AnnouncementSection
+              announcements={allAnnouncementsData?.announcements || []}
+              isLoading={page1AnnouncementsLoading}
+              currentPage={page1Announcements}
+              totalPages={allAnnouncementsData?.totalPages || 1}
+              onPageChange={handlePageChange1Announcements}
+            />
+          )}
+        </div>
+
+        {/* Events tab content */}
+        <div
+          id="explore-panel-events"
+          role="tabpanel"
+          aria-labelledby="explore-tab-events"
+          hidden={activeTab !== "events"}
+        >
+          {activeTab === "events" && (
+            <EventSection
+              events={allEventsData?.events || []}
+              isLoading={page1EventsLoading}
+              currentPage={page1Events}
+              totalPages={allEventsData?.totalPages || 1}
+              onPageChange={handlePageChange1Events}
+            />
+          )}
+        </div>
+
+        {/* Services tab content */}
+        <div
+          id="explore-panel-services"
+          role="tabpanel"
+          aria-labelledby="explore-tab-services"
+          hidden={activeTab !== "services"}
+        >
+          {activeTab === "services" && (
+            <ServiceSection
+              services={allServicesData?.services || []}
+              isLoading={page1ServicesLoading}
+              currentPage={page1Services}
+              totalPages={allServicesData?.totalPages || 1}
+              onPageChange={handlePageChange1Services}
+            />
+          )}
+        </div>
+
         {/* Placeholder for other tabs */}
-        {!["videos", "articles", "podcasts"].includes(activeTab) && (
+        {!["videos", "articles", "podcasts", "announcements", "events", "services"].includes(activeTab) && (
           <div
             role="tabpanel"
             id={`explore-panel-${activeTab}`}
