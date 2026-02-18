@@ -1,3 +1,4 @@
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import CampaignIcon from "@mui/icons-material/Campaign";
@@ -14,6 +15,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import SchoolIcon from "@mui/icons-material/School";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShareIcon from "@mui/icons-material/Share";
@@ -27,7 +29,7 @@ import { logout } from "../../redux/slices/authSlice.js";
 import { fonts } from "../../utility/fonts.js";
 
 
-const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType }) => {
+const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType, isActingAsAME }) => {
   const dispatchToRedux = useDispatch();
   const navigate = useNavigate();
   let sideBarMenues = [];
@@ -62,6 +64,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType 
         { name: "Users", icon: <PeopleAltIcon />, route: "/users" },
         { name: "Counsellors", icon: <PsychologyIcon />, route: "/creator" },
         { name: "ESP & EI User", icon: <BusinessCenterIcon />, route: "/esp-ei-users" },
+        { name: "Admin managed ESPs", icon: <AdminPanelSettingsIcon />, route: "/admin-managed-esps" },
         { name: "Records", icon: <AssessmentIcon />, route: "/records" },
         { name: "School Directory", icon: <SchoolIcon />, route: "/schoolcontactinfo" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
@@ -91,6 +94,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType 
             { name: "My Announcements", icon: <CampaignIcon />, route: "/myannouncements" },
             { name: "My Events", icon: <EventIcon />, route: "/myevents" },
             { name: "My Services", icon: <BusinessCenterIcon />, route: "/myservices" },
+            ...(isActingAsAME ? [{ name: "My Courses", icon: <MenuBookIcon />, route: "/mycourses" }] : []),
             { name: "Messages", icon: <MessageIcon />, route: "/messages" },
             { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
             { name: "Profile", icon: <SettingsIcon />, route: "/profile" },

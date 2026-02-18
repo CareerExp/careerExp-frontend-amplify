@@ -7,6 +7,7 @@ const initialState = {
   users: [],
   creators: [],
   organizations: null,
+  ameOrganizations: null,
   generalData: {},
 };
 
@@ -65,6 +66,87 @@ export const getAllOrganizations = createAsyncThunk(
         Authorization: `Bearer ${token}`,
       },
     });
+  },
+);
+
+/** GET /api/admin/ame – Admin only. Same response shape as all-organizations. */
+export const getAMEOrganizations = createAsyncThunk(
+  "admin/getAMEOrganizations",
+  async ({ token, search = "", page = 1, limit = 10 }) => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.set("search", search);
+
+    return FetchApi.fetch(`${config.api}/api/admin/ame?${queryParams}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+);
+
+/** POST /api/admin/ame/enter-context – Admin only. Switch to AME dashboard (Option 1). Returns updated user profile. */
+export const enterAMEContext = createAsyncThunk(
+  "admin/enterAMEContext",
+  async ({ actingAsOrganizationId, token }, thunkAPI) => {
+    const response = await FetchApi.fetch(`${config.api}/api/admin/ame/enter-context`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ actingAsOrganizationId }),
+    });
+    const user = response?.user ?? response;
+    if (!user?.activeDashboard) {
+      return thunkAPI.rejectWithValue({ message: response?.message || "Failed to enter AME context" });
+    }
+    return user;
+  },
+);
+
+/** POST /api/admin/ame/exit-context – Admin only. Leave AME dashboard (Option 1). Returns updated user profile. */
+export const exitAMEContext = createAsyncThunk(
+  "admin/exitAMEContext",
+  async ({ token }, thunkAPI) => {
+    const response = await FetchApi.fetch(`${config.api}/api/admin/ame/exit-context`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({}),
+    });
+    const user = response?.user ?? response;
+    if (!user?.activeDashboard) {
+      return thunkAPI.rejectWithValue({ message: response?.message || "Failed to exit AME context" });
+    }
+    return user;
+  },
+);
+
+/** POST /api/admin/ame – Admin only. multipart/form-data (FormData). Do not set Content-Type. */
+export const createAME = createAsyncThunk(
+  "admin/createAME",
+  async ({ formData, token }, thunkAPI) => {
+    const response = await FetchApi.fetch(`${config.api}/api/admin/ame`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    if (!response.success) {
+      return thunkAPI.rejectWithValue({
+        message: response.message || "Failed to create AME",
+        field: response.field,
+      });
+    }
+    return response;
   },
 );
 
@@ -148,6 +230,9 @@ const adminSlice = createSlice({
     builder.addCase(getAllOrganizations.fulfilled, (state, action) => {
       state.organizations = action.payload;
     });
+    builder.addCase(getAMEOrganizations.fulfilled, (state, action) => {
+      state.ameOrganizations = action.payload;
+    });
 
     builder.addCase(getGeneralUserData.fulfilled, (state, action) => {
       state.generalData = action.payload.data;
@@ -192,6 +277,7 @@ const adminSlice = createSlice({
 export const selectUsersData = (state) => state.admin.users;
 export const selectCreatorsData = (state) => state.admin.creators;
 export const selectOrganizationsData = (state) => state.admin.organizations;
+export const selectAMEOrganizationsData = (state) => state.admin.ameOrganizations;
 export const selectGeneralData = (state) => state.admin.generalData;
 
 export default adminSlice.reducer;

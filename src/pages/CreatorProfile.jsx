@@ -29,16 +29,30 @@ import {
   checkFollowStatus,
   creatorFollowToggle,
   getCreatorProfile,
+  getAuthorArticles,
+  getAuthorPodcasts,
+  getAuthorVideos,
+  selectAuthorArticles,
+  selectAuthorPodcasts,
+  selectAuthorVideos,
   selectCreatorProfile,
   selectFollowerCount,
   selectIsFollowing,
 } from "../redux/slices/creatorSlice.js";
-import {
-  getAuthorVideos,
-  selectAuthorVideos,
-} from "../redux/slices/creatorSlice.js";
+import ArticleCard from "../components/ArticleCard.jsx";
+import PodcastCard from "../components/PodcastCard.jsx";
 import creatorStyle from "../styles/CreatorProfile.module.css";
 import { shouldHideDetails } from "../utility/hiddenDetailsForEmailIds.js";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TikTokIcon,
+  LinkedinIcon,
+  YoutubeIcon,
+  TelegramIcon,
+  TwitterIcon,
+  yellowBG,
+} from "../assets/assest.js";
 
 const Profile = () => {
   const dispatchToRedux = useDispatch();
@@ -48,6 +62,8 @@ const Profile = () => {
   const token = useSelector(selectToken);
   const creatorProfileWithFollowersCount = useSelector(selectCreatorProfile);
   const creatorVideos = useSelector(selectAuthorVideos);
+  const authorArticles = useSelector(selectAuthorArticles);
+  const authorPodcasts = useSelector(selectAuthorPodcasts);
   const isFollowing = useSelector(selectIsFollowing);
   // Fix: ensure isFollowing is always boolean
   const isFollowingBool =
@@ -66,8 +82,22 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    dispatchToRedux(getAuthorVideos({ page, userId }));
-  }, [page]);
+    if (activeTab === 1) {
+      dispatchToRedux(getAuthorVideos({ page, userId }));
+    }
+  }, [page, activeTab, userId]);
+
+  useEffect(() => {
+    if (activeTab === 2) {
+      dispatchToRedux(getAuthorArticles({ page, userId }));
+    }
+  }, [page, activeTab, userId]);
+
+  useEffect(() => {
+    if (activeTab === 3) {
+      dispatchToRedux(getAuthorPodcasts({ page, userId }));
+    }
+  }, [page, activeTab, userId]);
 
   const handleShareClick = () => {
     setIsModalOpen(true);
@@ -132,33 +162,108 @@ const Profile = () => {
 
   const hideDetails = shouldHideDetails(creatorProfile?.email);
 
+  const formattedFollowerCount =
+    followerCount >= 1000
+      ? `${(followerCount / 1000).toFixed(1)}k`
+      : String(followerCount ?? 0);
+
+  const socialLinksConfig = [
+    {
+      key: "facebook",
+      icon: FacebookIcon,
+      link:
+        creatorProfile?.facebook ?? creatorProfile?.facebook,
+    },
+    {
+      key: "instagram",
+      icon: InstagramIcon,
+      link:
+        creatorProfile?.instagram ?? creatorProfile?.instagram,
+    },
+    {
+      key: "tiktok",
+      icon: TikTokIcon,
+      link: creatorProfile?.tiktok ?? creatorProfile?.tiktok,
+    },
+    {
+      key: "linkedin",
+      icon: LinkedinIcon,
+      link:
+        creatorProfile?.linkedIn ?? creatorProfile?.linkedin,
+    },
+    {
+      key: "youtube",
+      icon: YoutubeIcon,
+      link:
+        creatorProfile?.youtube ?? creatorProfile?.youtube,
+    },
+    {
+      key: "telegram",
+      icon: TelegramIcon,
+      link:
+        creatorProfile?.telegram ?? creatorProfile?.telegram,
+    },
+    {
+      key: "twitter",
+      icon: TwitterIcon,
+      link:
+        creatorProfile?.twitter ?? creatorProfile?.twitter,
+    },
+  ].filter((s) => s.link);
+
+  const specTags = (() => {
+    const spec = creatorProfile?.specialization;
+    if (Array.isArray(spec)) return spec;
+    if (typeof spec === "string")
+      return spec.split(",").map((s) => s.trim()).filter(Boolean);
+    return spec ? [spec] : [];
+  })();
+
   return (
     <div className={creatorStyle.container}>
-      {/* top */}
-      <div className={creatorStyle.profileTopContainer}>
-        <img
-          src={profileOilPaint}
-          alt="oilPaint"
-          className={creatorStyle.profileBackgroundImage}
-        />
-
-        <div className={creatorStyle.avatarContainer}>
-          <Avatar
-            src={creatorProfile?.profilePicture || ""}
-            alt="profile"
-            sx={{
-              height: { sm: "97px", xs: "140px" },
-              width: { sm: "97px", xs: "140px" },
-            }}
+      {/* ========== NEW PROFILE TOP (Figma 763-116391) ========== */}
+      <div className={creatorStyle.profileTopV2}>
+        <div className={creatorStyle.profileTopV2Banner}>
+          <img
+            src={yellowBG}
+            alt="yellow-background"
+            className={creatorStyle.profileTopV2BannerImg}
           />
+          <div className={creatorStyle.profileTopV2SocialTray}>
+            {socialLinksConfig.map(({ key, icon, link }) => (
+              <a
+                key={key}
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={creatorStyle.profileTopV2SocialCircle}
+                aria-label={key}
+              >
+                <img src={icon} alt="" />
+              </a>
+            ))}
+          </div>
+        </div>
 
-          <div className={creatorStyle.followersContainer}>
-            <p className={creatorStyle.followersText}>
-              {followerCount} Followers
+        <div className={creatorStyle.profileTopV2Body} style={{ backgroundColor: "#ffffff" }}>
+          <div className={creatorStyle.profileTopV2Left}>
+            <div className={creatorStyle.profileTopV2AvatarWrap}>
+              <Avatar
+                src={creatorProfile?.profilePicture || ""}
+                alt="profile"
+                className={creatorStyle.profileTopV2Avatar}
+                sx={{
+                  height: { sm: "97px", xs: "120px" },
+                  width: { sm: "97px", xs: "120px" },
+                  border: "9px solid #ffffff",
+                }}
+              />
+            </div>
+            <p className={creatorStyle.profileTopV2FollowersText}>
+              {formattedFollowerCount} Followers
             </p>
             <button
-              className={creatorStyle.navButton}
-              style={{ marginTop: ".5rem" }}
+              className={creatorStyle.profileTopV2FollowBtn}
               onClick={handleFollow}
             >
               {isButtonLoading ? (
@@ -170,82 +275,124 @@ const Profile = () => {
               )}
             </button>
           </div>
-        </div>
 
-        <div className={creatorStyle.profileInfoContainer}>
-          <div className={creatorStyle.nameContainer}>
-            <div style={{ display: "flex", gap: ".5rem" }}>
-              <p className={creatorStyle.nameText}>
-                {creatorProfile?.firstName + " " + creatorProfile?.lastName}
-              </p>
-            </div>
-            <div
-              className={creatorStyle.shareContainer}
-              onClick={() => handleShareClick()}
-            >
-              <img src={shareIcon} className={creatorStyle.shareIcon} />
-              <p>Share Profile</p>
-            </div>
-          </div>
-
-          {/* Hide for Career Libraries's  */}
-          {!hideDetails && (
-            <>
-              <div className={creatorStyle.specializationContainer}>
-                <p>Specialization :</p>
-                <p className={creatorStyle.specializationTag}>
-                  {creatorProfile?.specialization}
-                </p>
+          <div className={creatorStyle.profileTopV2Right} style={{ backgroundColor: "#ffffff" }}>
+            <div className={creatorStyle.profileTopV2NameRow}>
+              <div className={creatorStyle.profileTopV2NameBlock}>
+                <h1 className={creatorStyle.profileTopV2Name}>
+                  {creatorProfile?.firstName + " " + creatorProfile?.lastName}
+                </h1>
+                {creatorProfile?.subtitle && (
+                  <span className={creatorStyle.profileTopV2Subtitle}>
+                    ({creatorProfile.subtitle})
+                  </span>
+                )}
               </div>
-              <div className={creatorStyle.experienceContainer}>
-                <p>Years of experience :</p>
-                <p className={creatorStyle.experienceTag}>
-                  {creatorProfile?.experience + " Years" || ""}
-                </p>
-              </div>
-            </>
-          )}
+              <button
+                type="button"
+                className={creatorStyle.profileTopV2ShareBtn}
+                onClick={handleShareClick}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleShareClick();
+                  }
+                }}
+              >
+                <img src={shareIcon} alt="" className={creatorStyle.profileTopV2ShareIcon} />
+                <span style={{ color: "#787876", fontWeight: "400" }}>Share Profile</span>
+              </button>
+            </div>
 
-          <div className={creatorStyle.contactInfoContainer}>
             {!hideDetails && (
               <>
-                <Information
-                  icon={creatorIconLocation}
-                  info={creatorProfile?.nationality}
-                />
-                <Dot />
-                <Information
-                  icon={creatorIconMobile}
-                  info={creatorProfile?.mobile}
-                />
-                <Dot />
-                <Information
-                  icon={creatorIconWhatsaap}
-                  info={creatorProfile?.telephone}
-                />
-                <Dot />
-                <Information
-                  icon={creatorIconMail}
-                  info={creatorProfile?.email}
-                />
+                <div className={creatorStyle.profileTopV2MetaRow}>
+                  <span className={creatorStyle.profileTopV2MetaLabel}>
+                    Specialization :
+                  </span>
+                  <div className={creatorStyle.profileTopV2Pills}>
+                    {specTags.length
+                      ? specTags.map((tag, i) => (
+                          <span
+                            key={i}
+                            className={creatorStyle.profileTopV2Pill}
+                          >
+                            {tag}
+                          </span>
+                        ))
+                      : (
+                          <span className={creatorStyle.profileTopV2Pill}>
+                            {creatorProfile?.specialization || "—"}
+                          </span>
+                        )}
+                  </div>
+                </div>
+                <div className={creatorStyle.profileTopV2MetaRow}>
+                  <span className={creatorStyle.profileTopV2MetaLabel}>
+                    Years of experience :
+                  </span>
+                  <span className={creatorStyle.profileTopV2Pill}>
+                    {creatorProfile?.experience != null
+                      ? `${creatorProfile.experience} years`
+                      : "—"}
+                  </span>
+                </div>
               </>
             )}
-          </div>
 
-          <div className={creatorStyle.aboutMeContainer}>
-            <p className={creatorStyle.aboutMeTitle}>About me</p>
-            <Divider />
-            <p className={creatorStyle.aboutMeText}>
-              {creatorProfile?.introBio}
-            </p>
+            <div className={creatorStyle.profileTopV2ContactRow}>
+              {!hideDetails && (
+                <>
+                  <Information
+                    icon={creatorIconLocation}
+                    info={creatorProfile?.nationality}
+                    height={24}
+                    width={24}
+                  />
+                  <Dot />
+                  <Information
+                    icon={creatorIconMobile}
+                    info={creatorProfile?.mobile}
+                     height={24}
+                    width={24}
+                  />
+                  <Dot />
+                  <Information
+                    icon={creatorIconWhatsaap}
+                    info={creatorProfile?.telephone}
+                     height={24}
+                    width={24}
+                  />
+                  <Dot />
+                  <Information
+                    icon={creatorIconMail}
+                    info={creatorProfile?.email}
+                     height={24}
+                    width={24}
+                  />
+                </>
+              )}
+            </div>
+
+            <div className={creatorStyle.profileTopV2About}>
+              <p className={creatorStyle.profileTopV2AboutTitle}>About me</p>
+              <Divider />
+              <p className={creatorStyle.profileTopV2AboutText}>
+                {creatorProfile?.introBio || ""}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
+
       <div className={creatorStyle.contentContainer}>
         <div className={creatorStyle.tabsContainer}>
           <p
-            onClick={() => setActiveTab(1)}
+            onClick={() => {
+              setActiveTab(1);
+              setPage(1);
+            }}
             className={`${creatorStyle.tabItem} ${
               activeTab === 1
                 ? creatorStyle.activeTab
@@ -255,7 +402,10 @@ const Profile = () => {
             Videos
           </p>
           <p
-            onClick={() => setActiveTab(2)}
+            onClick={() => {
+              setActiveTab(2);
+              setPage(1);
+            }}
             className={`${creatorStyle.tabItem} ${
               activeTab === 2
                 ? creatorStyle.activeTab
@@ -265,7 +415,10 @@ const Profile = () => {
             Articles
           </p>
           <p
-            onClick={() => setActiveTab(3)}
+            onClick={() => {
+              setActiveTab(3);
+              setPage(1);
+            }}
             className={`${creatorStyle.tabItem} ${
               activeTab === 3
                 ? creatorStyle.activeTab
@@ -275,7 +428,13 @@ const Profile = () => {
             Podcasts
           </p>
         </div>
-        <div className={creatorStyle.videosGrid}>
+        <div
+          className={
+            activeTab === 1
+              ? creatorStyle.videosGrid
+              : creatorStyle.articlesPodcastsGrid
+          }
+        >
           {activeTab === 1 &&
             creatorVideos?.videos?.map(
               ({
@@ -311,12 +470,33 @@ const Profile = () => {
               )
             )}
 
-          {activeTab === 2 && <p>Coming Soon</p>}
-          {activeTab === 3 && <p>Coming Soon</p>}
+          {activeTab === 2 &&
+            (authorArticles?.articles?.length > 0 ? (
+              authorArticles.articles.map((article) => (
+                <ArticleCard key={article._id} article={article} />
+              ))
+            ) : (
+              <p className={creatorStyle.comingSoonText}>No articles yet.</p>
+            ))}
+
+          {activeTab === 3 &&
+            (authorPodcasts?.podcasts?.length > 0 ? (
+              authorPodcasts.podcasts.map((podcast) => (
+                <PodcastCard key={podcast._id} podcast={podcast} />
+              ))
+            ) : (
+              <p className={creatorStyle.comingSoonText}>No podcasts yet.</p>
+            ))}
         </div>
         <div className={creatorStyle.paginationContainer}>
           <Pagination
-            count={creatorVideos?.totalPages || 1}
+            count={
+              activeTab === 1
+                ? creatorVideos?.totalPages || 1
+                : activeTab === 2
+                  ? authorArticles?.totalPages || 1
+                  : authorPodcasts?.totalPages || 1
+            }
             page={page}
             onChange={handlePageChange}
           />

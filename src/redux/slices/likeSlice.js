@@ -7,6 +7,8 @@ const initialState = {
   userLiked: null,
   totalShares: null,
   totalViews: null,
+  courseUserLiked: null,
+  courseTotalLikes: null,
 };
 
 export const getLikeStatus = createAsyncThunk("like/getLikeStatus", async ({ videoId, userId, token }) => {
@@ -53,6 +55,38 @@ export const increaseSharesCount = createAsyncThunk(
   },
 );
 
+/** GET /api/like/getcourselikestatus/:courseId/:userId. Auth required. */
+export const getCourseLikeStatus = createAsyncThunk(
+  "like/getCourseLikeStatus",
+  async ({ courseId, userId, token }) => {
+    return FetchApi.fetch(
+      `${config.api}/api/like/getcourselikestatus/${courseId}/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  }
+);
+
+/** POST /api/like/togglelikecourse. Body: { courseId, userId }. Returns { message, userLiked, totalLikes }. */
+export const toggleCourseLike = createAsyncThunk(
+  "like/toggleCourseLike",
+  async ({ courseId, userId, token }) => {
+    return FetchApi.fetch(`${config.api}/api/like/togglelikecourse`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ courseId, userId }),
+    });
+  }
+);
+
 const likeSlice = createSlice({
   name: "like",
   initialState,
@@ -71,8 +105,17 @@ const likeSlice = createSlice({
     builder.addCase(increaseSharesCount.fulfilled, (state, { payload }) => {
       state.totalShares = payload.updatedValue;
     });
+    builder.addCase(getCourseLikeStatus.fulfilled, (state, { payload }) => {
+      state.courseUserLiked = payload?.userLiked ?? null;
+    });
+    builder.addCase(toggleCourseLike.fulfilled, (state, { payload }) => {
+      state.courseUserLiked = payload?.userLiked ?? null;
+      if (payload?.totalLikes != null) state.courseTotalLikes = payload.totalLikes;
+    });
   },
 });
 
 export default likeSlice.reducer;
 export const selectUserLiked = (state) => state.like.userLiked;
+export const selectCourseUserLiked = (state) => state.like.courseUserLiked;
+export const selectCourseTotalLikes = (state) => state.like.courseTotalLikes;

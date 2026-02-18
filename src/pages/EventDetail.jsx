@@ -13,7 +13,7 @@ const EventDetail = () => {
   return (
     <EventDetailContent
       eventId={eventId}
-      onBack={() => navigate("/explore")}
+      onBack={() => navigate("/explore?tab=events")}
     />
   );
 };

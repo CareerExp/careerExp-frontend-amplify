@@ -22,8 +22,34 @@ const tabSx = {
 /**
  * Tabs for Organization Profile only.
  * Order: Subscription | Shared Content Visibility | Personal Information | Change Password
+ * When hideSubscriptionAndChangePassword (e.g. admin in AME view): only Shared Content Visibility | Personal Information
  */
-const OrgProfileTabs = ({ tabValue, onChange }) => {
+const OrgProfileTabs = ({ tabValue, onChange, hideSubscriptionAndChangePassword }) => {
+  if (hideSubscriptionAndChangePassword) {
+    return (
+      <Tabs
+        value={tabValue}
+        onChange={(e, newValue) => onChange(Number(newValue))}
+        TabIndicatorProps={{
+          sx: { backgroundColor: indicatorColor, height: 3, borderRadius: 2 },
+        }}
+        sx={{
+          width: "100%",
+          fontFamily: fonts.poppins,
+          fontWeight: 300,
+          minHeight: 48,
+          ".MuiTabs-flexContainer": {
+            justifyContent: "center",
+            width: "100%",
+          },
+          borderBottom: "1px solid #e0e0e0",
+        }}
+      >
+        <Tab label="Shared Content Visibility" sx={tabSx} />
+        <Tab label="Personal Information" sx={tabSx} />
+      </Tabs>
+    );
+  }
   return (
     <Tabs
       value={tabValue}

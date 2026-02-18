@@ -12,6 +12,7 @@ import PendingStatePopup from "../models/PendingStatePopup.jsx";
 import OrgUnderReviewScreen from "../models/OrgUnderReviewScreen.jsx";
 import OrgSubscriptionRequiredScreen from "../models/OrgSubscriptionRequiredScreen.jsx";
 import AdminHome from "./adminDashboard/AdminHome.jsx";
+import AdminManagedESPsData from "./adminDashboard/AdminManagedESPsData.jsx";
 import CollaboratorsData from "./adminDashboard/CollaboratorsData.jsx";
 import EspEiUsersData from "./adminDashboard/EspEiUsersData.jsx";
 import SchoolDirectory from "./adminDashboard/SchoolDirectory.jsx";
@@ -26,6 +27,7 @@ import OrgMyCounsellors from "./orgDashboard/OrgMyCounsellors.jsx";
 import OrgMyAnnouncements from "./orgDashboard/OrgMyAnnouncements.jsx";
 import OrgMyEvents from "./orgDashboard/OrgMyEvents.jsx";
 import OrgMyServices from "./orgDashboard/OrgMyServices.jsx";
+import OrgMyCourses from "./orgDashboard/OrgMyCourses.jsx";
 import OrgFollowers from "./orgDashboard/OrgFollowers.jsx";
 import OrgProfile from "./orgDashboard/OrgProfile.jsx";
 import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
@@ -44,6 +46,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <CollaboratorsData />;
       case "ESP & EI User":
         return <EspEiUsersData />;
+      case "Admin managed ESPs":
+        return <AdminManagedESPsData />;
       case "Records":
         return <UnifiedRecord />;
       case "School Directory":
@@ -87,19 +91,22 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
     }
   }
 
-  if (userData.activeDashboard === "organization") {
+  // Organization dashboard: real org users and admin acting as (Option 1). View driven by activeDashboard only.
+  const isOrgDashboard = userData.activeDashboard === "organization";
+  if (isOrgDashboard) {
     const orgStatus = orgProfile?.status ?? userData.status;
     const isOrgActive = orgStatus === "active";
     const subscriptionStatus = orgProfile?.subscription?.status;
     const hasActiveSubscription = subscriptionStatus === "active" || subscriptionStatus === "trialing";
+    const skipSubscriptionGate = options.isAdminInOrgView === true;
 
-    if (!isOrgActive && orgStatus === "blocked") {
+    if (!skipSubscriptionGate && !isOrgActive && orgStatus === "blocked") {
       return <PendingStatePopup message={"Your Organization Account has been blocked. Please contact support for further assistance."} />;
     }
-    if (!isOrgActive) {
+    if (!skipSubscriptionGate && !isOrgActive) {
       return <OrgUnderReviewScreen />;
     }
-    if (isOrgActive && orgProfile != null && !hasActiveSubscription) {
+    if (!skipSubscriptionGate && isOrgActive && orgProfile != null && !hasActiveSubscription) {
       return (
         <OrgSubscriptionRequiredScreen
           onProceedToPayment={options.onProceedToSubscription}
@@ -125,10 +132,12 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <OrgMyEvents />;
       case "My Services":
         return <OrgMyServices />;
+      case "My Courses":
+        return <OrgMyCourses />;
       case "My Followers":
         return <OrgFollowers />;
       case "Profile":
-        return <OrgProfile />;
+        return <OrgProfile isAdminInOrgView={options.isAdminInOrgView} />;
       default:
         return null;
     }

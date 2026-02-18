@@ -852,11 +852,12 @@ const creatorSlice = createSlice({
       state.authorVideos = payload;
     });
     builder.addCase(getAuthorArticles.fulfilled, (state, { payload }) => {
+      const data = payload?.data ?? payload;
       state.authorArticles = {
-        articles: payload.articles || [],
-        totalArticles: payload.totalArticles ?? 0,
-        currentPage: payload.currentPage ?? 1,
-        totalPages: payload.totalPages ?? 0,
+        articles: data?.articles ?? payload?.articles ?? [],
+        totalArticles: data?.totalArticles ?? payload?.totalArticles ?? 0,
+        currentPage: data?.currentPage ?? payload?.currentPage ?? 1,
+        totalPages: data?.totalPages ?? payload?.totalPages ?? 0,
       };
     });
     builder.addCase(deleteArticle.fulfilled, (state, { payload }) => {
@@ -868,11 +869,12 @@ const creatorSlice = createSlice({
       }
     });
     builder.addCase(getAuthorPodcasts.fulfilled, (state, { payload }) => {
+      const data = payload?.data ?? payload;
       state.authorPodcasts = {
-        podcasts: payload.podcasts || [],
-        totalPodcasts: payload.totalPodcasts ?? 0,
-        currentPage: payload.currentPage ?? 1,
-        totalPages: payload.totalPages ?? 0,
+        podcasts: data?.podcasts ?? payload?.podcasts ?? [],
+        totalPodcasts: data?.totalPodcasts ?? payload?.totalPodcasts ?? 0,
+        currentPage: data?.currentPage ?? payload?.currentPage ?? 1,
+        totalPages: data?.totalPages ?? payload?.totalPages ?? 0,
       };
     });
     builder.addCase(deletePodcast.fulfilled, (state, { payload }) => {

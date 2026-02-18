@@ -14,7 +14,7 @@ const ArticleDetail = () => {
   return (
     <ArticleDetailContent
       articleId={articleId}
-      onBack={() => navigate(-1)}
+      onBack={() => navigate("/explore?tab=articles")}
       embedded={false}
     />
   );

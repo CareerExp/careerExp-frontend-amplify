@@ -58,9 +58,11 @@ const AdminHome = () => {
 
   return (
     <div>
-      <Typography variant="h5" sx={{ fontFamily: fonts.poppins, fontWeight: "600" }}>
+      <Box sx={{ ml: 2, mt: 2 }}>
+        <Typography variant="h5" fontWeight="600" sx={{ fontFamily: fonts.poppins }}>
         Hi, Welcome Back
-      </Typography>
+      </Typography> 
+      </Box>
 
       <Box
         sx={{

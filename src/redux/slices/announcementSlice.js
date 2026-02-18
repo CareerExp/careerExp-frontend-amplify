@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
+import { getActingAsHeader } from "../../utility/getActingAsHeader.js";
 
 const initialState = {
   myAnnouncements: [],
@@ -13,10 +14,12 @@ export const createAnnouncement = createAsyncThunk(
   "announcement/create",
   async ({ formData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(`${config.api}/api/announcements/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
         body: formData, // Sending FormData directly for multipart
       });
@@ -35,10 +38,12 @@ export const updateAnnouncement = createAsyncThunk(
   "announcement/update",
   async ({ id, formData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(`${config.api}/api/announcements/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
         body: formData,
       });
@@ -57,6 +62,7 @@ export const fetchMyAnnouncements = createAsyncThunk(
   "announcement/fetchMyList",
   async ({ token, status, search }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const queryParams = new URLSearchParams();
       if (status) queryParams.append("status", status);
       if (search) queryParams.append("search", search);
@@ -68,6 +74,7 @@ export const fetchMyAnnouncements = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
       });
 
@@ -85,11 +92,13 @@ export const deleteAnnouncement = createAsyncThunk(
   "announcement/delete",
   async ({ id, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(`${config.api}/api/announcements/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
       });
 

@@ -17,6 +17,7 @@ import { getOrganizationProfileById, selectOrganizationProfile } from '../../red
 import { selectToken } from '../../redux/slices/authSlice';
 import { selectUserProfile } from '../../redux/slices/profileSlice';
 import { notify } from '../../redux/slices/alertSlice';
+import { bannerPlaceholder, logoPlaceholder } from '../../assets/assest';
 
 const InvitationCard = ({ invite, onRespond }) => {
     const [isResponding, setIsResponding] = useState(false);
@@ -60,7 +61,7 @@ const InvitationCard = ({ invite, onRespond }) => {
                     sx={{
                         height: '129px',
                         backgroundColor: '#ff8a00',
-                        backgroundImage: `url(${invite.organizationId?.bannerImage || 'https://www.figma.com/api/mcp/asset/e6e68a41-fb9f-4ecd-894f-3169eb600bf1'})`,
+                        backgroundImage: `url(${invite.organizationId?.bannerImage || bannerPlaceholder})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                     }}
@@ -85,8 +86,8 @@ const InvitationCard = ({ invite, onRespond }) => {
                 >
                     <Box
                         component="img"
-                        src={invite.organizationId?.logo || 'https://www.figma.com/api/mcp/asset/e6e68a41-fb9f-4ecd-894f-3169eb600bf1'}
-                        sx={{ width: '80%', height: '80%', objectFit: 'contain' }}
+                        src={invite.logo || logoPlaceholder}
+                        sx={{ width: '80%', height: '80%', objectFit: 'contain' }} 
                     />
                 </Box>
             </Box>

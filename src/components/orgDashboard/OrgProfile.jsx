@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
@@ -52,7 +52,7 @@ const businessEntityToOrgPayload = (businessEntity, existingProfile) => {
   };
 };
 
-const OrgProfile = () => {
+const OrgProfile = ({ isAdminInOrgView = false }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,11 +65,20 @@ const OrgProfile = () => {
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
-    if (location.state?.openSubscriptionTab) {
+    if (location.state?.openSubscriptionTab && !isAdminInOrgView) {
       setTabValue(0);
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state?.openSubscriptionTab, location.pathname, navigate]);
+  }, [location.state?.openSubscriptionTab, location.pathname, navigate, isAdminInOrgView]);
+
+  const prevIsAdminInOrgView = useRef(isAdminInOrgView);
+  // When admin enters AME view, map 4-tab index to 2-tab index once.
+  useEffect(() => {
+    const justEnteredAME = isAdminInOrgView && !prevIsAdminInOrgView.current;
+    prevIsAdminInOrgView.current = isAdminInOrgView;
+    if (!justEnteredAME) return;
+    setTabValue((prev) => (prev === 2 ? 1 : 0));
+  }, [isAdminInOrgView]);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isButtonLoading2, setIsButtonLoading2] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -249,6 +258,26 @@ const OrgProfile = () => {
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   const renderTabContent = () => {
+    if (isAdminInOrgView) {
+      switch (tabValue) {
+        case 0:
+          return <SharedContentVisibilityTab />;
+        case 1:
+          return (
+            <OrgPersonalInfoForm
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleSubmit={handleSubmit}
+              isButtonLoading2={isButtonLoading2}
+              userData={userData}
+              businessEntity={businessEntity}
+              onBusinessEntityChange={setBusinessEntity}
+            />
+          );
+        default:
+          return null;
+      }
+    }
     switch (tabValue) {
       case 0:
         return <SubscriptionTab />;
@@ -310,7 +339,7 @@ const OrgProfile = () => {
         }}
       >
         <Box sx={{ p: { xs: 2, sm: 2 } }}>
-          <OrgProfileTabs tabValue={tabValue} onChange={setTabValue} />
+          <OrgProfileTabs tabValue={tabValue} onChange={setTabValue} hideSubscriptionAndChangePassword={isAdminInOrgView} />
         </Box>
         <Box sx={{ px: { xs: 2, sm: 3 }, py: 3, pt: 2 }}>
           {renderTabContent()}
