@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
+import { getActingAsHeader } from "../../utility/getActingAsHeader.js";
 
 const initialState = {
   profile: null,
@@ -13,6 +14,7 @@ export const getMyOrganizationProfile = createAsyncThunk(
   "organization/getMyOrganizationProfile",
   async ({ token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       return await FetchApi.fetch(
         `${config.api}/api/organization/profile/me`,
         {
@@ -20,6 +22,7 @@ export const getMyOrganizationProfile = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            ...actingAs,
           },
         }
       );
@@ -35,6 +38,7 @@ export const updateMyOrganizationProfile = createAsyncThunk(
   "organization/updateMyOrganizationProfile",
   async ({ updateData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(
         `${config.api}/api/organization/profile/me`,
         {
@@ -42,6 +46,7 @@ export const updateMyOrganizationProfile = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            ...actingAs,
           },
           body: updateData,
         }
@@ -67,12 +72,14 @@ export const uploadOrganizationMedia = createAsyncThunk(
   "organization/uploadOrganizationMedia",
   async ({ formData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(
         `${config.api}/api/organization/profile/me`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
+            ...actingAs,
           },
           body: formData,
         }
@@ -97,6 +104,7 @@ export const sendInvitation = createAsyncThunk(
   "organization/sendInvitation",
   async ({ inviteData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(
         `${config.api}/api/organization/invite`,
         {
@@ -104,6 +112,7 @@ export const sendInvitation = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            ...actingAs,
           },
           body: inviteData,
         }
@@ -128,6 +137,7 @@ export const getOrganizationProfileById = createAsyncThunk(
   "organization/getOrganizationProfileById",
   async ({ organizationId, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(
         `${config.api}/api/organization/profile/v/${organizationId}`,
         {
@@ -135,6 +145,7 @@ export const getOrganizationProfileById = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            ...actingAs,
           },
         }
       );
@@ -152,15 +163,17 @@ export const getOrganizationCounsellors = createAsyncThunk(
   "organization/getOrganizationCounsellors",
   async ({ token, search = "" }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const url = search 
         ? `${config.api}/api/organization/members?search=${encodeURIComponent(search)}`
         : `${config.api}/api/organization/members`;
-        
+
       const response = await FetchApi.fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
       });
       if (!response.success) {

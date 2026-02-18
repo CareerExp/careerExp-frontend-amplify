@@ -57,6 +57,7 @@ const PodcastDetail = React.lazy(() => import("../pages/PodcastDetail.jsx"));
 const AnnouncementDetail = React.lazy(() => import("../pages/AnnouncementDetail.jsx"));
 const EventDetail = React.lazy(() => import("../pages/EventDetail.jsx"));
 const ServiceDetail = React.lazy(() => import("../pages/ServiceDetail.jsx"));
+const CourseDetail = React.lazy(() => import("../pages/CourseDetail.jsx"));
 const CreatorProfile = React.lazy(() => import("../pages/CreatorProfile.jsx"));
 
 const InterestProfiler = React.lazy(
@@ -170,6 +171,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="explore/course/:courseId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <CourseDetail />
+            </Suspense>
+          }
+        />
+        <Route
           path="/explore"
           element={
             <Suspense fallback={<InitialLoaders />}>
@@ -279,6 +288,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <CreateNewPassword />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/workspace/admin-manage/:organizationProfileId"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            {authenticated ? <Workspace /> : <Login />}
           </Suspense>
         }
       />

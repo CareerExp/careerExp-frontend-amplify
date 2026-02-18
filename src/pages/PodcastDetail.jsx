@@ -14,7 +14,7 @@ const PodcastDetail = () => {
   return (
     <PodcastDetailContent
       podcastId={podcastId}
-      onBack={() => navigate(-1)}
+      onBack={() => navigate("/explore?tab=podcasts")}
       embedded={false}
     />
   );

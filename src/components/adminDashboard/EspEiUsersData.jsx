@@ -118,18 +118,11 @@ const EspEiUsersData = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography
-        variant="h5"
-        sx={{
-          fontFamily: fonts.poppins,
-          fontWeight: 700,
-          color: "#000",
-          mb: 3,
-          fontSize: "1.5rem",
-        }}
-      >
+      <Box sx={{ ml: 2, mt: 2 }}>
+        <Typography variant="h5" fontWeight="600" sx={{ fontFamily: fonts.poppins }}>
         ESP & EI User
       </Typography>
+      </Box>
 
       <Box
         sx={{
@@ -138,6 +131,7 @@ const EspEiUsersData = () => {
           boxShadow: "0px 1px 3px rgba(0,0,0,0.08)",
           overflow: "hidden",
           mb: 3,
+          mt: 2,
         }}
       >
         <Tabs

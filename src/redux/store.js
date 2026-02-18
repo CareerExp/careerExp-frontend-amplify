@@ -36,9 +36,11 @@ import userSlice from "./slices/userSlice.js";
 import zylaSlice from "./slices/zylaSlice.js";
 import organizationSlice from "./slices/organizationSlice.js";
 import subscriptionSlice from "./slices/subscriptionSlice.js";
+import ameContextSlice from "./slices/ameContextSlice.js";
 import announcementSlice from "./slices/announcementSlice.js";
 import eventSlice from "./slices/eventSlice.js";
 import serviceSlice from "./slices/serviceSlice.js";
+import courseSlice from "./slices/courseSlice.js";
 import followerSlice from "./slices/followerSlice.js";
 
 const persistConfig = {
@@ -72,11 +74,13 @@ const rootReducer = combineReducers({
   schoolContact: schoolContactSlice,
   payment: paymentSlice,
   careerPlanning: careerPlanningSlice,
+  ameContext: ameContextSlice,
   organization: organizationSlice,
   subscription: subscriptionSlice,
   announcement: announcementSlice,
   event: eventSlice,
   service: serviceSlice,
+  course: courseSlice,
   follower: followerSlice,
 });
 

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
+import { enterAMEContext, exitAMEContext } from "./adminSlice.js";
 
 const initialState = {
   userProfile: null,
@@ -149,13 +150,23 @@ export const updatePaymentStatus = createAsyncThunk(
 const profileSlice = createSlice({
   name: "profile",
   initialState,
-  reducers: {},
+  reducers: {
+    setUserProfile: (state, action) => {
+      state.userProfile = action.payload ?? null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getUserProfile.fulfilled, (state, { payload }) => {
       state.userProfile = payload;
     });
     builder.addCase(updateUserProfile.fulfilled, (state, { payload }) => {
       state.userProfile = payload.user;
+    });
+    builder.addCase(enterAMEContext.fulfilled, (state, { payload }) => {
+      state.userProfile = payload;
+    });
+    builder.addCase(exitAMEContext.fulfilled, (state, { payload }) => {
+      state.userProfile = payload;
     });
     builder.addCase(uploadProfilePicture.fulfilled, (state, { payload }) => {
       state.userProfile.profilePicture = payload.profilePicture;
@@ -170,6 +181,7 @@ const profileSlice = createSlice({
   },
 });
 
+export const { setUserProfile } = profileSlice.actions;
 export const selectUserProfile = (state) => state.profile.userProfile;
 
 export default profileSlice.reducer;

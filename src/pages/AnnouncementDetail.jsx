@@ -13,7 +13,7 @@ const AnnouncementDetail = () => {
   return (
     <AnnouncementDetailContent
       announcementId={announcementId}
-      onBack={() => navigate("/explore")}
+      onBack={() => navigate("/explore?tab=announcements")}
     />
   );
 };

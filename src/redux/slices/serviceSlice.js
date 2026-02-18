@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
+import { getActingAsHeader } from "../../utility/getActingAsHeader.js";
 
 const initialState = {
   myServices: [],
@@ -13,6 +14,7 @@ export const fetchMyServices = createAsyncThunk(
   "service/fetchMyServices",
   async ({ token, status, search }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const queryParams = new URLSearchParams();
       if (status) queryParams.append("status", status);
       if (search) queryParams.append("search", search);
@@ -24,6 +26,7 @@ export const fetchMyServices = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
       });
 
@@ -41,10 +44,12 @@ export const createService = createAsyncThunk(
   "service/create",
   async ({ formData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(`${config.api}/api/services/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
         body: formData,
       });
@@ -63,10 +68,12 @@ export const updateService = createAsyncThunk(
   "service/update",
   async ({ id, formData, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(`${config.api}/api/services/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
         body: formData,
       });
@@ -85,11 +92,13 @@ export const deleteService = createAsyncThunk(
   "service/delete",
   async ({ id, token }, thunkAPI) => {
     try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
       const response = await FetchApi.fetch(`${config.api}/api/services/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          ...actingAs,
         },
       });
 

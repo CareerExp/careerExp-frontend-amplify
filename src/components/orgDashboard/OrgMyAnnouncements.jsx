@@ -28,7 +28,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fonts } from '../../utility/fonts';
-import { announce1, uploadDocument } from '../../assets/assest';
+import { announce1, uploadDocument, announcementsPlaceholder } from '../../assets/assest';
 import AddAnnouncement from './AddAnnouncement';
 import AnnouncementDetail from './AnnouncementDetail';
 import { fetchMyAnnouncements, selectMyAnnouncements, selectAnnouncementLoading, deleteAnnouncement } from '../../redux/slices/announcementSlice';
@@ -121,7 +121,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete, onView }) => {
             >
                 <Box
                     component="img"
-                    src={announcement.coverImage || announcement.image}
+                    src={announcement.coverImage || announcement.image || announcementsPlaceholder}
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
             </Box>

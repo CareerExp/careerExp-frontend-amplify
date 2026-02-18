@@ -12,7 +12,7 @@ const ServiceDetail = () => {
   return (
     <ServiceDetailContent
       serviceId={serviceId}
-      onBack={() => navigate("/explore")}
+      onBack={() => navigate("/explore?tab=services")}
     />
   );
 };
