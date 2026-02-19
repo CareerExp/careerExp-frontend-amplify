@@ -138,7 +138,10 @@ const SubscriptionTab = () => {
         createPortalSession({ token, returnUrl: getPortalReturnUrl() })
       ).unwrap();
       const url = result?.url ?? result?.data?.url;
-      if (url) window.open(url, "_blank", "noopener,noreferrer");
+      // if (url) window.open(url, "_blank", "noopener,noreferrer");
+      if (url) {
+  window.location.href = url;
+}
       else dispatch(notify({ type: "error", message: "Could not open billing. Please try again." }));
     } catch (err) {
       dispatch(notify({ type: "error", message: err || "Could not open billing. Please try again." }));

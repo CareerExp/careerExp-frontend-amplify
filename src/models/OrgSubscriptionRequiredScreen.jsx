@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CelebrationIcon from "@mui/icons-material/Celebration";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,6 +15,7 @@ import {
   createSubscriptionCheckoutSession,
 } from "../redux/slices/subscriptionSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
+import AlarmClock from "../assets/AlarmClock.png";
 
 // Figma 951-73126: colors and theme
 const BG = "#F8F8FC";
@@ -26,6 +29,11 @@ const PLAN_CARD_BG = "#F8ECF7";
 const PLAN_CARD_BORDER = "#934091";
 const BADGE_BG = "#7A2878";
 const BUTTON_GRADIENT = "linear-gradient(180deg, #BF2F75 0%, #720361 100%)";
+// Coupon card – Figma 951-73264
+const COUPON_ORANGE = "#FF8A00";
+const COUPON_ORANGE_LIGHT_BG = "#FFF5E6";
+const INPUT_BG_GRAY = "#D0D5DD"; /* Figma Gray/300 */
+const COUPON_CODE = "WELCOME20";
 
 const whatYouGetItems = [
   "Dedicated company profile page",
@@ -105,7 +113,7 @@ const OrgSubscriptionRequiredScreen = ({ onProceedToPayment }) => {
         borderRadius: 1,
       }}
     >
-      <Box sx={{ maxWidth: 720, margin: "0 auto" }}>
+      <Box sx={{ maxWidth: 820, margin: "0 auto" }}>
         {/* Green approval banner – Figma */}
         <Box
           sx={{
@@ -228,7 +236,8 @@ const OrgSubscriptionRequiredScreen = ({ onProceedToPayment }) => {
               </Box>
             </Box>
 
-            {/* Monthly Plan card */}
+                <Box>
+                {/* Monthly Plan card */}
             <Box
               sx={{
                 position: "relative",
@@ -292,7 +301,158 @@ const OrgSubscriptionRequiredScreen = ({ onProceedToPayment }) => {
                 </Typography>
               </Typography>
             </Box>
+
+                 {/* Coupon Code card – Figma 951-73264 */}
+          <Box
+            sx={{
+              mt: 3,
+              borderRadius: "12px",
+              border: `2px solid ${COUPON_ORANGE}`,
+              backgroundColor: "#fff",
+              p: 2,
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontWeight: 400,
+                fontSize: "13px",
+                color: "#666666",
+                mb: 0.5,
+              }}
+            >
+              Coupon Code
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontWeight: 700,
+                fontSize: "24px",
+                color: CARD_TITLE,
+                mb: 2,
+                mt: 1,
+              }}
+            >
+              20% Off Your Subscription
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                color: BODY_GREY,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                mb: 1,
+              }}
+            >
+              Your coupon code
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                backgroundColor: "#FAFAFA",
+                borderRadius: "8px",
+                border: `1px solid #D0D5DD`,
+                px: 2,
+                py: 1.25,
+                mb: 1.5,
+              }}
+            >
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontFamily: fonts.poppins,
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  color: "#BF2F75",
+                }}
+              >
+                {COUPON_CODE}
+              </Typography>
+              <Box
+                component="button"
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(COUPON_CODE);
+                  } catch {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = COUPON_CODE;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                  }
+                  dispatch(notify({ type: "success", message: "Code copied!" }));
+                }}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "8px",
+                  background: PURPLE_CHECK,
+                  border: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              >
+                <ContentCopyIcon sx={{ color: "#fff", fontSize: 20 }} />
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 1,
+                backgroundColor: "#FFF8F0",
+                border: `1px solid #FF8A004D`,
+                borderRadius: "8px",
+                p: 1.5,
+              }}
+            >
+              {/* <ScheduleIcon sx={{ color: COUPON_ORANGE, fontSize: 20, flexShrink: 0, mt: 0.25 }} /> */}
+              <Box sx={{ fontSize: "20px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: COUPON_ORANGE, borderRadius: "50%", p: 0.5, flexShrink: 0, mt: 0.25, height: "32px", width: "32px" }}>
+                <Box component="img" src={AlarmClock} alt="clock" height={16} width={16} />
+              </Box>
+              
+              <Box>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontWeight: 700,
+                    fontSize: "0.8125rem",
+                    color: COUPON_ORANGE,
+                  }}
+                >
+                  Limited Time Offer:{" "}
+                </Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontSize: "12px",
+                    lineHeight: "18px",
+                    fontWeight: 400,
+                    color: "#666666",
+                  }}
+                >
+                  This exclusive discount is available for new members during the onboarding period
+                </Typography>
+              </Box>
+            </Box>
           </Box>
+
+                </Box>
+            
+          </Box>
+
+         
 
           {/* Proceed to Payment – redirects to Stripe Checkout */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
