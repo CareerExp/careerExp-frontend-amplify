@@ -33,6 +33,7 @@ import OrgProfile from "./orgDashboard/OrgProfile.jsx";
 import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
 import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
 import MyCompany from "./creatorDashboard/MyCompany.jsx";
+import MyMessages from "./messages/MyMessages.jsx";
 
 const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
   console.log(orgProfile);
@@ -84,6 +85,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <CounsellorFollowers />;
       case "My Company":
         return <MyCompany />;
+      case "My Messages":
+        return <MyMessages />;
       case "Profile":
         return <Profile />;
       default:
@@ -136,6 +139,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <OrgMyCourses />;
       case "My Followers":
         return <OrgFollowers />;
+      case "My Messages":
+        return <MyMessages />;
       case "Profile":
         return <OrgProfile isAdminInOrgView={options.isAdminInOrgView} />;
       default:
@@ -159,6 +164,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <UserResume />;
       case "Career Planning":
         return <CareerPlanning />;
+      case "My Messages":
+        return <MyMessages />;
       case "Profile":
         return <Profile />;
       default:
