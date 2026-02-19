@@ -66,7 +66,7 @@ const Headers = () => {
   return (
     <nav className={navBar["navContainer"]}>
       <Link to={"/"} className={navBar["logo"]}>
-        <img src={interestLogo} alt="logo" width={authenticated ? "50%" : "70%"} />
+        <img src={interestLogo} alt="logo" width={authenticated ? "50%" : "50%"} />
       </Link>
 
       <div className={navBar["right"]}>

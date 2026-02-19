@@ -51,6 +51,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType,
         },
         // { name: "History", icon: <HistoryIcon />, route: "/history" },
         { name: "Career Planning", icon: <OutlinedFlagIcon />, route: "/careerplanning" },
+        { name: "My Messages", icon: <MessageIcon />, route: "/messages" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
       ];
       break;
@@ -82,6 +83,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType,
         { name: "Social Media", icon: <ShareIcon />, route: "/socialmedia" },
         { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
         { name: "My Company", icon: <BusinessCenterIcon />, route: "/mycompany" },
+        { name: "My Messages", icon: <MessageIcon />, route: "/messages" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
       ];
       break;
@@ -95,7 +97,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType,
             { name: "My Events", icon: <EventIcon />, route: "/myevents" },
             { name: "My Services", icon: <BusinessCenterIcon />, route: "/myservices" },
             ...(isActingAsAME ? [{ name: "My Courses", icon: <MenuBookIcon />, route: "/mycourses" }] : []),
-            { name: "Messages", icon: <MessageIcon />, route: "/messages" },
+            { name: "My Messages", icon: <MessageIcon />, route: "/messages" },
             { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
             { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
           ];
@@ -108,7 +110,7 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType,
             { name: "My Announcements", icon: <CampaignIcon />, route: "/myannouncements" },
             { name: "My Events", icon: <EventIcon />, route: "/myevents" },
             { name: "My Services", icon: <BusinessCenterIcon />, route: "/myservices" },
-            { name: "Messages", icon: <MessageIcon />, route: "/messages" },
+            { name: "My Messages", icon: <MessageIcon />, route: "/messages" },
             { name: "My Followers", icon: <PersonAddIcon />, route: "/myfollowers" },
             { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
           ];

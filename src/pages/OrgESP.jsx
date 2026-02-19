@@ -12,7 +12,7 @@ const OrgESP = () => {
       sx={{
         minHeight: '100vh',
         backgroundColor: '#f9fafb',
-        pt: '8rem',
+        pt: '10rem',
         pb: 8,
         px: { xs: 0, md: '5rem' }
       }}
