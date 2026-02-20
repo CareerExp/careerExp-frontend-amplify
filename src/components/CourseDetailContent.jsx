@@ -8,7 +8,11 @@ import {
   Paper,
   Rating,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -30,6 +34,7 @@ import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
 import { getCourseLikeStatus, toggleCourseLike } from "../redux/slices/likeSlice.js";
 import { getCourseRatingStatus, rateCourse } from "../redux/slices/ratingSlice.js";
+import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
@@ -64,6 +69,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const [userLiked, setUserLiked] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [totalViews, setTotalViews] = useState(null);
+  const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -591,10 +597,10 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                     {ctaLabel}
                   </Button>
                 )}
-                {messageProviderUrl && (
+                {isAuthenticated && contactEmail && (
                   <Button
                     variant="outlined"
-                    href={messageProviderUrl}
+                    onClick={() => setMessageProviderModalOpen(true)}
                     fullWidth
                     sx={{
                       borderRadius: "90px",
@@ -659,9 +665,51 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                       {organizationDetails.website}
                     </Typography>
                   </Box>
-                )}
-              </Paper>
             )}
+          </Paper>
+            )}
+
+      {/* Message Provider modal */}
+      <Dialog
+        open={messageProviderModalOpen}
+        onClose={() => setMessageProviderModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: "16px", overflow: "hidden" },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 700,
+            fontSize: "1.25rem",
+            color: "#101828",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "1px solid #EAECF0",
+            py: 2,
+          }}
+        >
+          Message Provider
+          <IconButton
+            onClick={() => setMessageProviderModalOpen(false)}
+            size="small"
+            aria-label="Close"
+            sx={{ ml: 1 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <NewMessagePanel
+            defaultToEmail={contactEmail}
+            defaultDisplayName={providerName}
+            onSuccess={() => setMessageProviderModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
           </Box>
         </Grid>
       </Grid>

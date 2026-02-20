@@ -8,7 +8,8 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
-import { Box, Button, IconButton, Typography, Rating } from "@mui/material";
+import { Box, Button, IconButton, Typography, Rating, Dialog, DialogTitle, DialogContent } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "../redux/slices/alertSlice.js";
@@ -25,6 +26,7 @@ import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
 import { eventsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
+import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 
 const ACCENT = "#DD4595";
 const ACCENT_DARK = "#720361";
@@ -41,6 +43,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const [userRating, setUserRating] = useState(0);
   const [averageRating, setAverageRating] = useState(null);
   const [totalRatings, setTotalRatings] = useState(null);
+  const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
 
   const imageUrl =
     service?.coverImage || service?.image || eventsPlaceholder;
@@ -166,10 +169,11 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
     // }
   };
 
-  const messageProviderHref =
-    organizationDetails?.contactEmail || service?.createdBy?.email
-      ? `mailto:${organizationDetails?.contactEmail || service?.createdBy?.email}`
-      : null;
+  const contactEmail = organizationDetails?.contactEmail || service?.createdBy?.email;
+  const providerName =
+    organizationDetails?.organizationName ||
+    (service?.createdBy ? [service.createdBy.firstName, service.createdBy.lastName].filter(Boolean).join(" ") : "") ||
+    "—";
 
   if (loading) {
     return (
@@ -562,12 +566,11 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             >
               {"Enquire Now"}
             </Button>
-            {messageProviderHref && (
+            {isAuthenticated && contactEmail && (
               <Button
                 variant="outlined"
                 fullWidth
-                href={messageProviderHref}
-                component="a"
+                onClick={() => setMessageProviderModalOpen(true)}
                 sx={{
                   border: "2px solid",
                   borderColor: ACCENT,
@@ -714,6 +717,48 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               )}
             </Box>
           )}
+
+      {/* Message Provider modal */}
+      <Dialog
+        open={messageProviderModalOpen}
+        onClose={() => setMessageProviderModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: "16px", overflow: "hidden" },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 700,
+            fontSize: "1.25rem",
+            color: "#101828",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "1px solid #EAECF0",
+            py: 2,
+          }}
+        >
+          Message Provider
+          <IconButton
+            onClick={() => setMessageProviderModalOpen(false)}
+            size="small"
+            aria-label="Close"
+            sx={{ ml: 1 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          <NewMessagePanel
+            defaultToEmail={contactEmail}
+            defaultDisplayName={providerName}
+            onSuccess={() => setMessageProviderModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
         </Box>
       </Box>
     </Box>

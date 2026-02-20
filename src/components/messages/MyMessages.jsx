@@ -1,46 +1,27 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Typography,
   Paper,
-  TextField,
-  Button,
   ToggleButtonGroup,
   ToggleButton,
   CircularProgress,
-  Autocomplete,
 } from "@mui/material";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { fonts } from "../../utility/fonts";
 import {
-  sendMessage,
-  fetchRecipientSuggestions,
   fetchReceivedMessages,
   fetchSentMessages,
-  selectSendLoading,
-  selectRecipientSuggestions,
-  selectSuggestionsLoading,
   selectReceivedMessages,
   selectSentMessages,
   selectReceivedLoading,
   selectSentLoading,
   selectReceivedError,
   selectSentError,
-  clearSendError,
-  clearRecipientSuggestions,
 } from "../../redux/slices/messageSlice";
 import { selectToken } from "../../redux/slices/authSlice";
-import { notify } from "../../redux/slices/alertSlice";
-
-const TITLE_MAX = 200;
-const BODY_MAX = 4000;
-const SUGGEST_DEBOUNCE_MS = 300;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function isValidEmail(value) {
-  return typeof value === "string" && EMAIL_REGEX.test(value.trim());
-}
+import NewMessagePanel from "./NewMessagePanel";
 
 const BODY_SNIPPET_LEN = 120;
 
@@ -101,15 +82,15 @@ const MessageCard = ({ message, tab }) => {
           borderTop: "1px solid rgba(0, 0, 0, 0.11)",
         }}
       >
-        {/* <Box sx={{ display: "flex", gap: 5 }}> */}
-        {/* <Typography
+        {tab === "received" && (
+          <Typography
             sx={{
               fontFamily: fonts.poppins,
               fontSize: "14px",
               color: "#667085",
             }}
           >
-            From: <br />
+            From:{" "}
             <span
               style={{
                 fontWeight: 600,
@@ -119,27 +100,28 @@ const MessageCard = ({ message, tab }) => {
             >
               {fromValue}
             </span>
-          </Typography> */}
-        <Typography
-          sx={{
-            fontFamily: fonts.poppins,
-            fontSize: "14px",
-            color: "#667085",
-          }}
-        >
-          To:
-          <span
-            style={{
-              fontWeight: 600,
-              color: "#545454",
+          </Typography>
+        )}
+        {tab === "sent" && (
+          <Typography
+            sx={{
               fontFamily: fonts.poppins,
+              fontSize: "14px",
+              color: "#667085",
             }}
           >
-            {" "}
-            {toValue}
-          </span>
-        </Typography>
-        {/* </Box> */}
+            To:{" "}
+            <span
+              style={{
+                fontWeight: 600,
+                color: "#545454",
+                fontFamily: fonts.poppins,
+              }}
+            >
+              {toValue}
+            </span>
+          </Typography>
+        )}
         <Box
           sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1, my: 2 }}
         >
@@ -178,9 +160,6 @@ const MessageCard = ({ message, tab }) => {
 const MyMessages = () => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
-  const sendLoading = useSelector(selectSendLoading);
-  const recipientSuggestions = useSelector(selectRecipientSuggestions);
-  const suggestionsLoading = useSelector(selectSuggestionsLoading);
   const receivedMessages = useSelector(selectReceivedMessages);
   const sentMessages = useSelector(selectSentMessages);
   const receivedLoading = useSelector(selectReceivedLoading);
@@ -189,24 +168,6 @@ const MyMessages = () => {
   const sentError = useSelector(selectSentError);
 
   const [tab, setTab] = useState("sent");
-  const [toInputValue, setToInputValue] = useState("");
-  const [selectedRecipient, setSelectedRecipient] = useState(null);
-  const [newMessageTitle, setNewMessageTitle] = useState("");
-  const [newMessageBody, setNewMessageBody] = useState("");
-  const [fieldError, setFieldError] = useState(null);
-
-  const toEmail = selectedRecipient
-    ? selectedRecipient.email
-    : isValidEmail(toInputValue)
-      ? toInputValue.trim()
-      : "";
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearSendError());
-      dispatch(clearRecipientSuggestions());
-    };
-  }, [dispatch]);
 
   useEffect(() => {
     if (!token) return;
@@ -217,63 +178,13 @@ const MyMessages = () => {
     }
   }, [dispatch, token, tab]);
 
-  const fetchSuggestions = useCallback(() => {
-    const q = toInputValue.trim();
-    if (q.length >= 2 && token) {
-      dispatch(fetchRecipientSuggestions({ token, q, limit: 10 }));
-    } else {
-      dispatch(clearRecipientSuggestions());
-    }
-  }, [dispatch, token, toInputValue]);
-
-  useEffect(() => {
-    const timer = setTimeout(fetchSuggestions, SUGGEST_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [fetchSuggestions]);
-
   const handleTabChange = (event, newTab) => {
     if (newTab !== null) setTab(newTab);
   };
 
-  const titleLen = newMessageTitle.length;
-  const bodyLen = newMessageBody.length;
-  const titleValid = newMessageTitle.trim().length > 0 && titleLen <= TITLE_MAX;
-  const bodyValid = newMessageBody.trim().length > 0 && bodyLen <= BODY_MAX;
-  const formValid = !!toEmail && titleValid && bodyValid;
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    setFieldError(null);
-    if (!token || !formValid || !toEmail) return;
-
-    const payload = {
-      token,
-      toEmail,
-      title: newMessageTitle.trim(),
-      body: newMessageBody.trim(),
-    };
-
-    const result = await dispatch(sendMessage(payload));
-    if (sendMessage.fulfilled.match(result)) {
-      dispatch(
-        notify({ message: "Message sent successfully.", type: "success" }),
-      );
-      setToInputValue("");
-      setSelectedRecipient(null);
-      setNewMessageTitle("");
-      setNewMessageBody("");
-      dispatch(clearRecipientSuggestions());
-      setTab("sent");
-      if (token) dispatch(fetchSentMessages({ token, page: 1, limit: 20 }));
-    } else {
-      const err =
-        result.payload?.error ||
-        result.error?.message ||
-        "Failed to send message";
-      const field = result.payload?.field;
-      dispatch(notify({ message: err, type: "error" }));
-      if (field) setFieldError({ field, message: err });
-    }
+  const handleMessageSent = () => {
+    setTab("sent");
+    if (token) dispatch(fetchSentMessages({ token, page: 1, limit: 20 }));
   };
 
   const listLoading = tab === "received" ? receivedLoading : sentLoading;
@@ -431,185 +342,7 @@ const MyMessages = () => {
         </Box>
 
         {/* New Message panel */}
-        <Paper
-          component="form"
-          onSubmit={handleSendMessage}
-          elevation={0}
-          sx={{
-            p: 3,
-            borderRadius: "20px",
-            backgroundColor: "#fff",
-            boxShadow: "0px 6px 24px 0px rgba(0,0,0,0.05)",
-            border: "1px solid #EAECF0",
-            position: { md: "sticky" },
-            top: 24,
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontWeight: 700,
-              fontSize: "20px",
-              color: "#101828",
-              mb: 3,
-            }}
-          >
-            New Message
-          </Typography>
-
-          <Autocomplete
-            freeSolo
-            options={recipientSuggestions}
-            value={selectedRecipient}
-            inputValue={toInputValue}
-            onInputChange={(e, v, reason) => {
-              setToInputValue(v);
-              if (reason === "input") setSelectedRecipient(null);
-              setFieldError(null);
-            }}
-            onChange={(e, v) => {
-              setSelectedRecipient(
-                v && typeof v === "object" && v.email ? v : null,
-              );
-              setFieldError(null);
-            }}
-            getOptionLabel={(option) =>
-              option && typeof option === "object" && option.displayName != null
-                ? `${option.displayName} (${option.email})`
-                : String(option || "")
-            }
-            loading={suggestionsLoading}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="To"
-                placeholder="Type name or email (min 2 characters)"
-                error={fieldError?.field === "toEmail"}
-                helperText={
-                  fieldError?.field === "toEmail"
-                    ? fieldError.message
-                    : "Search by name or email; select a suggestion or enter a valid email"
-                }
-                sx={{
-                  mb: 2,
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "12px",
-                    backgroundColor: "#F9FAFB",
-                    "& fieldset": { borderColor: "#EAECF0" },
-                    "&:hover fieldset": { borderColor: "#D0D5DD" },
-                    "&.Mui-focused fieldset": { borderColor: "#BC2876" },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": { color: "#BC2876" },
-                  "& .MuiInputBase-input": {
-                    fontFamily: fonts.sans,
-                    fontSize: "14px",
-                  },
-                }}
-              />
-            )}
-            renderOption={(props, option) => (
-              <li {...props} key={option.email}>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px" }}>
-                  {option.displayName} ({option.email})
-                </Typography>
-              </li>
-            )}
-          />
-
-          <TextField
-            fullWidth
-            label="Title"
-            placeholder="Message title (max 200 characters)"
-            value={newMessageTitle}
-            onChange={(e) => {
-              setNewMessageTitle(e.target.value.slice(0, TITLE_MAX));
-              setFieldError(null);
-            }}
-            error={fieldError?.field === "title" || titleLen > TITLE_MAX}
-            helperText={
-              fieldError?.field === "title"
-                ? fieldError.message
-                : `${titleLen}/${TITLE_MAX}`
-            }
-            sx={{
-              mb: 2,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "12px",
-                backgroundColor: "#F9FAFB",
-                "& fieldset": { borderColor: "#EAECF0" },
-                "&:hover fieldset": { borderColor: "#D0D5DD" },
-                "&.Mui-focused fieldset": { borderColor: "#BC2876" },
-              },
-              "& .MuiInputLabel-root.Mui-focused": { color: "#BC2876" },
-              "& .MuiInputBase-input": {
-                fontFamily: fonts.sans,
-                fontSize: "14px",
-              },
-            }}
-          />
-
-          <TextField
-            fullWidth
-            label="Message"
-            placeholder="Type your message here... (max 4000 characters)"
-            multiline
-            rows={5}
-            value={newMessageBody}
-            onChange={(e) => {
-              setNewMessageBody(e.target.value.slice(0, BODY_MAX));
-              setFieldError(null);
-            }}
-            error={fieldError?.field === "body" || bodyLen > BODY_MAX}
-            helperText={
-              fieldError?.field === "body"
-                ? fieldError.message
-                : `${bodyLen}/${BODY_MAX}`
-            }
-            sx={{
-              mb: 3,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "12px",
-                backgroundColor: "#F9FAFB",
-                "& fieldset": { borderColor: "#EAECF0" },
-                "&:hover fieldset": { borderColor: "#D0D5DD" },
-                "&.Mui-focused fieldset": { borderColor: "#BC2876" },
-              },
-              "& .MuiInputLabel-root.Mui-focused": { color: "#BC2876" },
-              "& .MuiInputBase-input": {
-                fontFamily: fonts.sans,
-                fontSize: "14px",
-              },
-            }}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={!formValid || sendLoading}
-            sx={{
-              borderRadius: "12px",
-              py: 1.5,
-              fontFamily: fonts.sans,
-              fontWeight: 600,
-              fontSize: "16px",
-              textTransform: "none",
-              background:
-                "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
-              "&:hover": { opacity: 0.9 },
-              "&.Mui-disabled": {
-                background: "#EAECF0",
-                color: "#98A2B3",
-              },
-            }}
-          >
-            {sendLoading ? (
-              <CircularProgress size={24} sx={{ color: "#fff" }} />
-            ) : (
-              "Send Message"
-            )}
-          </Button>
-        </Paper>
+        <NewMessagePanel onSuccess={handleMessageSent} />
       </Box>
     </Box>
   );
