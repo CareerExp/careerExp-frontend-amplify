@@ -1,3 +1,4 @@
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
@@ -13,6 +14,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import OutlinedFlagIcon from "@mui/icons-material/OutlinedFlag";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PaymentsIcon from "@mui/icons-material/Payments";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import QueueMusicIcon from "@mui/icons-material/QueueMusic";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -65,9 +67,11 @@ const Sidebar = ({ userRole, handleMenuItemClick, currentPage, organizationType,
         { name: "Users", icon: <PeopleAltIcon />, route: "/users" },
         { name: "Counsellors", icon: <PsychologyIcon />, route: "/creator" },
         { name: "ESP & EI User", icon: <BusinessCenterIcon />, route: "/esp-ei-users" },
+        { name: "Government Organizations", icon: <AccountBalanceIcon />, route: "/government-organizations" },
         { name: "Admin managed ESPs", icon: <AdminPanelSettingsIcon />, route: "/admin-managed-esps" },
         { name: "Records", icon: <AssessmentIcon />, route: "/records" },
         { name: "School Directory", icon: <SchoolIcon />, route: "/schoolcontactinfo" },
+        { name: "Payments", icon: <PaymentsIcon />, route: "/payments" },
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
       ];
       break;

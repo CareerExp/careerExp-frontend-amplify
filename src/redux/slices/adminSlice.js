@@ -9,6 +9,8 @@ const initialState = {
   organizations: null,
   ameOrganizations: null,
   generalData: {},
+  paymentTransactions: null,
+  governmentOrganizations: null,
 };
 
 export const getAllUsers = createAsyncThunk(
@@ -150,6 +152,144 @@ export const createAME = createAsyncThunk(
   },
 );
 
+/** GET /api/admin/government-organizations – List with pagination and search */
+export const getGovernmentOrganizations = createAsyncThunk(
+  "admin/getGovernmentOrganizations",
+  async ({ token, page = 1, limit = 10, search = "" }) => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.set("search", search);
+    return FetchApi.fetch(
+      `${config.api}/api/admin/government-organizations?${queryParams}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  },
+);
+
+/** GET /api/admin/government-organizations/:id – Get one */
+export const getGovernmentOrganization = createAsyncThunk(
+  "admin/getGovernmentOrganization",
+  async ({ token, id }) => {
+    return FetchApi.fetch(
+      `${config.api}/api/admin/government-organizations/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  },
+);
+
+/** POST /api/admin/government-organizations – Create (JSON or multipart with file) */
+export const createGovernmentOrganization = createAsyncThunk(
+  "admin/createGovernmentOrganization",
+  async ({ token, name, description, image, file }) => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("file", file);
+      return FetchApi.fetch(`${config.api}/api/admin/government-organizations`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+    }
+    return FetchApi.fetch(`${config.api}/api/admin/government-organizations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name, description, ...(image && { image }) }),
+    });
+  },
+);
+
+/** PUT /api/admin/government-organizations/:id – Update (JSON or multipart with file) */
+export const updateGovernmentOrganization = createAsyncThunk(
+  "admin/updateGovernmentOrganization",
+  async ({ token, id, name, description, image, file }) => {
+    if (file) {
+      const formData = new FormData();
+      if (name !== undefined) formData.append("name", name);
+      if (description !== undefined) formData.append("description", description);
+      formData.append("file", file);
+      return FetchApi.fetch(
+        `${config.api}/api/admin/government-organizations/${id}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        },
+      );
+    }
+    const body = {};
+    if (name !== undefined) body.name = name;
+    if (description !== undefined) body.description = description;
+    if (image !== undefined) body.image = image;
+    return FetchApi.fetch(
+      `${config.api}/api/admin/government-organizations/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      },
+    );
+  },
+);
+
+/** DELETE /api/admin/government-organizations/:id */
+export const deleteGovernmentOrganization = createAsyncThunk(
+  "admin/deleteGovernmentOrganization",
+  async ({ token, id }) => {
+    return FetchApi.fetch(
+      `${config.api}/api/admin/government-organizations/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+  },
+);
+
+export const getPaymentTransactions = createAsyncThunk(
+  "admin/getPaymentTransactions",
+  async ({ token, page = 1, limit = 20, search = "", status = "" }) => {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (search) queryParams.set("search", search);
+    if (status) queryParams.set("status", status);
+
+    return FetchApi.fetch(`${config.api}/api/admin/payment-transactions?${queryParams}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+);
+
 export const getGeneralUserData = createAsyncThunk("admin/getGeneralUserData", async ({ token }) => {
   return FetchApi.fetch(`${config.api}/api/admin/getgeneralinformation`, {
     method: "GET",
@@ -234,6 +374,12 @@ const adminSlice = createSlice({
       state.ameOrganizations = action.payload;
     });
 
+    builder.addCase(getPaymentTransactions.fulfilled, (state, action) => {
+      state.paymentTransactions = action.payload?.data ?? null;
+    });
+    builder.addCase(getGovernmentOrganizations.fulfilled, (state, action) => {
+      state.governmentOrganizations = action.payload?.data ?? null;
+    });
     builder.addCase(getGeneralUserData.fulfilled, (state, action) => {
       state.generalData = action.payload.data;
     });
@@ -279,5 +425,8 @@ export const selectCreatorsData = (state) => state.admin.creators;
 export const selectOrganizationsData = (state) => state.admin.organizations;
 export const selectAMEOrganizationsData = (state) => state.admin.ameOrganizations;
 export const selectGeneralData = (state) => state.admin.generalData;
+export const selectPaymentTransactionsData = (state) => state.admin.paymentTransactions;
+export const selectGovernmentOrganizationsData = (state) =>
+  state.admin.governmentOrganizations;
 
 export default adminSlice.reducer;
