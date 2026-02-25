@@ -112,13 +112,20 @@ export const deleteEvent = createAsyncThunk(
   }
 );
 
-/** Public: get event by id for detail page. GET /api/events/:id */
+/** Get event by id. GET /api/events/:id. With token (org workspace), returns ctaResponses. */
 export const getEventById = createAsyncThunk(
   "event/getById",
-  async (id) => {
+  async (payload, thunkAPI) => {
+    const id = typeof payload === "object" && payload?.id != null ? payload.id : payload;
+    const token = typeof payload === "object" ? payload.token : undefined;
+    const headers = { "Content-Type": "application/json" };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      Object.assign(headers, getActingAsHeader(thunkAPI.getState));
+    }
     const response = await FetchApi.fetch(`${config.api}/api/events/${id}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
     if (!response.success) {
       throw new Error(response.message || "Failed to fetch event");

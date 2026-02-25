@@ -49,9 +49,10 @@ const TabPanel = ({ value, index, children }) => (
   </div>
 );
 
-const HEIDescriptionTabs = () => {
+const HEIDescriptionTabs = ({ profile: profileProp }) => {
   const [tabValue, setTabValue] = useState(0);
-  const orgProfile = useSelector(selectOrganizationProfile);
+  const profileFromRedux = useSelector(selectOrganizationProfile);
+  const orgProfile = profileProp ?? profileFromRedux;
 
   const socialLinks = orgProfile?.socialLinks || {};
   const socialIconsMap = [

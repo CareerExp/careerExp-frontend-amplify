@@ -66,7 +66,8 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
       if (!serviceId) return;
       try {
         setLoading(true);
-        const res = await dispatch(getServiceById(serviceId)).unwrap();
+        const payload = isAuthenticated && token ? { id: serviceId, token } : serviceId;
+        const res = await dispatch(getServiceById(payload)).unwrap();
         if (res?.data) {
           setService(res.data);
           if (res.data.averageRating != null) setAverageRating(Number(res.data.averageRating));
@@ -85,7 +86,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
       }
     };
     fetchDetail();
-  }, [serviceId, dispatch, onBack]);
+  }, [serviceId, dispatch, onBack, isAuthenticated, token]);
 
   useEffect(() => {
     const fetchServiceRating = async () => {
@@ -144,30 +145,28 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
 
   const handleEnquireNow = async () => {
     if (!serviceId) return;
-    if (isAuthenticated && token) {
-      try {
-        await dispatch(
-          registerServiceCta({
-            id: serviceId,
-            actionType: "CLICK",
-            token,
-          })
-        ).unwrap();
-        dispatch(notify({ type: "success", message: "Response recorded successfully." }));
-      } catch (err) {
-        dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
-        return;
-      }
-    } else {
+    if (!isAuthenticated || !token) {
       dispatch(notify({ type: "warning", message: "Please log in to enquire" }));
       return;
     }
-    // if (cta.type === "LINK" && cta.value) {
-    //   window.open(cta.value.startsWith("http") ? cta.value : `https://${cta.value}`, "_blank");
-    // } else if (cta.type === "EMAIL" && cta.value) {
-    //   window.location.href = `mailto:${cta.value}`;
-    // }
+    if (service?.userHasRespondedToCta) return;
+    try {
+      await dispatch(
+        registerServiceCta({
+          id: serviceId,
+          actionType: "CLICK",
+          token,
+        })
+      ).unwrap();
+      dispatch(notify({ type: "success", message: "Response recorded successfully." }));
+      const res = await dispatch(getServiceById({ id: serviceId, token })).unwrap();
+      if (res?.data) setService(res.data);
+    } catch (err) {
+      dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
+    }
   };
+
+  const hasResponded = Boolean(service?.userHasRespondedToCta);
 
   const contactEmail = organizationDetails?.contactEmail || service?.createdBy?.email;
   const providerName =
@@ -547,6 +546,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             <Button
               variant="contained"
               fullWidth
+              disabled={hasResponded}
               onClick={handleEnquireNow}
               sx={{
                 background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
@@ -564,7 +564,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 },
               }}
             >
-              {"Enquire Now"}
+              {hasResponded ? "Registered" : "Enquire Now"}
             </Button>
             {isAuthenticated && contactEmail && (
               <Button

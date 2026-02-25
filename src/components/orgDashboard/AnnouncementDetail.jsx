@@ -21,15 +21,7 @@ const AnnouncementDetail = ({ announcement, onBack, onEdit, onDelete }) => {
         return new Date(dateString).toLocaleDateString('en-GB');
     };
 
-    // Dummy data for CTAs received since we only have a count in the announcement object
-    const dummyCtas = [
-        { id: 1, name: 'Sarah Johnson', date: '15/01/2026' },
-        { id: 2, name: 'Michael Chen', date: '12/01/2026' },
-        { id: 3, name: 'Emma Williams', date: '18/01/2026' },
-        { id: 4, name: 'Sarah Johnson', date: '15/01/2026' },
-        { id: 5, name: 'Michael Chen', date: '12/01/2026' },
-        { id: 6, name: 'Emma Williams', date: '18/01/2026' },
-    ];
+    const ctaResponses = announcement.ctaResponses || [];
 
     return (
         <Box sx={{ p: 4, minHeight: '100%' }}>
@@ -263,46 +255,59 @@ const AnnouncementDetail = ({ announcement, onBack, onEdit, onDelete }) => {
                     CTAs received
                 </Typography>
 
-                <Grid container spacing={2.5}>
-                    {dummyCtas.map((cta) => (
-                        <Grid item key={cta.id} xs={12} sm={6} md={4}>
-                            <Box
-                                sx={{
-                                    backgroundColor: '#f4f7fe',
-                                    borderRadius: '12px',
-                                    p: 2,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}
-                            >
-                                <Avatar sx={{ width: 48, height: 48, backgroundColor: '#e5e7eb' }} />
-                                <Box>
-                                    <Typography
+                {ctaResponses.length > 0 ? (
+                    <Grid container spacing={2.5}>
+                        {ctaResponses.map((resp) => {
+                            const user = resp.userId || {};
+                            const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Unknown';
+                            return (
+                                <Grid item key={resp._id} xs={12} sm={6} md={4}>
+                                    <Box
                                         sx={{
-                                            fontFamily: fonts.sans,
-                                            fontWeight: 600,
-                                            fontSize: '16px',
-                                            color: '#000',
+                                            backgroundColor: '#f4f7fe',
+                                            borderRadius: '12px',
+                                            p: 2,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 2
                                         }}
                                     >
-                                        {cta.name}
-                                    </Typography>
-                                    <Typography
-                                        sx={{
-                                            fontFamily: fonts.sans,
-                                            fontWeight: 400,
-                                            fontSize: '14px',
-                                            color: '#666',
-                                        }}
-                                    >
-                                        {cta.date}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                        </Grid>
-                    ))}
-                </Grid>
+                                        <Avatar
+                                            src={user.profilePicture}
+                                            sx={{ width: 48, height: 48, backgroundColor: '#e5e7eb' }}
+                                        />
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontWeight: 600,
+                                                    fontSize: '16px',
+                                                    color: '#000',
+                                                }}
+                                            >
+                                                {displayName}
+                                            </Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontWeight: 400,
+                                                    fontSize: '14px',
+                                                    color: '#666',
+                                                }}
+                                            >
+                                                {formatDate(resp.respondedAt)}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+                ) : (
+                    <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#667085', py: 2 }}>
+                        No responses received yet.
+                    </Typography>
+                )}
             </Paper>
         </Box>
     );

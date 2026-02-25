@@ -14,6 +14,7 @@ const initialState = {
   isFollowing: false, // changed from { isFollowing: false } to false
   followerCount: 0,
   CounsellorAnalytics: null,
+  creatorDashboard: null,
   generalArticleData: null,
   invitations: [],
   myOrganization: null,
@@ -576,6 +577,27 @@ export const getGeneralVideoData = createAsyncThunk(
   },
 );
 
+/** GET /api/creator/dashboard/:userId – summary stats for counsellor dashboard. Auth required; userId must be current user. */
+export const getCreatorDashboard = createAsyncThunk(
+  "creator/getCreatorDashboard",
+  async ({ userId, token }) => {
+    const response = await FetchApi.fetch(
+      `${config.api}/api/creator/dashboard/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.success === false) {
+      throw new Error(response.message || "Failed to load dashboard");
+    }
+    return response.data != null ? response.data : response;
+  }
+);
+
 export const allvideos = createAsyncThunk("creator/allvideos", async ({ page }) => {
   try {
     return await FetchApi.fetch(`${config.api}/api/creator/allvideos?page=${page}`, {
@@ -971,6 +993,10 @@ const creatorSlice = createSlice({
       state.loading = false;
       state.error = payload?.error || "Failed to respond to invitation";
     });
+
+    builder.addCase(getCreatorDashboard.fulfilled, (state, { payload }) => {
+      state.creatorDashboard = payload ?? null;
+    });
   },
 });
 
@@ -987,6 +1013,7 @@ export const selectCreatorProfile = (state) => state.creator.creatorProfile;
 export const selectIsFollowing = (state) => state.creator.isFollowing;
 export const selectFollowerCount = (state) => state.creator.followerCount;
 export const selectCounsellorAnalytics = (state) => state.creator.CounsellorAnalytics;
+export const selectCreatorDashboard = (state) => state.creator.creatorDashboard;
 export const selectGeneralArticleData = (state) => state.creator.generalArticleData;
 export const selectCreatorInvitations = (state) => state.creator.invitations;
 export const selectMyOrganization = (state) => state.creator.myOrganization;

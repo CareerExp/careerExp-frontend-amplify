@@ -345,47 +345,51 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
 
                 {responses.length > 0 ? (
                     <Grid container spacing={2.5}>
-                        {responses.map((resp, idx) => (
-                            <Grid item key={idx} xs={12} sm={6} md={4}>
-                                <Box
-                                    sx={{
-                                        backgroundColor: '#f4f7fe',
-                                        borderRadius: '12px',
-                                        p: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 2
-                                    }}
-                                >
-                                    <Avatar 
-                                        src={resp.profilePicture}
-                                        sx={{ width: 48, height: 48, backgroundColor: '#e5e7eb' }} 
-                                    />
-                                    <Box>
-                                        <Typography
-                                            sx={{
-                                                fontFamily: fonts.sans,
-                                                fontWeight: 600,
-                                                fontSize: '16px',
-                                                color: '#000',
-                                            }}
-                                        >
-                                            {resp.firstName} {resp.lastName}
-                                        </Typography>
-                                        <Typography
-                                            sx={{
-                                                fontFamily: fonts.sans,
-                                                fontWeight: 400,
-                                                fontSize: '14px',
-                                                color: '#666',
-                                            }}
-                                        >
-                                            {formatDate(resp.createdAt)}
-                                        </Typography>
+                        {responses.map((resp) => {
+                            const user = resp.userId || {};
+                            const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Unknown';
+                            return (
+                                <Grid item key={resp._id} xs={12} sm={6} md={4}>
+                                    <Box
+                                        sx={{
+                                            backgroundColor: '#f4f7fe',
+                                            borderRadius: '12px',
+                                            p: 2,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 2
+                                        }}
+                                    >
+                                        <Avatar
+                                            src={user.profilePicture}
+                                            sx={{ width: 48, height: 48, backgroundColor: '#e5e7eb' }}
+                                        />
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontWeight: 600,
+                                                    fontSize: '16px',
+                                                    color: '#000',
+                                                }}
+                                            >
+                                                {displayName}
+                                            </Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontWeight: 400,
+                                                    fontSize: '14px',
+                                                    color: '#666',
+                                                }}
+                                            >
+                                                {formatDate(resp.respondedAt)}
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                </Box>
-                            </Grid>
-                        ))}
+                                </Grid>
+                            );
+                        })}
                     </Grid>
                 ) : (
                     <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#667085', py: 2 }}>

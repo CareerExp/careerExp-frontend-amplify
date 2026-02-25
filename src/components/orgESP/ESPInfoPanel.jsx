@@ -114,8 +114,9 @@ const LocationCard = ({ index, location }) => (
     </Paper>
 );
 
-const ESPInfoPanel = () => {
-    const orgProfile = useSelector(selectOrganizationProfile);
+const ESPInfoPanel = ({ profile: profileProp }) => {
+    const profileFromRedux = useSelector(selectOrganizationProfile);
+    const orgProfile = profileProp ?? profileFromRedux;
 
     const specializations = orgProfile?.specializations || [
         'Careers Advice',

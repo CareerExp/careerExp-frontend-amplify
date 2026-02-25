@@ -10,12 +10,14 @@ import {
     Tab,
     CircularProgress,
     IconButton,
+    Dialog,
+    DialogContent,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { fonts } from '../../utility/fonts';
 import ConnectionCard from './ConnectionCard';
-import SendMessageModal from './SendMessageModal';
+import NewMessagePanel from '../messages/NewMessagePanel';
 import {
     fetchFollowers,
     fetchFollowing,
@@ -38,7 +40,6 @@ const SocialConnectionsContainer = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
     const [selectedUserForMessage, setSelectedUserForMessage] = useState(null);
-    const [messageLoading, setMessageLoading] = useState(false);
     
     const followers = useSelector(selectFollowers);
     const following = useSelector(selectFollowing);
@@ -92,18 +93,15 @@ const SocialConnectionsContainer = () => {
         setIsMessageModalOpen(true);
     };
 
-    const handleSendMessage = async (text) => {
-        setMessageLoading(true);
-        try {
-            // Integration will be added later
-            console.log("Sending message to:", selectedUserForMessage?.firstName, "Content:", text);
-            dispatch(notify({ message: "Message UI implemented! Integration coming soon.", type: "info" }));
-            setIsMessageModalOpen(false);
-        } catch (error) {
-            dispatch(notify({ message: "Failed to send message", type: "error" }));
-        } finally {
-            setMessageLoading(false);
-        }
+    const handleMessageModalClose = () => {
+        setIsMessageModalOpen(false);
+        setSelectedUserForMessage(null);
+    };
+
+    const displayNameForUser = (u) => {
+        if (!u) return '';
+        const name = [u.firstName, u.lastName].filter(Boolean).join(' ');
+        return name || u.email || '';
     };
 
     const dataList = activeTab === 0 ? followers : following;
@@ -248,13 +246,25 @@ const SocialConnectionsContainer = () => {
                 </>
             )}
 
-            <SendMessageModal
+            <Dialog
                 open={isMessageModalOpen}
-                onClose={() => setIsMessageModalOpen(false)}
-                user={selectedUserForMessage}
-                onSend={handleSendMessage}
-                loading={messageLoading}
-            />
+                onClose={handleMessageModalClose}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: '16px', p: 0 } }}
+            >
+                <DialogContent sx={{ p: 0 }}>
+                    <NewMessagePanel
+                        defaultToEmail={selectedUserForMessage?.email}
+                        defaultDisplayName={displayNameForUser(selectedUserForMessage)}
+                        disableToField
+                        onSuccess={() => {
+                            dispatch(notify({ message: 'Message sent', type: 'success' }));
+                            handleMessageModalClose();
+                        }}
+                    />
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };

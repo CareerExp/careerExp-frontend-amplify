@@ -112,13 +112,20 @@ export const deleteAnnouncement = createAsyncThunk(
   }
 );
 
-/** Public: get announcement by id for detail page. GET /api/announcements/:id */
+/** Get announcement by id. GET /api/announcements/:id. With token (org workspace), returns ctaResponses. */
 export const getAnnouncementById = createAsyncThunk(
   "announcement/getById",
-  async (id) => {
+  async (payload, thunkAPI) => {
+    const id = typeof payload === "object" && payload?.id != null ? payload.id : payload;
+    const token = typeof payload === "object" ? payload.token : undefined;
+    const headers = { "Content-Type": "application/json" };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      Object.assign(headers, getActingAsHeader(thunkAPI.getState));
+    }
     const response = await FetchApi.fetch(`${config.api}/api/announcements/${id}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
     if (!response.success) {
       throw new Error(response.message || "Failed to fetch announcement");

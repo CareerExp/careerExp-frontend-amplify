@@ -29,7 +29,7 @@ import { fonts } from '../../utility/fonts';
 import { uploadDocument } from '../../assets/assest';
 import AddEvent from './AddEvent';
 import EventDetail from './EventDetail';
-import { fetchMyEvents, selectMyEvents, selectEventLoading, deleteEvent } from '../../redux/slices/eventSlice';
+import { fetchMyEvents, getEventById, selectMyEvents, selectEventLoading, deleteEvent } from '../../redux/slices/eventSlice';
 import { selectToken } from '../../redux/slices/authSlice';
 import { notify } from '../../redux/slices/alertSlice';
 
@@ -614,7 +614,17 @@ const OrgMyEvents = () => {
                                         event={event}
                                         onEdit={handleEditEvent}
                                         onDelete={handleDeleteEvent}
-                                        onView={(evt) => setSelectedEvent(evt)}
+                                        onView={async (evt) => {
+                                            setSelectedEvent(evt);
+                                            if (token) {
+                                                try {
+                                                    const res = await dispatch(getEventById({ id: evt._id, token })).unwrap();
+                                                    if (res?.data) setSelectedEvent(res.data);
+                                                } catch {
+                                                    // keep showing list item if fetch fails
+                                                }
+                                            }
+                                        }}
                                     />
                                 </Grid>
                             ))}

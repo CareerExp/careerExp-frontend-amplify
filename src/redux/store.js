@@ -35,6 +35,7 @@ import userHistorySlice from "./slices/userHistory.js";
 import userSlice from "./slices/userSlice.js";
 import zylaSlice from "./slices/zylaSlice.js";
 import organizationSlice from "./slices/organizationSlice.js";
+import orgPublicSlice from "./slices/orgPublicSlice.js";
 import subscriptionSlice from "./slices/subscriptionSlice.js";
 import ameContextSlice from "./slices/ameContextSlice.js";
 import announcementSlice from "./slices/announcementSlice.js";
@@ -77,6 +78,7 @@ const rootReducer = combineReducers({
   careerPlanning: careerPlanningSlice,
   ameContext: ameContextSlice,
   organization: organizationSlice,
+  orgPublic: orgPublicSlice,
   subscription: subscriptionSlice,
   announcement: announcementSlice,
   event: eventSlice,

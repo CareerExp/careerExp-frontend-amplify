@@ -4,9 +4,10 @@ import { Box, Typography, Paper, Grid, Button, Divider, CircularProgress } from 
 import { fonts } from '../../utility/fonts';
 import ESPHero from '../orgESP/ESPHero';
 import ESPInfoPanel from '../orgESP/ESPInfoPanel';
-import ESPAnnouncements from '../orgESP/ESPAnnouncements';
-import ESPCounsellors from '../orgESP/ESPCounsellors';
-import ESPSharedContent from '../orgESP/ESPSharedContent';
+import OrgPublicAnnouncementsAndEvents from '../orgESP/OrgPublicAnnouncementsAndEvents';
+import OrgPublicServices from '../orgESP/OrgPublicServices';
+import OrgPublicSharedContent from '../orgESP/OrgPublicSharedContent';
+import OrgPublicCounsellors from '../orgESP/OrgPublicCounsellors';
 import {
     getMyCompanyInvitations,
     respondToInvitation,
@@ -237,6 +238,10 @@ const MyCompany = () => {
         }
     };
 
+    const orgProfile = useSelector(selectOrganizationProfile);
+    const orgIdentifier = orgProfile?.slug || orgProfile?.userId || orgProfile?._id;
+    const orgIdType = orgProfile?.slug ? 'slug' : 'userId';
+
     if (isMember) {
         return (
             <Box sx={{ p: 4, backgroundColor: '#f9fafb', minHeight: '100%' }}>
@@ -254,9 +259,10 @@ const MyCompany = () => {
                 <Box sx={{ width: '100%', mx: 'auto' }}>
                     <ESPHero />
                     <ESPInfoPanel />
-                    <ESPAnnouncements />
-                    <ESPCounsellors />
-                    <ESPSharedContent />
+                    <OrgPublicAnnouncementsAndEvents identifier={orgIdentifier} idType={orgIdType} />
+                    <OrgPublicServices identifier={orgIdentifier} idType={orgIdType} />
+                    <OrgPublicCounsellors identifier={orgIdentifier} idType={orgIdType} />
+                    <OrgPublicSharedContent identifier={orgIdentifier} idType={orgIdType} />
                 </Box>
             </Box>
         );
