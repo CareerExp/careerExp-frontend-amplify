@@ -112,13 +112,20 @@ export const deleteService = createAsyncThunk(
   }
 );
 
-/** Public: get service by id for detail page. GET /api/services/:id. No auth. */
+/** Get service by id. GET /api/services/:id. With token (org workspace), returns ctaResponses. */
 export const getServiceById = createAsyncThunk(
   "service/getById",
-  async (id) => {
+  async (payload, thunkAPI) => {
+    const id = typeof payload === "object" && payload?.id != null ? payload.id : payload;
+    const token = typeof payload === "object" ? payload.token : undefined;
+    const headers = { "Content-Type": "application/json" };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      Object.assign(headers, getActingAsHeader(thunkAPI.getState));
+    }
     const response = await FetchApi.fetch(`${config.api}/api/services/${id}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
     if (!response.success) {
       throw new Error(response.message || "Failed to fetch service");

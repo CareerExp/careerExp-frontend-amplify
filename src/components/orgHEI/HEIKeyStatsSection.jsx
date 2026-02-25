@@ -44,8 +44,9 @@ const StatCard = ({ value, label }) => (
   </Paper>
 );
 
-const HEIKeyStatsSection = () => {
-  const orgProfile = useSelector(selectOrganizationProfile);
+const HEIKeyStatsSection = ({ profile: profileProp }) => {
+  const profileFromRedux = useSelector(selectOrganizationProfile);
+  const orgProfile = profileProp ?? profileFromRedux;
   const offers = orgProfile?.offers || [
     'Short courses',
     'Foundation',

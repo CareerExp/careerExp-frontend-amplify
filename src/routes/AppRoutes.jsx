@@ -21,6 +21,7 @@ const Home = React.lazy(() => import("../pages/Home"));
 const OrgHome = React.lazy(() => import("../pages/OrgHome"));
 const OrgESP = React.lazy(() => import("../pages/OrgESP"));
 const OrgHEI = React.lazy(() => import("../pages/OrgHEI"));
+const OrgPublicHome = React.lazy(() => import("../pages/OrgPublicHome.jsx"));
 const Explore = React.lazy(() => import("../pages/Explore"));
 const AssessmentCenter = React.lazy(() => import("../pages/AssessmentCenter"));
 const ResumeBuilderPage = React.lazy(
@@ -139,10 +140,42 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/org-esp/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgESP />
+            </Suspense>
+          }
+        />
+        <Route
           path="/org-hei"
           element={
             <Suspense fallback={<InitialLoaders />}>
               <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-hei/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
+          path="s/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgPublicHome />
+            </Suspense>
+          }
+        />
+        <Route
+          path="v/:userId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgPublicHome />
             </Suspense>
           }
         />

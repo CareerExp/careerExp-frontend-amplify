@@ -53,7 +53,8 @@ const EventDetailContent = ({ eventId, onBack }) => {
       if (!eventId) return;
       try {
         setLoading(true);
-        const res = await dispatch(getEventById(eventId)).unwrap();
+        const payload = isAuthenticated && token ? { id: eventId, token } : eventId;
+        const res = await dispatch(getEventById(payload)).unwrap();
         if (res?.data) setEvent(res.data);
         else setEvent(null);
         if (res?.organizationDetails != null) setOrganizationDetails(res.organizationDetails);
@@ -66,7 +67,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
       }
     };
     fetchDetail();
-  }, [eventId, dispatch, onBack]);
+  }, [eventId, dispatch, onBack, isAuthenticated, token]);
 
   const handleShare = () => {
     const url = window.location.origin + `/explore/event/${eventId}`;
@@ -83,7 +84,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
       dispatch(notify({ type: "warning", message: "Please log in to register" }));
       return;
     }
-    if (!eventId) return;
+    if (!eventId || event?.userHasRespondedToCta) return;
     try {
       await dispatch(
         registerEventCta({
@@ -93,10 +94,14 @@ const EventDetailContent = ({ eventId, onBack }) => {
         })
       ).unwrap();
       dispatch(notify({ type: "success", message: "Response recorded successfully." }));
+      const res = await dispatch(getEventById({ id: eventId, token })).unwrap();
+      if (res?.data) setEvent(res.data);
     } catch (err) {
       dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
     }
   };
+
+  const hasResponded = Boolean(event?.userHasRespondedToCta);
 
   if (loading) {
     return (
@@ -372,6 +377,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
             <Button
               variant="contained"
               fullWidth
+              disabled={hasResponded}
               onClick={handleRegister}
               sx={{
                 background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
@@ -385,7 +391,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
                 },
               }}
             >
-              Register Now
+              {hasResponded ? "Registered" : "Register Now"}
             </Button>
           </Box>
 

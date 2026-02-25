@@ -52,6 +52,7 @@ function checkStatus(response) {
       // Throw the error with additional info
       const error = new Error(res.message || "Request failed");
       error.code = response.status.toString();
+      error.apiCode = res.code || null;
       error.field = res.field || null;
       throw error;
     });

@@ -6,6 +6,9 @@ import { getActingAsHeader } from "../../utility/getActingAsHeader.js";
 const initialState = {
   profile: null,
   counsellors: [],
+  dashboard: null,
+  dashboardLoading: false,
+  dashboardError: null,
   loading: false,
   error: null,
 };
@@ -159,6 +162,33 @@ export const getOrganizationProfileById = createAsyncThunk(
   }
 );
 
+/** GET /api/organization/me/dashboard – stats for ESP/HEI dashboard. Auth + X-Acting-As-Organization-Id when admin. */
+export const getOrganizationDashboard = createAsyncThunk(
+  "organization/getDashboard",
+  async ({ token }, thunkAPI) => {
+    try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/organization/me/dashboard`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...actingAs,
+          },
+        }
+      );
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message || "Failed to load dashboard" });
+      }
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
 export const getOrganizationCounsellors = createAsyncThunk(
   "organization/getOrganizationCounsellors",
   async ({ token, search = "" }, thunkAPI) => {
@@ -279,6 +309,19 @@ const organizationSlice = createSlice({
       .addCase(getOrganizationCounsellors.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to fetch counsellors";
+      })
+      .addCase(getOrganizationDashboard.pending, (state) => {
+        state.dashboardLoading = true;
+        state.dashboardError = null;
+      })
+      .addCase(getOrganizationDashboard.fulfilled, (state, { payload }) => {
+        state.dashboardLoading = false;
+        state.dashboard = payload.data ?? payload;
+        state.dashboardError = null;
+      })
+      .addCase(getOrganizationDashboard.rejected, (state, { payload }) => {
+        state.dashboardLoading = false;
+        state.dashboardError = payload?.error || "Failed to load dashboard";
       });
   },
 });
@@ -287,6 +330,9 @@ export const { resetOrganizationState } = organizationSlice.actions;
 
 export const selectOrganizationProfile = (state) => state.organization.profile;
 export const selectOrganizationCounsellors = (state) => state.organization.counsellors;
+export const selectOrganizationDashboard = (state) => state.organization.dashboard;
+export const selectOrganizationDashboardLoading = (state) => state.organization.dashboardLoading;
+export const selectOrganizationDashboardError = (state) => state.organization.dashboardError;
 export const selectOrganizationLoading = (state) => state.organization.loading;
 export const selectOrganizationError = (state) => state.organization.error;
 

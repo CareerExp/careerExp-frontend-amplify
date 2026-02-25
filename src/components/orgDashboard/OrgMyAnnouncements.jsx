@@ -31,7 +31,7 @@ import { fonts } from '../../utility/fonts';
 import { announce1, uploadDocument, announcementsPlaceholder } from '../../assets/assest';
 import AddAnnouncement from './AddAnnouncement';
 import AnnouncementDetail from './AnnouncementDetail';
-import { fetchMyAnnouncements, selectMyAnnouncements, selectAnnouncementLoading, deleteAnnouncement } from '../../redux/slices/announcementSlice';
+import { fetchMyAnnouncements, getAnnouncementById, selectMyAnnouncements, selectAnnouncementLoading, deleteAnnouncement } from '../../redux/slices/announcementSlice';
 import { selectToken } from '../../redux/slices/authSlice';
 import { notify } from '../../redux/slices/alertSlice';
 
@@ -590,7 +590,17 @@ const OrgMyAnnouncements = () => {
                                         announcement={announcement}
                                         onEdit={handleEditAnnouncement}
                                         onDelete={handleDeleteAnnouncement}
-                                        onView={(ann) => setSelectedAnnouncement(ann)}
+                                        onView={async (ann) => {
+                                            setSelectedAnnouncement(ann);
+                                            if (token) {
+                                                try {
+                                                    const res = await dispatch(getAnnouncementById({ id: ann._id, token })).unwrap();
+                                                    if (res?.data) setSelectedAnnouncement(res.data);
+                                                } catch {
+                                                    // keep showing list item if fetch fails
+                                                }
+                                            }
+                                        }}
                                     />
                                 </Grid>
                             ))}

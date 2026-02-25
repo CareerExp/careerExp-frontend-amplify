@@ -76,6 +76,7 @@ const Profile = () => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const creatorProfile = creatorProfileWithFollowersCount?.user;
+  const orgProfile = creatorProfileWithFollowersCount?.organization;
 
   useEffect(() => {
     dispatchToRedux(getCreatorProfile({ userId }));
@@ -113,14 +114,14 @@ const Profile = () => {
         notify({
           message: "You need to login/signup first to follow",
           type: "error",
-        })
+        }),
       );
       return;
     }
 
     if (studentUserId === userId) {
       dispatchToRedux(
-        notify({ message: "You can't follow yourself", type: "error" })
+        notify({ message: "You can't follow yourself", type: "error" }),
       );
       return;
     }
@@ -132,11 +133,11 @@ const Profile = () => {
           userId: studentUserId,
           targetUserId: userId,
           token: token,
-        })
+        }),
       );
       setIsButtonLoading(false);
       dispatchToRedux(
-        notify({ message: "Successfully performed action", type: "success" })
+        notify({ message: "Successfully performed action", type: "success" }),
       );
     } catch (error) {
       setIsButtonLoading(false);
@@ -151,7 +152,7 @@ const Profile = () => {
           userId: studentUserId,
           targetUserId: userId,
           token: token,
-        })
+        }),
       );
     }
   }, []);
@@ -171,14 +172,12 @@ const Profile = () => {
     {
       key: "facebook",
       icon: FacebookIcon,
-      link:
-        creatorProfile?.facebook ?? creatorProfile?.facebook,
+      link: creatorProfile?.facebook ?? creatorProfile?.facebook,
     },
     {
       key: "instagram",
       icon: InstagramIcon,
-      link:
-        creatorProfile?.instagram ?? creatorProfile?.instagram,
+      link: creatorProfile?.instagram ?? creatorProfile?.instagram,
     },
     {
       key: "tiktok",
@@ -188,26 +187,22 @@ const Profile = () => {
     {
       key: "linkedin",
       icon: LinkedinIcon,
-      link:
-        creatorProfile?.linkedIn ?? creatorProfile?.linkedin,
+      link: creatorProfile?.linkedIn ?? creatorProfile?.linkedin,
     },
     {
       key: "youtube",
       icon: YoutubeIcon,
-      link:
-        creatorProfile?.youtube ?? creatorProfile?.youtube,
+      link: creatorProfile?.youtube ?? creatorProfile?.youtube,
     },
     {
       key: "telegram",
       icon: TelegramIcon,
-      link:
-        creatorProfile?.telegram ?? creatorProfile?.telegram,
+      link: creatorProfile?.telegram ?? creatorProfile?.telegram,
     },
     {
       key: "twitter",
       icon: TwitterIcon,
-      link:
-        creatorProfile?.twitter ?? creatorProfile?.twitter,
+      link: creatorProfile?.twitter ?? creatorProfile?.twitter,
     },
   ].filter((s) => s.link);
 
@@ -215,7 +210,10 @@ const Profile = () => {
     const spec = creatorProfile?.specialization;
     if (Array.isArray(spec)) return spec;
     if (typeof spec === "string")
-      return spec.split(",").map((s) => s.trim()).filter(Boolean);
+      return spec
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     return spec ? [spec] : [];
   })();
 
@@ -245,7 +243,10 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className={creatorStyle.profileTopV2Body} style={{ backgroundColor: "#ffffff" }}>
+        <div
+          className={creatorStyle.profileTopV2Body}
+          style={{ backgroundColor: "#ffffff" }}
+        >
           <div className={creatorStyle.profileTopV2Left}>
             <div className={creatorStyle.profileTopV2AvatarWrap}>
               <Avatar
@@ -276,7 +277,10 @@ const Profile = () => {
             </button>
           </div>
 
-          <div className={creatorStyle.profileTopV2Right} style={{ backgroundColor: "#ffffff" }}>
+          <div
+            className={creatorStyle.profileTopV2Right}
+            style={{ backgroundColor: "#ffffff" }}
+          >
             <div className={creatorStyle.profileTopV2NameRow}>
               <div className={creatorStyle.profileTopV2NameBlock}>
                 <h1 className={creatorStyle.profileTopV2Name}>
@@ -299,78 +303,116 @@ const Profile = () => {
                   }
                 }}
               >
-                <img src={shareIcon} alt="" className={creatorStyle.profileTopV2ShareIcon} />
-                <span style={{ color: "#787876", fontWeight: "400" }}>Share Profile</span>
+                <img
+                  src={shareIcon}
+                  alt=""
+                  className={creatorStyle.profileTopV2ShareIcon}
+                />
+                <span style={{ color: "#787876", fontWeight: "400" }}>
+                  Share Profile
+                </span>
               </button>
             </div>
 
-            {!hideDetails && (
-              <>
-                <div className={creatorStyle.profileTopV2MetaRow}>
-                  <span className={creatorStyle.profileTopV2MetaLabel}>
-                    Specialization :
-                  </span>
-                  <div className={creatorStyle.profileTopV2Pills}>
-                    {specTags.length
-                      ? specTags.map((tag, i) => (
-                          <span
-                            key={i}
-                            className={creatorStyle.profileTopV2Pill}
-                          >
-                            {tag}
-                          </span>
-                        ))
-                      : (
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                {!hideDetails && (
+                  <>
+                    <div className={creatorStyle.profileTopV2MetaRow}>
+                      <span className={creatorStyle.profileTopV2MetaLabel}>
+                        Specialization :
+                      </span>
+                      <div className={creatorStyle.profileTopV2Pills}>
+                        {specTags.length ? (
+                          specTags.map((tag, i) => (
+                            <span
+                              key={i}
+                              className={creatorStyle.profileTopV2Pill}
+                            >
+                              {tag}
+                            </span>
+                          ))
+                        ) : (
                           <span className={creatorStyle.profileTopV2Pill}>
                             {creatorProfile?.specialization || "—"}
                           </span>
                         )}
-                  </div>
-                </div>
-                <div className={creatorStyle.profileTopV2MetaRow}>
-                  <span className={creatorStyle.profileTopV2MetaLabel}>
-                    Years of experience :
-                  </span>
-                  <span className={creatorStyle.profileTopV2Pill}>
-                    {creatorProfile?.experience != null
-                      ? `${creatorProfile.experience} years`
-                      : "—"}
-                  </span>
-                </div>
-              </>
-            )}
+                      </div>
+                    </div>
+                    <div className={creatorStyle.profileTopV2MetaRow}>
+                      <span className={creatorStyle.profileTopV2MetaLabel}>
+                        Years of experience :
+                      </span>
+                      <span className={creatorStyle.profileTopV2Pill}>
+                        {creatorProfile?.experience != null
+                          ? `${creatorProfile.experience} years`
+                          : "—"}
+                      </span>
+                    </div>
+                  </>
+                )}
 
-            <div className={creatorStyle.profileTopV2ContactRow}>
-              {!hideDetails && (
-                <>
-                  <Information
-                    icon={creatorIconLocation}
-                    info={creatorProfile?.nationality}
-                    height={24}
-                    width={24}
+                <div className={creatorStyle.profileTopV2ContactRow}>
+                  {!hideDetails && (
+                    <>
+                      <Information
+                        icon={creatorIconLocation}
+                        info={creatorProfile?.nationality}
+                        height={24}
+                        width={24}
+                      />
+                      <Dot />
+                      <Information
+                        icon={creatorIconMobile}
+                        info={creatorProfile?.mobile}
+                        height={24}
+                        width={24}
+                      />
+                      <Dot />
+                      <Information
+                        icon={creatorIconWhatsaap}
+                        info={creatorProfile?.telephone}
+                        height={24}
+                        width={24}
+                      />
+                      <Dot />
+                      <Information
+                        icon={creatorIconMail}
+                        info={creatorProfile?.email}
+                        height={24}
+                        width={24}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+              {orgProfile?.logo && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "end",
+                    gap: "10px",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <img
+                    src={orgProfile?.logo}
+                    alt=""
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      // borderRadius: "50%",
+                    }}
                   />
-                  <Dot />
-                  <Information
-                    icon={creatorIconMobile}
-                    info={creatorProfile?.mobile}
-                     height={24}
-                    width={24}
-                  />
-                  <Dot />
-                  <Information
-                    icon={creatorIconWhatsaap}
-                    info={creatorProfile?.telephone}
-                     height={24}
-                    width={24}
-                  />
-                  <Dot />
-                  <Information
-                    icon={creatorIconMail}
-                    info={creatorProfile?.email}
-                     height={24}
-                    width={24}
-                  />
-                </>
+                  {/* <h4>{orgProfile?.organizationName}</h4> */}
+                </div>
               )}
             </div>
 
@@ -384,7 +426,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
 
       <div className={creatorStyle.contentContainer}>
         <div className={creatorStyle.tabsContainer}>
@@ -467,7 +508,7 @@ const Profile = () => {
                     creatorProfile?.firstName + " " + creatorProfile?.lastName
                   }
                 />
-              )
+              ),
             )}
 
           {activeTab === 2 &&

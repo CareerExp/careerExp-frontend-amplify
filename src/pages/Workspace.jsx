@@ -40,9 +40,70 @@ import {
   resetOrganizationState,
 } from "../redux/slices/organizationSlice.js";
 import { exitAMEContext } from "../redux/slices/adminSlice.js";
+import { config } from "../config/config.js";
 import { fonts } from "../utility/fonts.js";
 
 const drawerWidth = 280;
+
+const getQrPropsForWorkspace = (
+  userData,
+  orgProfile,
+  effectiveRole,
+  effectiveOrgType,
+) => {
+  const baseUrl = (config?.frontendDomain || (typeof window !== "undefined" ? window.location.origin : "") || "").replace(/\/$/, "");
+
+  if (effectiveRole === "creator") {
+    const id = userData?._id;
+    if (!id || !baseUrl)
+      return {
+        showQrButton: false,
+        qrProfileUrl: "",
+        qrDisplayName: "",
+        qrProfileTypeLabel: "",
+      };
+    const name =
+      [userData?.firstName, userData?.lastName].filter(Boolean).join(" ") ||
+      "Counsellor";
+    return {
+      showQrButton: true,
+      qrProfileUrl: `${baseUrl}/profile/${id}`,
+      qrDisplayName: name,
+      qrProfileTypeLabel: "Counsellor Profile",
+    };
+  }
+
+  const orgType = (effectiveOrgType || orgProfile?.organizationType || "").toString().toUpperCase();
+  const isOrgWithQr =
+    effectiveRole === "organization" && (orgType === "HEI" || orgType === "ESP");
+
+  if (isOrgWithQr) {
+    const slug = orgProfile?.slug;
+    if (!slug || !baseUrl)
+      return {
+        showQrButton: false,
+        qrProfileUrl: "",
+        qrDisplayName: "",
+        qrProfileTypeLabel: "",
+      };
+    const path = orgType === "HEI" ? `/org-hei/${slug}` : `/org-esp/${slug}`;
+    const name =
+      orgProfile?.organizationName || (orgType === "HEI" ? "HEI" : "ESP");
+    return {
+      showQrButton: true,
+      qrProfileUrl: `${baseUrl}${path}`,
+      qrDisplayName: name,
+      qrProfileTypeLabel: orgType === "HEI" ? "HEI Profile" : "ESP Profile",
+    };
+  }
+
+  return {
+    showQrButton: false,
+    qrProfileUrl: "",
+    qrDisplayName: "",
+    qrProfileTypeLabel: "",
+  };
+};
 
 const Workspace = (props) => {
   const { window } = props;
@@ -58,9 +119,14 @@ const Workspace = (props) => {
 
   // Option 1: view driven only by activeDashboard. Admin "acting as" = admin in org view (no separate route).
   const effectiveRole = userData?.activeDashboard;
-  const effectiveOrgType = userData?.organization?.organizationType ?? orgProfile?.organizationType;
+  const effectiveOrgType =
+    userData?.organization?.organizationType ?? orgProfile?.organizationType;
   const isAdminInOrgView =
-    userData?.activeDashboard === "organization" && userData?.role?.includes("admin");
+    userData?.activeDashboard === "organization" &&
+    userData?.role?.includes("admin");
+
+  console.log(orgProfile);
+  console.log(effectiveOrgType);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -106,7 +172,10 @@ const Workspace = (props) => {
       return;
     }
     if (hasShownActingAsPopupRef.current) return;
-    if (orgProfile?.organizationName != null || (orgProfile !== null && orgProfile !== undefined)) {
+    if (
+      orgProfile?.organizationName != null ||
+      (orgProfile !== null && orgProfile !== undefined)
+    ) {
       hasShownActingAsPopupRef.current = true;
       setShowActingAsPopup(true);
     }
@@ -182,15 +251,27 @@ const Workspace = (props) => {
       </Box>
       <Divider />
 
-      {userData && (
-        <Sidebar
-          userRole={effectiveRole}
-          handleMenuItemClick={handleMenuItemClick}
-          currentPage={currentPage}
-          organizationType={effectiveOrgType}
-          isActingAsAME={isAdminInOrgView}
-        />
-      )}
+      {userData && (() => {
+        const qrProps = getQrPropsForWorkspace(
+          userData,
+          orgProfile,
+          effectiveRole,
+          effectiveOrgType,
+        );
+        return (
+          <Sidebar
+            userRole={effectiveRole}
+            handleMenuItemClick={handleMenuItemClick}
+            currentPage={currentPage}
+            organizationType={effectiveOrgType}
+            isActingAsAME={isAdminInOrgView}
+            showQrButton={qrProps.showQrButton}
+            qrProfileUrl={qrProps.qrProfileUrl}
+            qrDisplayName={qrProps.qrDisplayName}
+            qrProfileTypeLabel={qrProps.qrProfileTypeLabel}
+          />
+        );
+      })()}
       <Divider />
     </div>
   );
@@ -199,7 +280,9 @@ const Workspace = (props) => {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box sx={{ display: "flex", backgroundColor: "#f9fafb", minHeight: "95vh" }}>
+    <Box
+      sx={{ display: "flex", backgroundColor: "#f9fafb", minHeight: "95vh" }}
+    >
       {isLoading ? (
         <Box
           sx={{
@@ -388,92 +471,92 @@ const Workspace = (props) => {
               )}
 
               {!isAdminInOrgView && (
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                <MenuItem>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                    }}
-                  >
-                    <Typography
-                      textAlign="center"
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <MenuItem>
+                    <Box
                       sx={{
-                        marginTop: "-0.5rem",
-                        fontFamily: fonts.sans,
-                        fontSize: "0.9rem",
-                        color: "gray",
-                        fontWeight: "500",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
                       }}
                     >
-                      {userData?.email}
-                    </Typography>
-                    <Divider />
-                  </Box>
-                </MenuItem>
-                <MenuItem onClick={handleCloseUserMenu}>
-                  <Box
-                    component={Link}
-                    to={
-                      effectiveRole === "organization" && effectiveOrgType
-                        ? effectiveOrgType === "ESP"
-                          ? "/org-esp"
-                          : "/org-hei"
-                        : "/"
-                    }
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                      textDecoration: "none",
-                      width: "100%",
-                    }}
-                  >
-                    <Typography
-                      textAlign="left"
-                      sx={{ fontFamily: fonts.sans, color: "black" }}
+                      <Typography
+                        textAlign="center"
+                        sx={{
+                          marginTop: "-0.5rem",
+                          fontFamily: fonts.sans,
+                          fontSize: "0.9rem",
+                          color: "gray",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {userData?.email}
+                      </Typography>
+                      <Divider />
+                    </Box>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseUserMenu}>
+                    <Box
+                      component={Link}
+                      to={
+                        effectiveRole === "organization" && effectiveOrgType
+                          ? effectiveOrgType === "ESP"
+                            ? "/org-esp"
+                            : "/org-hei"
+                          : "/"
+                      }
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                        textDecoration: "none",
+                        width: "100%",
+                      }}
                     >
-                      Home
-                    </Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem onClick={handleCloseUserMenu}>
-                  <Box
-                    component={Link}
-                    to="/"
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                      textDecoration: "none",
-                      width: "100%",
-                    }}
-                    onClick={handleLogout}
-                  >
-                    <Typography
-                      textAlign="left"
-                      sx={{ fontFamily: fonts.sans, color: "red" }}
+                      <Typography
+                        textAlign="left"
+                        sx={{ fontFamily: fonts.sans, color: "black" }}
+                      >
+                        Home
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                  <MenuItem onClick={handleCloseUserMenu}>
+                    <Box
+                      component={Link}
+                      to="/"
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                        textDecoration: "none",
+                        width: "100%",
+                      }}
+                      onClick={handleLogout}
                     >
-                      Logout
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              </Menu>
+                      <Typography
+                        textAlign="left"
+                        sx={{ fontFamily: fonts.sans, color: "red" }}
+                      >
+                        Logout
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                </Menu>
               )}
             </Toolbar>
           </AppBar>
@@ -529,13 +612,17 @@ const Workspace = (props) => {
           >
             <Toolbar />
 
-            {userData && renderCurrentPage(currentPage, userData, orgProfile, {
-              isAdminInOrgView,
-              onProceedToSubscription: () => {
-                setCurrentPage("Profile");
-                navigate(".", { state: { openSubscriptionTab: true }, replace: true });
-              },
-            })}
+            {userData &&
+              renderCurrentPage(currentPage, userData, orgProfile, {
+                isAdminInOrgView,
+                onProceedToSubscription: () => {
+                  setCurrentPage("Profile");
+                  navigate(".", {
+                    state: { openSubscriptionTab: true },
+                    replace: true,
+                  });
+                },
+              })}
           </Box>
 
           {/* Acting-as AME: popup on first load */}
@@ -571,7 +658,8 @@ const Workspace = (props) => {
                   textAlign: "center",
                 }}
               >
-                Managing: <strong>{orgProfile?.organizationName || "this ESP"}</strong>
+                Managing:{" "}
+                <strong>{orgProfile?.organizationName || "this ESP"}</strong>
               </Typography>
             </DialogContent>
             {/* <DialogActions sx={{ px: 2.5, pb: 2 }}>

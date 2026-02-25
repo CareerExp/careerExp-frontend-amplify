@@ -35,12 +35,13 @@ function isValidEmail(value) {
  * Props:
  *   defaultToEmail?: string — pre-fill To with this email (e.g. course provider)
  *   defaultDisplayName?: string — display name for the pre-filled recipient
+ *   disableToField?: boolean — when true, To field is read-only (e.g. when opened from followers)
  *   onSuccess?: () => void — called after message is sent successfully
- *   onClose?: () => void — optional, e.g. for modal close (not rendered here)
  */
 const NewMessagePanel = ({
   defaultToEmail,
   defaultDisplayName,
+  disableToField = false,
   onSuccess,
 }) => {
   const dispatch = useDispatch();
@@ -78,13 +79,14 @@ const NewMessagePanel = ({
       : "";
 
   const fetchSuggestions = useCallback(() => {
+    if (disableToField) return;
     const q = toInputValue.trim();
     if (q.length >= 2 && token) {
       dispatch(fetchRecipientSuggestions({ token, q, limit: 10 }));
     } else {
       dispatch(clearRecipientSuggestions());
     }
-  }, [dispatch, token, toInputValue]);
+  }, [dispatch, token, toInputValue, disableToField]);
 
   useEffect(() => {
     const timer = setTimeout(fetchSuggestions, SUGGEST_DEBOUNCE_MS);
@@ -170,48 +172,58 @@ const NewMessagePanel = ({
         New Message
       </Typography>
 
-      <Autocomplete
-        freeSolo
-        options={recipientSuggestions}
-        value={selectedRecipient}
-        inputValue={toInputValue}
-        onInputChange={(e, v, reason) => {
-          setToInputValue(v);
-          if (reason === "input") setSelectedRecipient(null);
-          setFieldError(null);
-        }}
-        onChange={(e, v) => {
-          setSelectedRecipient(v && typeof v === "object" && v.email ? v : null);
-          setFieldError(null);
-        }}
-        getOptionLabel={(option) =>
-          option && typeof option === "object" && option.displayName != null
-            ? `${option.displayName} (${option.email})`
-            : String(option || "")
-        }
-        loading={suggestionsLoading}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="To"
-            placeholder="Type name or email (min 2 characters)"
-            error={fieldError?.field === "toEmail"}
-            helperText={
-              fieldError?.field === "toEmail"
-                ? fieldError.message
-                : "Search by name or email; select a suggestion or enter a valid email"
-            }
-            sx={{ ...inputSx }}
-          />
-        )}
-        renderOption={(props, option) => (
-          <li {...props} key={option.email}>
-            <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px" }}>
-              {option.displayName} ({option.email})
-            </Typography>
-          </li>
-        )}
-      />
+      {disableToField ? (
+        <TextField
+          fullWidth
+          label="To"
+          value={toInputValue}
+          disabled
+          sx={{ ...inputSx }}
+        />
+      ) : (
+        <Autocomplete
+          freeSolo
+          options={recipientSuggestions}
+          value={selectedRecipient}
+          inputValue={toInputValue}
+          onInputChange={(e, v, reason) => {
+            setToInputValue(v);
+            if (reason === "input") setSelectedRecipient(null);
+            setFieldError(null);
+          }}
+          onChange={(e, v) => {
+            setSelectedRecipient(v && typeof v === "object" && v.email ? v : null);
+            setFieldError(null);
+          }}
+          getOptionLabel={(option) =>
+            option && typeof option === "object" && option.displayName != null
+              ? `${option.displayName} (${option.email})`
+              : String(option || "")
+          }
+          loading={suggestionsLoading}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="To"
+              placeholder="Type name or email (min 2 characters)"
+              error={fieldError?.field === "toEmail"}
+              helperText={
+                fieldError?.field === "toEmail"
+                  ? fieldError.message
+                  : "Search by name or email; select a suggestion or enter a valid email"
+              }
+              sx={{ ...inputSx }}
+            />
+          )}
+          renderOption={(props, option) => (
+            <li {...props} key={option.email}>
+              <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px" }}>
+                {option.displayName} ({option.email})
+              </Typography>
+            </li>
+          )}
+        />
+      )}
 
       <TextField
         fullWidth

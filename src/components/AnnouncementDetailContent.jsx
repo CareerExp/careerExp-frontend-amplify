@@ -44,7 +44,8 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
       if (!announcementId) return;
       try {
         setLoading(true);
-        const res = await dispatch(getAnnouncementById(announcementId)).unwrap();
+        const payload = isAuthenticated && token ? { id: announcementId, token } : announcementId;
+        const res = await dispatch(getAnnouncementById(payload)).unwrap();
         if (res?.data) setAnnouncement(res.data);
         else setAnnouncement(null);
         if (res?.organizationDetails != null) setOrganizationDetails(res.organizationDetails);
@@ -57,7 +58,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
       }
     };
     fetchDetail();
-  }, [announcementId, dispatch, onBack]);
+  }, [announcementId, dispatch, onBack, isAuthenticated, token]);
 
   const handleShare = () => {
     const url = window.location.origin + `/explore/announcement/${announcementId}`;
@@ -76,7 +77,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
       dispatch(notify({ type: "warning", message: "Please log in to enquire" }));
       return;
     }
-    if (!announcementId) return;
+    if (!announcementId || announcement?.userHasRespondedToCta) return;
     try {
       await dispatch(
         registerAnnouncementCta({
@@ -86,10 +87,14 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
         })
       ).unwrap();
       dispatch(notify({ type: "success", message: "Enquiry recorded successfully." }));
+      const res = await dispatch(getAnnouncementById({ id: announcementId, token })).unwrap();
+      if (res?.data) setAnnouncement(res.data);
     } catch (err) {
       dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
     }
   };
+
+  const hasResponded = Boolean(announcement?.userHasRespondedToCta);
 
   if (loading) {
     return (
@@ -367,6 +372,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
             <Button
               variant="contained"
               fullWidth
+              disabled={hasResponded}
               onClick={handleEnquire}
               sx={{
                 background: "linear-gradient(to top left, #720361, #bf2f75)",
@@ -381,7 +387,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
                 },
               }}
             >
-              Enquire Now
+              {hasResponded ? "Registered" : "Enquire Now"}
             </Button>
           </Box>
 

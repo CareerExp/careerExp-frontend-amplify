@@ -11,8 +11,10 @@ import UserPlaylist from "../components/userDashboard/UserPlaylist.jsx";
 import PendingStatePopup from "../models/PendingStatePopup.jsx";
 import OrgUnderReviewScreen from "../models/OrgUnderReviewScreen.jsx";
 import OrgSubscriptionRequiredScreen from "../models/OrgSubscriptionRequiredScreen.jsx";
+import AdminGovernmentOrgs from "./adminDashboard/AdminGovernmentOrgs.jsx";
 import AdminHome from "./adminDashboard/AdminHome.jsx";
 import AdminManagedESPsData from "./adminDashboard/AdminManagedESPsData.jsx";
+import AdminPayments from "./adminDashboard/AdminPayments.jsx";
 import CollaboratorsData from "./adminDashboard/CollaboratorsData.jsx";
 import EspEiUsersData from "./adminDashboard/EspEiUsersData.jsx";
 import SchoolDirectory from "./adminDashboard/SchoolDirectory.jsx";
@@ -47,12 +49,16 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <CollaboratorsData />;
       case "ESP & EI User":
         return <EspEiUsersData />;
+      case "Government Organizations":
+        return <AdminGovernmentOrgs />;
       case "Admin managed ESPs":
         return <AdminManagedESPsData />;
       case "Records":
         return <UnifiedRecord />;
       case "School Directory":
         return <SchoolDirectory />;
+      case "Payments":
+        return <AdminPayments />;
       case "Profile":
         return <Profile />;
       default:
