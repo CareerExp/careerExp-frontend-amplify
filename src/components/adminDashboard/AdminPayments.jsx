@@ -310,7 +310,7 @@ const AdminPayments = () => {
                     <TableCell sx={tableHeadStyle}>Amount</TableCell>
                     <TableCell sx={tableHeadStyle}>Date</TableCell>
                     <TableCell sx={tableHeadStyle}>Status</TableCell>
-                    <TableCell sx={tableHeadStyle}>Actions</TableCell>
+                    {/* <TableCell sx={tableHeadStyle}>Actions</TableCell> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -362,7 +362,7 @@ const AdminPayments = () => {
                         >
                           {getStatusDisplay(tx.paymentStatus)}
                         </TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           <Typography
                             component="button"
                             onClick={() => handleViewTransaction(tx.id)}
@@ -379,7 +379,7 @@ const AdminPayments = () => {
                           >
                             View
                           </Typography>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))
                   ) : (
