@@ -134,6 +134,25 @@ export const getAnnouncementById = createAsyncThunk(
   }
 );
 
+/** Record share. POST /api/viewsAndShares/increaseannouncementsharescount/:id. Optional body { userId }. */
+export const increaseAnnouncementSharesCount = createAsyncThunk(
+  "announcement/increaseSharesCount",
+  async ({ announcementId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increaseannouncementsharescount/${announcementId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
 /** Register CTA click/submission. POST /api/announcements/:id/cta. Auth required. */
 export const registerAnnouncementCta = createAsyncThunk(
   "announcement/registerCta",

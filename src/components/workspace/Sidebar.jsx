@@ -1,13 +1,14 @@
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import ContactPageIcon from "@mui/icons-material/ContactPage";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import EventIcon from "@mui/icons-material/Event";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import HistoryIcon from "@mui/icons-material/History";
+import ListAltIcon from "@mui/icons-material/ListAlt";
 import InfoIcon from "@mui/icons-material/Info";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MessageIcon from "@mui/icons-material/Message";
@@ -47,6 +48,7 @@ const Sidebar = ({
   currentPage,
   organizationType,
   isActingAsAME,
+  isMainAdmin,
   showQrButton,
   qrProfileUrl,
   qrDisplayName,
@@ -60,7 +62,8 @@ const Sidebar = ({
     case "user":
       sideBarMenues = [
         { name: "Dashboard", icon: <DashboardIcon />, route: "/dashboard" },
-        { name: "My Likes", icon: <FavoriteIcon />, route: "/mylikes" },
+        { name: "My Activities", icon: <ListAltIcon />, route: "/myactivities" },
+        { name: "My Following", icon: <PersonAddIcon />, route: "/myfollowing" },
         { name: "My Playlist", icon: <QueueMusicIcon />, route: "/myplaylist" },
         {
           name: "My Assessments",
@@ -113,6 +116,9 @@ const Sidebar = ({
           route: "/schoolcontactinfo",
         },
         { name: "Payments", icon: <PaymentsIcon />, route: "/payments" },
+        ...(isMainAdmin
+          ? [{ name: "Manage Admins", icon: <GroupAddIcon />, route: "/manage-admins" }]
+          : []),
         { name: "Profile", icon: <SettingsIcon />, route: "/profile" },
       ];
       break;

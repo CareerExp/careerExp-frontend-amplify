@@ -265,6 +265,7 @@ const Workspace = (props) => {
             currentPage={currentPage}
             organizationType={effectiveOrgType}
             isActingAsAME={isAdminInOrgView}
+            isMainAdmin={userData?.isMainAdmin === true}
             showQrButton={qrProps.showQrButton}
             qrProfileUrl={qrProps.qrProfileUrl}
             qrDisplayName={qrProps.qrDisplayName}

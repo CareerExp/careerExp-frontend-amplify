@@ -43,6 +43,7 @@ import eventSlice from "./slices/eventSlice.js";
 import serviceSlice from "./slices/serviceSlice.js";
 import courseSlice from "./slices/courseSlice.js";
 import followerSlice from "./slices/followerSlice.js";
+import dashboardActivitySlice from "./slices/dashboardActivitySlice.js";
 import messageSlice from "./slices/messageSlice.js";
 
 const persistConfig = {
@@ -86,6 +87,7 @@ const rootReducer = combineReducers({
   course: courseSlice,
   follower: followerSlice,
   message: messageSlice,
+  dashboardActivity: dashboardActivitySlice,
 });
 
 const store = configureStore({

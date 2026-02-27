@@ -8,13 +8,14 @@ import LanguageIcon from "@mui/icons-material/Language";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { notify } from "../redux/slices/alertSlice.js";
 import {
   getAnnouncementById,
+  increaseAnnouncementSharesCount,
   registerAnnouncementCta,
 } from "../redux/slices/announcementSlice.js";
-import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
+import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
 import { formatArticleDetailDate } from "../utility/convertTimeToUTC.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
@@ -25,13 +26,20 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector(selectToken);
+  const userId = useSelector(selectUserId);
   const isAuthenticated = useSelector(selectAuthenticated);
   const [announcement, setAnnouncement] = useState(null);
   const [organizationDetails, setOrganizationDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);
 
-  const imageUrl =
+  /** Organization home URL from details (slug + organizationType). Backend may expose slug/organizationType on organizationDetails. */
+function getOrgHomeUrl(org) {
+  if (!org?.slug || !org?.organizationType) return null;
+  return org.organizationType === "HEI" ? `/org-hei/${org.slug}` : `/org-esp/${org.slug}`;
+}
+
+const imageUrl =
     announcement?.coverImage ||
     announcement?.banner ||
     announcement?.image ||
@@ -69,6 +77,14 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
     } else {
       navigator.clipboard?.writeText(url);
       dispatch(notify({ type: "success", message: "Link copied" }));
+    }
+    if (announcementId) {
+      dispatch(
+        increaseAnnouncementSharesCount({
+          announcementId,
+          userId: isAuthenticated ? userId : undefined,
+        }),
+      ).catch(() => {});
     }
   };
 
@@ -456,17 +472,36 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
                   </Typography>
                 </Box>
               )}
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  color: "#BC2876",
-                  mb: 2,
-                }}
-              >
-                {organizationDetails.organizationName}
-              </Typography>
+              {getOrgHomeUrl(organizationDetails) ? (
+                <Typography
+                  component={Link}
+                  to={getOrgHomeUrl(organizationDetails)}
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: "#BC2876",
+                    mb: 2,
+                    textDecoration: "none",
+                    display: "inline-block",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
+                >
+                  {organizationDetails.organizationName}
+                </Typography>
+              ) : (
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: "#BC2876",
+                    mb: 2,
+                  }}
+                >
+                  {organizationDetails.organizationName}
+                </Typography>
+              )}
               {organizationDetails.address && (
                 <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "flex-start" }}>
                   <LocationOnOutlinedIcon sx={{ fontSize: 20, color: "#720361", mt: 0.25 }} />

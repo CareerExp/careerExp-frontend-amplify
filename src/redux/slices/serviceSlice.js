@@ -134,6 +134,25 @@ export const getServiceById = createAsyncThunk(
   }
 );
 
+/** Record share. POST /api/viewsAndShares/increaseservicesharescount/:id. Optional body { userId }. */
+export const increaseServiceSharesCount = createAsyncThunk(
+  "service/increaseSharesCount",
+  async ({ serviceId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increaseservicesharescount/${serviceId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
 /** Register service CTA. POST /api/services/:id/cta. Auth required. */
 export const registerServiceCta = createAsyncThunk(
   "service/registerCta",

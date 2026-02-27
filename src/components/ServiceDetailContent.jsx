@@ -12,9 +12,11 @@ import { Box, Button, IconButton, Typography, Rating, Dialog, DialogTitle, Dialo
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { notify } from "../redux/slices/alertSlice.js";
 import {
   getServiceById,
+  increaseServiceSharesCount,
   registerServiceCta,
 } from "../redux/slices/serviceSlice.js";
 import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
@@ -30,6 +32,12 @@ import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 
 const ACCENT = "#DD4595";
 const ACCENT_DARK = "#720361";
+
+/** Organization home URL from details (slug + organizationType). */
+function getOrgHomeUrl(org) {
+  if (!org?.slug || !org?.organizationType) return null;
+  return org.organizationType === "HEI" ? `/org-hei/${org.slug}` : `/org-esp/${org.slug}`;
+}
 
 const ServiceDetailContent = ({ serviceId, onBack }) => {
   const dispatch = useDispatch();
@@ -140,6 +148,14 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
     } else {
       navigator.clipboard?.writeText(url);
       dispatch(notify({ type: "success", message: "Link copied" }));
+    }
+    if (serviceId) {
+      dispatch(
+        increaseServiceSharesCount({
+          serviceId,
+          userId: isAuthenticated ? userId : undefined,
+        }),
+      ).catch(() => {});
     }
   };
 
@@ -323,7 +339,18 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap", mb: 2 }}>
               {(organizationDetails?.organizationName || service.createdBy) && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Box
+                  component={getOrgHomeUrl(organizationDetails) ? Link : Box}
+                  to={getOrgHomeUrl(organizationDetails) || undefined}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    textDecoration: "none",
+                    color: "inherit",
+                    ...(getOrgHomeUrl(organizationDetails) && { "&:hover": { opacity: 0.85 }, cursor: "pointer" }),
+                  }}
+                >
                   {organizationDetails?.logo ? <Box component="img" src={organizationDetails.logo} alt="" sx={{ width: 48, height: 48, borderRadius: "10px", objectFit: "cover" }} /> : <BusinessCenterIcon sx={{ fontSize: 18, color: ACCENT }} />}
                   <Typography variant="body2" sx={{ fontFamily: fonts.sans, color: colors.darkGray }}>
                     {organizationDetails?.organizationName ||
@@ -656,17 +683,36 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   </Typography>
                 </Box>
               )}
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  color: ACCENT,
-                  mb: 2,
-                }}
-              >
-                {organizationDetails.organizationName}
-              </Typography>
+              {getOrgHomeUrl(organizationDetails) ? (
+                <Typography
+                  component={Link}
+                  to={getOrgHomeUrl(organizationDetails)}
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: ACCENT,
+                    mb: 2,
+                    textDecoration: "none",
+                    display: "inline-block",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
+                >
+                  {organizationDetails.organizationName}
+                </Typography>
+              ) : (
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: ACCENT,
+                    mb: 2,
+                  }}
+                >
+                  {organizationDetails.organizationName}
+                </Typography>
+              )}
               {organizationDetails.address && (
                 <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "flex-start" }}>
                   <LocationOnOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00", mt: 0.25 }} />

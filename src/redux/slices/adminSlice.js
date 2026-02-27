@@ -11,6 +11,8 @@ const initialState = {
   generalData: {},
   paymentTransactions: null,
   governmentOrganizations: null,
+  admins: null, // { admins: [], pagination?: { page, limit, total, totalPages } }
+  activityLog: null, // { logs: [], pagination?: { page, limit, total } }
 };
 
 export const getAllUsers = createAsyncThunk(
@@ -314,6 +316,211 @@ export const updateActiveStatus = createAsyncThunk(
   },
 );
 
+/** POST /api/admin/admins – Main admin only. Invite sub-admin by email. Body: { email, message? }. */
+export const addAdmin = createAsyncThunk(
+  "admin/addAdmin",
+  async ({ token, email, message }, { rejectWithValue }) => {
+    try {
+      const body = { email: email.trim() };
+      if (message != null && String(message).trim() !== "") {
+        body.message = String(message).trim();
+      }
+      const response = await FetchApi.fetch(`${config.api}/api/admin/admins`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to invite sub-admin",
+          field: response.field,
+        });
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to invite sub-admin",
+        field: error?.field,
+        code: error?.apiCode || error?.code,
+      });
+    }
+  },
+);
+
+/** GET /api/admin/activity-log – Main admin only. Paginated activity log. */
+export const getActivityLog = createAsyncThunk(
+  "admin/getActivityLog",
+  async (
+    { token, page = 1, limit = 10, search = "", actionFilter = "", actorId = "" },
+    { rejectWithValue },
+  ) => {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      if (search.trim()) params.set("search", search.trim());
+      if (actionFilter) params.set("action", actionFilter);
+      if (actorId) params.set("actorId", actorId);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/activity-log?${params}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to load activity log",
+          code: response.code,
+        });
+      }
+      const data = response.data ?? response;
+      return {
+        logs: data.logs ?? [],
+        pagination: data.pagination ?? { page: 1, limit: 10, total: 0 },
+      };
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to load activity log",
+        code: error?.apiCode || error?.code,
+      });
+    }
+  },
+);
+
+/** GET /api/admin/admins – Main admin only. List admins (optional search, page, limit). */
+export const getAdmins = createAsyncThunk(
+  "admin/getAdmins",
+  async ({ token, search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      if (search.trim()) params.set("search", search.trim());
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/admins?${params}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to load admins",
+        });
+      }
+      return response.data ?? { admins: [], pagination: {} };
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to load admins",
+      });
+    }
+  },
+);
+
+/** PATCH /api/admin/admins/:userId – Main admin only. Enable/disable admin. Body: { enabled: true|false }. */
+export const updateAdminStatus = createAsyncThunk(
+  "admin/updateAdminStatus",
+  async ({ token, userId, enabled }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/admins/${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ enabled }),
+        },
+      );
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to update admin status",
+        });
+      }
+      return { userId, enabled, user: response.data?.user ?? response.user };
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to update admin status",
+      });
+    }
+  },
+);
+
+/** GET /api/admin/invites/validate?token=xxx — no auth. Validates invite token. */
+export const validateAdminInvite = createAsyncThunk(
+  "admin/validateAdminInvite",
+  async ({ token }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/invites/validate?token=${encodeURIComponent(token)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Invalid invite",
+          code: response.code,
+        });
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Invalid or expired invite",
+        code: error?.apiCode || error?.code,
+      });
+    }
+  },
+);
+
+/** POST /api/admin/invites/accept — no auth. Accept invite and create admin account. */
+export const acceptAdminInvite = createAsyncThunk(
+  "admin/acceptAdminInvite",
+  async ({ token, firstName, lastName, mobile, password }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(`${config.api}/api/admin/invites/accept`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          mobile: mobile.trim(),
+          password,
+        }),
+      });
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to accept invite",
+          code: response.code,
+          field: response.field,
+        });
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to accept invite",
+        code: error?.apiCode || error?.code,
+        field: error?.field,
+      });
+    }
+  },
+);
+
 export const sendAdminSupportEmail = createAsyncThunk(
   "admin/sendAdminSupportEmail",
   async ({ firstName, lastName, email, phoneNumber, query, token }) => {
@@ -380,6 +587,24 @@ const adminSlice = createSlice({
     builder.addCase(getGovernmentOrganizations.fulfilled, (state, action) => {
       state.governmentOrganizations = action.payload?.data ?? null;
     });
+    builder.addCase(getActivityLog.fulfilled, (state, action) => {
+      state.activityLog = action.payload;
+    });
+    builder.addCase(getAdmins.fulfilled, (state, action) => {
+      const payload = action.payload;
+      state.admins = Array.isArray(payload)
+        ? { admins: payload, pagination: {} }
+        : { admins: payload?.admins ?? [], pagination: payload?.pagination ?? {} };
+    });
+    builder.addCase(updateAdminStatus.fulfilled, (state, action) => {
+      const { userId, enabled } = action.payload;
+      const status = enabled ? "active" : "disabled";
+      if (state.admins?.admins) {
+        state.admins.admins = state.admins.admins.map((a) =>
+          a._id === userId ? { ...a, status, enabled } : a,
+        );
+      }
+    });
     builder.addCase(getGeneralUserData.fulfilled, (state, action) => {
       state.generalData = action.payload.data;
     });
@@ -428,5 +653,7 @@ export const selectGeneralData = (state) => state.admin.generalData;
 export const selectPaymentTransactionsData = (state) => state.admin.paymentTransactions;
 export const selectGovernmentOrganizationsData = (state) =>
   state.admin.governmentOrganizations;
+export const selectAdminsData = (state) => state.admin.admins;
+export const selectActivityLogData = (state) => state.admin.activityLog;
 
 export default adminSlice.reducer;

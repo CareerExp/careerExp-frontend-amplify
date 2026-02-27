@@ -7,8 +7,10 @@ import { selectAuthenticated, selectToken, selectUserId } from "../../redux/slic
 import {
   getCounsellorAnalytics,
   getGeneralArticleData,
+  getGeneralPodcastData,
   selectCounsellorAnalytics,
   selectGeneralArticleData,
+  selectGeneralPodcastData,
 } from "../../redux/slices/creatorSlice.js";
 import { fonts } from "../../utility/fonts";
 import InitialLoaders from "../../loaders/InitialLoaders.jsx";
@@ -30,6 +32,26 @@ function buildArticleMonthlySeries(articleData) {
   return { names: MONTH_NAMES, likes, shares };
 }
 
+/** Build monthly series for podcast chart. Uses monthlyData if present, else totalLikes/totalShares like articles. */
+function buildPodcastMonthlySeries(podcastData) {
+  if (!podcastData) return { names: MONTH_NAMES, likes: [], shares: [] };
+  if (Array.isArray(podcastData.monthlyData) && podcastData.monthlyData.length > 0) {
+    return {
+      names: podcastData.monthlyData.map((item) => item.name ?? item.month),
+      likes: podcastData.monthlyData.map((item) => item.likes ?? 0),
+      shares: podcastData.monthlyData.map((item) => item.shares ?? 0),
+    };
+  }
+  const totalLikes = podcastData.totalLikes ?? 0;
+  const totalShares = podcastData.totalShares ?? 0;
+  const len = 12;
+  const likes = new Array(len).fill(0);
+  const shares = new Array(len).fill(0);
+  likes[len - 1] = totalLikes;
+  shares[len - 1] = totalShares;
+  return { names: MONTH_NAMES, likes, shares };
+}
+
 const CreatorAnalytics = () => {
   const dispatchToRedux = useDispatch();
   const userId = useSelector(selectUserId);
@@ -37,6 +59,7 @@ const CreatorAnalytics = () => {
   const token = useSelector(selectToken);
   const counsellorAnalyticsData = useSelector(selectCounsellorAnalytics);
   const generalArticleData = useSelector(selectGeneralArticleData);
+  const generalPodcastData = useSelector(selectGeneralPodcastData);
   const userData = counsellorAnalyticsData?.userData;
   const demographicsData = counsellorAnalyticsData?.demographicsData;
   const monthlyData = counsellorAnalyticsData?.monthlyData;
@@ -73,6 +96,12 @@ const CreatorAnalytics = () => {
   useEffect(() => {
     if (authenticated && engagementTab === 2) {
       dispatchToRedux(getGeneralArticleData({ userId, token })).catch(() => {});
+    }
+  }, [authenticated, engagementTab, userId, token, dispatchToRedux]);
+
+  useEffect(() => {
+    if (authenticated && engagementTab === 3) {
+      dispatchToRedux(getGeneralPodcastData({ userId, token })).catch(() => {});
     }
   }, [authenticated, engagementTab, userId, token, dispatchToRedux]);
 
@@ -298,21 +327,79 @@ const CreatorAnalytics = () => {
                           />
                         );
                       })()}
-                      {engagementTab === 3 && (
-                        <Box
-                          sx={{
-                            height: "260px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "rgba(255,255,255,0.8)",
-                            fontFamily: fonts.sans,
-                            fontSize: "1rem",
-                          }}
-                        >
-                          Coming soon
-                        </Box>
-                      )}
+                      {engagementTab === 3 && (() => {
+                        const { names, likes, shares } = buildPodcastMonthlySeries(generalPodcastData);
+                        return (
+                          <ReactEcharts
+                            option={{
+                              xAxis: {
+                                type: "category",
+                                data: names,
+                                axisLine: { lineStyle: { color: "#ffffff" } },
+                                axisTick: { show: false },
+                                axisLabel: { color: "#ffffff" },
+                              },
+                              yAxis: {
+                                type: "value",
+                                axisLine: { show: false },
+                                axisTick: { show: false },
+                                axisLabel: { color: "#ffffff" },
+                                splitLine: {
+                                  show: true,
+                                  lineStyle: { type: "dashed", color: "#886d6d9f" },
+                                },
+                              },
+                              tooltip: { trigger: "axis" },
+                              legend: {
+                                data: [
+                                  { name: "Likes", icon: "circle", itemStyle: { color: "#FD8C0C" } },
+                                  { name: "Shares", icon: "circle", itemStyle: { color: "#FF5B8F" } },
+                                ],
+                                top: "5%",
+                                right: "10%",
+                                textStyle: { color: "#FFFFFF" },
+                              },
+                              series: [
+                                {
+                                  name: "Likes",
+                                  type: "line",
+                                  data: likes,
+                                  smooth: true,
+                                  lineStyle: { width: 4, color: "#FD8C0C" },
+                                  areaStyle: {
+                                    color: {
+                                      type: "linear",
+                                      x: 0, y: 0, x2: 0, y2: 1,
+                                      colorStops: [
+                                        { offset: 0, color: "#FD8C0C" },
+                                        { offset: 1, color: "#fd8c0c14" },
+                                      ],
+                                    },
+                                  },
+                                },
+                                {
+                                  name: "Shares",
+                                  type: "line",
+                                  data: shares,
+                                  smooth: true,
+                                  lineStyle: { width: 4, color: "#FF5B8F" },
+                                  areaStyle: {
+                                    color: {
+                                      type: "linear",
+                                      x: 0, y: 0, x2: 0, y2: 1,
+                                      colorStops: [
+                                        { offset: 0, color: "#EE469F" },
+                                        { offset: 1, color: "#ee46a03f" },
+                                      ],
+                                    },
+                                  },
+                                },
+                              ],
+                            }}
+                            style={{ height: "260px" }}
+                          />
+                        );
+                      })()}
                     </CardContent>
                   </Card>
                 </Grid>
