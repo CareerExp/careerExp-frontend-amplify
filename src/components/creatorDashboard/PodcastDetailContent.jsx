@@ -28,7 +28,15 @@ import {
   selectToken,
   selectUserId,
 } from "../../redux/slices/authSlice.js";
-import { getPodcastDetail } from "../../redux/slices/creatorSlice.js";
+import {
+  getPodcastDetail,
+  getPodcastLikeStatus,
+  getPodcastRatingStatus,
+  increasePodcastSharesCount,
+  increasePodcastViewsCount,
+  ratePodcast,
+  togglePodcastLike,
+} from "../../redux/slices/creatorSlice.js";
 import { colors } from "../../utility/color.js";
 import { formatArticleDetailDate } from "../../utility/convertTimeToUTC.js";
 import { fonts } from "../../utility/fonts.js";
@@ -78,6 +86,7 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const audioRef = useRef(null);
+  const viewCountRef = useRef(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -105,6 +114,35 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
     fetchDetail();
   }, [podcastId, dispatch, onBack]);
 
+  useEffect(() => {
+    if (!podcast?._id || viewCountRef.current) return;
+    viewCountRef.current = true;
+    dispatch(
+      increasePodcastViewsCount({
+        podcastId: podcast._id,
+        userId: authenticated ? userId : undefined,
+      }),
+    )
+      .unwrap()
+      .then((payload) => {
+        if (payload?.updatedValue != null) setTotalViews(payload.updatedValue);
+      })
+      .catch(() => {});
+  }, [podcast?._id, authenticated, userId, dispatch]);
+
+  useEffect(() => {
+    if (authenticated && podcastId && podcast?._id && token && userId) {
+      dispatch(getPodcastLikeStatus({ podcastId: podcast._id, userId, token }))
+        .unwrap()
+        .then((p) => setUserLiked(!!p?.userLiked))
+        .catch(() => {});
+      dispatch(getPodcastRatingStatus({ podcastId: podcast._id, userId, token }))
+        .unwrap()
+        .then((p) => setUserRating(Number(p?.rating) || 0))
+        .catch(() => {});
+    }
+  }, [authenticated, podcastId, podcast?._id, userId, token, dispatch]);
+
   const handleShare = () => {
     const url = window.location.origin + `/podcast/${podcastId}`;
     if (navigator.share) {
@@ -112,6 +150,51 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
     } else {
       navigator.clipboard?.writeText(url);
       dispatch(notify({ type: "success", message: "Link copied" }));
+    }
+    if (podcast?._id) {
+      dispatch(
+        increasePodcastSharesCount({
+          podcastId: podcast._id,
+          userId: authenticated ? userId : undefined,
+        }),
+      )
+        .unwrap()
+        .then(() => {})
+        .catch(() => {});
+    }
+  };
+
+  const handleLike = async () => {
+    if (!authenticated) {
+      dispatch(notify({ type: "warning", message: "Please login to like" }));
+      return;
+    }
+    if (!podcast?._id) return;
+    try {
+      const p = await dispatch(
+        togglePodcastLike({ podcastId: podcast._id, userId, token }),
+      ).unwrap();
+      setUserLiked(!!p?.userLiked);
+      if (p?.totalLikes != null) setTotalLikes(p.totalLikes);
+    } catch (e) {
+      dispatch(notify({ type: "error", message: "Could not update like" }));
+    }
+  };
+
+  const handleRate = async (_, value) => {
+    if (!authenticated) {
+      dispatch(notify({ type: "warning", message: "Please login to rate" }));
+      return;
+    }
+    if (!podcast?._id || value == null) return;
+    try {
+      const p = await dispatch(
+        ratePodcast({ podcastId: podcast._id, userId, token, rating: value }),
+      ).unwrap();
+      setUserRating(value);
+      if (p?.averageRating != null) setAverageRating(p.averageRating);
+    } catch (e) {
+      dispatch(notify({ type: "error", message: "Could not submit rating" }));
     }
   };
 
@@ -447,7 +530,15 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
               borderTop: "1px solid #eee",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                cursor: authenticated ? "pointer" : "default",
+              }}
+              onClick={authenticated ? handleLike : undefined}
+            >
               <IconButton size="small" sx={{ color: userLiked ? "#720361" : colors.lightGray }}>
                 {userLiked ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
               </IconButton>
@@ -462,7 +553,13 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
               </Typography>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <Rating value={userRating || averageRating} readOnly size="small" sx={{ "& .MuiRating-iconFilled": { color: "#ffb400" } }} />
+              <Rating
+                value={userRating || averageRating}
+                readOnly={!authenticated}
+                size="small"
+                onChange={handleRate}
+                sx={{ "& .MuiRating-iconFilled": { color: "#ffb400" } }}
+              />
               <Typography variant="body2" sx={{ color: colors.darkGray, fontFamily: fonts.sans }}>
                 {averageRating.toFixed(1)} rating
               </Typography>

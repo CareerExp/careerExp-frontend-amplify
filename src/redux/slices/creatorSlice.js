@@ -16,6 +16,7 @@ const initialState = {
   CounsellorAnalytics: null,
   creatorDashboard: null,
   generalArticleData: null,
+  generalPodcastData: null,
   invitations: [],
   myOrganization: null,
   loading: false,
@@ -504,6 +505,119 @@ export const rateArticle = createAsyncThunk(
   },
 );
 
+/** Podcast like/rating/views/shares – same pattern as articles (explore podcast detail). */
+export const getPodcastLikeStatus = createAsyncThunk(
+  "creator/getPodcastLikeStatus",
+  async ({ podcastId, userId, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/like/getpodcastlikestatus/${podcastId}/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const togglePodcastLike = createAsyncThunk(
+  "creator/togglePodcastLike",
+  async ({ podcastId, userId, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/like/togglelikepodcast`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ podcastId, userId }),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const getPodcastRatingStatus = createAsyncThunk(
+  "creator/getPodcastRatingStatus",
+  async ({ podcastId, userId, token }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/rating/getpodcastratingstatus/${podcastId}/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const ratePodcast = createAsyncThunk(
+  "creator/ratePodcast",
+  async ({ podcastId, userId, token, rating }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(`${config.api}/api/rating/ratepodcast`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ podcastId, userId, rating }),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const increasePodcastViewsCount = createAsyncThunk(
+  "creator/increasePodcastViewsCount",
+  async ({ podcastId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increasepodcastviewscount/${podcastId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
+export const increasePodcastSharesCount = createAsyncThunk(
+  "creator/increasePodcastSharesCount",
+  async ({ podcastId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increasepodcastsharescount/${podcastId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
 export const deleteVideo = createAsyncThunk(
   "creator/deleteVideo",
   async ({ userId, videoId, token }, thunkAPI) => {
@@ -788,6 +902,27 @@ export const getGeneralArticleData = createAsyncThunk(
   },
 );
 
+/** GET /api/creator/getgeneralpodcastdata/:userId – podcast analytics for Creator Analytics tab */
+export const getGeneralPodcastData = createAsyncThunk(
+  "creator/getGeneralPodcastData",
+  async ({ userId, token }) => {
+    try {
+      return await FetchApi.fetch(
+        `${config.api}/api/creator/getgeneralpodcastdata/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+);
+
 export const getMyCompanyInvitations = createAsyncThunk(
   "creator/getMyCompanyInvitations",
   async ({ token }, thunkAPI) => {
@@ -960,6 +1095,9 @@ const creatorSlice = createSlice({
     builder.addCase(getGeneralArticleData.fulfilled, (state, { payload }) => {
       state.generalArticleData = payload?.data ?? null;
     });
+    builder.addCase(getGeneralPodcastData.fulfilled, (state, { payload }) => {
+      state.generalPodcastData = payload?.data ?? payload ?? null;
+    });
 
     builder.addCase(getMyCompanyInvitations.pending, (state) => {
       state.loading = true;
@@ -1015,6 +1153,7 @@ export const selectFollowerCount = (state) => state.creator.followerCount;
 export const selectCounsellorAnalytics = (state) => state.creator.CounsellorAnalytics;
 export const selectCreatorDashboard = (state) => state.creator.creatorDashboard;
 export const selectGeneralArticleData = (state) => state.creator.generalArticleData;
+export const selectGeneralPodcastData = (state) => state.creator.generalPodcastData;
 export const selectCreatorInvitations = (state) => state.creator.invitations;
 export const selectMyOrganization = (state) => state.creator.myOrganization;
 export const selectCreatorLoading = (state) => state.creator.loading;

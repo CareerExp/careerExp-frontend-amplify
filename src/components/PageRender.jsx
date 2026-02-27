@@ -1,3 +1,4 @@
+import { Box, Typography } from "@mui/material";
 import CreatorAnalytics from "../components/creatorDashboard/CreatorAnalytics.jsx";
 import CreatorHome from "../components/creatorDashboard/CreatorHome.jsx";
 import CreatorSocialMedia from "../components/creatorDashboard/CreatorSocialMedia.jsx";
@@ -6,6 +7,8 @@ import CounsellorFollowers from "../components/creatorDashboard/CounsellorFollow
 // import UserHistory from "../components/userDashboard/UserHistory.jsx";
 import UserHome from "../components/userDashboard/UserHome.jsx";
 import UserMyAssessment from "../components/userDashboard/UserMyAssessment.jsx";
+import UserMyActivities from "../components/userDashboard/UserMyActivities.jsx";
+import UserMyFollowing from "../components/userDashboard/UserMyFollowing.jsx";
 import UserMyLikes from "../components/userDashboard/UserMyLikes.jsx";
 import UserPlaylist from "../components/userDashboard/UserPlaylist.jsx";
 import PendingStatePopup from "../models/PendingStatePopup.jsx";
@@ -17,6 +20,7 @@ import AdminManagedESPsData from "./adminDashboard/AdminManagedESPsData.jsx";
 import AdminPayments from "./adminDashboard/AdminPayments.jsx";
 import CollaboratorsData from "./adminDashboard/CollaboratorsData.jsx";
 import EspEiUsersData from "./adminDashboard/EspEiUsersData.jsx";
+import AdminManageAdmins from "./adminDashboard/AdminManageAdmins.jsx";
 import SchoolDirectory from "./adminDashboard/SchoolDirectory.jsx";
 import UnifiedRecord from "./adminDashboard/UnifiedRecord.jsx";
 import UsersData from "./adminDashboard/UsersData.jsx";
@@ -59,6 +63,14 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <SchoolDirectory />;
       case "Payments":
         return <AdminPayments />;
+      case "Manage Admins":
+        return userData?.isMainAdmin === true ? (
+          <AdminManageAdmins />
+        ) : (
+          <Box sx={{ p: 3, textAlign: "center" }}>
+            <Typography color="text.secondary">You don&apos;t have permission to view this page.</Typography>
+          </Box>
+        );
       case "Profile":
         return <Profile />;
       default:
@@ -160,8 +172,10 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <UserHome />;
       // case "History":
       // return <UserHistory />;
-      case "My Likes":
-        return <UserMyLikes />;
+      case "My Activities":
+        return <UserMyActivities />;
+      case "My Following":
+        return <UserMyFollowing />;
       case "My Playlist":
         return <UserPlaylist />;
       case "My Assessments":

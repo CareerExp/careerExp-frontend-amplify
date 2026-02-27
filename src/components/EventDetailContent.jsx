@@ -8,12 +8,14 @@ import LanguageIcon from "@mui/icons-material/Language";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { notify } from "../redux/slices/alertSlice.js";
 import {
   getEventById,
+  increaseEventSharesCount,
   registerEventCta,
 } from "../redux/slices/eventSlice.js";
-import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
+import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
 import { formatArticleDetailDate } from "../utility/convertTimeToUTC.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
@@ -30,9 +32,16 @@ const EVENT_TYPE_LABELS = {
   ONLINE: "Online",
 };
 
+/** Organization home URL from details (slug + organizationType). */
+function getOrgHomeUrl(org) {
+  if (!org?.slug || !org?.organizationType) return null;
+  return org.organizationType === "HEI" ? `/org-hei/${org.slug}` : `/org-esp/${org.slug}`;
+}
+
 const EventDetailContent = ({ eventId, onBack }) => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
+  const userId = useSelector(selectUserId);
   const isAuthenticated = useSelector(selectAuthenticated);
   const [event, setEvent] = useState(null);
   const [organizationDetails, setOrganizationDetails] = useState(null);
@@ -76,6 +85,14 @@ const EventDetailContent = ({ eventId, onBack }) => {
     } else {
       navigator.clipboard?.writeText(url);
       dispatch(notify({ type: "success", message: "Link copied" }));
+    }
+    if (eventId) {
+      dispatch(
+        increaseEventSharesCount({
+          eventId,
+          userId: isAuthenticated ? userId : undefined,
+        }),
+      ).catch(() => {});
     }
   };
 
@@ -462,17 +479,36 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   </Typography>
                 </Box>
               )}
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  color: "#BC2876",
-                  mb: 2,
-                }}
-              >
-                {organizationDetails.organizationName}
-              </Typography>
+              {getOrgHomeUrl(organizationDetails) ? (
+                <Typography
+                  component={Link}
+                  to={getOrgHomeUrl(organizationDetails)}
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: "#BC2876",
+                    mb: 2,
+                    textDecoration: "none",
+                    display: "inline-block",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
+                >
+                  {organizationDetails.organizationName}
+                </Typography>
+              ) : (
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    color: "#BC2876",
+                    mb: 2,
+                  }}
+                >
+                  {organizationDetails.organizationName}
+                </Typography>
+              )}
               {organizationDetails.address && (
                 <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "flex-start" }}>
                   <LocationOnOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00", mt: 0.25 }} />

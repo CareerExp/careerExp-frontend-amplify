@@ -44,24 +44,42 @@ const StatCard = ({ value, label }) => (
   </Paper>
 );
 
+/** HEI data may be at top level (public org profile) or under organization (userProfile.organization). */
+function getHeiProfile(profile) {
+  return profile?.organization ?? profile;
+}
+
 const HEIKeyStatsSection = ({ profile: profileProp }) => {
   const profileFromRedux = useSelector(selectOrganizationProfile);
-  const orgProfile = profileProp ?? profileFromRedux;
-  const offers = orgProfile?.offers || [
-    'Short courses',
-    'Foundation',
-    'Bachelors',
-    'Pre-Masters',
-    'Masters',
-    'Doctoral',
-  ];
-  const stats = orgProfile?.heiStats || [
-    { value: '5000+', label: 'Total number of students' },
-    { value: '65% 35%', label: 'Student Gender division' },
-    { value: '15%', label: 'International student %' },
-    { value: '1:34', label: 'Staff to Student Ratio' },
-    { value: '60%', label: 'Employment rate' },
-  ];
+  const profile = profileProp ?? profileFromRedux;
+  const hei = getHeiProfile(profile);
+
+  const offers = hei?.offers ?? [];
+
+  const stats = [];
+  if (hei?.totalStudents != null) {
+    stats.push({ value: String(hei.totalStudents), label: 'Total number of students' });
+  }
+  if (hei?.maleStudentsPercent != null && hei?.femaleStudentsPercent != null) {
+    stats.push({
+      value: `${hei.maleStudentsPercent}% / ${hei.femaleStudentsPercent}%`,
+      label: 'Student Gender division',
+    });
+  }
+  if (hei?.internationalStudentsPercent != null) {
+    stats.push({ value: `${hei.internationalStudentsPercent}%`, label: 'International student %' });
+  }
+  if (hei?.staffToStudentRatio) {
+    stats.push({ value: String(hei.staffToStudentRatio), label: 'Staff to Student Ratio' });
+  }
+  if (hei?.employmentRatePercent != null) {
+    stats.push({ value: `${hei.employmentRatePercent}%`, label: 'Employment rate' });
+  }
+
+  const hasStats = stats.length > 0;
+  const hasOffers = offers.length > 0;
+
+  if (!hasOffers && !hasStats) return null;
 
   return (
     <Box
@@ -77,46 +95,52 @@ const HEIKeyStatsSection = ({ profile: profileProp }) => {
         px: { xs: 2, md: 4 },
       }}
     >
-      <Typography
-        sx={{
-          fontFamily: fonts.sans,
-          fontWeight: 600,
-          fontSize: '16px',
-          color: '#000',
-          mb: 2,
-        }}
-      >
-        Offers
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 3 }}>
-        {offers.map((offer) => (
-          <Chip
-            key={offer}
-            label={offer}
+      {hasOffers && (
+        <>
+          <Typography
             sx={{
-              backgroundColor: 'rgba(188, 40, 118, 0.1)',
-              color: '#BC2876',
               fontFamily: fonts.sans,
-              fontWeight: 500,
-              fontSize: '14px',
-              borderRadius: '90px',
-              height: '36px',
-              '& .MuiChip-label': { px: 2 },
+              fontWeight: 600,
+              fontSize: '16px',
+              color: '#000',
+              mb: 2,
             }}
-          />
-        ))}
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 2,
-        }}
-      >
-        {stats.map((stat, idx) => (
-          <StatCard key={idx} value={stat.value} label={stat.label} />
-        ))}
-      </Box>
+          >
+            Offers
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 3 }}>
+            {offers.map((offer) => (
+              <Chip
+                key={offer}
+                label={offer}
+                sx={{
+                  backgroundColor: 'rgba(188, 40, 118, 0.1)',
+                  color: '#BC2876',
+                  fontFamily: fonts.sans,
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  borderRadius: '90px',
+                  height: '36px',
+                  '& .MuiChip-label': { px: 2 },
+                }}
+              />
+            ))}
+          </Box>
+        </>
+      )}
+      {hasStats && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 2,
+          }}
+        >
+          {stats.map((stat, idx) => (
+            <StatCard key={idx} value={stat.value} label={stat.label} />
+          ))}
+        </Box>
+      )}
     </Box>
   );
 };

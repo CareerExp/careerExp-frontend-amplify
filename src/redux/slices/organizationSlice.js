@@ -103,6 +103,87 @@ export const uploadOrganizationMedia = createAsyncThunk(
   }
 );
 
+/** POST /api/organization/profile/me/gallery – HEI only. FormData: image (file), caption (optional). */
+export const uploadGalleryImage = createAsyncThunk(
+  "organization/uploadGalleryImage",
+  async ({ formData, token }, thunkAPI) => {
+    try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/organization/profile/me/gallery`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ...actingAs,
+          },
+          body: formData,
+        }
+      );
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message || "Upload failed" });
+      }
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+/** GET /api/organization/profile/me/gallery – HEI only. Returns { success, data: [{ id, url, caption }] }. */
+export const getGalleryImages = createAsyncThunk(
+  "organization/getGalleryImages",
+  async ({ token }, thunkAPI) => {
+    try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/organization/profile/me/gallery`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...actingAs,
+          },
+        }
+      );
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message || "Failed to load gallery" });
+      }
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+/** DELETE /api/organization/profile/me/gallery/:imageId – HEI only. */
+export const deleteGalleryImage = createAsyncThunk(
+  "organization/deleteGalleryImage",
+  async ({ imageId, token }, thunkAPI) => {
+    try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/organization/profile/me/gallery/${imageId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...actingAs,
+          },
+        }
+      );
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message || "Failed to delete image" });
+      }
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
 export const sendInvitation = createAsyncThunk(
   "organization/sendInvitation",
   async ({ inviteData, token }, thunkAPI) => {

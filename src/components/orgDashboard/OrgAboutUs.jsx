@@ -51,6 +51,8 @@ import {
   getMyOrganizationProfile,
   updateMyOrganizationProfile,
   uploadOrganizationMedia,
+  uploadGalleryImage,
+  deleteGalleryImage,
   selectOrganizationProfile,
   selectOrganizationLoading
 } from '../../redux/slices/organizationSlice';
@@ -1202,6 +1204,342 @@ const SocialChannels = ({ profile }) => {
   );
 };
 
+/** HEI only: Gallery tab – upload image, list images, delete image. */
+const HeiGallery = ({ profile, onRefetch }) => {
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const galleryInputRef = useRef(null);
+  const [caption, setCaption] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const galleryImages = profile?.galleryImages ?? [];
+  const normalizedImages = galleryImages.map((img) => ({
+    id: img.id ?? img._id,
+    url: img.url,
+    caption: img.caption ?? '',
+  }));
+
+  const handleUploadClick = () => galleryInputRef.current?.click();
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+    if (caption.trim()) formData.append('caption', caption.trim());
+    try {
+      await dispatch(uploadGalleryImage({ formData, token })).unwrap();
+      dispatch(notify({ type: 'success', message: 'Image added to gallery' }));
+      setCaption('');
+      onRefetch?.();
+    } catch (err) {
+      dispatch(notify({ type: 'error', message: err?.error || 'Failed to upload image' }));
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleDelete = async (imageId) => {
+    if (!token || !imageId) return;
+    setDeletingId(imageId);
+    try {
+      await dispatch(deleteGalleryImage({ imageId, token })).unwrap();
+      dispatch(notify({ type: 'success', message: 'Image removed' }));
+      onRefetch?.();
+    } catch (err) {
+      dispatch(notify({ type: 'error', message: err?.error || 'Failed to delete image' }));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  return (
+    <Box sx={{ mt: 3, width: '100%', maxWidth: '881px', mx: 'auto' }}>
+      <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#000', mb: 2 }}>
+        Upload Images
+      </Typography>
+      <Box sx={{ display: 'flex', gap: '30px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        {normalizedImages.map((img) => (
+          <Box key={img.id} sx={{ position: 'relative' }}>
+            <Box
+              component="img"
+              src={img.url}
+              alt={img.caption || 'Gallery'}
+              sx={{
+                width: 275,
+                height: 194,
+                borderRadius: '8px',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+            <IconButton
+              size="small"
+              onClick={() => handleDelete(img.id)}
+              disabled={deletingId === img.id}
+              sx={{
+                position: 'absolute',
+                top: 6,
+                right: 6,
+                bgcolor: 'rgba(0,0,0,0.5)',
+                color: '#fff',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
+              }}
+            >
+              {deletingId === img.id ? <CircularProgress size={16} color="inherit" /> : <CloseIcon fontSize="small" />}
+            </IconButton>
+            {img.caption && (
+              <Typography sx={{ fontFamily: fonts.sans, fontSize: '12px', color: '#545454', mt: 0.5 }} noWrap>
+                {img.caption}
+              </Typography>
+            )}
+          </Box>
+        ))}
+        <input
+          type="file"
+          accept="image/*"
+          ref={galleryInputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
+        <Box
+          onClick={uploading ? undefined : handleUploadClick}
+          sx={{
+            width: 337,
+            minHeight: 194,
+            border: '1px dashed #BC2876',
+            borderRadius: '12px',
+            bgcolor: '#fcfcfc',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            px: 3,
+            py: 2,
+            cursor: uploading ? 'wait' : 'pointer',
+            '&:hover': uploading ? {} : { bgcolor: 'rgba(188,40,118,0.04)' },
+          }}
+        >
+          {uploading ? (
+            <CircularProgress size={32} sx={{ color: '#BC2876' }} />
+          ) : (
+            <>
+              <AddPhotoAlternateIcon sx={{ fontSize: 48, color: '#BC2876', opacity: 0.7 }} />
+              <Typography sx={{ fontFamily: fonts.sans, fontSize: '14px', color: 'rgba(0,0,0,0.5)' }}>
+                Upload Picture
+              </Typography>
+            </>
+          )}
+        </Box>
+      </Box>
+      <TextField
+        placeholder="Caption (optional)"
+        value={caption}
+        onChange={(e) => setCaption(e.target.value)}
+        size="small"
+        sx={{ mt: 2, maxWidth: 337 }}
+        InputProps={{
+          disableUnderline: true,
+          sx: { backgroundColor: '#f2f2f2', borderRadius: '90px', px: 2, py: 1, fontFamily: fonts.sans },
+        }}
+      />
+    </Box>
+  );
+};
+
+/** HEI only: Institute Information tab – numeric fields + offers chips, save via PUT profile. */
+const HeiInstituteInformation = ({ profile, onRefetch }) => {
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const isLoading = useSelector(selectOrganizationLoading);
+  const [totalStudents, setTotalStudents] = useState('');
+  const [malePercent, setMalePercent] = useState('');
+  const [femalePercent, setFemalePercent] = useState('');
+  const [internationalPercent, setInternationalPercent] = useState('');
+  const [staffToStudentRatio, setStaffToStudentRatio] = useState('');
+  const [employmentRatePercent, setEmploymentRatePercent] = useState('');
+  const [offers, setOffers] = useState([]);
+  const [offerInput, setOfferInput] = useState('');
+
+  useEffect(() => {
+    if (profile) {
+      setTotalStudents(profile.totalStudents != null ? String(profile.totalStudents) : '');
+      setMalePercent(profile.maleStudentsPercent != null ? String(profile.maleStudentsPercent) : '');
+      setFemalePercent(profile.femaleStudentsPercent != null ? String(profile.femaleStudentsPercent) : '');
+      setInternationalPercent(
+        profile.internationalStudentsPercent != null ? String(profile.internationalStudentsPercent) : ''
+      );
+      setStaffToStudentRatio(profile.staffToStudentRatio ?? '');
+      setEmploymentRatePercent(
+        profile.employmentRatePercent != null ? String(profile.employmentRatePercent) : ''
+      );
+      setOffers(Array.isArray(profile.offers) ? [...profile.offers] : []);
+    }
+  }, [profile]);
+
+  const handleAddOffer = () => {
+    const v = offerInput.trim();
+    if (v && !offers.includes(v)) {
+      setOffers([...offers, v]);
+      setOfferInput('');
+    }
+  };
+
+  const handleRemoveOffer = (o) => {
+    setOffers(offers.filter((x) => x !== o));
+  };
+
+  const handleSave = async () => {
+    const updateData = {
+      totalStudents: totalStudents === '' ? null : Number(totalStudents),
+      maleStudentsPercent: malePercent === '' ? null : Number(malePercent),
+      femaleStudentsPercent: femalePercent === '' ? null : Number(femalePercent),
+      internationalStudentsPercent: internationalPercent === '' ? null : Number(internationalPercent),
+      staffToStudentRatio: staffToStudentRatio || undefined,
+      employmentRatePercent: employmentRatePercent === '' ? null : Number(employmentRatePercent),
+      offers,
+    };
+    try {
+      await dispatch(updateMyOrganizationProfile({ updateData, token })).unwrap();
+      dispatch(notify({ message: 'Institute Information updated successfully.', type: 'success' }));
+      onRefetch?.();
+    } catch (err) {
+      dispatch(notify({ message: err?.error || 'Failed to update', type: 'error' }));
+    }
+  };
+
+  const fieldSx = {
+    backgroundColor: '#f2f2f2',
+    borderRadius: '90px',
+    px: '23px',
+    py: '15px',
+    fontFamily: fonts.sans,
+    fontSize: '16px',
+    '& .MuiInput-root': { fontFamily: fonts.sans },
+  };
+  const labelSx = { fontFamily: fonts.sans, fontWeight: 500, fontSize: '16px', color: '#545454', mb: 0.5 };
+
+  return (
+    <Box sx={{ mt: 3, width: '100%', maxWidth: '881px', mx: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Typography sx={labelSx}>Total Students</Typography>
+      <TextField
+        fullWidth
+        placeholder="Enter the total number of enrolled students."
+        value={totalStudents}
+        onChange={(e) => setTotalStudents(e.target.value)}
+        InputProps={{ disableUnderline: true, sx: fieldSx }}
+        variant="standard"
+      />
+
+      <Typography sx={labelSx}>Student Gender Distribution</Typography>
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <TextField
+          placeholder="Male Students (%)"
+          value={malePercent}
+          onChange={(e) => setMalePercent(e.target.value)}
+          sx={{ flex: 1, minWidth: 200 }}
+          InputProps={{ disableUnderline: true, sx: fieldSx }}
+          variant="standard"
+        />
+        <TextField
+          placeholder="Female Students (%)"
+          value={femalePercent}
+          onChange={(e) => setFemalePercent(e.target.value)}
+          sx={{ flex: 1, minWidth: 200 }}
+          InputProps={{ disableUnderline: true, sx: fieldSx }}
+          variant="standard"
+        />
+      </Box>
+      <Typography sx={{ fontFamily: fonts.sans, fontSize: '12px', color: 'rgba(0,0,0,0.5)' }}>
+        Ensure the total equals 100%.
+      </Typography>
+
+      <Typography sx={labelSx}>International Students (%)</Typography>
+      <TextField
+        fullWidth
+        placeholder="Percentage of students from outside the country. (Example: 15)"
+        value={internationalPercent}
+        onChange={(e) => setInternationalPercent(e.target.value)}
+        InputProps={{ disableUnderline: true, sx: fieldSx }}
+        variant="standard"
+      />
+
+      <Typography sx={labelSx}>Staff to Student Ratio</Typography>
+      <TextField
+        fullWidth
+        placeholder="Enter the ratio in the format staff:students. (example: 1:34)"
+        value={staffToStudentRatio}
+        onChange={(e) => setStaffToStudentRatio(e.target.value)}
+        InputProps={{ disableUnderline: true, sx: fieldSx }}
+        variant="standard"
+      />
+
+      <Typography sx={labelSx}>Employment Rate (%)</Typography>
+      <TextField
+        fullWidth
+        placeholder="Percentage of students employed (example: 60)"
+        value={employmentRatePercent}
+        onChange={(e) => setEmploymentRatePercent(e.target.value)}
+        InputProps={{ disableUnderline: true, sx: fieldSx }}
+        variant="standard"
+      />
+
+      <Typography sx={labelSx}>Offers</Typography>
+      <TextField
+        fullWidth
+        placeholder="Add your offer for students."
+        value={offerInput}
+        onChange={(e) => setOfferInput(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddOffer())}
+        InputProps={{ disableUnderline: true, sx: fieldSx }}
+        variant="standard"
+      />
+      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+        {offers.map((o) => (
+          <Chip
+            key={o}
+            label={o}
+            onDelete={() => handleRemoveOffer(o)}
+            size="small"
+            sx={{
+              bgcolor: 'rgba(188,40,118,0.07)',
+              color: '#BC2876',
+              fontFamily: fonts.sans,
+              fontWeight: 500,
+              fontSize: '14px',
+              '& .MuiChip-deleteIcon': { color: '#BC2876' },
+            }}
+          />
+        ))}
+      </Box>
+
+      <Button
+        variant="contained"
+        onClick={handleSave}
+        disabled={isLoading}
+        sx={{
+          background: 'linear-gradient(156.46deg, #BF2F75 3.87%, #720361 63.8%)',
+          borderRadius: '90px',
+          px: 4,
+          py: 1.5,
+          textTransform: 'none',
+          fontFamily: fonts.sans,
+          fontWeight: 600,
+          fontSize: '16px',
+          alignSelf: 'flex-start',
+          mt: 1,
+        }}
+      >
+        {isLoading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Save Changes'}
+      </Button>
+    </Box>
+  );
+};
+
 const OrgAboutUs = () => {
   const dispatch = useDispatch();
   const orgProfile = useSelector(selectOrganizationProfile);
@@ -1526,6 +1864,38 @@ const OrgAboutUs = () => {
                 },
               }}
             />
+            {orgProfile?.organizationType === 'HEI' && (
+              <Tab
+                label="Gallery"
+                sx={{
+                  textTransform: 'none',
+                  fontFamily: fonts.sans,
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  color: '#999',
+                  px: { xs: 2, md: 4.5 },
+                  '&.Mui-selected': {
+                    color: '#BC2876',
+                  },
+                }}
+              />
+            )}
+            {orgProfile?.organizationType === 'HEI' && (
+              <Tab
+                label="Institute Information"
+                sx={{
+                  textTransform: 'none',
+                  fontFamily: fonts.sans,
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  color: '#999',
+                  px: { xs: 2, md: 4.5 },
+                  '&.Mui-selected': {
+                    color: '#BC2876',
+                  },
+                }}
+              />
+            )}
           </Tabs>
         </Box>
 
@@ -1533,6 +1903,12 @@ const OrgAboutUs = () => {
         {tabValue === 0 && <CorporateInformation profile={orgProfile} />}
         {tabValue === 1 && <Offices profile={orgProfile} />}
         {tabValue === 2 && <SocialChannels profile={orgProfile} />}
+        {orgProfile?.organizationType === 'HEI' && tabValue === 3 && (
+          <HeiGallery profile={orgProfile} onRefetch={() => dispatch(getMyOrganizationProfile({ token }))} />
+        )}
+        {orgProfile?.organizationType === 'HEI' && tabValue === 4 && (
+          <HeiInstituteInformation profile={orgProfile} onRefetch={() => dispatch(getMyOrganizationProfile({ token }))} />
+        )}
       </Paper>
     </Box>
   );

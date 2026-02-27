@@ -134,6 +134,25 @@ export const getEventById = createAsyncThunk(
   }
 );
 
+/** Record share. POST /api/viewsAndShares/increaseeventsharescount/:id. Optional body { userId }. */
+export const increaseEventSharesCount = createAsyncThunk(
+  "event/increaseSharesCount",
+  async ({ eventId, userId }, thunkAPI) => {
+    try {
+      return FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increaseeventsharescount/${eventId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userId ? { userId } : {}),
+        },
+      );
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  },
+);
+
 /** Register event CTA. POST /api/events/:id/cta. Auth required. */
 export const registerEventCta = createAsyncThunk(
   "event/registerCta",

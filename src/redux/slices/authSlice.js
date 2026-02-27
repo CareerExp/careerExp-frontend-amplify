@@ -117,6 +117,12 @@ const authSlice = createSlice({
     setIsAuthenticated(state, { payload }) {
       state.isAuthenticated = payload.isAuthenticated;
     },
+    /** Set auth after accepting admin invite (token + userId); no profile fetch. */
+    setCredentials(state, { payload }) {
+      if (payload?.token) state.token = payload.token;
+      if (payload?.userId != null) state.userId = payload.userId;
+      state.isAuthenticated = true;
+    },
   },
   extraReducers(builder) {
     builder
@@ -148,7 +154,7 @@ const selectAuthenticated = (state) => state.auth.isAuthenticated;
 const selectAuthData = (state) => state.auth;
 const selectToken = (state) => state.auth.token;
 const selectUserId = (state) => state.auth.userId;
-const { setIsAuthenticated, logout } = authSlice.actions;
+const { setIsAuthenticated, logout, setCredentials } = authSlice.actions;
 
 export {
   selectAuthenticated,
@@ -161,5 +167,6 @@ export {
   forgetPassVerify,
   setIsAuthenticated,
   logout,
+  setCredentials,
 };
 export default authSlice.reducer;

@@ -15,6 +15,7 @@ const CreateNewPassword = React.lazy(
   () => import("../pages/CreateNewPassword")
 );
 const VerifyEmail = React.lazy(() => import("../pages/EmailVerification.jsx"));
+const AcceptAdminInvite = React.lazy(() => import("../pages/AcceptAdminInvite.jsx"));
 
 const Layout = React.lazy(() => import("../components/Layout"));
 const Home = React.lazy(() => import("../pages/Home"));
@@ -321,6 +322,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <CreateNewPassword />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/accept-admin-invite"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <AcceptAdminInvite />
           </Suspense>
         }
       />
