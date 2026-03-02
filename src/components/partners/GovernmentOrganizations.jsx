@@ -1,14 +1,144 @@
-import React from "react";
-import { Box, Grid, Card, Typography, Button, Stack } from "@mui/material";
+import React, { useState, useEffect, useCallback } from "react";
+import { Box, Card, Typography, Button, Stack, CircularProgress } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { partnersList2 } from "../../utility/partnersList";
 import { fonts } from "../../utility/fonts";
+import { getExploreGovernmentOrganizations } from "../../api/partnersExploreApi";
 
-const GovernmentOrganizations = () => {
+const PAGE_SIZE = 10;
+
+/** Strip HTML tags and decode entities so description shows as plain text. */
+function htmlToPlainText(html) {
+  if (html == null || typeof html !== "string") return "";
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || "").trim().replace(/\s+/g, " ");
+}
+
+/** Normalize API item to card shape: { id, name, logo, collaboration? } */
+function toCardItem(item) {
+  const coll = item.collaboration ?? item.description;
+  const strip = (v) => htmlToPlainText(v == null ? "" : typeof v === "string" ? v : String(v));
+  return {
+    id: item.id ?? item.slug ?? JSON.stringify(item),
+    name: htmlToPlainText(item.organizationName ?? item.name ?? item.title ?? "—"),
+    logo: item.logo ?? item.logoUrl ?? item.image ?? null,
+    collaboration: Array.isArray(coll)
+      ? {
+          title: "How we work together",
+          points: coll.map((p, i) => ({
+            id: i + 1,
+            heading: strip(typeof p === "string" ? p : p?.heading),
+            description: strip(typeof p === "string" ? p : p?.description),
+          })),
+        }
+      : typeof coll === "string"
+        ? { title: "How we work together", points: [{ id: 1, heading: "", description: strip(coll) }] }
+        : coll && typeof coll === "object" && (coll.points || coll.title)
+          ? {
+              title: htmlToPlainText(coll.title) || "How we work together",
+              points: (coll.points ?? []).map((p, i) => ({
+                id: p.id ?? i + 1,
+                heading: strip(p.heading),
+                description: strip(p.description),
+              })),
+            }
+          : null,
+  };
+}
+
+const GovernmentOrganizations = ({ search = "" }) => {
+  const [items, setItems] = useState([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchPage = useCallback(
+    async (pageNum, append = false) => {
+      if (pageNum === 1) setLoading(true);
+      else setLoadingMore(true);
+      setError(null);
+      try {
+        const res = await getExploreGovernmentOrganizations({
+          search: search.trim(),
+          page: pageNum,
+          limit: PAGE_SIZE,
+        });
+        if (!res?.success || !res?.data) {
+          if (!append) setItems([]);
+          setHasMore(false);
+          return;
+        }
+        const { items: rawItems = [], hasMore: more } = res.data;
+        const newCards = rawItems.map(toCardItem);
+        if (append) {
+          setItems((prev) => [...prev, ...newCards]);
+        } else {
+          setItems(newCards);
+        }
+        setHasMore(!!more);
+        setPage(pageNum);
+      } catch (err) {
+        setError(err?.message || "Failed to load.");
+        if (!append) setItems([]);
+        setHasMore(false);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [search]
+  );
+
+  useEffect(() => {
+    fetchPage(1, false);
+  }, [fetchPage]);
+
+  const handleLoadMore = () => {
+    if (loadingMore || !hasMore) return;
+    fetchPage(page + 1, true);
+  };
+
+  if (loading && items.length === 0) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+        <CircularProgress sx={{ color: "#bf2f75" }} />
+      </Box>
+    );
+  }
+
+  if (error && items.length === 0) {
+    return (
+      <Box sx={{ py: 4, textAlign: "center" }}>
+        <Typography sx={{ fontFamily: fonts.poppins, color: "text.secondary" }}>
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!loading && items.length === 0) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography
+          sx={{
+            fontFamily: fonts.poppins,
+            fontSize: "18px",
+            color: "#545454",
+            fontWeight: 500,
+          }}
+        >
+          No government organizations found. Try adjusting your search or filters.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ pb: 8 }}>
       <Stack spacing={4}>
-        {partnersList2.map((partner) => (
+        {items.map((partner) => (
           <Card
             key={partner.id}
             sx={{
@@ -76,20 +206,26 @@ const GovernmentOrganizations = () => {
                   flexShrink: 0,
                 }}
               >
-                <Box
-                  component="img"
-                  src={partner.logo}
-                  alt={partner.name}
-                  sx={{
-                    maxWidth: "90%",
-                    maxHeight: "90%",
-                    objectFit: "contain",
-                  }}
-                />
+                {partner.logo ? (
+                  <Box
+                    component="img"
+                    src={typeof partner.logo === "string" ? partner.logo : partner.logo?.url}
+                    alt={partner.name}
+                    sx={{
+                      maxWidth: "90%",
+                      maxHeight: "90%",
+                      objectFit: "contain",
+                    }}
+                  />
+                ) : (
+                  <Typography sx={{ fontFamily: fonts.poppins, fontSize: "14px", color: "#999" }}>
+                    No logo
+                  </Typography>
+                )}
               </Box>
 
               {/* Collaboration Info */}
-              {partner.collaboration && (
+              {partner.collaboration && partner.collaboration.points?.length > 0 && (
                 <Box
                   sx={{
                     flex: 1,
@@ -111,7 +247,7 @@ const GovernmentOrganizations = () => {
                   </Typography>
                   <Stack spacing={2}>
                     {partner.collaboration.points.map((point, index) => (
-                      <Box key={point.id} sx={{ display: "flex", gap: 1.5 }}>
+                      <Box key={point.id ?? index} sx={{ display: "flex", gap: 1.5 }}>
                         <Typography
                           sx={{
                             fontFamily: fonts.poppins,
@@ -125,17 +261,19 @@ const GovernmentOrganizations = () => {
                           {index + 1}.
                         </Typography>
                         <Box>
-                          <Typography
-                            sx={{
-                              fontFamily: fonts.poppins,
-                              fontWeight: 600,
-                              fontSize: "16px",
-                              color: "#000000",
-                              mb: 0.5,
-                            }}
-                          >
-                            {point.heading}
-                          </Typography>
+                          {point.heading && (
+                            <Typography
+                              sx={{
+                                fontFamily: fonts.poppins,
+                                fontWeight: 600,
+                                fontSize: "16px",
+                                color: "#000000",
+                                mb: 0.5,
+                              }}
+                            >
+                              {point.heading}
+                            </Typography>
+                          )}
                           <Typography
                             sx={{
                               fontFamily: fonts.poppins,
@@ -158,29 +296,38 @@ const GovernmentOrganizations = () => {
         ))}
       </Stack>
 
-      {/* Load More Button - Visual only as requested */}
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
-        <Button
-          variant="contained"
-          endIcon={<KeyboardArrowDownIcon />}
-          sx={{
-            background: "linear-gradient(156.46deg, #bf2f75 3.87%, #720361 63.8%)",
-            borderRadius: "90px",
-            px: 4,
-            py: 1.5,
-            textTransform: "none",
-            fontFamily: fonts.poppins,
-            fontWeight: 600,
-            fontSize: "16px",
-            "&:hover": {
+      {loadingMore && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <CircularProgress size={28} sx={{ color: "#bf2f75" }} />
+        </Box>
+      )}
+
+      {hasMore && !loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+          <Button
+            variant="contained"
+            disabled={loadingMore}
+            endIcon={<KeyboardArrowDownIcon />}
+            onClick={handleLoadMore}
+            sx={{
               background: "linear-gradient(156.46deg, #bf2f75 3.87%, #720361 63.8%)",
-              opacity: 0.9,
-            },
-          }}
-        >
-          Load More
-        </Button>
-      </Box>
+              borderRadius: "90px",
+              px: 4,
+              py: 1.5,
+              textTransform: "none",
+              fontFamily: fonts.poppins,
+              fontWeight: 600,
+              fontSize: "16px",
+              "&:hover": {
+                background: "linear-gradient(156.46deg, #bf2f75 3.87%, #720361 63.8%)",
+                opacity: 0.9,
+              },
+            }}
+          >
+            Load More
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };
