@@ -28,31 +28,20 @@ const Partners = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [selectedLanguage, setSelectedLanguage] = useState(null);
-  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedCountry, setAppliedCountry] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [isServiceProviderOpen, setServiceProviderOpen] = useState(false);
   const [isEducationalInstitutionOpen, setEducationalInstitutionOpen] = useState(false);
-
-  const languages = [
-    { label: "English (UK)", value: "English (UK)" },
-    { label: "English (US)", value: "English (US)" },
-  ];
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
   const handleSearch = () => {
-    const filters = {
-      category: ["Education Institutions", "Education Service Providers", "Government and Community Organizations"][activeTab],
-      search: searchValue,
-      country: selectedCountry?.name || null,
-      language: selectedLanguage?.label || null,
-      program: selectedProgram?.label || null,
-    };
-    console.log("Partners Search filters:", filters);
+    setAppliedSearch(searchValue.trim());
+    setAppliedCountry(activeTab === 2 ? "" : (selectedCountry?.name || ""));
   };
 
   const autocompleteStyle = {
@@ -139,9 +128,9 @@ const Partners = () => {
             width: "100%",
           }}
         >
-          {/* HEI Search Input */}
+          {/* Search Input */}
           <TextField
-            placeholder="HEI Search"
+            placeholder="Search"
             variant="outlined"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
@@ -182,48 +171,20 @@ const Partners = () => {
             alignItems: "center",
             gap: 2,
           }}>
-          {/* Country Dropdown */}
-          <Autocomplete
-            options={countryList}
-            getOptionLabel={(option) => option.name}
-            value={selectedCountry}
-            onChange={(event, newValue) => setSelectedCountry(newValue)}
-            className={partnersStyles["autocomplete-country"]}
-            renderInput={(params) => (
-              <TextField {...params} placeholder="Country" variant="outlined" />
-            )}
-            sx={autocompleteStyle}
-          />
-
-          {/* Programs Dropdown */}
-          <Autocomplete
-            options={[]} // Empty for now as requested
-            getOptionLabel={(option) => option.label || ""}
-            value={selectedProgram}
-            onChange={(event, newValue) => setSelectedProgram(newValue)}
-            className={partnersStyles["autocomplete-programs"]}
-            renderInput={(params) => (
-              <TextField {...params} placeholder="Programs" variant="outlined" />
-            )}
-            sx={autocompleteStyle}
-          />
-
-          {/* Language Dropdown */}
-          <Autocomplete
-            options={languages}
-            getOptionLabel={(option) => option.label}
-            value={selectedLanguage}
-            onChange={(event, newValue) => setSelectedLanguage(newValue)}
-            className={partnersStyles["autocomplete-language"]}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder="Language(s) of instruction"
-                variant="outlined"
-              />
-            )}
-            sx={autocompleteStyle}
-          />
+          {/* Country Dropdown - only for Education Institutions and Education Service Providers */}
+          {activeTab !== 2 && (
+            <Autocomplete
+              options={countryList}
+              getOptionLabel={(option) => option.name}
+              value={selectedCountry}
+              onChange={(event, newValue) => setSelectedCountry(newValue)}
+              className={partnersStyles["autocomplete-country"]}
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Country" variant="outlined" />
+              )}
+              sx={autocompleteStyle}
+            />
+          )}
 
           {/* Search Button */}
           <Button
@@ -255,9 +216,15 @@ const Partners = () => {
 
         {/* Tab Content Section */}
         <Box className={partnersStyles["tabs-content"]}>
-          {activeTab === 0 && <EducationalInstitutions />}
-          {activeTab === 1 && <EducationServiceProviders />}
-          {activeTab === 2 && <GovernmentOrganizations />}
+          {activeTab === 0 && (
+            <EducationalInstitutions search={appliedSearch} country={appliedCountry} />
+          )}
+          {activeTab === 1 && (
+            <EducationServiceProviders search={appliedSearch} country={appliedCountry} />
+          )}
+          {activeTab === 2 && (
+            <GovernmentOrganizations search={appliedSearch} />
+          )}
         </Box>
 
         {/* Partner Section */}

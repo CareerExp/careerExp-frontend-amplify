@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Grid,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Typography, Button, Grid, CircularProgress } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Check from "@mui/icons-material/Check";
 import StarBorderRoundedIcon from "@mui/icons-material/StarBorderRounded";
@@ -57,7 +51,9 @@ function formatNextBillingDate(isoDate) {
 
 function formatPaymentMethod(pm) {
   if (!pm || !pm.last4) return null;
-  const brand = pm.brand ? `${pm.brand.charAt(0).toUpperCase()}${pm.brand.slice(1)}` : "Card";
+  const brand = pm.brand
+    ? `${pm.brand.charAt(0).toUpperCase()}${pm.brand.slice(1)}`
+    : "Card";
   const last4 = pm.last4;
   const exp =
     pm.expMonth != null && pm.expYear != null
@@ -120,14 +116,19 @@ const SubscriptionTab = () => {
   const subscription = orgProfile?.subscription;
   const hasActiveSubscription =
     subscription?.status === "active" || subscription?.status === "trialing";
+  const isPastDue = subscription?.status === "past_due";
   const cancelAtPeriodEnd = Boolean(subscription?.cancelAtPeriodEnd);
   const nextBillingDate = formatNextBillingDate(subscription?.currentPeriodEnd);
-  const billedWithLabel = formatPaymentMethod(subscription?.paymentMethod) || "Payment method on file";
+  const billedWithLabel =
+    formatPaymentMethod(subscription?.paymentMethod) ||
+    "Payment method on file";
   // Display price by org type: ESP $150, HEI $100 (plan name stays "Monthly Plan")
   const displayPrice = organizationType === "HEI" ? 100 : 150;
 
   const getPortalReturnUrl = () => {
-    const base = config?.frontendDomain || (typeof window !== "undefined" ? window.location.origin : "");
+    const base =
+      config?.frontendDomain ||
+      (typeof window !== "undefined" ? window.location.origin : "");
     return base ? `${base}/billing/return` : undefined;
   };
 
@@ -135,16 +136,26 @@ const SubscriptionTab = () => {
     if (!token) return;
     try {
       const result = await dispatch(
-        createPortalSession({ token, returnUrl: getPortalReturnUrl() })
+        createPortalSession({ token, returnUrl: getPortalReturnUrl() }),
       ).unwrap();
       const url = result?.url ?? result?.data?.url;
       // if (url) window.open(url, "_blank", "noopener,noreferrer");
       if (url) {
-  window.location.href = url;
-}
-      else dispatch(notify({ type: "error", message: "Could not open billing. Please try again." }));
+        window.location.href = url;
+      } else
+        dispatch(
+          notify({
+            type: "error",
+            message: "Could not open billing. Please try again.",
+          }),
+        );
     } catch (err) {
-      dispatch(notify({ type: "error", message: err || "Could not open billing. Please try again." }));
+      dispatch(
+        notify({
+          type: "error",
+          message: err || "Could not open billing. Please try again.",
+        }),
+      );
     }
   };
 
@@ -164,7 +175,7 @@ const SubscriptionTab = () => {
           organizationId,
           organizationType,
           token,
-        })
+        }),
       ).unwrap();
       const checkoutUrl = result?.url ?? result?.data?.url;
       if (checkoutUrl) {
@@ -174,7 +185,7 @@ const SubscriptionTab = () => {
           notify({
             type: "error",
             message: "Could not start checkout. Please try again.",
-          })
+          }),
         );
       }
     } catch (err) {
@@ -182,7 +193,7 @@ const SubscriptionTab = () => {
         notify({
           type: "error",
           message: err || "Could not start checkout. Please try again.",
-        })
+        }),
       );
     }
   };
@@ -193,7 +204,7 @@ const SubscriptionTab = () => {
       <Box sx={{ py: 2 }}>
         <Grid container spacing={4}>
           {/* Left: Your Current Plan */}
-          <Grid item xs={12} md={6} sx={{px: {xs: 2, sm: 2, xxl: 8}}}>
+          <Grid item xs={12} md={6} sx={{ px: { xs: 2, sm: 2, xxl: 8 } }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <Typography
                 sx={{
@@ -245,7 +256,9 @@ const SubscriptionTab = () => {
                   flexShrink: 0,
                 }}
               >
-                <StarBorderRoundedIcon sx={{ fontSize: 22, color: "#720361" }} />
+                <StarBorderRoundedIcon
+                  sx={{ fontSize: 22, color: "#720361" }}
+                />
               </Box>
               <Box>
                 <Typography
@@ -286,10 +299,23 @@ const SubscriptionTab = () => {
                 borderBottom: "1px solid #E5E7EB",
               }}
             >
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#667085" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "14px",
+                  color: "#667085",
+                }}
+              >
                 {cancelAtPeriodEnd ? "End date" : "Next Billing Date"}
               </Typography>
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", fontWeight: 600, color: "#101828" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#101828",
+                }}
+              >
                 {nextBillingDate}
               </Typography>
             </Box>
@@ -303,10 +329,22 @@ const SubscriptionTab = () => {
                 mb: 2,
               }}
             >
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#667085" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "14px",
+                  color: "#667085",
+                }}
+              >
                 Billed with
               </Typography>
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#101828" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "14px",
+                  color: "#101828",
+                }}
+              >
                 {billedWithLabel}
               </Typography>
             </Box>
@@ -328,7 +366,7 @@ const SubscriptionTab = () => {
                 )}
               </Button>
             )}
-            
+
             {cancelAtPeriodEnd && (
               <Button
                 variant="contained"
@@ -344,7 +382,7 @@ const SubscriptionTab = () => {
                 Renew Subscription
               </Button>
             )}
-            
+
             <Button
               variant="outlined"
               fullWidth
@@ -399,7 +437,7 @@ const SubscriptionTab = () => {
           </Grid>
 
           {/* Right: Available Plans + Your Plan Includes */}
-          <Grid item xs={12} md={6} sx={{px: {xs: 2, sm: 2, xxl: 8}}}>
+          <Grid item xs={12} md={6} sx={{ px: { xs: 2, sm: 2, xxl: 8 } }}>
             <Typography
               sx={{
                 fontFamily: fonts.sans,
@@ -407,7 +445,6 @@ const SubscriptionTab = () => {
                 fontWeight: 700,
                 color: "#101828",
                 mb: 2,
-
               }}
             >
               Available Plans
@@ -417,7 +454,8 @@ const SubscriptionTab = () => {
                 position: "relative",
                 borderRadius: "12px",
                 padding: "2px",
-                background: "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+                background:
+                  "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
                 mb: 3,
               }}
             >
@@ -430,7 +468,8 @@ const SubscriptionTab = () => {
                   width: 28,
                   height: 28,
                   borderRadius: "50%",
-                  background: "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+                  background:
+                    "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -445,7 +484,14 @@ const SubscriptionTab = () => {
                   backgroundColor: "#fff",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 0.5,
+                  }}
+                >
                   <Typography
                     sx={{
                       fontFamily: fonts.sans,
@@ -464,14 +510,31 @@ const SubscriptionTab = () => {
                       backgroundColor: "#720361",
                     }}
                   >
-                    <Typography sx={{ fontFamily: fonts.sans, fontSize: "12px", fontWeight: 600, color: "#fff" }}>
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: "#fff",
+                      }}
+                    >
                       Your Current Plan
                     </Typography>
                   </Box>
                 </Box>
-                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "24px", color: "#720361" }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 700,
+                    fontSize: "24px",
+                    color: "#720361",
+                  }}
+                >
                   ${displayPrice}
-                  <Typography component="span" sx={{ fontWeight: 500, fontSize: "14px", color: "#667085" }}>
+                  <Typography
+                    component="span"
+                    sx={{ fontWeight: 500, fontSize: "14px", color: "#667085" }}
+                  >
                     {" "}
                     / month
                   </Typography>
@@ -499,7 +562,278 @@ const SubscriptionTab = () => {
                     gap: 1.5,
                   }}
                 >
-                  <Check sx={{ color: "#BF2F75", fontSize: 20, flexShrink: 0 }} />
+                  <Check
+                    sx={{ color: "#BF2F75", fontSize: 20, flexShrink: 0 }}
+                  />
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      color: "#101828",
+                    }}
+                  >
+                    {item}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    );
+  }
+
+  // Past due (Stripe): payment failed, 7-day grace – left: Past Due messaging + same 2 buttons; right: Available Plans
+  if (isPastDue) {
+    return (
+      <Box sx={{ py: 2 }}>
+        <Grid container spacing={4}>
+          {/* Left: Past Due – title with yellow badge, subtitle, description, Manage + View Payment History */}
+          <Grid item xs={12} md={6} sx={{ px: { xs: 2, sm: 2, xxl: 8 } }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  color: "#101828",
+                }}
+              >
+                Your Current Plan
+              </Typography>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 0.25,
+                  borderRadius: "25px",
+                  bgcolor: "#FFF8E1",
+                  border: "1px solid #FF9800",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#FF9800",
+                  }}
+                >
+                  Past Due
+                </Typography>
+              </Box>
+            </Box>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 700,
+                fontSize: "16px",
+                color: "#101828",
+                mb: 1,
+              }}
+            >
+              Payment Failed – Action Required
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontSize: "14px",
+                color: "#667085",
+                lineHeight: 1.5,
+                mb: 2,
+              }}
+            >
+              We were unable to process your subscription payment. Please update
+              your payment method or retry the payment within the next 7 days to
+              avoid interruption of your services.
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontSize: "14px",
+                color: "black",
+                lineHeight: 1.5,
+                mb: 2,
+              }}
+            >
+              Your subscription will remain active during this grace period.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={handleManageSubscription}
+              disabled={loading}
+              fullWidth
+              sx={{
+                ...gradientBtn,
+                mb: 1.5,
+              }}
+            >
+              {loading ? (
+                <CircularProgress color="inherit" size={24} />
+              ) : (
+                "Manage Subscription"
+              )}
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={handleViewPaymentHistory}
+              disabled={loading}
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 600,
+                fontSize: "16px",
+                textTransform: "none",
+                borderRadius: "24px",
+                borderColor: "#BF2F75",
+                color: "#720361",
+                mt: 1.5,
+                py: 1.5,
+                "&:hover": {
+                  borderColor: "#720361",
+                  bgcolor: "rgba(114, 3, 97, 0.04)",
+                },
+              }}
+            >
+              View Payment History
+            </Button>
+            <PaymentHistoryModal
+              open={paymentHistoryOpen}
+              onClose={() => setPaymentHistoryOpen(false)}
+              token={token}
+              paymentMethodLabel={billedWithLabel}
+            />
+          </Grid>
+
+          {/* Right: Available Plans (same as active view) */}
+          <Grid item xs={12} md={6} sx={{ px: { xs: 2, sm: 2, xxl: 8 } }}>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#101828",
+                mb: 2,
+              }}
+            >
+              Available Plans
+            </Typography>
+            <Box
+              sx={{
+                position: "relative",
+                borderRadius: "12px",
+                padding: "2px",
+                background:
+                  "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+                mb: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: -10,
+                  right: 12,
+                  zIndex: 1,
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background:
+                    "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Check sx={{ color: "#fff", fontSize: 18 }} />
+              </Box>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: "10px",
+                  backgroundColor: "#fff",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 0.5,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: 700,
+                      fontSize: "16px",
+                      color: "#BF2F75",
+                    }}
+                  >
+                    Monthly Plan
+                  </Typography>
+                  <Box
+                    sx={{
+                      px: 1.5,
+                      py: 0.25,
+                      borderRadius: "25px",
+                      backgroundColor: "#720361",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: "#fff",
+                      }}
+                    >
+                      Your Current Plan
+                    </Typography>
+                  </Box>
+                </Box>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 700,
+                    fontSize: "24px",
+                    color: "#720361",
+                  }}
+                >
+                  ${displayPrice}
+                  <Typography
+                    component="span"
+                    sx={{ fontWeight: 500, fontSize: "14px", color: "#667085" }}
+                  >
+                    {" "}
+                    / month
+                  </Typography>
+                </Typography>
+              </Box>
+            </Box>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#101828",
+                mb: 2,
+              }}
+            >
+              Your Plan Includes
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {planIncludesItems.map((item, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                  }}
+                >
+                  <Check
+                    sx={{ color: "#BF2F75", fontSize: 20, flexShrink: 0 }}
+                  />
                   <Typography
                     sx={{
                       fontFamily: fonts.sans,
@@ -551,7 +885,8 @@ const SubscriptionTab = () => {
                     width: 40,
                     height: 40,
                     borderRadius: "50%",
-                    background: "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+                    background:
+                      "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -562,7 +897,11 @@ const SubscriptionTab = () => {
                     component="img"
                     src={item.icon}
                     alt=""
-                    sx={{ width: 22, height: 22, filter: "brightness(0) invert(1)" }}
+                    sx={{
+                      width: 22,
+                      height: 22,
+                      filter: "brightness(0) invert(1)",
+                    }}
                   />
                 </Box>
                 <Typography
@@ -696,9 +1035,10 @@ const SubscriptionTab = () => {
                 position: "relative",
                 borderRadius: "12px",
                 padding: "2px",
-                background: selectedPlan === "monthly"
-                  ? "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)"
-                  : "transparent",
+                background:
+                  selectedPlan === "monthly"
+                    ? "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)"
+                    : "transparent",
                 cursor: "pointer",
                 // border: selectedPlan === "monthly" ? "none" : "1px solid #E5E7EB",
               }}
@@ -712,9 +1052,10 @@ const SubscriptionTab = () => {
                   width: 28,
                   height: 28,
                   borderRadius: "50%",
-                  background: selectedPlan === "monthly"
-                    ? "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)"
-                    : "transparent",
+                  background:
+                    selectedPlan === "monthly"
+                      ? "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)"
+                      : "transparent",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -723,7 +1064,14 @@ const SubscriptionTab = () => {
                 }}
               >
                 {selectedPlan === "monthly" && (
-                  <Check sx={{ color: "#fff", fontSize: 18, backgroundColor: "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)" }} />
+                  <Check
+                    sx={{
+                      color: "#fff",
+                      fontSize: 18,
+                      backgroundColor:
+                        "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+                    }}
+                  />
                 )}
               </Box>
               <Box
@@ -733,7 +1081,14 @@ const SubscriptionTab = () => {
                   backgroundColor: "#fff",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 0.5,
+                  }}
+                >
                   <Typography
                     sx={{
                       fontFamily: fonts.sans,
@@ -753,7 +1108,14 @@ const SubscriptionTab = () => {
                         backgroundColor: "#720361",
                       }}
                     >
-                      <Typography sx={{ fontFamily: fonts.sans, fontSize: "12px", fontWeight: 600, color: "#fff" }}>
+                      <Typography
+                        sx={{
+                          fontFamily: fonts.sans,
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: "#fff",
+                        }}
+                      >
                         Your Current Plan
                       </Typography>
                     </Box>
@@ -762,9 +1124,22 @@ const SubscriptionTab = () => {
                 {/* <Typography sx={{ fontFamily: fonts.sans, fontSize: "13px", color: "#667085", mb: 1 }}>
                   Billed monthly
                 </Typography> */}
-                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "24px", color: "#720361" }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 700,
+                    fontSize: "24px",
+                    color: "#720361",
+                  }}
+                >
                   ${displayPrice}
-                  <Typography component="span" sx={{ fontWeight: 500, fontSize: "14px", color: "#667085" }}> / month</Typography>
+                  <Typography
+                    component="span"
+                    sx={{ fontWeight: 500, fontSize: "14px", color: "#667085" }}
+                  >
+                    {" "}
+                    / month
+                  </Typography>
                 </Typography>
               </Box>
             </Box>
@@ -772,7 +1147,14 @@ const SubscriptionTab = () => {
         </Grid>
       </Grid>
 
-      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          mt: 4,
+        }}
+      >
         {subscriptionError && (
           <Typography
             sx={{

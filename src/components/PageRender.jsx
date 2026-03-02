@@ -68,7 +68,9 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
           <AdminManageAdmins />
         ) : (
           <Box sx={{ p: 3, textAlign: "center" }}>
-            <Typography color="text.secondary">You don&apos;t have permission to view this page.</Typography>
+            <Typography color="text.secondary">
+              You don&apos;t have permission to view this page.
+            </Typography>
           </Box>
         );
       case "Profile":
@@ -80,12 +82,18 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
 
   if (userData.activeDashboard === "creator") {
     if (userData.status === "pending") {
-      return <PendingStatePopup message={"Your Creator Account is in Pending State."} />;
+      return (
+        <PendingStatePopup
+          message={"Your Creator Account is in Pending State."}
+        />
+      );
     }
     if (userData?.status === "blocked") {
       return (
         <PendingStatePopup
-          message={"Your Counsellor Account has been blocked. Please contact support for further assistance."}
+          message={
+            "Your Counsellor Account has been blocked. Please contact support for further assistance."
+          }
         />
       );
     }
@@ -118,19 +126,36 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
     const orgStatus = orgProfile?.status ?? userData.status;
     const isOrgActive = orgStatus === "active";
     const subscriptionStatus = orgProfile?.subscription?.status;
-    const hasActiveSubscription = subscriptionStatus === "active" || subscriptionStatus === "trialing";
+    const hasActiveSubscription =
+      subscriptionStatus === "active" ||
+      subscriptionStatus === "trialing" ||
+      subscriptionStatus === "past_due";
+    // Stripe sends "canceled" when subscription has expired (e.g. after grace period)
+    const isSubscriptionExpired = subscriptionStatus === "canceled";
     const skipSubscriptionGate = options.isAdminInOrgView === true;
 
     if (!skipSubscriptionGate && !isOrgActive && orgStatus === "blocked") {
-      return <PendingStatePopup message={"Your Organization Account has been blocked. Please contact support for further assistance."} />;
+      return (
+        <PendingStatePopup
+          message={
+            "Your Organization Account has been blocked. Please contact support for further assistance."
+          }
+        />
+      );
     }
     if (!skipSubscriptionGate && !isOrgActive) {
       return <OrgUnderReviewScreen />;
     }
-    if (!skipSubscriptionGate && isOrgActive && orgProfile != null && !hasActiveSubscription) {
+    if (
+      !skipSubscriptionGate &&
+      isOrgActive &&
+      orgProfile != null &&
+      !hasActiveSubscription
+    ) {
       return (
         <OrgSubscriptionRequiredScreen
           onProceedToPayment={options.onProceedToSubscription}
+          isExpired={isSubscriptionExpired}
         />
       );
     }
