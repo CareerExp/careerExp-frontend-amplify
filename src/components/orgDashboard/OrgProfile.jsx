@@ -52,6 +52,28 @@ const businessEntityToOrgPayload = (businessEntity, existingProfile) => {
   };
 };
 
+/** Map API documents (name, url, _id) to form shape and normalize URL for view/download */
+const mapOrgDocuments = (documents) => {
+  if (!Array.isArray(documents) || documents.length === 0) return [];
+  const normalizeUrl = (url) => {
+    if (!url || typeof url !== "string") return null;
+    return url.startsWith("http") ? url : `https://${url}`;
+  };
+  return documents.map((d, i) => {
+    const url = normalizeUrl(d.url);
+    const subtitle = url ? url.split("/").pop() : (d.name || "Document");
+    return {
+      id: d._id || d.id || String(i),
+      type: d.type === "link" ? "link" : "file",
+      title: d.name || "Document",
+      subtitle: subtitle || "Document",
+      viewUrl: url,
+      downloadUrl: url,
+      linkUrl: url,
+    };
+  });
+};
+
 const OrgProfile = ({ isAdminInOrgView = false }) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -177,6 +199,7 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
         newPassword,
         prevPassword,
         confirmPassword,
+        email,
         ...updatedData
       } = formData;
       setIsButtonLoading2(true);
@@ -257,6 +280,30 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
+  const submittedDocuments = mapOrgDocuments(orgProfile?.documents);
+
+  const handleViewDocument = (doc) => {
+    const url = doc.viewUrl || doc.downloadUrl;
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDownloadDocument = (doc) => {
+    const url = doc.downloadUrl || doc.viewUrl;
+    if (url) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.subtitle || true;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.click();
+    }
+  };
+
+  const handleOpenDocumentLink = (doc) => {
+    const url = doc.linkUrl || doc.viewUrl || doc.downloadUrl;
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const renderTabContent = () => {
     if (isAdminInOrgView) {
       switch (tabValue) {
@@ -272,6 +319,10 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
               userData={userData}
               businessEntity={businessEntity}
               onBusinessEntityChange={setBusinessEntity}
+              submittedDocuments={submittedDocuments}
+              onViewDocument={handleViewDocument}
+              onDownloadDocument={handleDownloadDocument}
+              onOpenLink={handleOpenDocumentLink}
             />
           );
         default:
@@ -293,6 +344,10 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
             userData={userData}
             businessEntity={businessEntity}
             onBusinessEntityChange={setBusinessEntity}
+            submittedDocuments={submittedDocuments}
+            onViewDocument={handleViewDocument}
+            onDownloadDocument={handleDownloadDocument}
+            onOpenLink={handleOpenDocumentLink}
           />
         );
       case 3:

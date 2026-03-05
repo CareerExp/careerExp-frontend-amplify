@@ -139,7 +139,10 @@ const AddLocationModal = ({ open, handleClose, handleSave, initialData }) => {
     } else {
       setFormData({ ...formData, [name]: value });
       if (name === "email") setEmailError("");
-      if (name === "address") setAddressError(value.length === 256 ? "Cannot add more than 256 characters" : "");
+      if (name === "address")
+        setAddressError(
+          value.length === 256 ? "Cannot add more than 256 characters" : "",
+        );
       if (name === "mobile") setMobileError("");
       if (name === "state") setStateError("");
     }
@@ -2334,7 +2337,7 @@ const OrgAboutUs = () => {
           <Box
             sx={{
               position: "absolute",
-              bottom: "-80px",
+              bottom: "-60px",
               left: "30px",
               display: "flex",
               flexDirection: "column",

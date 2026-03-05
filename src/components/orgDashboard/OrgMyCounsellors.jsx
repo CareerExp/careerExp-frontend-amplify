@@ -14,6 +14,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -572,6 +573,16 @@ const OrgMyCounsellors = () => {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
+                {searchQuery && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setSearchQuery("")}
+                    sx={{ mr: 0.5, color: "rgba(0,0,0,0.4)", "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" } }}
+                    aria-label="Clear search"
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                )}
                 <SearchIcon sx={{ color: "rgba(0,0,0,0.4)" }} />
               </InputAdornment>
             ),

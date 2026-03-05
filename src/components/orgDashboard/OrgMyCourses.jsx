@@ -566,7 +566,18 @@ const OrgMyCourses = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     sx={{ width: '379px', '& .MuiOutlinedInput-root': { borderRadius: '90px', backgroundColor: '#fff', px: 2, boxShadow: '0px 7px 6px 0px rgba(0,0,0,0.03)', '& fieldset': { borderColor: 'rgba(0,0,0,0.16)' }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#787876' } } }}
-                    InputProps={{ endAdornment: <InputAdornment position="end"><SearchIcon sx={{ color: 'rgba(0,0,0,0.4)' }} /></InputAdornment> }}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                {searchQuery && (
+                                    <IconButton size="small" onClick={() => setSearchQuery('')} sx={{ mr: 0.5, color: 'rgba(0,0,0,0.4)', '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' } }} aria-label="Clear search">
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                )}
+                                <SearchIcon sx={{ color: 'rgba(0,0,0,0.4)' }} />
+                            </InputAdornment>
+                        ),
+                    }}
                 />
                 <Button
                     variant="contained"

@@ -423,25 +423,44 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
         </Box>
       </Box>
 
-      {/* Cover image */}
+      {/* Cover image: full image visible, centered; one dimension fills container; blurred fill for remainder */}
       {article.coverImage && (
         <Box
           sx={{
             width: "100%",
+            height: { xs: 320, sm: 380, md: 420 },
             borderRadius: "12px",
             overflow: "hidden",
             mb: 3,
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            position: "relative",
+            backgroundColor: "#f0f0f0",
           }}
         >
+          {/* Blurred background fill */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url(${article.coverImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              filter: "blur(20px)",
+              transform: "scale(1.08)",
+            }}
+            aria-hidden
+          />
+          {/* Full image: fill container box so object-fit contain scales image; one of width/height touches edge, centered */}
           <img
             src={article.coverImage}
             alt=""
             style={{
+              position: "absolute",
+              inset: 0,
               width: "100%",
-              height: "auto",
-              maxHeight: 420,
-              objectFit: "cover",
+              height: "100%",
+              objectFit: "contain",
+              objectPosition: "center",
               display: "block",
             }}
           />
