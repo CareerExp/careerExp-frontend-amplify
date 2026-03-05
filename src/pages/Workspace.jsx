@@ -51,7 +51,11 @@ const getQrPropsForWorkspace = (
   effectiveRole,
   effectiveOrgType,
 ) => {
-  const baseUrl = (config?.frontendDomain || (typeof window !== "undefined" ? window.location.origin : "") || "").replace(/\/$/, "");
+  const baseUrl = (
+    config?.frontendDomain ||
+    (typeof window !== "undefined" ? window.location.origin : "") ||
+    ""
+  ).replace(/\/$/, "");
 
   if (effectiveRole === "creator") {
     const id = userData?._id;
@@ -73,9 +77,12 @@ const getQrPropsForWorkspace = (
     };
   }
 
-  const orgType = (effectiveOrgType || orgProfile?.organizationType || "").toString().toUpperCase();
+  const orgType = (effectiveOrgType || orgProfile?.organizationType || "")
+    .toString()
+    .toUpperCase();
   const isOrgWithQr =
-    effectiveRole === "organization" && (orgType === "HEI" || orgType === "ESP");
+    effectiveRole === "organization" &&
+    (orgType === "HEI" || orgType === "ESP");
 
   if (isOrgWithQr) {
     const slug = orgProfile?.slug;
@@ -174,6 +181,13 @@ const Workspace = (props) => {
   }, [userData?.activeDashboard, token, dispatchToRedux]);
 
   const hasShownActingAsPopupRef = useRef(false);
+  // When entering AME view, show Dashboard by default so content is not blank
+  useEffect(() => {
+    if (isAdminInOrgView) {
+      setCurrentPage("Dashboard");
+    }
+  }, [isAdminInOrgView]);
+
   // Show "You are inside ESP dashboard" popup once when admin enters org view
   useEffect(() => {
     if (!isAdminInOrgView) {
@@ -260,28 +274,29 @@ const Workspace = (props) => {
       </Box>
       <Divider />
 
-      {userData && (() => {
-        const qrProps = getQrPropsForWorkspace(
-          userData,
-          orgProfile,
-          effectiveRole,
-          effectiveOrgType,
-        );
-        return (
-          <Sidebar
-            userRole={effectiveRole}
-            handleMenuItemClick={handleMenuItemClick}
-            currentPage={currentPage}
-            organizationType={effectiveOrgType}
-            isActingAsAME={isAdminInOrgView}
-            isMainAdmin={userData?.isMainAdmin === true}
-            showQrButton={qrProps.showQrButton}
-            qrProfileUrl={qrProps.qrProfileUrl}
-            qrDisplayName={qrProps.qrDisplayName}
-            qrProfileTypeLabel={qrProps.qrProfileTypeLabel}
-          />
-        );
-      })()}
+      {userData &&
+        (() => {
+          const qrProps = getQrPropsForWorkspace(
+            userData,
+            orgProfile,
+            effectiveRole,
+            effectiveOrgType,
+          );
+          return (
+            <Sidebar
+              userRole={effectiveRole}
+              handleMenuItemClick={handleMenuItemClick}
+              currentPage={currentPage}
+              organizationType={effectiveOrgType}
+              isActingAsAME={isAdminInOrgView}
+              isMainAdmin={userData?.isMainAdmin === true}
+              showQrButton={qrProps.showQrButton}
+              qrProfileUrl={qrProps.qrProfileUrl}
+              qrDisplayName={qrProps.qrDisplayName}
+              qrProfileTypeLabel={qrProps.qrProfileTypeLabel}
+            />
+          );
+        })()}
       <Divider />
     </div>
   );
@@ -442,6 +457,7 @@ const Workspace = (props) => {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "start",
+                            justifyContent: "center",
                           }}
                         >
                           <Typography
@@ -463,6 +479,7 @@ const Workspace = (props) => {
                           alignItems: "center",
                           marginLeft: { xs: "0rem", md: "1rem" },
                           display: { xs: "none", md: "block" },
+                          marginTop: "0.4rem",
                         }}
                       >
                         <KeyboardArrowDownIcon
@@ -528,7 +545,9 @@ const Workspace = (props) => {
                               const slugOrId =
                                 orgProfile?.slug || orgProfile?.userId;
                               const base =
-                                effectiveOrgType === "ESP" ? "/org-esp" : "/org-hei";
+                                effectiveOrgType === "ESP"
+                                  ? "/org-esp"
+                                  : "/org-hei";
                               return slugOrId ? `${base}/${slugOrId}` : base;
                             })()
                           : "/"

@@ -141,7 +141,8 @@ const SubscriptionTab = () => {
       const url = result?.url ?? result?.data?.url;
       // if (url) window.open(url, "_blank", "noopener,noreferrer");
       if (url) {
-        window.location.href = url;
+        // window.location.href = url;
+        window.open(url, "_blank", "noopener,noreferrer");
       } else
         dispatch(
           notify({

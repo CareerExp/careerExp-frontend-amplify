@@ -8,9 +8,11 @@ import {
   Autocomplete,
   Button,
   InputAdornment,
+  IconButton,
   Typography
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import { countryList } from "../utility/countryList";
 import { fonts } from "../utility/fonts";
 import partnersStyles from "../styles/Partners.module.css";
@@ -159,6 +161,16 @@ const Partners = () => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
+                  {searchValue && (
+                    <IconButton
+                      size="small"
+                      onClick={() => setSearchValue("")}
+                      sx={{ mr: 0.5, color: "#720361", "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" } }}
+                      aria-label="Clear search"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  )}
                   <SearchIcon sx={{ color: "#720361" }} />
                 </InputAdornment>
               ),

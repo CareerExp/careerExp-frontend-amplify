@@ -14,6 +14,7 @@ import {
     DialogContent,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { fonts } from '../../utility/fonts';
 import ConnectionCard from './ConnectionCard';
@@ -40,6 +41,7 @@ const SocialConnectionsContainer = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
     const [selectedUserForMessage, setSelectedUserForMessage] = useState(null);
+    const [actionUserId, setActionUserId] = useState(null); // which user's card is showing action loader
     
     const followers = useSelector(selectFollowers);
     const following = useSelector(selectFollowing);
@@ -68,23 +70,29 @@ const SocialConnectionsContainer = () => {
     };
 
     const handleAction = async (user) => {
-        if (activeTab === 0) {
-            // Remove Follower
-            const resultAction = await dispatch(removeFollower({ followerId: user._id, token }));
-            if (removeFollower.fulfilled.match(resultAction)) {
-                dispatch(notify({ message: "Follower removed", type: "success" }));
+        const userId = user?._id || user?.id;
+        setActionUserId(userId);
+        try {
+            if (activeTab === 0) {
+                // Remove Follower
+                const resultAction = await dispatch(removeFollower({ followerId: user._id, token }));
+                if (removeFollower.fulfilled.match(resultAction)) {
+                    dispatch(notify({ message: "Follower removed", type: "success" }));
+                } else {
+                    dispatch(notify({ message: resultAction.payload?.error || "Failed to remove follower", type: "error" }));
+                }
             } else {
-                dispatch(notify({ message: resultAction.payload?.error || "Failed to remove follower", type: "error" }));
+                // Toggle Follow (Unfollow in this context)
+                const resultAction = await dispatch(toggleFollow({ targetUserId: user._id, token }));
+                if (toggleFollow.fulfilled.match(resultAction)) {
+                    dispatch(notify({ message: "Unfollowed successfully", type: "success" }));
+                    loadData(); // Refresh the list
+                } else {
+                    dispatch(notify({ message: resultAction.payload?.error || "Action failed", type: "error" }));
+                }
             }
-        } else {
-            // Toggle Follow (Unfollow in this context)
-            const resultAction = await dispatch(toggleFollow({ targetUserId: user._id, token }));
-            if (toggleFollow.fulfilled.match(resultAction)) {
-                dispatch(notify({ message: "Unfollowed successfully", type: "success" }));
-                loadData(); // Refresh the list
-            } else {
-                dispatch(notify({ message: resultAction.payload?.error || "Action failed", type: "error" }));
-            }
+        } finally {
+            setActionUserId(null);
         }
     };
 
@@ -199,6 +207,18 @@ const SocialConnectionsContainer = () => {
                                     <SearchIcon sx={{ color: '#667085', fontSize: '20px' }} />
                                 </InputAdornment>
                             ),
+                            endAdornment: searchQuery ? (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setSearchQuery('')}
+                                        sx={{ color: '#667085', '&:hover': { backgroundColor: 'rgba(102, 112, 133, 0.08)' } }}
+                                        aria-label="Clear search"
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                </InputAdornment>
+                            ) : null,
                         }}
                     />
                     <IconButton 
@@ -226,6 +246,7 @@ const SocialConnectionsContainer = () => {
                         <Grid container spacing={3}>
                             {dataList.map((item) => {
                                 const userData = activeTab === 0 ? item.followerId : item.followingId;
+                                const userId = userData?._id || userData?.id;
                                 return (
                                     <Grid item key={item._id} xs={12} sm={6} lg={4}>
                                         <ConnectionCard
@@ -234,7 +255,7 @@ const SocialConnectionsContainer = () => {
                                             relationshipDate={item.createdAt}
                                             onAction={handleAction}
                                             onMessage={handleMessageOpen}
-                                            actionLoading={isActionLoading}
+                                            actionLoading={isActionLoading && actionUserId === userId}
                                         />
                                     </Grid>
                                 );

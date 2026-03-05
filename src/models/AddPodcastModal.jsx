@@ -1,5 +1,6 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Autocomplete,
   Box,
@@ -29,7 +30,11 @@ import {
   uploadPodcast,
   uploadPodcastThumbnail,
 } from "../redux/slices/creatorSlice.js";
-import { articleCategories, languages, tags as tagsOptions } from "../utility/category.js";
+import {
+  articleCategories,
+  languages,
+  tags as tagsOptions,
+} from "../utility/category.js";
 import { colors } from "../utility/color.js";
 import { fonts } from "../utility/fonts.js";
 
@@ -99,7 +104,11 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
             setTabValue(p.spotifyLink ? 0 : 1);
           }
         })
-        .catch(() => dispatch(notify({ type: "error", message: "Failed to load podcast" })))
+        .catch(() =>
+          dispatch(
+            notify({ type: "error", message: "Failed to load podcast" }),
+          ),
+        )
         .finally(() => setIsLoadingDetail(false));
     } else {
       resetForm();
@@ -114,7 +123,9 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      dispatch(notify({ type: "error", message: "Please select an image file" }));
+      dispatch(
+        notify({ type: "error", message: "Please select an image file" }),
+      );
       return;
     }
     setThumbnailFile(file);
@@ -124,9 +135,20 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
   const handleAudioChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const accept = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/aac"];
+    const accept = [
+      "audio/mpeg",
+      "audio/mp3",
+      "audio/wav",
+      "audio/x-wav",
+      "audio/aac",
+    ];
     if (!accept.includes(file.type) && !file.name.match(/\.(mp3|wav|aac)$/i)) {
-      dispatch(notify({ type: "error", message: "Please select MP3, WAV or AAC file" }));
+      dispatch(
+        notify({
+          type: "error",
+          message: "Please select MP3, WAV or AAC file",
+        }),
+      );
       return;
     }
     setAudioFile(file);
@@ -154,9 +176,20 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
     }
 
     if (isEdit) {
+      if (tabValue === 1 && !thumbnailLink && !thumbnailFile) {
+        dispatch(
+          notify({
+            type: "error",
+            message:
+              "Thumbnail is required. Please upload a podcast thumbnail.",
+          }),
+        );
+        return;
+      }
       setIsSubmitting(true);
       try {
-        const thumbUrl = tabValue === 1 ? await uploadThumbnailIfNeeded() : undefined;
+        const thumbUrl =
+          tabValue === 1 ? await uploadThumbnailIfNeeded() : undefined;
         const body = {
           title: title.trim(),
           description: description.trim() || undefined,
@@ -167,13 +200,22 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
         };
         if (tabValue === 0) body.spotifyUrl = spotifyUrl?.trim() || undefined;
         if (tabValue === 1) body.audioLink = audioLink || undefined;
-        await dispatch(updatePodcast({ userId, podcastId, body, token })).unwrap();
-        dispatch(notify({ type: "success", message: "Podcast updated successfully" }));
+        await dispatch(
+          updatePodcast({ userId, podcastId, body, token }),
+        ).unwrap();
+        dispatch(
+          notify({ type: "success", message: "Podcast updated successfully" }),
+        );
         resetForm();
         onClose();
         onSuccess?.();
       } catch (err) {
-        dispatch(notify({ type: "error", message: err?.message || "Failed to update podcast" }));
+        dispatch(
+          notify({
+            type: "error",
+            message: err?.message || "Failed to update podcast",
+          }),
+        );
       } finally {
         setIsSubmitting(false);
       }
@@ -182,7 +224,9 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
 
     if (tabValue === 0) {
       if (!spotifyUrl?.trim()) {
-        dispatch(notify({ type: "error", message: "Spotify link is required" }));
+        dispatch(
+          notify({ type: "error", message: "Spotify link is required" }),
+        );
         return;
       }
       setIsSubmitting(true);
@@ -203,13 +247,20 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
             },
           }),
         ).unwrap();
-        dispatch(notify({ type: "success", message: "Podcast created successfully" }));
+        dispatch(
+          notify({ type: "success", message: "Podcast created successfully" }),
+        );
         resetForm();
         onClose();
         onSuccess?.();
       } catch (err) {
         setIsUploading(false);
-        dispatch(notify({ type: "error", message: err?.message || "Failed to add podcast" }));
+        dispatch(
+          notify({
+            type: "error",
+            message: err?.message || "Failed to add podcast",
+          }),
+        );
       } finally {
         setIsSubmitting(false);
       }
@@ -230,13 +281,23 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
           finalAudioLink = result?.link || "";
         } catch (err) {
           setIsUploading(false);
-          dispatch(notify({ type: "error", message: err?.message || "Audio upload failed" }));
+          dispatch(
+            notify({
+              type: "error",
+              message: err?.message || "Audio upload failed",
+            }),
+          );
           return;
         }
         setIsUploading(false);
       }
       if (!finalAudioLink) {
-        dispatch(notify({ type: "error", message: "Please upload a podcast audio file" }));
+        dispatch(
+          notify({
+            type: "error",
+            message: "Please upload a podcast audio file",
+          }),
+        );
         return;
       }
       setIsSubmitting(true);
@@ -257,12 +318,19 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
             },
           }),
         ).unwrap();
-        dispatch(notify({ type: "success", message: "Podcast created successfully" }));
+        dispatch(
+          notify({ type: "success", message: "Podcast created successfully" }),
+        );
         resetForm();
         onClose();
         onSuccess?.();
       } catch (err) {
-        dispatch(notify({ type: "error", message: err?.message || "Failed to add podcast" }));
+        dispatch(
+          notify({
+            type: "error",
+            message: err?.message || "Failed to add podcast",
+          }),
+        );
       } finally {
         setIsSubmitting(false);
       }
@@ -279,7 +347,10 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
       sx={{
         backdropFilter: "blur(8px)",
         backgroundColor: "rgba(0, 0, 0, 0.3)",
-        "& .MuiDialog-paper": { borderRadius: isMobile ? 0 : "12px", maxHeight: "95vh" },
+        "& .MuiDialog-paper": {
+          borderRadius: isMobile ? 0 : "12px",
+          maxHeight: "95vh",
+        },
       }}
     >
       <Box sx={{ p: { xs: 1.5, sm: 2 }, overflowY: "auto" }}>
@@ -318,13 +389,28 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
             mb: 2,
           }}
         >
-          <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.8rem", fontWeight: 500 }}>
+          <Typography
+            sx={{ fontFamily: fonts.sans, fontSize: "0.8rem", fontWeight: 500 }}
+          >
             Please adhere to the following rules:
           </Typography>
-          <ul style={{ paddingLeft: "1.25rem", margin: "0.5rem 0 0", fontSize: "0.8rem", fontFamily: fonts.sans }}>
-            <li>You can either upload a Spotify podcast link or manually upload a podcast at a time.</li>
+          <ul
+            style={{
+              paddingLeft: "1.25rem",
+              margin: "0.5rem 0 0",
+              fontSize: "0.8rem",
+              fontFamily: fonts.sans,
+            }}
+          >
+            <li>
+              You can either upload a Spotify podcast link or manually upload a
+              podcast at a time.
+            </li>
             <li>Ensure the podcast content is appropriate and relevant.</li>
-            <li>Add descriptive tags and select appropriate category for better discoverability.</li>
+            <li>
+              Add descriptive tags and select appropriate category for better
+              discoverability.
+            </li>
           </ul>
         </Box>
 
@@ -335,7 +421,11 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
           sx={{
             borderBottom: "1px solid #a6a6a6",
             mb: 2,
-            "& .MuiTab-root": { fontFamily: fonts.sans, textTransform: "capitalize", "&.Mui-selected": { color: "#BC2876" } },
+            "& .MuiTab-root": {
+              fontFamily: fonts.sans,
+              textTransform: "capitalize",
+              "&.Mui-selected": { color: "#BC2876" },
+            },
           }}
           variant={isMobile ? "fullWidth" : "standard"}
         >
@@ -355,7 +445,14 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                 placeholder="Spotify Link"
                 value={spotifyUrl}
                 onChange={(e) => setSpotifyUrl(e.target.value)}
-                sx={{ mb: 2, "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
+                sx={{
+                  mb: 2,
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "#F2F2F2",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "transparent" },
+                  },
+                }}
               />
             )}
 
@@ -374,15 +471,64 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                   px: 2,
                   cursor: "pointer",
                   mb: 2,
+                  position: "relative",
+                  overflow: "hidden",
                   "&:hover": { backgroundColor: "#f5f5f5" },
+                  "&:hover .audio-edit-overlay": { opacity: 1 },
                 }}
               >
-                <input type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/aac,.mp3,.wav,.aac" hidden onChange={handleAudioChange} />
+                <input
+                  type="file"
+                  accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/aac,.mp3,.wav,.aac"
+                  hidden
+                  onChange={handleAudioChange}
+                />
+                {isEdit && (
+                  <Box
+                    className="audio-edit-overlay"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(0,0,0,0.3)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: 0,
+                      transition: "opacity 0.2s",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(255,255,255,0.9)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: 24, color: "#BC2876" }} />
+                    </Box>
+                  </Box>
+                )}
                 <MusicNoteIcon sx={{ fontSize: 48, color: "#BC2876", mb: 1 }} />
-                <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontWeight: 500, textAlign: "center" }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    color: colors.darkGray,
+                    fontWeight: 500,
+                    textAlign: "center",
+                  }}
+                >
                   Click to upload podcast or drag and drop
                 </Typography>
-                <Typography variant="body2" sx={{ color: colors.lightGray, mt: 0.5 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: colors.lightGray, mt: 0.5 }}
+                >
                   MP3, WAV, AAC
                 </Typography>
                 {audioFile && (
@@ -393,7 +539,15 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               </Box>
             )}
 
-            <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 600,
+                fontSize: "0.9375rem",
+                color: colors.darkGray,
+                mb: 1,
+              }}
+            >
               Podcast Title
             </Typography>
             <TextField
@@ -401,14 +555,34 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               placeholder="Podcast Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              sx={{ mb: 2, "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
+              sx={{
+                mb: 2,
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: "#F2F2F2",
+                  borderRadius: "8px",
+                  "& fieldset": { borderColor: "transparent" },
+                },
+              }}
             />
 
-            {/* Thumbnail only for manual upload; Spotify provides thumbnail */}
+            {/* Thumbnail only for manual upload; Spotify provides thumbnail. Required when editing. */}
             {tabValue === 1 && (
               <>
-                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "0.9375rem",
+                    color: colors.darkGray,
+                    mb: 1,
+                  }}
+                >
                   Upload Podcast Thumbnail
+                  {isEdit && (
+                    <Box component="span" sx={{ color: "#d32f2f", ml: 0.25 }}>
+                      *
+                    </Box>
+                  )}
                 </Typography>
                 <Box
                   component="label"
@@ -424,23 +598,115 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                     px: 2,
                     cursor: "pointer",
                     mb: 2,
+                    position: "relative",
+                    overflow: "hidden",
                     "&:hover": { backgroundColor: "#f5f5f5" },
+                    "&:hover .thumb-edit-overlay": { opacity: 1 },
                   }}
                 >
-                  <input type="file" accept="image/*" hidden onChange={handleThumbnailChange} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleThumbnailChange}
+                  />
                   {thumbnailPreview ? (
-                    <img src={thumbnailPreview} alt="Thumbnail" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 8 }} />
+                    <Box
+                      sx={{
+                        width: "100%",
+                        position: "relative",
+                        "&:hover .thumb-edit-overlay": { opacity: 1 },
+                      }}
+                    >
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail"
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: 120,
+                          objectFit: "contain",
+                          borderRadius: 8,
+                          display: "block",
+                          margin: "0 auto",
+                        }}
+                      />
+                      <Box
+                        className="thumb-edit-overlay"
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          borderRadius: 8,
+                          backgroundColor: "rgba(0,0,0,0.4)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          opacity: 0,
+                          transition: "opacity 0.2s",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(255,255,255,0.9)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: 20, color: "#BC2876" }} />
+                        </Box>
+                      </Box>
+                    </Box>
                   ) : (
-                    <CloudUploadIcon sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }} />
+                    <>
+                      {isEdit && (
+                        <Box
+                          className="thumb-edit-overlay"
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            borderRadius: "12px",
+                            backgroundColor: "rgba(0,0,0,0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            opacity: 0,
+                            transition: "opacity 0.2s",
+                            pointerEvents: "none",
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: 28, color: "#BC2876" }} />
+                        </Box>
+                      )}
+                      <CloudUploadIcon
+                        sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }}
+                      />
+                    </>
                   )}
-                  <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      color: colors.darkGray,
+                      fontSize: "0.875rem",
+                    }}
+                  >
                     Upload Podcast Thumbnail
                   </Typography>
                 </Box>
               </>
             )}
 
-            <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 600,
+                fontSize: "0.9375rem",
+                color: colors.darkGray,
+                mb: 1,
+              }}
+            >
               Podcast Description
             </Typography>
             <TextField
@@ -450,10 +716,25 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               placeholder="Podcast Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              sx={{ mb: 2, "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
+              sx={{
+                mb: 2,
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: "#F2F2F2",
+                  borderRadius: "8px",
+                  "& fieldset": { borderColor: "transparent" },
+                },
+              }}
             />
 
-            <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 600,
+                fontSize: "0.9375rem",
+                color: colors.darkGray,
+                mb: 1,
+              }}
+            >
               Podcast Tags
             </Typography>
             <Autocomplete
@@ -466,17 +747,39 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                 <TextField
                   {...params}
                   placeholder="Podcast Tags"
-                  sx={{ mb: 2, "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
+                  sx={{
+                    mb: 2,
+                    "& .MuiOutlinedInput-root": {
+                      bgcolor: "#F2F2F2",
+                      borderRadius: "8px",
+                      "& fieldset": { borderColor: "transparent" },
+                    },
+                  }}
                 />
               )}
             />
 
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                mb: 2,
+              }}
+            >
               <FormControl
                 fullWidth
-                sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "#F2F2F2",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "transparent" },
+                  },
+                }}
               >
-                <InputLabel id="podcast-language-label">Select Language</InputLabel>
+                <InputLabel id="podcast-language-label">
+                  Select Language
+                </InputLabel>
                 <Select
                   labelId="podcast-language-label"
                   value={language}
@@ -492,9 +795,17 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               </FormControl>
               <FormControl
                 fullWidth
-                sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "#F2F2F2",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "transparent" },
+                  },
+                }}
               >
-                <InputLabel id="podcast-category-label">Select Category</InputLabel>
+                <InputLabel id="podcast-category-label">
+                  Select Category
+                </InputLabel>
                 <Select
                   labelId="podcast-category-label"
                   value={category}
@@ -510,7 +821,14 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               </FormControl>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 1,
+                mt: 2,
+              }}
+            >
               <Button
                 variant="outlined"
                 onClick={onClose}
@@ -527,7 +845,11 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                 variant="contained"
                 onClick={handleSubmit}
                 disabled={isSubmitting || isUploading}
-                startIcon={isSubmitting || isUploading ? <CircularProgress size={20} color="inherit" /> : null}
+                startIcon={
+                  isSubmitting || isUploading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
                 sx={{
                   background: "linear-gradient(to top left, #720361, #bf2f75)",
                   color: "#fff",
@@ -536,10 +858,18 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                   borderRadius: "8px",
                   px: 2.5,
                   py: 1.25,
-                  "&:hover": { background: "linear-gradient(to top left, #720361, #bf2f75)", opacity: 0.92 },
+                  "&:hover": {
+                    background:
+                      "linear-gradient(to top left, #720361, #bf2f75)",
+                    opacity: 0.92,
+                  },
                 }}
               >
-                {isSubmitting || isUploading ? "Submitting..." : isEdit ? "Update Podcast" : "Submit Podcast"}
+                {isSubmitting || isUploading
+                  ? "Submitting..."
+                  : isEdit
+                    ? "Update Podcast"
+                    : "Submit Podcast"}
               </Button>
             </Box>
           </>

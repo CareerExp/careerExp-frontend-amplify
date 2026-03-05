@@ -106,6 +106,7 @@ const Profile = () => {
         newPassword,
         prevPassword,
         confirmPassword,
+        email,
         ...updatedData
       } = formData;
       try {

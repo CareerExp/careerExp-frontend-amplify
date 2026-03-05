@@ -30,10 +30,10 @@ const LINK_COLOR = "#BC2876";
 const STATUS_OPTIONS = [
   { value: "active", label: "Active" },
   { value: "pending", label: "Pending" },
-  { value: "inactive", label: "Inactive" },
+  // { value: "inactive", label: "Inactive" },
   { value: "blocked", label: "Blocked" },
-  { value: "suspended", label: "Suspended" },
-  { value: "deleted", label: "Deleted" },
+  // { value: "suspended", label: "Suspended" },
+  // { value: "deleted", label: "Deleted" },
 ];
 
 const getStatusBadgeStyle = (status) => {
@@ -41,7 +41,8 @@ const getStatusBadgeStyle = (status) => {
     return { bgcolor: "#FFE08A", color: "#92400E" };
   }
   if (status === "active") return { bgcolor: "#22c55e", color: "#fff" };
-  if (["blocked", "suspended", "deleted"].includes(status)) return { bgcolor: "#ef4444", color: "#fff" };
+  if (["blocked", "suspended", "deleted"].includes(status))
+    return { bgcolor: "#ef4444", color: "#fff" };
   return { bgcolor: "#E5E7EB", color: VALUE_COLOR };
 };
 
@@ -115,7 +116,8 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
       ? "Education Service Provider Review"
       : "Education Institution Review";
 
-  const fullAddress = [org.address, org.state, org.country].filter(Boolean).join(", ") || null;
+  const fullAddress =
+    [org.address, org.state, org.country].filter(Boolean).join(", ") || null;
 
   useEffect(() => {
     if (open && org.status) setSelectedStatus(org.status);
@@ -132,11 +134,20 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
     }
     try {
       setIsSubmitting(true);
-      await dispatch(updateActiveStatus({ userId: org.userId, status: newStatus, token }));
-      dispatch(notify({ type: "success", message: "Status updated successfully." }));
+      await dispatch(
+        updateActiveStatus({ userId: org.userId, status: newStatus, token }),
+      );
+      dispatch(
+        notify({ type: "success", message: "Status updated successfully." }),
+      );
       onClose?.();
     } catch (err) {
-      dispatch(notify({ type: "error", message: err?.message || "Something went wrong. Please try again." }));
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.message || "Something went wrong. Please try again.",
+        }),
+      );
       setSelectedStatus(currentStatus);
     } finally {
       setIsSubmitting(false);
@@ -164,7 +175,7 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
       {/* Header – Figma: dark purple, white text, rounded top */}
       <Box
         sx={{
-          background:  "linear-gradient(180deg, #BF2F75 0%, #720361 100%)",
+          background: "linear-gradient(180deg, #BF2F75 0%, #720361 100%)",
           color: "#fff",
           px: 2.5,
           py: 2,
@@ -210,7 +221,12 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
         </Typography>
       </Box>
 
-      <DialogContent sx={{ p: 0, "&.MuiDialogContent-root": { paddingTop: 2.5, paddingBottom: 2.5 } }}>
+      <DialogContent
+        sx={{
+          p: 0,
+          "&.MuiDialogContent-root": { paddingTop: 2.5, paddingBottom: 2.5 },
+        }}
+      >
         <Box sx={{ px: 2.5 }}>
           {/* Update Status – label dark gray; dropdown + pill badge */}
           <Box sx={{ mb: 3 }}>
@@ -225,7 +241,14 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
             >
               Update Status
             </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                flexWrap: "wrap",
+              }}
+            >
               <FormControl
                 size="small"
                 fullWidth
@@ -253,7 +276,11 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                   disabled={isSubmitting}
                 >
                   {STATUS_OPTIONS.map((opt) => (
-                    <MenuItem key={opt.value} value={opt.value} sx={{ fontFamily: fonts.poppins }}>
+                    <MenuItem
+                      key={opt.value}
+                      value={opt.value}
+                      sx={{ fontFamily: fonts.poppins }}
+                    >
                       {opt.label}
                     </MenuItem>
                   ))}
@@ -297,10 +324,13 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
           >
             <InfoRow label="First Name" value={org.firstName} />
             <InfoRow label="Last Name" value={org.lastName} />
-            <InfoRow label="Email Address" value={org.email || org.contactEmail} />
+            <InfoRow
+              label="Email Address"
+              value={org.email || org.contactEmail}
+            />
             <InfoRow label="Mobile Number" value={org.mobile} />
           </Box>
-            <hr style={{ border: `1px solid ${BORDER_COLOR}` }} />
+          <hr style={{ border: `1px solid ${BORDER_COLOR}` }} />
           {/* Business Entity Information – Registered Address full width */}
           <Typography
             sx={{
@@ -309,7 +339,7 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
               fontSize: "0.9375rem",
               color: SECTION_TITLE_COLOR,
               mb: 1.5,
-              mt:2,
+              mt: 2,
             }}
           >
             Business Entity Information
@@ -323,12 +353,19 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
             }}
           >
             <InfoRow label="Corporate Name" value={org.organizationName} />
-            <InfoRow label="Registered Address" value={fullAddress || org.address} fullWidth />
-            <InfoRow label="Company Registration No" value={org.registrationNo} />
+            <InfoRow
+              label="Registered Address"
+              value={fullAddress || org.address}
+              fullWidth
+            />
+            <InfoRow
+              label="Company Registration No"
+              value={org.registrationNo}
+            />
             <InfoRow label="Telephone Number" value={org.telephone} />
             <InfoRow label="Website" value={org.website} isLink />
           </Box>
-            <hr style={{ border: `1px solid ${BORDER_COLOR}` }} />
+          <hr style={{ border: `1px solid ${BORDER_COLOR}` }} />
           {/* Submitted Documents – always show section; use documents[] with name, url */}
           <Typography
             sx={{
@@ -337,12 +374,14 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
               fontSize: "0.9375rem",
               color: SECTION_TITLE_COLOR,
               mb: 1.5,
-              mt:2,
+              mt: 2,
             }}
           >
             Submitted Documents
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
+          <Box
+            sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}
+          >
             {documents.length === 0 ? (
               <Typography
                 sx={{
@@ -359,7 +398,11 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
               documents.map((doc) => {
                 const displayName = doc.name || "Document";
                 const subtitle = (doc.url || "").split("/").pop() || "Document";
-                const linkHref = doc.url ? (doc.url.startsWith("http") ? doc.url : `https://${doc.url}`) : null;
+                const linkHref = doc.url
+                  ? doc.url.startsWith("http")
+                    ? doc.url
+                    : `https://${doc.url}`
+                  : null;
                 return (
                   <Box
                     key={doc._id || doc.url}
@@ -375,7 +418,14 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                       boxShadow: "0px 1px 2px rgba(0,0,0,0.04)",
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.5,
+                        minWidth: 0,
+                      }}
+                    >
                       <Box
                         sx={{
                           width: 40,
@@ -388,7 +438,9 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                           flexShrink: 0,
                         }}
                       >
-                        <InsertDriveFileIcon sx={{ color: "#6B7280", fontSize: 22 }} />
+                        <InsertDriveFileIcon
+                          sx={{ color: "#6B7280", fontSize: 22 }}
+                        />
                       </Box>
                       <Box sx={{ minWidth: 0 }}>
                         <Typography
@@ -416,7 +468,14 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                         </Typography>
                       </Box>
                     </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        flexShrink: 0,
+                      }}
+                    >
                       {linkHref && (
                         <>
                           {/* <Typography

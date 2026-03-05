@@ -242,9 +242,10 @@ const PersonalInfoForm = ({ formData, handleInputChange, handleSubmit, isButtonL
             label="Email"
             variant="outlined"
             name="email"
-            value={formData.email}
+            value={formData.email ?? ""}
             onChange={handleInputChange}
             disabled
+            helperText="Email cannot be changed"
             sx={textFieldStyle}
             InputLabelProps={{
               shrink: true,

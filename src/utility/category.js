@@ -316,16 +316,6 @@ const tags = [
 
 // Article categories (aligned with backend API enum)
 const articleCategories = [
-  "Education",
-  "Guidance",
-  "Career Development",
-  "College Tour",
-  "Admission",
-  "Other",
-  "Internships",
-  "Scholarships",
-  "SoftSkills",
-  "Career Planning",
   "Career Paths",
   "Study Abroad",
   "Soft Skills",
@@ -335,6 +325,7 @@ const articleCategories = [
   "Certifications",
   "University Choices",
   "Subject Selection",
+  "Career Planning",
   "Resume Writing",
   "Interview Skills",
   "Job Search",
@@ -351,7 +342,6 @@ const articleCategories = [
   "Vocational Training",
   "Mentorship Advice",
   "Misc",
-  "Career Guide",
 ];
 
 export { categories, languages, tags, articleCategories };

@@ -60,6 +60,10 @@ const AddService = ({ onBack, serviceToEdit }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === 'price') {
+            const num = Number(value);
+            if (value !== '' && (Number.isNaN(num) || num < 0)) return; // disallow negative or invalid price
+        }
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
@@ -106,6 +110,10 @@ const AddService = ({ onBack, serviceToEdit }) => {
             dispatch(notify({ message: "Please enter the price for paid service", type: "error" }));
             return;
         }
+        if (formData.priceType === 'PAID' && Number(formData.price) < 0) {
+            dispatch(notify({ message: "Price cannot be negative", type: "error" }));
+            return;
+        }
 
         if (!token) {
             dispatch(notify({ message: "You must be logged in to create services", type: "error" }));
@@ -122,9 +130,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
                 data.append('price', formData.price);
                 data.append('currency', formData.currency);
             }
-            if (formData.referenceNumber) {
-                data.append('referenceNumber', formData.referenceNumber);
-            }
+            data.append('referenceNumber', formData.referenceNumber || '');
             
             data.append('duration', JSON.stringify({
                 value: formData.durationValue,
@@ -415,6 +421,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
                                         value={formData.price}
                                         onChange={handleChange}
                                         placeholder="Enter amount"
+                                        inputProps={{ min: 0, step: 'any' }}
                                         variant="outlined"
                                         sx={{
                                             '& .MuiOutlinedInput-root': {

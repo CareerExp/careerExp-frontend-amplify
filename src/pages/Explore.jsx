@@ -1,10 +1,12 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Button,
   Chip,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Pagination,
@@ -65,7 +67,6 @@ import EventSection from "../components/EventSection.jsx";
 import ServiceSection from "../components/ServiceSection.jsx";
 import CounsellorSection from "../components/CounsellorSection.jsx";
 import CourseSection from "../components/CourseSection.jsx";
-import CloseIcon from "@mui/icons-material/Close";
 import InterestsModal from "../models/InterestsModal";
 import {
   getUserProfile,
@@ -706,6 +707,24 @@ const Explore = () => {
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
+              {searchValue && (
+                <IconButton
+                  size="small"
+                  onClick={() => setSearchValue("")}
+                  sx={{
+                    position: "absolute",
+                    right: "40px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#720361",
+                    p: 0.5,
+                    "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" },
+                  }}
+                  aria-label="Clear search"
+                >
+                  <CloseIcon sx={{ fontSize: "1.1rem" }} />
+                </IconButton>
+              )}
               <SearchIcon
                 sx={{
                   position: "absolute",

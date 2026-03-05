@@ -14,6 +14,7 @@ import {
   useMediaQuery,
   Button,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -1384,7 +1385,24 @@ const CreatorVideos = () => {
                 backgroundColor: "white",
               }}
             />
-
+            {searchValue && (
+              <IconButton
+                size="small"
+                onClick={() => setSearchValue("")}
+                sx={{
+                  position: "absolute",
+                  right: "calc(31% + 1.75rem)",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#720361",
+                  p: 0.5,
+                  "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" },
+                }}
+                aria-label="Clear search"
+              >
+                <CloseIcon sx={{ fontSize: "1.1rem" }} />
+              </IconButton>
+            )}
             <img
               src={search}
               alt="search"

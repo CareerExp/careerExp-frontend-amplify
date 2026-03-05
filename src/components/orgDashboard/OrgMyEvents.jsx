@@ -573,6 +573,16 @@ const OrgMyEvents = () => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
+                                {searchQuery && (
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setSearchQuery('')}
+                                        sx={{ mr: 0.5, color: 'rgba(0,0,0,0.4)', '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' } }}
+                                        aria-label="Clear search"
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                )}
                                 <SearchIcon sx={{ color: 'rgba(0,0,0,0.4)' }} />
                             </InputAdornment>
                         ),

@@ -32,16 +32,18 @@ function toCardItem(item) {
           })),
         }
       : typeof coll === "string"
-        ? { title: "How we work together", points: [{ id: 1, heading: "", description: strip(coll) }] }
+        ? { title: "How we work together", html: coll }
         : coll && typeof coll === "object" && (coll.points || coll.title)
-          ? {
-              title: htmlToPlainText(coll.title) || "How we work together",
-              points: (coll.points ?? []).map((p, i) => ({
-                id: p.id ?? i + 1,
-                heading: strip(p.heading),
-                description: strip(p.description),
-              })),
-            }
+          ? coll.html != null
+            ? { title: htmlToPlainText(coll.title) || "How we work together", html: coll.html }
+            : {
+                title: htmlToPlainText(coll.title) || "How we work together",
+                points: (coll.points ?? []).map((p, i) => ({
+                  id: p.id ?? i + 1,
+                  heading: strip(p.heading),
+                  description: strip(p.description),
+                })),
+              }
           : null,
   };
 }
@@ -224,8 +226,8 @@ const GovernmentOrganizations = ({ search = "" }) => {
                 )}
               </Box>
 
-              {/* Collaboration Info */}
-              {partner.collaboration && partner.collaboration.points?.length > 0 && (
+              {/* Collaboration Info – rich HTML from editor or structured points */}
+              {partner.collaboration && (
                 <Box
                   sx={{
                     flex: 1,
@@ -245,50 +247,68 @@ const GovernmentOrganizations = ({ search = "" }) => {
                   >
                     {partner.collaboration.title}
                   </Typography>
-                  <Stack spacing={2}>
-                    {partner.collaboration.points.map((point, index) => (
-                      <Box key={point.id ?? index} sx={{ display: "flex", gap: 1.5 }}>
-                        <Typography
-                          sx={{
-                            fontFamily: fonts.poppins,
-                            fontWeight: 600,
-                            fontSize: "16px",
-                            color: "#000000",
-                            minWidth: "20px",
-                            textAlign: "right",
-                          }}
-                        >
-                          {index + 1}.
-                        </Typography>
-                        <Box>
-                          {point.heading && (
-                            <Typography
-                              sx={{
-                                fontFamily: fonts.poppins,
-                                fontWeight: 600,
-                                fontSize: "16px",
-                                color: "#000000",
-                                mb: 0.5,
-                              }}
-                            >
-                              {point.heading}
-                            </Typography>
-                          )}
+                  {partner.collaboration.html ? (
+                    <Box
+                      sx={{
+                        fontFamily: fonts.poppins,
+                        fontSize: "14px",
+                        color: "#545454",
+                        lineHeight: 1.6,
+                        "& p": { margin: "0 0 0.75em", fontFamily: fonts.poppins },
+                        "& p:last-child": { marginBottom: 0 },
+                        "& strong": { fontWeight: 700 },
+                        "& ol, & ul": { paddingLeft: "1.5em", margin: "0.5em 0" },
+                        "& li": { marginBottom: "0.5em" },
+                        "& li p": { margin: "0 0 0.25em" },
+                      }}
+                      dangerouslySetInnerHTML={{ __html: partner.collaboration.html }}
+                    />
+                  ) : partner.collaboration.points?.length > 0 ? (
+                    <Stack spacing={2}>
+                      {partner.collaboration.points.map((point, index) => (
+                        <Box key={point.id ?? index} sx={{ display: "flex", gap: 1.5 }}>
                           <Typography
                             sx={{
                               fontFamily: fonts.poppins,
-                              fontWeight: 400,
-                              fontSize: "14px",
-                              color: "#545454",
-                              lineHeight: "1.5",
+                              fontWeight: 600,
+                              fontSize: "16px",
+                              color: "#000000",
+                              minWidth: "20px",
+                              textAlign: "right",
                             }}
                           >
-                            {point.description}
+                            {index + 1}.
                           </Typography>
+                          <Box>
+                            {point.heading && (
+                              <Typography
+                                sx={{
+                                  fontFamily: fonts.poppins,
+                                  fontWeight: 600,
+                                  fontSize: "16px",
+                                  color: "#000000",
+                                  mb: 0.5,
+                                }}
+                              >
+                                {point.heading}
+                              </Typography>
+                            )}
+                            <Typography
+                              sx={{
+                                fontFamily: fonts.poppins,
+                                fontWeight: 400,
+                                fontSize: "14px",
+                                color: "#545454",
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              {point.description}
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                    ))}
-                  </Stack>
+                      ))}
+                    </Stack>
+                  ) : null}
                 </Box>
               )}
             </Box>

@@ -372,21 +372,37 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             <Box
               sx={{
                 width: "100%",
+                height: 400,
                 borderRadius: "12px",
                 overflow: "hidden",
                 mb: 3,
+                position: "relative",
                 backgroundColor: "#e8e8e8",
-                minHeight: 320,
               }}
             >
+              {/* Blurred background fill */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  backgroundImage: imageUrl ? `url(${imageUrl})` : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  filter: "blur(20px)",
+                  transform: "scale(1.08)",
+                }}
+                aria-hidden
+              />
+              {/* Full image, no crop */}
               <img
                 src={imageUrl}
                 alt=""
                 style={{
+                  position: "absolute",
+                  inset: 0,
                   width: "100%",
                   height: "100%",
-                  minHeight: 320,
-                  objectFit: "cover",
+                  objectFit: "contain",
                   objectPosition: "center",
                   display: "block",
                 }}
