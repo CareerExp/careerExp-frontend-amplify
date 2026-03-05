@@ -74,7 +74,7 @@ const OrgESP = () => {
         {showPublicHero && publicProfile ? (
           <OrgPublicHero profile={publicProfile} />
         ) : (
-          <ESPHero />
+          <ESPHero skipFollowCheck />
         )}
         <ESPInfoPanel profile={profile} />
         {/* {usePublicSections ? (

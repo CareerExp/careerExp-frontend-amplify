@@ -27,7 +27,6 @@ import {
   getPodcastDetail,
   updatePodcast,
   uploadPodcast,
-  uploadPodcastBanner,
   uploadPodcastThumbnail,
 } from "../redux/slices/creatorSlice.js";
 import { articleCategories, languages, tags as tagsOptions } from "../utility/category.js";
@@ -57,10 +56,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
-  const [bannerLink, setBannerLink] = useState("");
-  const [bannerFile, setBannerFile] = useState(null);
-  const [bannerPreview, setBannerPreview] = useState(null);
-
   const [audioLink, setAudioLink] = useState("");
   const [audioFile, setAudioFile] = useState(null);
 
@@ -79,9 +74,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
     setThumbnailLink("");
     setThumbnailFile(null);
     setThumbnailPreview(null);
-    setBannerLink("");
-    setBannerFile(null);
-    setBannerPreview(null);
     setAudioLink("");
     setAudioFile(null);
   };
@@ -102,8 +94,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
             setCategory(p.category || "");
             setThumbnailLink(p.thumbnail || "");
             setThumbnailPreview(p.thumbnail || null);
-            setBannerLink(p.bannerImage || "");
-            setBannerPreview(p.bannerImage || null);
             setSpotifyUrl(p.spotifyUrl || "");
             setAudioLink(p.audioLink || "");
             setTabValue(p.spotifyLink ? 0 : 1);
@@ -131,17 +121,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
     setThumbnailPreview(URL.createObjectURL(file));
   };
 
-  const handleBannerChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      dispatch(notify({ type: "error", message: "Please select an image file" }));
-      return;
-    }
-    setBannerFile(file);
-    setBannerPreview(URL.createObjectURL(file));
-  };
-
   const handleAudioChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -164,16 +143,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
     return result?.link || "";
   };
 
-  const uploadBannerIfNeeded = async () => {
-    if (!bannerFile) return bannerLink;
-    const formData = new FormData();
-    formData.append("file", bannerFile);
-    const result = await dispatch(
-      uploadPodcastBanner({ userId, formData, token }),
-    ).unwrap();
-    return result?.link || "";
-  };
-
   const handleSubmit = async () => {
     if (!title?.trim()) {
       dispatch(notify({ type: "error", message: "Podcast title is required" }));
@@ -188,12 +157,10 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
       setIsSubmitting(true);
       try {
         const thumbUrl = tabValue === 1 ? await uploadThumbnailIfNeeded() : undefined;
-        const bannerUrl = tabValue === 1 ? await uploadBannerIfNeeded() : undefined;
         const body = {
           title: title.trim(),
           description: description.trim() || undefined,
           thumbnail: thumbUrl || undefined,
-          bannerImage: bannerUrl || undefined,
           tags: selectedTags.filter(Boolean),
           language: language || undefined,
           category,
@@ -275,7 +242,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
       setIsSubmitting(true);
       try {
         const thumbUrl = await uploadThumbnailIfNeeded();
-        const bannerUrl = await uploadBannerIfNeeded();
         await dispatch(
           addPodcastManual({
             userId,
@@ -285,7 +251,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               title: title.trim(),
               description: description.trim() || "",
               thumbnail: thumbUrl || "",
-              bannerImage: bannerUrl || "",
               tags: selectedTags.filter(Boolean),
               language: language || "",
               category,
@@ -439,7 +404,7 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
               sx={{ mb: 2, "& .MuiOutlinedInput-root": { bgcolor: "#F2F2F2", borderRadius: "8px", "& fieldset": { borderColor: "transparent" } } }}
             />
 
-            {/* Thumbnail and banner only for manual upload; Spotify provides thumbnail */}
+            {/* Thumbnail only for manual upload; Spotify provides thumbnail */}
             {tabValue === 1 && (
               <>
                 <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
@@ -470,37 +435,6 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
                   )}
                   <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
                     Upload Podcast Thumbnail
-                  </Typography>
-                </Box>
-
-                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: colors.darkGray, mb: 1 }}>
-                  Upload Banner Image
-                </Typography>
-                <Box
-                  component="label"
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px dashed #BC2876",
-                    borderRadius: "12px",
-                    backgroundColor: "#fafafa",
-                    py: 2,
-                    px: 2,
-                    cursor: "pointer",
-                    mb: 2,
-                    "&:hover": { backgroundColor: "#f5f5f5" },
-                  }}
-                >
-                  <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
-                  {bannerPreview ? (
-                    <img src={bannerPreview} alt="Banner" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 8 }} />
-                  ) : (
-                    <CloudUploadIcon sx={{ fontSize: 40, color: "#BC2876", mb: 0.5 }} />
-                  )}
-                  <Typography sx={{ fontFamily: fonts.sans, color: colors.darkGray, fontSize: "0.875rem" }}>
-                    Upload Banner Image
                   </Typography>
                 </Box>
               </>

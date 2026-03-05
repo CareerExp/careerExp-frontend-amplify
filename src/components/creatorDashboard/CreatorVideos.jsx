@@ -35,6 +35,7 @@ import DeleteModal from "../../models/DeleteModal.jsx";
 import EditVideoModal from "../../models/EditVideoModal.jsx";
 import UploadVideoModal from "../../models/UploadVideoModal.jsx";
 import ArticleDetailContent from "./ArticleDetailContent.jsx";
+import PodcastDetailContent from "./PodcastDetailContent.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
 import {
@@ -76,6 +77,7 @@ const CreatorVideos = () => {
   const [addArticleModalOpen, setAddArticleModalOpen] = useState(false);
   const [articleToEditId, setArticleToEditId] = useState(null);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
+  const [selectedPodcastId, setSelectedPodcastId] = useState(null);
   const [addPodcastModalOpen, setAddPodcastModalOpen] = useState(false);
   const [podcastToEditId, setPodcastToEditId] = useState(null);
   const [uploadVideoModalOpen, setUploadVideoModalOpen] = useState(false);
@@ -338,6 +340,14 @@ const CreatorVideos = () => {
         search: articlesSearchApplied,
       }),
     );
+  };
+
+  const handlePodcastView = (id) => {
+    setSelectedPodcastId(id);
+  };
+
+  const handlePodcastDetailBack = () => {
+    setSelectedPodcastId(null);
   };
 
   const DesktopView = () => (
@@ -827,7 +837,12 @@ const CreatorVideos = () => {
                           "& .MuiIconButton-root": { padding: "6px" },
                         }}
                       >
-                        <IconButton aria-label="view podcast" sx={{ color: "#720361" }} size="small" disabled>
+                        <IconButton
+                          aria-label="view podcast"
+                          sx={{ color: "#720361" }}
+                          size="small"
+                          onClick={() => handlePodcastView(podcast._id)}
+                        >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
                         <IconButton
@@ -1273,6 +1288,13 @@ const CreatorVideos = () => {
                     </Box>
                     <Box sx={{ display: "flex", gap: "0.25rem" }}>
                       <IconButton
+                        aria-label="view podcast"
+                        onClick={() => handlePodcastView(podcast._id)}
+                        sx={{ color: "#720361", padding: "0.25rem" }}
+                      >
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
                         aria-label="edit podcast"
                         sx={{ color: "#BC2876", padding: "0.25rem" }}
                         onClick={() => {
@@ -1303,7 +1325,7 @@ const CreatorVideos = () => {
     </Box>
   );
 
-  const showListOrTabs = !(activeTab === 2 && selectedArticleId);
+  const showListOrTabs = !(activeTab === 2 && selectedArticleId) && !(activeTab === 3 && selectedPodcastId);
 
   return (
     <>
@@ -1417,6 +1439,20 @@ const CreatorVideos = () => {
             articleId={selectedArticleId}
             onBack={handleArticleDetailBack}
             onDeleteSuccess={handleArticleDeleteSuccess}
+            embedded={true}
+          />
+        </Box>
+      ) : activeTab === 3 && selectedPodcastId ? (
+        <Box
+          sx={{
+            backgroundColor: colors.white,
+            padding: "1.5rem",
+            borderRadius: "1rem",
+          }}
+        >
+          <PodcastDetailContent
+            podcastId={selectedPodcastId}
+            onBack={handlePodcastDetailBack}
             embedded={true}
           />
         </Box>

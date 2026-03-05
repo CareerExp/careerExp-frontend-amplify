@@ -1,19 +1,117 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
     Typography,
     Button,
     IconButton,
+    Tooltip,
+    CircularProgress,
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
-import FlagIcon from '@mui/icons-material/Flag';
 import { fonts } from '../../utility/fonts';
 import { defaultHeroBG, organizationLogo } from '../../assets/assest';
 import { selectOrganizationProfile } from '../../redux/slices/organizationSlice';
+import { selectToken, selectUserId } from '../../redux/slices/authSlice';
+import { toggleFollow } from '../../redux/slices/followerSlice';
+import { getDashboardFollowing } from '../../redux/slices/dashboardActivitySlice';
+import { selectDashboardFollowing } from '../../redux/slices/dashboardActivitySlice';
+import { checkFollowStatus, selectIsFollowing } from '../../redux/slices/creatorSlice';
+import { notify } from '../../redux/slices/alertSlice';
 
-const ESPHero = () => {
+/** Public org page URL for this organization */
+function getOrgPublicUrl(profile) {
+    if (!profile) return null;
+    const base = typeof window !== 'undefined' ? window.location.origin : '';
+    const path = profile.organizationType === 'HEI'
+        ? `/org-hei/${profile.slug || profile.userId || profile._id}`
+        : `/org-esp/${profile.slug || profile.userId || profile._id}`;
+    return `${base}${path}`;
+}
+
+const ESPHero = ({ skipFollowCheck = false }) => {
+    const dispatch = useDispatch();
     const orgProfile = useSelector(selectOrganizationProfile);
+    const token = useSelector(selectToken);
+    const userId = useSelector(selectUserId);
+    const { items: followingItems } = useSelector(selectDashboardFollowing);
+    const isFollowingFromCheck = useSelector(selectIsFollowing);
+    const [followLoading, setFollowLoading] = useState(false);
+
+    const orgTargetId = orgProfile?.userId || orgProfile?._id;
+    const isFollowing = skipFollowCheck
+        ? !!orgTargetId && isFollowingFromCheck
+        : !!orgTargetId && followingItems.some(
+            (item) => item.id === orgTargetId || item.userId === orgTargetId
+        );
+
+    useEffect(() => {
+        if (skipFollowCheck && token && orgTargetId && userId && userId !== orgTargetId) {
+            dispatch(checkFollowStatus({ userId, targetUserId: orgTargetId, token }));
+        }
+        if (!skipFollowCheck && token && orgTargetId) {
+            dispatch(getDashboardFollowing({ token }));
+        }
+    }, [dispatch, token, orgTargetId, userId, skipFollowCheck]);
+
+    const handleFollowClick = async () => {
+        if (!token) {
+            dispatch(notify({ message: 'Please sign in to follow', type: 'error' }));
+            return;
+        }
+        if (!orgTargetId) return;
+        if (userId === orgTargetId) return;
+        setFollowLoading(true);
+        try {
+            const result = await dispatch(toggleFollow({ targetUserId: orgTargetId, token }));
+            if (toggleFollow.fulfilled.match(result)) {
+                dispatch(notify({
+                    message: isFollowing ? 'Unfollowed successfully' : 'Following successfully',
+                    type: 'success',
+                }));
+                if (skipFollowCheck) {
+                    dispatch(checkFollowStatus({ userId, targetUserId: orgTargetId, token }));
+                } else {
+                    dispatch(getDashboardFollowing({ token }));
+                }
+            } else {
+                dispatch(notify({
+                    message: result.payload?.error || 'Failed to update follow',
+                    type: 'error',
+                }));
+            }
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
+    const shareUrl = getOrgPublicUrl(orgProfile);
+    const handleShare = async () => {
+        if (!shareUrl) return;
+        const title = orgProfile?.organizationName || 'Organization';
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title,
+                    text: orgProfile?.subtitle || '',
+                    url: shareUrl,
+                });
+                dispatch(notify({ message: 'Link shared!', type: 'success' }));
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                dispatch(notify({ message: 'Link copied to clipboard', type: 'success' }));
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    dispatch(notify({ message: 'Link copied to clipboard', type: 'success' }));
+                } catch {
+                    dispatch(notify({ message: 'Could not share or copy link', type: 'error' }));
+                }
+            }
+        }
+    };
 
     return (
         <Box sx={{ position: 'relative' }}>
@@ -101,7 +199,7 @@ const ESPHero = () => {
                     </Typography>
                 </Box>
 
-                {/* Action Buttons */}
+                {/* Action Buttons: Follow + Share (Flag/bookmark removed) */}
                 <Box
                     sx={{
                         display: 'flex',
@@ -112,6 +210,8 @@ const ESPHero = () => {
                 >
                     <Button
                         variant="contained"
+                        onClick={handleFollowClick}
+                        disabled={followLoading || !orgTargetId || userId === orgTargetId}
                         sx={{
                             backgroundColor: '#fafafa',
                             borderRadius: '90px',
@@ -132,34 +232,31 @@ const ESPHero = () => {
                             }
                         }}
                     >
-                        <Typography sx={{ fontWeight: 700, fontSize: '18px' }}>Follow</Typography>
+                        {followLoading ? (
+                            <CircularProgress size={20} sx={{ color: '#720361' }} />
+                        ) : (
+                            <Typography sx={{ fontWeight: 700, fontSize: '18px' }}>
+                                {isFollowing ? 'Following' : 'Follow'}
+                            </Typography>
+                        )}
                     </Button>
-                    <IconButton
-                        sx={{
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                            color: '#fff',
-                            width: '48px',
-                            height: '48px',
-                            border: '1.5px solid #fff',
-                            backdropFilter: 'blur(22px)',
-                            '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.4)' }
-                        }}
-                    >
-                        <ShareIcon sx={{ fontSize: '20px' }} />
-                    </IconButton>
-                    <IconButton
-                        sx={{
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                            color: '#fff',
-                            width: '48px',
-                            height: '48px',
-                            border: '1.5px solid #fff',
-                            backdropFilter: 'blur(22px)',
-                            '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.4)' }
-                        }}
-                    >
-                        <FlagIcon sx={{ fontSize: '20px' }} />
-                    </IconButton>
+                    <Tooltip title="Share">
+                        <IconButton
+                            onClick={handleShare}
+                            aria-label="Share company page"
+                            sx={{
+                                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                color: '#fff',
+                                width: '48px',
+                                height: '48px',
+                                border: '1.5px solid #fff',
+                                backdropFilter: 'blur(22px)',
+                                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.4)' }
+                            }}
+                        >
+                            <ShareIcon sx={{ fontSize: '20px' }} />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
             </Box>
         </Box>

@@ -80,7 +80,9 @@ const OrgUnderReviewScreen = () => {
             mb: 3,
           }}
         >
-          Thank you for registering! Your account has been submitted for review. Our team will verify your information and you'll receive a confirmation email within 24-48 hours.
+          Thank you for registering! Your account has been submitted for review.
+          Our team will verify your information and you'll receive a
+          confirmation email within 24-48 hours.
         </Typography>
 
         <Button
@@ -95,14 +97,16 @@ const OrgUnderReviewScreen = () => {
             margin: "auto",
             py: 1.5,
             borderRadius: "25px",
-            background: "linear-gradient(162.56deg, #BF2F75 11.43%, #720361 61.54%)",
+            background:
+              "linear-gradient(162.56deg, #BF2F75 11.43%, #720361 61.54%)",
             textTransform: "none",
             "&:hover": {
-              background: "linear-gradient(162.56deg, #BF2F75 9.43%, #720361 50.54%)",
+              background:
+                "linear-gradient(162.56deg, #BF2F75 9.43%, #720361 50.54%)",
             },
           }}
         >
-          Go to Homepage
+          Go to HomePage
         </Button>
       </Box>
     </Box>

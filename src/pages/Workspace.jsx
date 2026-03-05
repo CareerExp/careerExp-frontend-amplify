@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Logo } from "../assets/assest.js";
 import renderCurrentPage from "../components/PageRender.jsx";
 import Sidebar from "../components/workspace/Sidebar.jsx";
@@ -108,6 +108,7 @@ const getQrPropsForWorkspace = (
 const Workspace = (props) => {
   const { window } = props;
   const navigate = useNavigate();
+  const location = useLocation();
   const params = useParams();
   const dispatchToRedux = useDispatch();
   const userData = useSelector(selectUserProfile);
@@ -157,6 +158,14 @@ const Workspace = (props) => {
 
     fetchUserProfile();
   }, [authenticate, userId, dispatchToRedux, token, navigate]);
+
+  // When navigating with state.goToDashboard (e.g. from CounsellorDetail "Company Page"), show Dashboard
+  useEffect(() => {
+    if (location.state?.goToDashboard) {
+      setCurrentPage("Dashboard");
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state?.goToDashboard, location.pathname, navigate]);
 
   // Fetch org profile whenever user is in organization dashboard (real org users + admin acting as; backend resolves context)
   useEffect(() => {
@@ -515,9 +524,13 @@ const Workspace = (props) => {
                       component={Link}
                       to={
                         effectiveRole === "organization" && effectiveOrgType
-                          ? effectiveOrgType === "ESP"
-                            ? "/org-esp"
-                            : "/org-hei"
+                          ? (() => {
+                              const slugOrId =
+                                orgProfile?.slug || orgProfile?.userId;
+                              const base =
+                                effectiveOrgType === "ESP" ? "/org-esp" : "/org-hei";
+                              return slugOrId ? `${base}/${slugOrId}` : base;
+                            })()
                           : "/"
                       }
                       sx={{

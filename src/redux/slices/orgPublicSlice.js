@@ -9,6 +9,14 @@ function pathFor(identifier, idType) {
   return `${BASE}/v/${encodeURIComponent(identifier)}`;
 }
 
+/** Headers for public org API; include Authorization when user is logged in so backend optionalAuthenticated can allow org users. */
+function getPublicHeaders(thunkAPI) {
+  const token = thunkAPI.getState()?.auth?.token;
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return headers;
+}
+
 const initialState = {
   profile: null,
   profileError: null,
@@ -41,7 +49,7 @@ const initialState = {
   counsellorsLoading: false,
 };
 
-/** GET organization public profile by slug or userId. No auth. */
+/** GET organization public profile by slug or userId. Sends token when available so org users can view their public page. */
 export const getPublicOrgProfile = createAsyncThunk(
   "orgPublic/getProfile",
   async ({ identifier, idType }, thunkAPI) => {
@@ -49,7 +57,7 @@ export const getPublicOrgProfile = createAsyncThunk(
       const url = pathFor(identifier, idType);
       const response = await FetchApi.fetch(url, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: getPublicHeaders(thunkAPI),
       });
       if (!response.success) {
         return thunkAPI.rejectWithValue({
@@ -75,7 +83,7 @@ export const getPublicAnnouncements = createAsyncThunk(
     const query = new URLSearchParams({ page, limit, sortBy });
     const response = await FetchApi.fetch(`${base}/announcements?${query}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: getPublicHeaders(thunkAPI),
     });
     if (response.success === false) throw new Error(response.message || "Failed to fetch announcements");
     return response.data != null ? response.data : response;
@@ -90,7 +98,7 @@ export const getPublicServices = createAsyncThunk(
     const query = new URLSearchParams({ page, limit, sortBy });
     const response = await FetchApi.fetch(`${base}/services?${query}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: getPublicHeaders(thunkAPI),
     });
     if (response.success === false) throw new Error(response.message || "Failed to fetch services");
     return response.data != null ? response.data : response;
@@ -105,7 +113,7 @@ export const getPublicEvents = createAsyncThunk(
     const query = new URLSearchParams({ page, limit, sortBy });
     const response = await FetchApi.fetch(`${base}/events?${query}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: getPublicHeaders(thunkAPI),
     });
     if (response.success === false) throw new Error(response.message || "Failed to fetch events");
     return response.data != null ? response.data : response;
@@ -120,7 +128,7 @@ export const getPublicVideos = createAsyncThunk(
     const query = new URLSearchParams({ page, limit });
     const response = await FetchApi.fetch(`${base}/videos?${query}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: getPublicHeaders(thunkAPI),
     });
     if (response.success === false) throw new Error(response.message || "Failed to fetch videos");
     return response.data != null ? response.data : response;
@@ -135,7 +143,7 @@ export const getPublicCounsellors = createAsyncThunk(
     const query = new URLSearchParams({ page, limit });
     const response = await FetchApi.fetch(`${base}/counsellors?${query}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: getPublicHeaders(thunkAPI),
     });
     if (response.success === false) throw new Error(response.message || "Failed to fetch counsellors");
     return response.data != null ? response.data : response;
