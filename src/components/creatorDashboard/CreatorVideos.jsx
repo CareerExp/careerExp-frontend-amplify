@@ -18,9 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  edit,
   search,
-  trash,
   videoShareIcon,
   videoViewsIcon,
   videoLikeIcon,
@@ -37,6 +35,7 @@ import EditVideoModal from "../../models/EditVideoModal.jsx";
 import UploadVideoModal from "../../models/UploadVideoModal.jsx";
 import ArticleDetailContent from "./ArticleDetailContent.jsx";
 import PodcastDetailContent from "./PodcastDetailContent.jsx";
+import VideoDetailContent from "./VideoDetailContent.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
 import {
@@ -79,6 +78,7 @@ const CreatorVideos = () => {
   const [articleToEditId, setArticleToEditId] = useState(null);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
   const [selectedPodcastId, setSelectedPodcastId] = useState(null);
+  const [selectedVideoId, setSelectedVideoId] = useState(null);
   const [addPodcastModalOpen, setAddPodcastModalOpen] = useState(false);
   const [podcastToEditId, setPodcastToEditId] = useState(null);
   const [uploadVideoModalOpen, setUploadVideoModalOpen] = useState(false);
@@ -351,6 +351,26 @@ const CreatorVideos = () => {
     setSelectedPodcastId(null);
   };
 
+  const handleVideoView = (id) => {
+    setSelectedVideoId(id);
+  };
+
+  const handleVideoDetailBack = () => {
+    setSelectedVideoId(null);
+  };
+
+  const handleVideoDeleteSuccess = () => {
+    setSelectedVideoId(null);
+    dispatchToRedux(
+      getAuthorVideos({
+        userId,
+        page: page + 1,
+        limit: rowsPerPage,
+        search: searchValue,
+      }),
+    );
+  };
+
   const DesktopView = () => (
     <Box
       sx={{
@@ -528,16 +548,65 @@ const CreatorVideos = () => {
                     {convertUTCDateToLocalDate(video?.createdAt)}
                   </TableCell>
                   <TableCell sx={{ ...tableData, textAlign: "center" }}>
-                    {video?.youtubeLink ? (
-                      <>
-                        <img
-                          src={`https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`}
-                          alt="thumbnail"
-                          style={{ width: "160px", height: "90px" }}
+                    {(video?.youtubeLink && video?.youtubeVideoId) || video?.thumbnail ? (
+                      <Box
+                        sx={{
+                          width: 160,
+                          height: 90,
+                          position: "relative",
+                          overflow: "hidden",
+                          borderRadius: "4px",
+                          margin: "0 auto",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            backgroundImage: `url(${
+                              video?.youtubeLink && video?.youtubeVideoId
+                                ? `https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`
+                                : video.thumbnail
+                            })`,
+                            backgroundSize: "cover",
+                            filter: "blur(20px)",
+                            transform: "scale(1.08)",
+                          }}
                         />
-                      </>
+                        <Box
+                          component="img"
+                          src={
+                            video?.youtubeLink && video?.youtubeVideoId
+                              ? `https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`
+                              : video.thumbnail
+                          }
+                          alt="thumbnail"
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            objectPosition: "center",
+                          }}
+                        />
+                      </Box>
                     ) : (
-                      <img src={video.thumbnail} alt="thumbnail" style={{ width: "160px", height: "90px" }} />
+                      <Box
+                        sx={{
+                          width: 160,
+                          height: 90,
+                          bgcolor: "#eee",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary">
+                          No image
+                        </Typography>
+                      </Box>
                     )}
                   </TableCell>
                   <TableCell
@@ -554,42 +623,47 @@ const CreatorVideos = () => {
                   <TableCell sx={{ ...tableData, textAlign: "center" }}>{video?.totalShares || 0}</TableCell>
                   {/* <TableCell sx={tableData}>{video?.likes.length}</TableCell> */}
                   {/* <TableCell sx={tableData}>{video?.comments.length}</TableCell> */}
-                  <TableCell sx={{ ...tableData, border: "1px solid #ddd" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        height: "100%",
-                      }}
-                    >
-                      <Rating value={Math.round(video.averageRating)} readOnly />
-                      <p style={{ color: "#a1a1a1", fontSize: "1rem" }}>
-                        &nbsp;({Math.round(video.averageRating)})
-                      </p>
-                    </div>
+                  <TableCell sx={{ ...tableData }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Rating value={Math.round(video.averageRating)} readOnly size="small" />
+                      <Typography component="span" sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}>
+                        ({Math.round(video.averageRating)})
+                      </Typography>
+                    </Box>
                   </TableCell>
-                  <TableCell>
-                    <TableCell
+                  <TableCell sx={{ border: "1px solid #ddd" }}>
+                    <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        height: "100%",
-                        // This ensures higher specificity using '&&'
-                        "&&": {
-                          border: "none", // Removes the border
-                          borderBottom: "none", // Removes any bottom border
-                        },
+                        gap: 0.5,
+                        "& .MuiIconButton-root": { padding: "6px" },
                       }}
                     >
-                      {" "}
-                      <IconButton aria-label="edit" onClick={() => handleVideoEdit(video)}>
-                        <img src={edit} alt="edit" width={"30rem"} height={"30rem"} />
+                      <IconButton
+                        aria-label="view video"
+                        sx={{ color: "#720361" }}
+                        size="small"
+                        onClick={() => handleVideoView(video._id)}
+                      >
+                        <VisibilityIcon fontSize="small" />
                       </IconButton>
-                      <IconButton aria-label="delete" onClick={() => handleVideoDelete(video._id)}>
-                        <img src={trash} alt="delete" width={"30rem"} height={"30rem"} />
+                      <IconButton
+                        aria-label="edit video"
+                        sx={{ color: "#BC2876" }}
+                        onClick={() => handleVideoEdit(video)}
+                      >
+                        <EditIcon fontSize="small" />
                       </IconButton>
-                    </TableCell>
+                      <IconButton
+                        aria-label="delete video"
+                        sx={{ color: colors.red }}
+                        onClick={() => handleVideoDelete(video._id)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -641,16 +715,40 @@ const CreatorVideos = () => {
                     </TableCell>
                     <TableCell sx={{ ...tableData, textAlign: "center" }}>
                       {article?.coverImage ? (
-                        <img
-                          src={article.coverImage}
-                          alt=""
-                          style={{
-                            width: "160px",
-                            height: "90px",
-                            objectFit: "cover",
+                        <Box
+                          sx={{
+                            width: 160,
+                            height: 90,
+                            position: "relative",
+                            overflow: "hidden",
                             borderRadius: "4px",
+                            margin: "0 auto",
                           }}
-                        />
+                        >
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              inset: 0,
+                              backgroundImage: `url(${article.coverImage})`,
+                              backgroundSize: "cover",
+                              filter: "blur(20px)",
+                              transform: "scale(1.08)",
+                            }}
+                          />
+                          <Box
+                            component="img"
+                            src={article.coverImage}
+                            alt=""
+                            sx={{
+                              position: "absolute",
+                              inset: 0,
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              objectPosition: "center",
+                            }}
+                          />
+                        </Box>
                       ) : (
                         <Box
                           sx={{
@@ -779,17 +877,40 @@ const CreatorVideos = () => {
                     </TableCell>
                     <TableCell sx={{ ...tableData, textAlign: "center" }}>
                       {(podcast?.spotifyThumbnailUrl || podcast?.thumbnail) ? (
-                        <img
-                          src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
-                          alt=""
-                          style={{
-                            width: "90px",
-                            height: "90px",
-                            objectFit: "contain",
+                        <Box
+                          sx={{
+                            width: 90,
+                            height: 90,
+                            position: "relative",
+                            overflow: "hidden",
                             borderRadius: "4px",
-                            backgroundColor: "#f5f5f5",
+                            margin: "0 auto",
                           }}
-                        />
+                        >
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              inset: 0,
+                              backgroundImage: `url(${podcast?.spotifyThumbnailUrl || podcast?.thumbnail})`,
+                              backgroundSize: "cover",
+                              filter: "blur(20px)",
+                              transform: "scale(1.08)",
+                            }}
+                          />
+                          <Box
+                            component="img"
+                            src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
+                            alt=""
+                            sx={{
+                              position: "absolute",
+                              inset: 0,
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              objectPosition: "center",
+                            }}
+                          />
+                        </Box>
                       ) : (
                         <Box
                           sx={{
@@ -954,15 +1075,63 @@ const CreatorVideos = () => {
                 border: "1px solid #dedede",
               }}
             >
-              <Box sx={{ position: "relative" }}>
-                {video?.youtubeLink ? (
-                  <img
-                    src={`https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`}
-                    alt="thumbnail"
-                    style={{ width: "100%", height: "auto" }}
-                  />
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: 120,
+                  overflow: "hidden",
+                }}
+              >
+                {(video?.youtubeLink && video?.youtubeVideoId) || video?.thumbnail ? (
+                  <>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundImage: `url(${
+                          video?.youtubeLink && video?.youtubeVideoId
+                            ? `https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`
+                            : video.thumbnail
+                        })`,
+                        backgroundSize: "cover",
+                        filter: "blur(20px)",
+                        transform: "scale(1.08)",
+                      }}
+                    />
+                    <Box
+                      component="img"
+                      src={
+                        video?.youtubeLink && video?.youtubeVideoId
+                          ? `https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`
+                          : video.thumbnail
+                      }
+                      alt="thumbnail"
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </>
                 ) : (
-                  <img src={video.thumbnail} alt="thumbnail" style={{ width: "100%", height: "auto" }} />
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      bgcolor: "#eee",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      No image
+                    </Typography>
+                  </Box>
                 )}
               </Box>
               <Box sx={{ padding: "0.75rem" }}>
@@ -1057,18 +1226,25 @@ const CreatorVideos = () => {
                   </Box>
                   <Box sx={{ display: "flex", gap: "0.5rem" }}>
                     <IconButton
-                      aria-label="edit"
-                      onClick={() => handleVideoEdit(video)}
-                      sx={{ padding: "0.25rem" }}
+                      aria-label="view video"
+                      onClick={() => handleVideoView(video._id)}
+                      sx={{ color: "#720361", padding: "0.25rem" }}
                     >
-                      <img src={edit} alt="edit" width={"24rem"} height={"24rem"} />
+                      <VisibilityIcon fontSize="small" />
                     </IconButton>
                     <IconButton
-                      aria-label="delete"
-                      onClick={() => handleVideoDelete(video._id)}
-                      sx={{ padding: "0.25rem" }}
+                      aria-label="edit video"
+                      onClick={() => handleVideoEdit(video)}
+                      sx={{ color: "#BC2876", padding: "0.25rem" }}
                     >
-                      <img src={trash} alt="delete" width={"24rem"} height={"24rem"} />
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      aria-label="delete video"
+                      onClick={() => handleVideoDelete(video._id)}
+                      sx={{ color: colors.red, padding: "0.25rem" }}
+                    >
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
                 </Box>
@@ -1095,18 +1271,45 @@ const CreatorVideos = () => {
                   border: "1px solid #dedede",
                 }}
               >
-                <Box sx={{ position: "relative" }}>
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: 120,
+                    overflow: "hidden",
+                  }}
+                >
                   {article?.coverImage ? (
-                    <img
-                      src={article.coverImage}
-                      alt=""
-                      style={{ width: "100%", height: "auto", maxHeight: 180, objectFit: "cover" }}
-                    />
+                    <>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          backgroundImage: `url(${article.coverImage})`,
+                          backgroundSize: "cover",
+                          filter: "blur(20px)",
+                          transform: "scale(1.08)",
+                        }}
+                      />
+                      <Box
+                        component="img"
+                        src={article.coverImage}
+                        alt=""
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </>
                   ) : (
                     <Box
                       sx={{
                         width: "100%",
-                        height: 120,
+                        height: "100%",
                         bgcolor: "#eee",
                         display: "flex",
                         alignItems: "center",
@@ -1218,18 +1421,45 @@ const CreatorVideos = () => {
                   border: "1px solid #dedede",
                 }}
               >
-                <Box sx={{ position: "relative" }}>
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: 120,
+                    overflow: "hidden",
+                  }}
+                >
                   {(podcast?.spotifyThumbnailUrl || podcast?.thumbnail) ? (
-                    <img
-                      src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
-                      alt=""
-                      style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "contain", backgroundColor: "#f5f5f5" }}
-                    />
+                    <>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          backgroundImage: `url(${podcast?.spotifyThumbnailUrl || podcast?.thumbnail})`,
+                          backgroundSize: "cover",
+                          filter: "blur(20px)",
+                          transform: "scale(1.08)",
+                        }}
+                      />
+                      <Box
+                        component="img"
+                        src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
+                        alt=""
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </>
                   ) : (
                     <Box
                       sx={{
                         width: "100%",
-                        height: 120,
+                        height: "100%",
                         bgcolor: "#eee",
                         display: "flex",
                         alignItems: "center",
@@ -1326,7 +1556,10 @@ const CreatorVideos = () => {
     </Box>
   );
 
-  const showListOrTabs = !(activeTab === 2 && selectedArticleId) && !(activeTab === 3 && selectedPodcastId);
+  const showListOrTabs =
+    !(activeTab === 1 && selectedVideoId) &&
+    !(activeTab === 2 && selectedArticleId) &&
+    !(activeTab === 3 && selectedPodcastId);
 
   return (
     <>
@@ -1445,7 +1678,22 @@ const CreatorVideos = () => {
       </Box>
       )}
 
-      {activeTab === 2 && selectedArticleId ? (
+      {activeTab === 1 && selectedVideoId ? (
+        <Box
+          sx={{
+            backgroundColor: colors.white,
+            padding: "1.5rem",
+            borderRadius: "1rem",
+          }}
+        >
+          <VideoDetailContent
+            videoId={selectedVideoId}
+            onBack={handleVideoDetailBack}
+            onDeleteSuccess={handleVideoDeleteSuccess}
+            embedded={true}
+          />
+        </Box>
+      ) : activeTab === 2 && selectedArticleId ? (
         <Box
           sx={{
             backgroundColor: colors.white,

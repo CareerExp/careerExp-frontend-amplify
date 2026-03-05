@@ -1,6 +1,6 @@
 // eslint-disable-next-line simple-import-sort/imports
 import React, { Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import InitialLoaders from "../loaders/InitialLoaders";
 import { useSelector } from "react-redux";
 import { selectAuthenticated } from "../redux/slices/authSlice.js";
@@ -304,9 +304,13 @@ const AppRoutes = () => {
       <Route
         path="/login"
         element={
-          <Suspense fallback={<InitialLoaders />}>
-            <Login />
-          </Suspense>
+          authenticated ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Suspense fallback={<InitialLoaders />}>
+              <Login />
+            </Suspense>
+          )
         }
       />
       <Route
