@@ -19,6 +19,7 @@ const initialState = {
   generalPodcastData: null,
   invitations: [],
   myOrganization: null,
+  currentMembership: null,
   loading: false,
   error: null,
 };
@@ -948,10 +949,10 @@ export const respondToInvitation = createAsyncThunk(
   "creator/respondToInvitation",
   async ({ invitationId, organizationUserId, status, token }, thunkAPI) => {
     try {
-      const endpoint = status === "accepted" 
-        ? "/api/creator/invitations/accept" 
+      const endpoint = status === "accepted"
+        ? "/api/creator/invitations/accept"
         : "/api/creator/invitations/reject";
-        
+
       const response = await FetchApi.fetch(`${config.api}${endpoint}`, {
         method: "POST",
         headers: {
@@ -960,11 +961,55 @@ export const respondToInvitation = createAsyncThunk(
         },
         body: JSON.stringify({ invitationId, organizationUserId }),
       });
-      
+
       if (!response.success) {
         return thunkAPI.rejectWithValue({ error: response.message });
       }
       return { ...response, status };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+/** GET current creator membership (for leave button). Returns { data: { organizationUserId, _id?, ... } }. */
+export const getCreatorCurrentMembership = createAsyncThunk(
+  "creator/getCreatorCurrentMembership",
+  async ({ token }, thunkAPI) => {
+    try {
+      const response = await FetchApi.fetch(`${config.api}/api/creator/invitations/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message });
+      }
+      return response;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+export const leaveOrganization = createAsyncThunk(
+  "creator/leaveOrganization",
+  async ({ organizationUserId, token }, thunkAPI) => {
+    try {
+      const response = await FetchApi.fetch(`${config.api}/api/creator/invitations/leave`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ organizationUserId }),
+      });
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message });
+      }
+      return response;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
@@ -1132,6 +1177,27 @@ const creatorSlice = createSlice({
       state.error = payload?.error || "Failed to respond to invitation";
     });
 
+    builder.addCase(leaveOrganization.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(leaveOrganization.fulfilled, (state) => {
+      state.loading = false;
+      state.myOrganization = null;
+      state.currentMembership = null;
+    });
+    builder.addCase(leaveOrganization.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload?.error || "Failed to leave organization";
+    });
+
+    builder.addCase(getCreatorCurrentMembership.fulfilled, (state, { payload }) => {
+      state.currentMembership = payload?.data ?? payload ?? null;
+    });
+    builder.addCase(getCreatorCurrentMembership.rejected, (state) => {
+      state.currentMembership = null;
+    });
+
     builder.addCase(getCreatorDashboard.fulfilled, (state, { payload }) => {
       state.creatorDashboard = payload ?? null;
     });
@@ -1156,6 +1222,7 @@ export const selectGeneralArticleData = (state) => state.creator.generalArticleD
 export const selectGeneralPodcastData = (state) => state.creator.generalPodcastData;
 export const selectCreatorInvitations = (state) => state.creator.invitations;
 export const selectMyOrganization = (state) => state.creator.myOrganization;
+export const selectCurrentMembership = (state) => state.creator.currentMembership;
 export const selectCreatorLoading = (state) => state.creator.loading;
 
 export default creatorSlice.reducer;

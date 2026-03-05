@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -24,7 +25,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -42,14 +42,20 @@ import {
     TelegramIcon,
 } from '../../assets/assest';
 import { fonts } from '../../utility/fonts';
-import { getAuthorVideos } from '../../redux/slices/creatorSlice';
-import { selectToken, selectUserId } from '../../redux/slices/authSlice';
 import {
+    getAuthorVideos,
+    getAuthorArticles,
+    getAuthorPodcasts,
+    getCreatorProfile,
+    selectCreatorProfile,
+    selectAuthorArticles,
+    selectAuthorPodcasts,
     checkFollowStatus,
     creatorFollowToggle,
     selectIsFollowing,
     selectFollowerCount
 } from '../../redux/slices/creatorSlice';
+import { selectToken, selectUserId } from '../../redux/slices/authSlice';
 import { notify } from '../../redux/slices/alertSlice';
 import { config } from '../../config/config';
 import SharingVideoModal from '../../models/SharingVideoModal';
@@ -149,16 +155,22 @@ const ContentCard = ({ item, name }) => {
 
 const CounsellorDetail = ({ counsellor, onBack }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const token = useSelector(selectToken);
     const studentUserId = useSelector(selectUserId);
     const isFollowing = useSelector(selectIsFollowing);
     const followerCount = useSelector(selectFollowerCount);
+    const creatorProfileFromApi = useSelector(selectCreatorProfile);
+    const authorArticles = useSelector(selectAuthorArticles);
+    const authorPodcasts = useSelector(selectAuthorPodcasts);
 
     const [activeTab, setActiveTab] = useState(0);
     const [page, setPage] = useState(1);
     const [videos, setVideos] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [totalPages, setTotalPages] = useState(1);
+    const [articlesLoading, setArticlesLoading] = useState(false);
+    const [podcastsLoading, setPodcastsLoading] = useState(false);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
@@ -167,7 +179,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
-        setPage(1); // Reset page when switching tabs
+        setPage(1);
     };
 
     const handlePageChange = (event, value) => {
@@ -176,7 +188,25 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
 
     const creator = counsellor?.creatorUserId || {};
     const userId = creator._id || counsellor?.id;
-    const name = creator.firstName ? `${creator.firstName} ${creator.lastName}` : (counsellor?.name || creator.email || "Unknown Counselor");
+    // Use full profile from getCreatorProfile API (same as Explore), fallback to member list data
+    const profileUser = creatorProfileFromApi?.user || creatorProfileFromApi;
+    const displayProfile = profileUser || creator;
+    const name = displayProfile.firstName
+        ? `${displayProfile.firstName} ${displayProfile.lastName}`.trim()
+        : (counsellor?.name || displayProfile.email || "Unknown Counselor");
+    const specializationList = (() => {
+        const spec = displayProfile.specialization;
+        if (Array.isArray(spec)) return spec;
+        if (typeof spec === "string") return spec.split(",").map((s) => s.trim()).filter(Boolean);
+        return spec ? [spec] : [];
+    })();
+
+    // Fetch full creator profile (same API as Explore counsellor detail)
+    useEffect(() => {
+        if (userId) {
+            dispatch(getCreatorProfile({ userId }));
+        }
+    }, [dispatch, userId]);
 
     // Check follow status on mount
     useEffect(() => {
@@ -219,11 +249,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
     useEffect(() => {
         const fetchVideos = async () => {
             if (activeTab === 0 && userId) {
-                // Only show main loader if we don't have videos already (Possibility 4)
-                if (videos.length === 0) {
-                    setIsLoading(true);
-                }
-
+                if (videos.length === 0) setIsLoading(true);
                 try {
                     const resultAction = await dispatch(getAuthorVideos({
                         userId,
@@ -241,32 +267,50 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                 }
             }
         };
-
         fetchVideos();
     }, [dispatch, userId, page, activeTab]);
 
-    // Dummy content data for other tabs
-    const contentData = {
-        1: [ // Articles
-            { id: 1, title: 'The Future of Remote Work in Tech', rating: 4, reviewCount: 5, views: '1.5k', thumbnail: '' },
-            { id: 2, title: 'Mastering the Art of Negotiation', rating: 5, reviewCount: 10, views: '900', thumbnail: '' },
-            { id: 3, title: 'Mental Health at Workplace', rating: 4, reviewCount: 7, views: '1.1k', thumbnail: '' },
-        ],
-        2: [ // Podcasts
-            { id: 1, title: 'Interview with a Senior Tech Architect', rating: 5, reviewCount: 25, views: '5.2k', thumbnail: '' },
-            { id: 2, title: 'Building a Strong Professional Network', rating: 4, reviewCount: 18, views: '2.8k', thumbnail: '' },
-        ]
-    };
+    // Fetch articles when tab is Articles (1)
+    useEffect(() => {
+        if (activeTab === 1 && userId) {
+            setArticlesLoading(true);
+            dispatch(getAuthorArticles({ userId, page, limit: 9 }))
+                .finally(() => setArticlesLoading(false));
+        }
+    }, [dispatch, userId, page, activeTab]);
 
+    // Fetch podcasts when tab is Podcasts (2)
+    useEffect(() => {
+        if (activeTab === 2 && userId) {
+            setPodcastsLoading(true);
+            dispatch(getAuthorPodcasts({ userId, page, limit: 9 }))
+                .finally(() => setPodcastsLoading(false));
+        }
+    }, [dispatch, userId, page, activeTab]);
+
+    const articles = authorArticles?.articles ?? [];
+    const podcasts = authorPodcasts?.podcasts ?? [];
+    const articlesTotalPages = authorArticles?.totalPages ?? 1;
+    const podcastsTotalPages = authorPodcasts?.totalPages ?? 1;
+
+    // Show all social icons always; link only when URL exists
     const socialLinks = [
-        { icon: FacebookIcon, link: creator.facebook },
-        { icon: InstagramIcon, link: creator.instagram },
-        { icon: TikTokIcon, link: creator.tiktok },
-        { icon: LinkedinIcon, link: creator.linkedin },
-        { icon: YoutubeIcon, link: creator.youtube },
-        { icon: TelegramIcon, link: creator.telegram },
-        { icon: TwitterIcon, link: creator.twitter },
-    ].filter(s => s.link || true);
+        { key: 'facebook', icon: FacebookIcon, link: displayProfile.facebook },
+        { key: 'instagram', icon: InstagramIcon, link: displayProfile.instagram },
+        { key: 'tiktok', icon: TikTokIcon, link: displayProfile.tiktok },
+        { key: 'linkedin', icon: LinkedinIcon, link: displayProfile.linkedin },
+        { key: 'youtube', icon: YoutubeIcon, link: displayProfile.youtube },
+        { key: 'telegram', icon: TelegramIcon, link: displayProfile.telegram },
+        { key: 'twitter', icon: TwitterIcon, link: displayProfile.twitter },
+    ];
+    const orgFromProfile = creatorProfileFromApi?.organization || profileUser?.organization;
+    // Same as Home link: public org page /org-esp/:slug or /org-hei/:slug (no 403; token sent for optionalAuth).
+    const orgType = orgFromProfile?.organizationType ?? orgFromProfile?.organizationId?.organizationType;
+    const slugOrId = orgFromProfile?.slug ?? orgFromProfile?.userId ?? orgFromProfile?._id
+        ?? orgFromProfile?.organizationId?.slug ?? orgFromProfile?.organizationId?.userId;
+    const companyPageUrl = orgFromProfile && slugOrId
+        ? (orgType === 'HEI' ? `/org-hei/${slugOrId}` : `/org-esp/${slugOrId}`)
+        : null;
 
     return (
         <Box sx={{ p: { xs: 2, md: 0 } }}>
@@ -330,14 +374,26 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                         }}
                     >
                         <Stack direction="row" spacing={2.2}>
-                            {socialLinks.map((social, idx) => (
-                                <Box
-                                    key={idx}
-                                    component="img"
-                                    src={social.icon}
-                                    sx={{ width: 25, height: 25, cursor: 'pointer' }}
-                                />
-                            ))}
+                            {socialLinks.map((social) => {
+                                const hasLink = !!social.link;
+                                const iconEl = (
+                                    <Box component="img" src={social.icon} alt={social.key} sx={{ width: 25, height: 25, display: 'block' }} />
+                                );
+                                return hasLink ? (
+                                    <Box
+                                        key={social.key}
+                                        component="a"
+                                        href={social.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}
+                                    >
+                                        {iconEl}
+                                    </Box>
+                                ) : (
+                                    <Box key={social.key} sx={{ opacity: 0.35 }}>{iconEl}</Box>
+                                );
+                            })}
                         </Stack>
                     </Box>
                 </Box>
@@ -348,7 +404,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                         <Grid item sx={{ mt: '-30px', textAlign: 'center', width: '120px' }}>
                             <Box sx={{ position: 'relative', display: 'inline-block' }}>
                                 <Avatar
-                                    src={creator.profilePicture}
+                                    src={displayProfile.profilePicture}
                                     sx={{
                                         width: 97,
                                         height: 97,
@@ -396,7 +452,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                         {name}
                                     </Typography>
                                     <Typography sx={{ fontFamily: fonts.sans, fontWeight: 400, fontSize: '14px', color: '#777' }}>
-                                        (Lorem Ipsum is simply dummy text)
+                                        {displayProfile.subtitle ? `(${displayProfile.subtitle})` : ''}
                                     </Typography>
                                 </Box>
                                 <Box
@@ -420,20 +476,26 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                         <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#000' }}>
                                             :
                                         </Typography>
-                                        {['Accounting', 'Software Engineering'].map(spec => (
-                                            <Chip
-                                                key={spec}
-                                                label={spec}
-                                                sx={{
-                                                    fontFamily: fonts.sans,
-                                                    fontSize: '16px',
-                                                    color: '#545454',
-                                                    backgroundColor: '#f2f2f2',
-                                                    borderRadius: '90px',
-                                                    height: '34px'
-                                                }}
-                                            />
-                                        ))}
+                                        {specializationList.length > 0
+                                            ? specializationList.map((spec) => (
+                                                <Chip
+                                                    key={spec}
+                                                    label={spec}
+                                                    sx={{
+                                                        fontFamily: fonts.sans,
+                                                        fontSize: '16px',
+                                                        color: '#545454',
+                                                        backgroundColor: '#f2f2f2',
+                                                        borderRadius: '90px',
+                                                        height: '34px'
+                                                    }}
+                                                />
+                                            ))
+                                            : (
+                                                <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#545454' }}>
+                                                    {displayProfile.specialization || '—'}
+                                                </Typography>
+                                            )}
                                     </Stack>
                                     <Stack direction="row" spacing={0.6} alignItems="center">
                                         <Typography sx={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: '16px', color: '#000' }}>
@@ -443,7 +505,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                             :
                                         </Typography>
                                         <Chip
-                                            label="4 years"
+                                            label={displayProfile.experience != null ? `${displayProfile.experience} years` : '—'}
                                             sx={{
                                                 fontFamily: fonts.sans,
                                                 fontSize: '16px',
@@ -456,24 +518,27 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                     </Stack>
                                 </Stack>
 
-                                <Button
-                                    variant="contained"
-                                    startIcon={<BusinessIcon sx={{ color: '#fff' }} />}
-                                    sx={{
-                                        borderRadius: '9px',
-                                        background: 'linear-gradient(162.56deg, #BF2F75 3.87%, #720361 63.8%)',
-                                        color: '#fff',
-                                        textTransform: 'none',
-                                        fontFamily: fonts.sans,
-                                        fontWeight: 600,
-                                        fontSize: '15px',
-                                        height: '39px',
-                                        px: '20px',
-                                        '&:hover': { opacity: 0.9 }
-                                    }}
-                                >
-                                    Company Page
-                                </Button>
+                                {companyPageUrl && (
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => navigate(companyPageUrl)}
+                                        startIcon={<BusinessIcon sx={{ color: '#fff' }} />}
+                                        sx={{
+                                            borderRadius: '9px',
+                                            background: 'linear-gradient(162.56deg, #BF2F75 3.87%, #720361 63.8%)',
+                                            color: '#fff',
+                                            textTransform: 'none',
+                                            fontFamily: fonts.sans,
+                                            fontWeight: 600,
+                                            fontSize: '15px',
+                                            height: '39px',
+                                            px: '20px',
+                                            '&:hover': { opacity: 0.9 }
+                                        }}
+                                    >
+                                        Company Page
+                                    </Button>
+                                )}
                             </Box>
 
                             {/* Contact Details Bar */}
@@ -481,28 +546,21 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
                                     <LocationOnIcon sx={{ color: '#BC2876', fontSize: '20px' }} />
                                     <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#000' }}>
-                                        {creator.country || 'India'}
+                                        {displayProfile.nationality || displayProfile.country || '—'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#D9D9D9' }} />
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
                                     <PhoneInTalkIcon sx={{ color: '#BC2876', fontSize: '20px' }} />
                                     <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#000' }}>
-                                        {creator.mobile || '+1 000 0000 000'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#D9D9D9' }} />
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-                                    <WhatsAppIcon sx={{ color: '#BC2876', fontSize: '20px' }} />
-                                    <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#000' }}>
-                                        {creator.whatsapp || '+1 000 0000 000'}
+                                        {displayProfile.mobile || '—'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#D9D9D9' }} />
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
                                     <MailOutlineIcon sx={{ color: '#BC2876', fontSize: '20px' }} />
                                     <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#000' }}>
-                                        {creator.email || 'ronaldjvaladez@dayrep.com'}
+                                        {displayProfile.email || '—'}
                                     </Typography>
                                 </Box>
                             </Stack>
@@ -514,7 +572,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                 </Typography>
                                 <Divider sx={{ mb: 1, borderColor: '#EAECF0' }} />
                                 <Typography sx={{ fontFamily: fonts.sans, fontSize: '16px', color: '#777', lineHeight: 1.5 }}>
-                                    {creator.introBio || "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."}
+                                    {displayProfile.introBio || '—'}
                                 </Typography>
                             </Box>
                         </Grid>
@@ -548,30 +606,107 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                 </Box>
 
                 <Box sx={{ py: 4 }}>
-                    {isLoading ? (
+                    {activeTab === 0 && isLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                            <CircularProgress sx={{ color: '#BC2876' }} />
+                        </Box>
+                    ) : activeTab === 1 && articlesLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                            <CircularProgress sx={{ color: '#BC2876' }} />
+                        </Box>
+                    ) : activeTab === 2 && podcastsLoading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
                             <CircularProgress sx={{ color: '#BC2876' }} />
                         </Box>
                     ) : (
                         <>
                             <Grid container spacing={3}>
-                                {activeTab === 0 ? (
+                                {activeTab === 0 &&
                                     videos.map((item) => (
                                         <Grid item key={item._id} xs={12} sm={6} md={4}>
                                             <ContentCard item={item} name={name} />
                                         </Grid>
-                                    ))
-                                ) : (
-                                    (contentData[activeTab] || []).map((item) => (
-                                        <Grid item key={item.id} xs={12} sm={6} md={4}>
-                                            <ContentCard item={item} name={name} />
+                                    ))}
+                                {activeTab === 1 &&
+                                    articles.map((item) => (
+                                        <Grid
+                                            item
+                                            key={item._id}
+                                            xs={12}
+                                            sm={6}
+                                            md={4}
+                                            sx={{
+                                                '@media (min-width: 1780px)': {
+                                                    flexBasis: '25%',
+                                                    maxWidth: '25%',
+                                                },
+                                            }}
+                                        >
+                                            <Paper
+                                                elevation={0}
+                                                onClick={() => (window.location.href = `/article/${item._id}`)}
+                                                sx={{
+                                                    borderRadius: '12px',
+                                                    overflow: 'hidden',
+                                                    backgroundColor: '#fff',
+                                                    boxShadow: '0px 4px 12px rgba(0,0,0,0.05)',
+                                                    border: '1px solid #EAECF0',
+                                                    cursor: 'pointer',
+                                                    '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' }
+                                                }}
+                                            >
+                                                {item.coverImage && (
+                                                    <Box sx={{ width: '100%', height: 160, backgroundImage: `url(${item.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center', bgcolor: '#F2F4F7' }} />
+                                                )}
+                                                <Box sx={{ p: 2 }}>
+                                                    <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#101828', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                                        {item.title}
+                                                    </Typography>
+                                                </Box>
+                                            </Paper>
                                         </Grid>
-                                    ))
-                                )}
+                                    ))}
+                                {activeTab === 2 &&
+                                    podcasts.map((item) => (
+                                        <Grid
+                                            item
+                                            key={item._id}
+                                            xs={12}
+                                            sm={6}
+                                            md={4}
+                                            sx={{
+                                                '@media (min-width: 1780px)': {
+                                                    flexBasis: '25%',
+                                                    maxWidth: '25%',
+                                                },
+                                            }}
+                                        >
+                                            <Paper
+                                                elevation={0}
+                                                onClick={() => (window.location.href = `/podcast/${item._id}`)}
+                                                sx={{
+                                                    borderRadius: '12px',
+                                                    overflow: 'hidden',
+                                                    backgroundColor: '#fff',
+                                                    boxShadow: '0px 4px 12px rgba(0,0,0,0.05)',
+                                                    border: '1px solid #EAECF0',
+                                                    cursor: 'pointer',
+                                                    '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' }
+                                                }}
+                                            >
+                                                <Box sx={{ width: '100%', height: 160, backgroundImage: item.thumbnail ? `url(${item.thumbnail})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', bgcolor: '#F2F4F7' }} />
+                                                <Box sx={{ p: 2 }}>
+                                                    <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#101828', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                                        {item.title}
+                                                    </Typography>
+                                                </Box>
+                                            </Paper>
+                                        </Grid>
+                                    ))}
                             </Grid>
 
                             {/* No Content Message */}
-                            {((activeTab === 0 && videos.length === 0) || (activeTab !== 0 && contentData[activeTab]?.length === 0)) && (
+                            {((activeTab === 0 && videos.length === 0) || (activeTab === 1 && articles.length === 0) || (activeTab === 2 && podcasts.length === 0)) && (
                                 <Box sx={{ py: 6, textAlign: 'center' }}>
                                     <Typography sx={{ color: '#787876', fontFamily: fonts.sans, fontSize: '18px' }}>
                                         No content available in this category
@@ -579,7 +714,7 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                 </Box>
                             )}
 
-                            {/* Pagination - Matching Figma Image */}
+                            {/* Pagination - Videos */}
                             {activeTab === 0 && totalPages > 1 && (
                                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
                                     <Pagination
@@ -604,6 +739,58 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                                         color: '#000',
                                                         '&.Mui-disabled': { color: '#ccc' }
                                                     },
+                                                    border: 'none',
+                                                    mx: 0.5
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </Box>
+                            )}
+                            {/* Pagination - Articles */}
+                            {activeTab === 1 && articlesTotalPages > 1 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+                                    <Pagination
+                                        count={articlesTotalPages}
+                                        page={page}
+                                        onChange={handlePageChange}
+                                        renderItem={(item) => (
+                                            <PaginationItem
+                                                slots={{ previous: ChevronLeftIcon, next: ChevronRightIcon }}
+                                                {...item}
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontSize: '16px',
+                                                    fontWeight: 500,
+                                                    color: '#000',
+                                                    '&.Mui-selected': { backgroundColor: '#EAEAEA', color: '#000' },
+                                                    '&.MuiPaginationItem-previousNext': { color: '#000' },
+                                                    border: 'none',
+                                                    mx: 0.5
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </Box>
+                            )}
+                            {/* Pagination - Podcasts */}
+                            {activeTab === 2 && podcastsTotalPages > 1 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+                                    <Pagination
+                                        count={podcastsTotalPages}
+                                        page={page}
+                                        onChange={handlePageChange}
+                                        renderItem={(item) => (
+                                            <PaginationItem
+                                                slots={{ previous: ChevronLeftIcon, next: ChevronRightIcon }}
+                                                {...item}
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontSize: '16px',
+                                                    fontWeight: 500,
+                                                    color: '#000',
+                                                    '&.Mui-selected': { backgroundColor: '#EAEAEA', color: '#000' },
+                                                    '&.MuiPaginationItem-previousNext': { color: '#000' },
                                                     border: 'none',
                                                     mx: 0.5
                                                 }}

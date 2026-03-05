@@ -176,6 +176,9 @@ import domainImage from "./domainWheel.svg";
 import defaultHeroBG from "./organization/defaultHeroBG.svg";
 import organizationLogo from "./organization/logo.svg";
 import uploadDocument from "./uploadDocument.svg";
+import upload2 from "./upload2.svg";
+import link2 from "./link2.svg";
+import addLocationIcon from "./AddLocation.svg";
 import logoPlaceholder from "./logo-placeholder.svg";
 import bannerPlaceholder from "./banner-placeholder.svg";
 
@@ -368,6 +371,9 @@ export {
   defaultHeroBG,
   organizationLogo,
   uploadDocument,
+  upload2,
+  link2,
+  addLocationIcon,
   logoPlaceholder,
   bannerPlaceholder,
   announce1,

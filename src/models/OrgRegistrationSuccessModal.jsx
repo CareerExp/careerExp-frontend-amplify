@@ -36,7 +36,17 @@ const OrgRegistrationSuccessModal = ({ open, onClose }) => {
         },
       }}
     >
-      <Box sx={{ position: "relative", p: 3, pt: 4, pb: 3, alignItems: "center", display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          position: "relative",
+          p: 3,
+          pt: 4,
+          pb: 3,
+          alignItems: "center",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* Close (X) - top right, grey circle */}
         <IconButton
           onClick={handleDismiss}
@@ -62,7 +72,8 @@ const OrgRegistrationSuccessModal = ({ open, onClose }) => {
             height: 56,
             borderRadius: "50%",
             // bgcolor: "#5B21B6",
-            background: "linear-gradient(162.56deg, #BF2F75 11.43%, #720361 61.54%)",
+            background:
+              "linear-gradient(162.56deg, #BF2F75 11.43%, #720361 61.54%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -100,7 +111,9 @@ const OrgRegistrationSuccessModal = ({ open, onClose }) => {
             px: "1rem",
           }}
         >
-          Your corporate details and verification information have been successfully submitted. Our team will verify your information and you'll receive a confirmation email within 24-48 hours.
+          Your corporate details and verification information have been
+          successfully submitted. Our team will verify your information and
+          you'll receive a confirmation email within 24-48 hours.
         </Typography>
 
         {/* CTA Button */}
@@ -116,12 +129,13 @@ const OrgRegistrationSuccessModal = ({ open, onClose }) => {
             fontSize: "1rem",
             py: 1.5,
             borderRadius: "25px",
-             background: "linear-gradient(162.56deg, #BF2F75 11.43%, #720361 61.54%)",
+            background:
+              "linear-gradient(162.56deg, #BF2F75 11.43%, #720361 61.54%)",
             textTransform: "none",
             "&:hover": { bgcolor: "#4C1D99" },
           }}
         >
-          Go to Homepage
+          Go to Login
         </Button>
       </Box>
     </Dialog>
