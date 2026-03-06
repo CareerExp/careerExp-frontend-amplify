@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "../../models/DeleteModal.jsx";
 import AddArticleModal from "../../models/AddArticleModal.jsx";
+import SharingVideoModal from "../../models/SharingVideoModal.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
 import {
   selectAuthenticated,
@@ -71,6 +72,7 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
   const [userRating, setUserRating] = useState(0);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const viewCountRef = useRef(false);
 
@@ -136,14 +138,66 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
     }
   }, [authenticated, articleId, userId, token, dispatch]);
 
-  const handleShare = () => {
+  // Set document title and Open Graph / Twitter meta for link preview when sharing (e.g. WhatsApp)
+  useEffect(() => {
+    if (!article) return;
+    const prevTitle = document.title;
+    document.title = `${article.title || "Article"} | Career Explorer`;
     const url = window.location.origin + `/article/${articleId}`;
-    if (navigator.share) {
-      navigator.share({ title: article?.title, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    const description = (article.content || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200);
+    // Absolute image URL required for WhatsApp/social preview thumbnails
+    const rawImage = article.coverImage || "";
+    const imageUrl =
+      !rawImage
+        ? ""
+        : rawImage.startsWith("http://") || rawImage.startsWith("https://")
+          ? rawImage
+          : rawImage.startsWith("/")
+            ? window.location.origin + rawImage
+            : window.location.origin + "/" + rawImage;
+    const setMeta = (property, content) => {
+      let el = document.querySelector(`meta[property="${property}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content || "");
+    };
+    const setMetaName = (name, content) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content || "");
+    };
+    setMeta("og:title", article.title || "Article");
+    setMeta("og:description", description);
+    setMeta("og:image", imageUrl);
+    setMeta("og:image:width", "1200");
+    setMeta("og:image:height", "630");
+    setMeta("og:url", url);
+    setMeta("og:type", "website");
+    setMetaName("twitter:card", "summary_large_image");
+    setMetaName("twitter:title", article.title || "Article");
+    setMetaName("twitter:description", description);
+    setMetaName("twitter:image", imageUrl);
+    return () => {
+      document.title = prevTitle;
+    };
+  }, [article, articleId]);
+
+  const handleShare = () => {
+    setShareModalOpen(true);
+  };
+
+  const handleShareAction = () => {
     if (article?._id) {
       dispatch(
         increaseArticleSharesCount({
@@ -479,6 +533,28 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
           "& p": { mb: 1.5 },
           "& ul, & ol": { pl: 2.5, mb: 1.5 },
           "& a": { color: "#720361", textDecoration: "underline" },
+          // Quill alignment classes from Add Article editor – preserve left/center/right/justify
+          "& .ql-align-left": { textAlign: "left" },
+          "& .ql-align-center": { textAlign: "center" },
+          "& .ql-align-right": { textAlign: "right" },
+          "& .ql-align-justify": { textAlign: "justify" },
+          // Right-aligned lists: put bullet on the right so it doesn’t stay on the left edge
+          "& .ql-align-right ul, & .ql-align-right ol": {
+            direction: "rtl",
+            paddingRight: "1.5em",
+            paddingLeft: 0,
+            listStylePosition: "outside",
+          },
+          "& .ql-align-right li": {
+            direction: "ltr",
+            textAlign: "right",
+          },
+          // Center-aligned lists: bullet and text together in the center
+          "& .ql-align-center ul, & .ql-align-center ol": {
+            listStylePosition: "inside",
+            paddingLeft: 0,
+            textAlign: "center",
+          },
         }}
         dangerouslySetInnerHTML={{ __html: article.content || "" }}
       />
@@ -632,6 +708,15 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
           onSuccess={handleEditSuccess}
           articleId={articleId}
         />
+        <SharingVideoModal
+          open={shareModalOpen}
+          handleClose={() => setShareModalOpen(false)}
+          videoUrl={window.location.origin + `/article/${articleId}`}
+          videoId={articleId}
+          shareTitle={article?.title}
+          modalTitle="Share Article"
+          onShare={handleShareAction}
+        />
       </Box>
     );
   }
@@ -653,6 +738,15 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
       }}
     >
       {content}
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={window.location.origin + `/article/${articleId}`}
+        videoId={articleId}
+        shareTitle={article?.title}
+        modalTitle="Share Article"
+        onShare={handleShareAction}
+      />
     </Box>
   );
 };

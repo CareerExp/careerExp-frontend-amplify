@@ -33,6 +33,25 @@ import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 const ACCENT = "#DD4595";
 const ACCENT_DARK = "#720361";
 
+/** Service mode display label (Offline → In person). */
+function serviceModeLabel(mode) {
+  if (!mode) return "Online";
+  const m = String(mode).toUpperCase();
+  if (m === "ONLINE") return "Online";
+  if (m === "OFFLINE" || m === "IN_PERSON") return "In person";
+  if (m === "HYBRID") return "Hybrid";
+  return mode;
+}
+
+/** Service mode badge styles (Online=green, In person=pink, Hybrid=orange). */
+function serviceModeTagStyle(mode) {
+  const m = String(mode || "").toUpperCase();
+  if (m === "ONLINE") return { bg: "#E8F5E9", textColor: "#2E7D32" };
+  if (m === "OFFLINE" || m === "IN_PERSON") return { bg: "#FFE8F3", textColor: "#DD4595" };
+  if (m === "HYBRID") return { bg: "#FFF3E0", textColor: "#E65100" };
+  return { bg: "#f5f5f5", textColor: "#717171" };
+}
+
 /** Organization home URL from details (slug + organizationType). */
 function getOrgHomeUrl(org) {
   if (!org?.slug || !org?.organizationType) return null;
@@ -59,7 +78,9 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const durationStr = service?.duration
     ? `${service.duration.value || ""} ${(service.duration.unit || "min").toLowerCase()}`.trim()
     : "";
-  const serviceMode = (service?.serviceMode || "Online").toString();
+  const serviceModeRaw = (service?.serviceMode || "Online").toString();
+  const serviceModeLabelText = serviceModeLabel(serviceModeRaw);
+  const serviceModeStyle = serviceModeTagStyle(serviceModeRaw);
   const priceLabel =
     service?.priceType === "FREE"
       ? "Free"
@@ -297,15 +318,14 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                     display: "inline-flex",
                     padding: "6px 12px",
                     borderRadius: "999px",
-                    backgroundColor: "#FFF3E0",
-                    color: "#E65100",
+                    backgroundColor: serviceModeStyle.bg,
+                    color: serviceModeStyle.textColor,
                     fontFamily: fonts.sans,
                     fontSize: "0.8125rem",
                     fontWeight: 600,
-                    textTransform: "capitalize",
                   }}
                 >
-                  {serviceMode}
+                  {serviceModeLabelText}
                 </span>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
@@ -546,7 +566,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   Service Mode:
                 </Typography>
                 <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#000000", fontWeight: 600 }}>
-                  {serviceMode}
+                  {serviceModeLabelText}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

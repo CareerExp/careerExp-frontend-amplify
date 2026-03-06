@@ -403,6 +403,7 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
                   color: "text.secondary",
                   width: "100%",
                   margin: "auto",
+                  whiteSpace: "pre-wrap",
                 }}
               >
                 {videoData?.description}

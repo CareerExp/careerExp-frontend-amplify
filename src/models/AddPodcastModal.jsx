@@ -342,15 +342,18 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
       open={open}
       onClose={onClose}
       fullScreen={isMobile}
-      maxWidth="md"
-      fullWidth
-      sx={{
-        backdropFilter: "blur(8px)",
-        backgroundColor: "rgba(0, 0, 0, 0.3)",
-        "& .MuiDialog-paper": {
+      maxWidth={false}
+      PaperProps={{
+        sx: {
+          width: "100%",
+          maxWidth: 695,
           borderRadius: isMobile ? 0 : "12px",
           maxHeight: "95vh",
         },
+      }}
+      sx={{
+        backdropFilter: "blur(8px)",
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
       }}
     >
       <Box sx={{ p: { xs: 1.5, sm: 2 }, overflowY: "auto" }}>
@@ -390,7 +393,7 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
           }}
         >
           <Typography
-            sx={{ fontFamily: fonts.sans, fontSize: "0.8rem", fontWeight: 500 }}
+            sx={{ fontFamily: fonts.sans, fontSize: "15px", fontWeight: 500 }}
           >
             Please adhere to the following rules:
           </Typography>
@@ -398,7 +401,7 @@ const AddPodcastModal = ({ open, onClose, onSuccess, podcastId = null }) => {
             style={{
               paddingLeft: "1.25rem",
               margin: "0.5rem 0 0",
-              fontSize: "0.8rem",
+              fontSize: "15px",
               fontFamily: fonts.sans,
             }}
           >

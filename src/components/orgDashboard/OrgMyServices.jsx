@@ -38,9 +38,33 @@ import {
 import { selectToken } from "../../redux/slices/authSlice";
 import { notify } from "../../redux/slices/alertSlice";
 
+// Service mode badge styles (Offline → "In person"). Same as Explore ServiceCard.
+const SERVICE_MODE_STYLES = {
+  hybrid: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
+  HYBRID: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
+  offline: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  OFFLINE: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  "in person": { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  in_person: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  IN_PERSON: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  online: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
+  ONLINE: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
+};
+
 const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  const rawMode = (service?.serviceMode || "Online")
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+  const modeStyle = SERVICE_MODE_STYLES[rawMode] ??
+    SERVICE_MODE_STYLES[service?.serviceMode] ?? {
+      bg: "#f5f5f5",
+      textColor: "#717171",
+      label: "Online",
+    };
 
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
@@ -153,6 +177,30 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
           }}
         >
           <Box>
+            <Box
+              sx={{
+                backgroundColor: modeStyle.bg,
+                color: modeStyle.textColor,
+                borderRadius: "10px",
+                px: "11px",
+                py: "5px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 1,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 600,
+                  fontSize: "12px",
+                  color: modeStyle.textColor,
+                }}
+              >
+                {modeStyle.label}
+              </Typography>
+            </Box>
             <Typography
               sx={{
                 fontFamily: fonts.sans,
@@ -171,8 +219,7 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
                 color: "#9E9E9E",
               }}
             >
-              Ref no –{" "}
-              {service.referenceNumber?.trim() || "—"}
+              Ref no – {service.referenceNumber?.trim() || "—"}
             </Typography>
           </Box>
           <IconButton size="small" onClick={handleClick}>
@@ -238,30 +285,41 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 2,
+            flexWrap: "wrap",
+            gap: 1,
           }}
         >
           <Box
             sx={{
-              backgroundColor: statusStyles.bg,
-              borderRadius: "10px",
-              px: "11px",
-              py: "5px",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              gap: 1,
+              flexWrap: "wrap",
             }}
           >
-            <Typography
+            <Box
               sx={{
-                fontFamily: fonts.sans,
-                fontWeight: 500,
-                fontSize: "15px",
-                color: statusStyles.color,
-                textTransform: "capitalize",
+                backgroundColor: statusStyles.bg,
+                borderRadius: "10px",
+                px: "11px",
+                py: "5px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {service.status?.toLowerCase()}
-            </Typography>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 500,
+                  fontSize: "15px",
+                  color: statusStyles.color,
+                  textTransform: "capitalize",
+                }}
+              >
+                {service.status?.toLowerCase()}
+              </Typography>
+            </Box>
           </Box>
 
           <Box
@@ -700,7 +758,11 @@ const OrgMyServices = () => {
                   <IconButton
                     size="small"
                     onClick={() => setSearchQuery("")}
-                    sx={{ mr: 0.5, color: "rgba(0,0,0,0.4)", "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" } }}
+                    sx={{
+                      mr: 0.5,
+                      color: "rgba(0,0,0,0.4)",
+                      "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                    }}
                     aria-label="Clear search"
                   >
                     <CloseIcon fontSize="small" />
