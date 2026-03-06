@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DeleteModal from "../../models/DeleteModal.jsx";
 import EditVideoModal from "../../models/EditVideoModal.jsx";
+import SharingVideoModal from "../../models/SharingVideoModal.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
 import {
   selectAuthenticated,
@@ -43,6 +44,7 @@ const VideoDetailContent = ({ videoId, onBack, onDeleteSuccess, embedded = true 
   const authenticated = useSelector(selectAuthenticated);
 
   const [video, setVideo] = useState(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [totalViews, setTotalViews] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -99,13 +101,7 @@ const VideoDetailContent = ({ videoId, onBack, onDeleteSuccess, embedded = true 
   }, [authenticated, videoId, userId, token, dispatch]);
 
   const handleShare = () => {
-    const url = window.location.origin + `/video/${videoId}`;
-    if (navigator.share) {
-      navigator.share({ title: video?.title, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    setShareModalOpen(true);
   };
 
   const handleLike = async () => {
@@ -498,6 +494,14 @@ const VideoDetailContent = ({ videoId, onBack, onDeleteSuccess, embedded = true 
           isButtonLoading={isUpdating}
         />
       )}
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={window.location.origin + `/video/${videoId}`}
+        videoId={videoId}
+        shareTitle={video?.title}
+        modalTitle="Share Video"
+      />
     </Box>
   );
 };

@@ -35,6 +35,7 @@ import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/
 import { getCourseLikeStatus, toggleCourseLike } from "../redux/slices/likeSlice.js";
 import { getCourseRatingStatus, rateCourse } from "../redux/slices/ratingSlice.js";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
@@ -70,6 +71,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const [userRating, setUserRating] = useState(0);
   const [totalViews, setTotalViews] = useState(null);
   const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -250,48 +252,8 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const contactEmail = organizationDetails?.contactEmail || course?.createdBy?.email;
   const messageProviderUrl = contactEmail ? `mailto:${contactEmail}` : null;
 
-  const handleShare = async () => {
-    const url = window.location.origin + (courseId ? `/explore/course/${courseId}` : "");
-    const text = (course.description || "")
-      .replace(/<[^>]*>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 150);
-    const shareText = text ? `${course.title}\n\n${text}...\n\n${url}` : `${course.title}\n\n${url}`;
-
-    if (navigator.share) {
-      const shareData = {
-        title: course.title,
-        text: shareText,
-        url,
-      };
-      try {
-        if (course.coverImage && navigator.canShare) {
-          try {
-            const res = await fetch(course.coverImage, { mode: "cors" });
-            const blob = await res.blob();
-            const file = new File([blob], "course-image.jpg", { type: blob.type || "image/jpeg" });
-            if (navigator.canShare({ ...shareData, files: [file] })) {
-              await navigator.share({ ...shareData, files: [file] });
-              dispatch(notify({ type: "success", message: "Shared with preview" }));
-              return;
-            }
-          } catch (e) {
-            // Fall through to share without file
-          }
-        }
-        await navigator.share(shareData);
-        dispatch(notify({ type: "success", message: "Link shared" }));
-      } catch (e) {
-        if (e?.name !== "AbortError") {
-          navigator.clipboard?.writeText(url);
-          dispatch(notify({ type: "success", message: "Link copied to clipboard" }));
-        }
-      }
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+  const handleShare = () => {
+    setShareModalOpen(true);
   };
 
   return (
@@ -710,6 +672,14 @@ const CourseDetailContent = ({ courseId, onBack }) => {
           />
         </DialogContent>
       </Dialog>
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={window.location.origin + (courseId ? `/explore/course/${courseId}` : "")}
+        videoId={courseId}
+        shareTitle={course?.title}
+        modalTitle="Share Course"
+      />
           </Box>
         </Grid>
       </Grid>

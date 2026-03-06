@@ -837,8 +837,10 @@ const ExploreVideoPlay = () => {
       <SharingVideoModal
         open={openSharingModal}
         handleClose={handleSharingCloseModal}
-        videoUrl={`${config?.frontendDomain}/video/${videoId}`} // Replace with your actual video URL
+        videoUrl={`${config?.frontendDomain}/video/${videoId}`}
         videoId={videoId}
+        shareTitle={videoData?.title}
+        modalTitle="Share Video"
       />
     </Box>
   );

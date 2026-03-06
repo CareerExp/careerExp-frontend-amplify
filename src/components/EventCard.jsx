@@ -9,6 +9,7 @@ import { eventsPlaceholder } from "../assets/assest.js";
 import { registerEventCta } from "../redux/slices/eventSlice.js";
 import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 // Figma: In person = light pink bg #FFE8F3, text #DD4595; Hybrid/Online = light bg + accent text
 const EVENT_TYPE_STYLES = {
@@ -28,6 +29,7 @@ const EventCard = ({ event: ev }) => {
   const token = useSelector(selectToken);
   const isAuthenticated = useSelector(selectAuthenticated);
   const [bookmarked, setBookmarked] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -91,15 +93,13 @@ const EventCard = ({ event: ev }) => {
 
   const handleShare = (e) => {
     e.stopPropagation();
-    const url = window.location.origin + (id ? `/explore/event/${id}` : window.location.pathname);
-    if (navigator.share) {
-      navigator.share({ title, text: description, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-    }
+    setShareModalOpen(true);
   };
 
+  const shareUrl = window.location.origin + (id ? `/explore/event/${id}` : window.location.pathname);
+
   return (
+    <>
     <div
       role="button"
       tabIndex={0}
@@ -319,6 +319,15 @@ const EventCard = ({ event: ev }) => {
         </div>
       </div>
     </div>
+    <SharingVideoModal
+      open={shareModalOpen}
+      handleClose={() => setShareModalOpen(false)}
+      videoUrl={shareUrl}
+      videoId={id}
+      shareTitle={title}
+      modalTitle="Share Event"
+    />
+    </>
   );
 };
 

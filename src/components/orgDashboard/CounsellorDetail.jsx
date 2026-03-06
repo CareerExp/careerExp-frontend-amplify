@@ -808,7 +808,10 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                 open={isShareModalOpen}
                 handleClose={() => setIsShareModalOpen(false)}
                 videoUrl={`${config?.frontendDomain}/profile/${userId}`}
+                videoId={userId}
                 isProfile={true}
+                shareTitle={name}
+                modalTitle="Share Profile"
             />
         </Box>
     );

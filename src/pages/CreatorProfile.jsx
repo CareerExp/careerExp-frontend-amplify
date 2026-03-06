@@ -547,7 +547,10 @@ const Profile = () => {
         open={isModalOpen}
         handleClose={handleModalClose}
         videoUrl={`${config?.frontendDomain}/profile/${creatorProfile?._id}`}
+        videoId={creatorProfile?._id}
         isProfile={true}
+        shareTitle={creatorProfile ? `${creatorProfile.firstName || ""} ${creatorProfile.lastName || ""}`.trim() || "Profile" : "Profile"}
+        modalTitle="Share Profile"
       />
     </div>
   );

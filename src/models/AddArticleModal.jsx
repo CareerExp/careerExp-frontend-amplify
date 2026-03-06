@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
+import Quill from "quill";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "../redux/slices/alertSlice.js";
 import { selectToken, selectUserId } from "../redux/slices/authSlice.js";
@@ -27,12 +28,19 @@ import {
   uploadArticleCover,
 } from "../redux/slices/creatorSlice.js";
 import { articleCategories } from "../utility/category.js";
+import { extractContentFromFile } from "../utility/articleContentFromFile.js";
 import { colors } from "../utility/color.js";
 import { fonts } from "../utility/fonts.js";
+
+// Register font size so toolbar can use it (run once)
+const SizeStyle = Quill.import("attributors/style/size");
+SizeStyle.whitelist = ["10px", "12px", "14px", "16px", "18px", "20px", "24px"];
+Quill.register(SizeStyle, true);
 
 const quillModules = {
   toolbar: [
     ["bold", "italic", "underline"],
+    [{ size: ["10px", "12px", "14px", "16px", "18px", "20px", "24px"] }],
     [{ align: [] }],
     [{ list: "ordered" }, { list: "bullet" }],
   ],
@@ -56,6 +64,8 @@ const AddArticleModal = ({ open, onClose, onSuccess, articleId = null }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [isExtractingFile, setIsExtractingFile] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   const resetForm = () => {
     setTitle("");
@@ -101,6 +111,36 @@ const AddArticleModal = ({ open, onClose, onSuccess, articleId = null }) => {
     }
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const handleImportDocOrPdf = async (e) => {
+    const file = e?.target?.files?.[0];
+    if (!file) return;
+    const name = (file.name || "").toLowerCase();
+    const allowed =
+      name.endsWith(".pdf") ||
+      name.endsWith(".docx") ||
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    if (!allowed) {
+      dispatch(notify({ type: "error", message: "Please choose a PDF or Word (.docx) file." }));
+      return;
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setIsExtractingFile(true);
+    try {
+      const { content } = await extractContentFromFile(file);
+      setContent(content);
+      dispatch(notify({ type: "success", message: "Content imported. You can edit it below." }));
+    } catch (err) {
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.message || "Could not read file. Try a different PDF or Word file.",
+        }),
+      );
+    } finally {
+      setIsExtractingFile(false);
+    }
   };
 
   const uploadCoverThenSubmit = async (payload) => {
@@ -403,24 +443,69 @@ const AddArticleModal = ({ open, onClose, onSuccess, articleId = null }) => {
               />
             </Box>
 
-            {/* Article Content — Rich text */}
+            {/* Article Content — Rich text + Import from PDF/Word */}
             <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 1 }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    fontSize: "0.9375rem",
+                    color: colors.darkGray,
+                  }}
+                >
+                  Article Content
+                </Typography>
+                <Button
+                  component="label"
+                  variant="outlined"
+                  size="small"
+                  disabled={isExtractingFile}
+                  startIcon={isExtractingFile ? <CircularProgress size={16} color="inherit" /> : <CloudUploadIcon />}
+                  sx={{
+                    fontFamily: fonts.sans,
+                    textTransform: "none",
+                    borderColor: "#BC2876",
+                    color: "#BC2876",
+                    "&:hover": { borderColor: "#720361", backgroundColor: "rgba(114, 3, 97, 0.04)" },
+                  }}
+                >
+                  {isExtractingFile ? "Importing…" : "Import from PDF or Word"}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={handleImportDocOrPdf}
+                    style={{ display: "none" }}
+                    aria-hidden
+                  />
+                </Button>
+              </Box>
               <Typography
+                component="p"
                 sx={{
                   fontFamily: fonts.sans,
-                  fontWeight: 600,
-                  fontSize: "0.9375rem",
-                  color: colors.darkGray,
+                  fontSize: "0.75rem",
+                  color: "text.secondary",
+                  mt: 0.5,
                   mb: 1,
                 }}
               >
-                Article Content
+                Ensure your PDF or Word file is readable (text-based). Images and complex formatting will not be imported.
               </Typography>
               <Box
                 sx={{
                   "& .quill": { backgroundColor: "#fff", borderRadius: "8px" },
                   "& .ql-toolbar": { borderColor: "#e0e0e0", borderRadius: "8px 8px 0 0" },
                   "& .ql-container": { borderColor: "#e0e0e0", borderRadius: "0 0 8px 8px", minHeight: 220 },
+                  // Font size dropdown: show actual size labels instead of "Normal"
+                  ...["10px", "12px", "14px", "16px", "18px", "20px", "24px"].reduce((acc, size) => {
+                    acc[`& .ql-snow .ql-picker.ql-size .ql-picker-label[data-value="${size}"]::before, & .ql-snow .ql-picker.ql-size .ql-picker-item[data-value="${size}"]::before`] = {
+                      content: `"${size}"`,
+                      fontSize: `${size} !important`,
+                    };
+                    return acc;
+                  }, {}),
                 }}
               >
                 <ReactQuill

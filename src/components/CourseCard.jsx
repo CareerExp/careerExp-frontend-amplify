@@ -8,6 +8,7 @@ import { Box, Typography } from "@mui/material";
 import { fonts } from "../utility/fonts.js";
 import { servicesPlaceholder } from "../assets/assest.js";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const ACCENT = "#BC2876";
 
@@ -26,6 +27,7 @@ const DELIVERY_MODE_STYLES = {
 const CourseCard = ({ course }) => {
   const navigate = useNavigate();
   const [bookmarked, setBookmarked] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const stripHtml = (html) => {
     if (!html || typeof html !== "string") return "";
@@ -75,15 +77,13 @@ const CourseCard = ({ course }) => {
 
   const handleShare = (e) => {
     e.stopPropagation();
-    const url = window.location.origin + (id ? `/explore/course/${id}` : window.location.pathname);
-    if (navigator.share) {
-      navigator.share({ title, text: description, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-    }
+    setShareModalOpen(true);
   };
 
+  const shareUrl = window.location.origin + (id ? `/explore/course/${id}` : window.location.pathname);
+
   return (
+    <>
     <Box
       role="button"
       tabIndex={0}
@@ -385,6 +385,15 @@ const CourseCard = ({ course }) => {
         </Box>
       </Box>
     </Box>
+    <SharingVideoModal
+      open={shareModalOpen}
+      handleClose={() => setShareModalOpen(false)}
+      videoUrl={shareUrl}
+      videoId={id}
+      shareTitle={title}
+      modalTitle="Share Course"
+    />
+    </>
   );
 };
 

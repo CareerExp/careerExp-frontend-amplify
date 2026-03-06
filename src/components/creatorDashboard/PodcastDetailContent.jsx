@@ -37,6 +37,7 @@ import {
   ratePodcast,
   togglePodcastLike,
 } from "../../redux/slices/creatorSlice.js";
+import SharingVideoModal from "../../models/SharingVideoModal.jsx";
 import { colors } from "../../utility/color.js";
 import { formatArticleDetailDate } from "../../utility/convertTimeToUTC.js";
 import { fonts } from "../../utility/fonts.js";
@@ -77,6 +78,7 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
   const [creator, setCreator] = useState(null);
   const [spotifyEmbedUrl, setSpotifyEmbedUrl] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [totalViews, setTotalViews] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
@@ -144,13 +146,10 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
   }, [authenticated, podcastId, podcast?._id, userId, token, dispatch]);
 
   const handleShare = () => {
-    const url = window.location.origin + `/podcast/${podcastId}`;
-    if (navigator.share) {
-      navigator.share({ title: podcast?.title, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    setShareModalOpen(true);
+  };
+
+  const handleShareAction = () => {
     if (podcast?._id) {
       dispatch(
         increasePodcastSharesCount({
@@ -652,8 +651,23 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
     </>
   );
 
+  const shareUrl = window.location.origin + `/podcast/${podcastId}`;
+
   if (embedded) {
-    return <Box sx={{ width: "100%" }}>{content}</Box>;
+    return (
+      <Box sx={{ width: "100%" }}>
+        {content}
+        <SharingVideoModal
+          open={shareModalOpen}
+          handleClose={() => setShareModalOpen(false)}
+          videoUrl={shareUrl}
+          videoId={podcastId}
+          shareTitle={podcast?.title}
+          modalTitle="Share Podcast"
+          onShare={handleShareAction}
+        />
+      </Box>
+    );
   }
 
   return (
@@ -673,6 +687,15 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
       }}
     >
       {content}
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={shareUrl}
+        videoId={podcastId}
+        shareTitle={podcast?.title}
+        modalTitle="Share Podcast"
+        onShare={handleShareAction}
+      />
     </Box>
   );
 };
