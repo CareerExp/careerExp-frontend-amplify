@@ -10,6 +10,7 @@ import { servicesPlaceholder } from "../assets/assest.js";
 import { registerServiceCta } from "../redux/slices/serviceSlice.js";
 import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
@@ -33,6 +34,7 @@ const ServiceCard = ({ service }) => {
   const token = useSelector(selectToken);
   const isAuthenticated = useSelector(selectAuthenticated);
   const [bookmarked, setBookmarked] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const stripHtml = (html) => {
     if (!html || typeof html !== "string") return "";
@@ -109,14 +111,10 @@ const ServiceCard = ({ service }) => {
 
   const handleShare = (e) => {
     e.stopPropagation();
-    const url = window.location.origin + (id ? `/explore/service/${id}` : window.location.pathname);
-    if (navigator.share) {
-      navigator.share({ title, text: description, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    setShareModalOpen(true);
   };
+
+  const shareUrl = window.location.origin + (id ? `/explore/service/${id}` : window.location.pathname);
 
   const providerInitials = providerName !== "—"
     ? providerName
@@ -128,6 +126,7 @@ const ServiceCard = ({ service }) => {
     : "—";
 
   return (
+    <>
     <Box
       role="button"
       tabIndex={0}
@@ -461,6 +460,15 @@ const ServiceCard = ({ service }) => {
         </Box>
       </Box>
     </Box>
+    <SharingVideoModal
+      open={shareModalOpen}
+      handleClose={() => setShareModalOpen(false)}
+      videoUrl={shareUrl}
+      videoId={id}
+      shareTitle={title}
+      modalTitle="Share Service"
+    />
+    </>
   );
 };
 

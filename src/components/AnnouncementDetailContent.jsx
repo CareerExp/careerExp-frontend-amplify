@@ -21,6 +21,7 @@ import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
 import { announcementsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const [organizationDetails, setOrganizationDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   /** Organization home URL from details (slug + organizationType). Backend may expose slug/organizationType on organizationDetails. */
 function getOrgHomeUrl(org) {
@@ -69,15 +71,10 @@ const imageUrl =
   }, [announcementId, dispatch, onBack, isAuthenticated, token]);
 
   const handleShare = () => {
-    const url = window.location.origin + `/explore/announcement/${announcementId}`;
-    if (navigator.share) {
-      navigator
-        .share({ title: announcement?.title, url })
-        .catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    setShareModalOpen(true);
+  };
+
+  const handleShareAction = () => {
     if (announcementId) {
       dispatch(
         increaseAnnouncementSharesCount({
@@ -540,6 +537,15 @@ const imageUrl =
           )}
         </Box>
       </Box>
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={window.location.origin + `/explore/announcement/${announcementId}`}
+        videoId={announcementId}
+        shareTitle={announcement?.title}
+        modalTitle="Share Announcement"
+        onShare={handleShareAction}
+      />
     </Box>
   );
 };

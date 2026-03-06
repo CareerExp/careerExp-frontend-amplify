@@ -21,6 +21,7 @@ import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
 import { eventsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const EVENT_TYPE_LABELS = {
   "in person": "In Person",
@@ -47,6 +48,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
   const [organizationDetails, setOrganizationDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const imageUrl =
     event?.coverImage ||
@@ -79,13 +81,10 @@ const EventDetailContent = ({ eventId, onBack }) => {
   }, [eventId, dispatch, onBack, isAuthenticated, token]);
 
   const handleShare = () => {
-    const url = window.location.origin + `/explore/event/${eventId}`;
-    if (navigator.share) {
-      navigator.share({ title: event?.title, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    setShareModalOpen(true);
+  };
+
+  const handleShareAction = () => {
     if (eventId) {
       dispatch(
         increaseEventSharesCount({
@@ -547,6 +546,15 @@ const EventDetailContent = ({ eventId, onBack }) => {
           )}
         </Box>
       </Box>
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={window.location.origin + `/explore/event/${eventId}`}
+        videoId={eventId}
+        shareTitle={event?.title}
+        modalTitle="Share Event"
+        onShare={handleShareAction}
+      />
     </Box>
   );
 };

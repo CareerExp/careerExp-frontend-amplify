@@ -144,11 +144,13 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
     const prevTitle = document.title;
     document.title = `${article.title || "Article"} | Career Explorer`;
     const url = window.location.origin + `/article/${articleId}`;
-    const description = (article.content || "")
-      .replace(/<[^>]*>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 200);
+    const description =
+      (article.content || "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 200) ||
+      (article.title ? `${article.title}. Read more on Career Explorer.` : "Read this article on Career Explorer.");
     // Absolute image URL required for WhatsApp/social preview thumbnails
     const rawImage = article.coverImage || "";
     const imageUrl =

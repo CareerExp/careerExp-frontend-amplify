@@ -5,10 +5,12 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useNavigate } from "react-router-dom";
 import { fonts } from "../utility/fonts.js";
 import { announcementsPlaceholder } from "../assets/assest.js";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const AnnouncementCard = ({ announcement }) => {
   const navigate = useNavigate();
   const [bookmarked, setBookmarked] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -51,20 +53,13 @@ const AnnouncementCard = ({ announcement }) => {
 
   const handleShare = (e) => {
     e.stopPropagation();
-    if (navigator.share) {
-      navigator
-        .share({
-          title,
-          text: description,
-          url: window.location.href,
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(window.location.href);
-    }
+    setShareModalOpen(true);
   };
 
+  const shareUrl = window.location.origin + (id ? `/explore/announcement/${id}` : window.location.pathname);
+
   return (
+    <>
     <div
       style={{
         borderRadius: "15px",
@@ -285,6 +280,15 @@ const AnnouncementCard = ({ announcement }) => {
         </button>
       </div>
     </div>
+    <SharingVideoModal
+      open={shareModalOpen}
+      handleClose={() => setShareModalOpen(false)}
+      videoUrl={shareUrl}
+      videoId={id}
+      shareTitle={title}
+      modalTitle="Share Announcement"
+    />
+    </>
   );
 };
 

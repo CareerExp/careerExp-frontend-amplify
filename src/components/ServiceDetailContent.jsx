@@ -29,6 +29,7 @@ import { colors } from "../utility/color.js";
 import { eventsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
+import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const ACCENT = "#DD4595";
 const ACCENT_DARK = "#720361";
@@ -71,6 +72,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const [averageRating, setAverageRating] = useState(null);
   const [totalRatings, setTotalRatings] = useState(null);
   const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const imageUrl =
     service?.coverImage || service?.image || eventsPlaceholder;
@@ -163,13 +165,10 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   };
 
   const handleShare = () => {
-    const url = window.location.origin + `/explore/service/${serviceId}`;
-    if (navigator.share) {
-      navigator.share({ title: service?.title, url }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(url);
-      dispatch(notify({ type: "success", message: "Link copied" }));
-    }
+    setShareModalOpen(true);
+  };
+
+  const handleShareAction = () => {
     if (serviceId) {
       dispatch(
         increaseServiceSharesCount({
@@ -841,6 +840,15 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
           />
         </DialogContent>
       </Dialog>
+      <SharingVideoModal
+        open={shareModalOpen}
+        handleClose={() => setShareModalOpen(false)}
+        videoUrl={window.location.origin + `/explore/service/${serviceId}`}
+        videoId={serviceId}
+        shareTitle={service?.title}
+        modalTitle="Share Service"
+        onShare={handleShareAction}
+      />
         </Box>
       </Box>
     </Box>
