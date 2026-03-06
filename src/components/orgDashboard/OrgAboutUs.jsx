@@ -495,7 +495,8 @@ const LocationCard = ({ location, index, onEdit, onDelete }) => {
         borderRadius: "12px",
         border: "1px solid #ddd",
         width: "273px",
-        height: "245px", // Fixed height to match dashed card
+        height: "auto",
+        minHeight: "200px",
         position: "relative",
         backgroundColor: "#fff",
         display: "flex",
@@ -575,7 +576,7 @@ const LocationCard = ({ location, index, onEdit, onDelete }) => {
           flexDirection: "column",
           gap: 1,
           flexGrow: 1,
-          overflow: "hidden",
+          overflow: "visible",
         }}
       >
         <Box sx={{ display: "flex", gap: 1 }}>

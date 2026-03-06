@@ -145,10 +145,8 @@ const MessageCard = ({ message, tab }) => {
           color: "#777777",
           lineHeight: 1.5,
           mt: 2,
-          //   display: "-webkit-box",
-          //   WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          //   overflow: "hidden",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
         }}
       >
         {message.body}
