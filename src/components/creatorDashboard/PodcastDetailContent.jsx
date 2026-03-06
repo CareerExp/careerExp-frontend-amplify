@@ -1,10 +1,11 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import ForwardIcon from "@mui/icons-material/Forward";
 import HeadphonesIcon from "@mui/icons-material/Headphones";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import ReplayIcon from "@mui/icons-material/Replay";
 import ShareIcon from "@mui/icons-material/Share";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
@@ -17,6 +18,7 @@ import {
   Divider,
   IconButton,
   Rating,
+  Slider,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
@@ -58,13 +60,16 @@ function formatDuration(seconds) {
   return `${min} min ${sec} sec`;
 }
 
-/** Format seconds as "M:SS" or "MM:SS" for player display */
+/** Format seconds as "M:SS", "MM:SS", or "H:MM:SS" for player display (Spotify-style) */
 function formatTimeMMSS(seconds) {
   if (seconds == null || isNaN(Number(seconds))) return "0:00";
   const s = Math.floor(Number(seconds));
-  const m = Math.floor(s / 60);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
-  return `${m}:${sec < 10 ? "0" : ""}${sec}`;
+  const pad = (n) => (n < 10 ? "0" : "") + n;
+  if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`;
+  return `${m}:${pad(sec)}`;
 }
 
 const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
@@ -204,12 +209,37 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
     setIsPlaying(!isPlaying);
   };
 
+  const handleSeek = (_e, value) => {
+    const seconds = Number(value);
+    if (audioRef.current && !isNaN(seconds)) {
+      audioRef.current.currentTime = seconds;
+      setAudioCurrentTime(seconds);
+    }
+  };
+
+  const handleRewind15 = () => {
+    if (!audioRef.current) return;
+    const next = Math.max(0, audioRef.current.currentTime - 15);
+    audioRef.current.currentTime = next;
+    setAudioCurrentTime(next);
+  };
+
+  const handleForward15 = () => {
+    if (!audioRef.current) return;
+    const duration = audioRef.current.duration;
+    const next = duration ? Math.min(duration, audioRef.current.currentTime + 15) : audioRef.current.currentTime + 15;
+    audioRef.current.currentTime = next;
+    setAudioCurrentTime(next);
+  };
+
   const authorName = creator
     ? [creator.firstName, creator.lastName].filter(Boolean).join(" ") || "Author"
     : "Author";
   const durationSeconds = podcast?.duration ?? 0;
   const durationLabel = formatDuration(durationSeconds);
   const audioLink = podcast?.audioLink || podcast?.audioUrl;
+  const timelineDuration = audioDuration || durationSeconds || 0;
+  const timelineValue = Math.min(audioCurrentTime, timelineDuration || 1);
 
   if (loading) {
     return (
@@ -452,35 +482,50 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
                         {podcast.category ? ` · ${podcast.category}` : ""}
                       </Typography>
                     </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        mt: 1.5,
-                      }}
-                    >
-                      <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "rgba(255,255,255,0.9)" }}>
-                        {formatTimeMMSS(audioDuration || durationSeconds)}
-                      </Typography>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <IconButton size="small" sx={{ color: "rgba(255,255,255,0.9)" }} aria-label="More options">
-                          <MoreHorizIcon />
-                        </IconButton>
-                        <IconButton
-                          onClick={handleManualPlayPause}
+                    {/* Timeline: Spotify-style — rewind 15, progress bar, duration, play */}
+                    <Box sx={{ mt: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+                      <IconButton
+                        size="small"
+                        onClick={handleRewind15}
+                        sx={{ color: "rgba(255,255,255,0.9)", p: 0.5 }}
+                        aria-label="Rewind 15 seconds"
+                      >
+                        <ReplayIcon sx={{ fontSize: 28 }} />
+                      </IconButton>
+                      <Box sx={{ flex: 1, display: "flex", alignItems: "center", minWidth: 0 }}>
+                        <Slider
+                          size="small"
+                          value={timelineDuration > 0 ? timelineValue : 0}
+                          min={0}
+                          max={timelineDuration || 1}
+                          step={0.1}
+                          onChange={handleSeek}
                           sx={{
-                            color: "#006767",
-                            backgroundColor: "#fff",
-                            width: 48,
-                            height: 48,
-                            "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+                            color: "rgba(255,255,255,0.85)",
+                            py: 0.5,
+                            "& .MuiSlider-thumb": { width: 10, height: 10 },
+                            "& .MuiSlider-rail": { opacity: 0.4 },
+                            "& .MuiSlider-track": { opacity: 0.9 },
                           }}
-                          aria-label={isPlaying ? "Pause" : "Play"}
-                        >
-                          {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-                        </IconButton>
+                          aria-label="Seek"
+                        />
                       </Box>
+                      <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.8125rem", color: "rgba(255,255,255,0.9)", minWidth: 48 }}>
+                        {formatTimeMMSS(timelineDuration)}
+                      </Typography>
+                      <IconButton
+                        onClick={handleManualPlayPause}
+                        sx={{
+                          color: "#006767",
+                          backgroundColor: "#fff",
+                          width: 48,
+                          height: 48,
+                          "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+                        }}
+                        aria-label={isPlaying ? "Pause" : "Play"}
+                      >
+                        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+                      </IconButton>
                     </Box>
                   </Box>
                 </Box>

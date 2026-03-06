@@ -85,13 +85,15 @@ const Partners = () => {
             paddingX: "30px",
           }}
         >
-        {/* Tabs Section */}
+        {/* Tabs Section - scrollable on mobile so all tabs are accessible */}
         <Box className={partnersStyles["tabs-box"]}>
           <Tabs
             value={activeTab}
             onChange={handleTabChange}
             aria-label="partners categories"
-            centered
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
             TabIndicatorProps={{
               style: {
                 backgroundColor: "#bf2f75",
@@ -99,6 +101,11 @@ const Partners = () => {
               },
             }}
             sx={{
+              "& .MuiTabs-scroller": { overflowX: "auto", WebkitOverflowScrolling: "touch" },
+              "& .MuiTabs-flexContainer": {
+                flexWrap: "nowrap",
+                justifyContent: { xs: "flex-start", md: "center" },
+              },
               "& .MuiTab-root": {
                 textTransform: "none",
                 fontFamily: fonts.poppins,
@@ -107,6 +114,7 @@ const Partners = () => {
                 color: "#999999",
                 minWidth: "auto",
                 px: 4,
+                whiteSpace: "nowrap",
                 "&.Mui-selected": {
                   color: "#bf2f75",
                 },
@@ -115,7 +123,7 @@ const Partners = () => {
           >
             <Tab label="Education Institutions" />
             <Tab label="Education Service Providers" />
-            <Tab sx={{textWrap: "nowrap"}} label="Government & Community Organizations" />
+            <Tab label="Government & Community Organizations" />
           </Tabs>
         </Box>
 

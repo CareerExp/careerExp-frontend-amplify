@@ -32,8 +32,10 @@
     }
 
     .tabs-box {
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-left: 0;
+        padding-right: 0;
+        /* Ensure horizontal scroll works for tab headers on mobile */
+        min-width: 0;
     }
 
     .tabs-content {
