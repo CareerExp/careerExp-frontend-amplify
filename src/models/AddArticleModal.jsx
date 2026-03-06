@@ -27,7 +27,7 @@ import {
   updateArticle,
   uploadArticleCover,
 } from "../redux/slices/creatorSlice.js";
-import { articleCategories } from "../utility/category.js";
+import { articleCategories, tags as tagsOptions } from "../utility/category.js";
 import { extractContentFromFile } from "../utility/articleContentFromFile.js";
 import { colors } from "../utility/color.js";
 import { fonts } from "../utility/fonts.js";
@@ -36,6 +36,8 @@ import { fonts } from "../utility/fonts.js";
 const SizeStyle = Quill.import("attributors/style/size");
 SizeStyle.whitelist = ["10px", "12px", "14px", "16px", "18px", "20px", "24px"];
 Quill.register(SizeStyle, true);
+
+const articleTagOptions = tagsOptions?.map((t) => t.option) || [];
 
 const quillModules = {
   toolbar: [
@@ -422,7 +424,7 @@ const AddArticleModal = ({ open, onClose, onSuccess, articleId = null }) => {
               <Autocomplete
                 multiple
                 freeSolo
-                options={[]}
+                options={articleTagOptions}
                 value={tags}
                 inputValue={tagInput}
                 onInputChange={(_, v) => setTagInput(v)}
