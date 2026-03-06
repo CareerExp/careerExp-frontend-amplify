@@ -862,10 +862,29 @@ const AdminGovernmentOrgs = () => {
                     "& p": { margin: "0 0 0.75em", fontFamily: fonts.poppins },
                     "& p:last-child": { marginBottom: 0 },
                     "& strong": { fontWeight: 700 },
-                    "& .ql-align-justify": { textAlign: "justify" },
+                    "& ul, & ol": { paddingLeft: "1.5em", margin: "0.5em 0" },
+                    // Quill alignment – same as article detail
+                    "& .ql-align-left": { textAlign: "left" },
                     "& .ql-align-center": { textAlign: "center" },
                     "& .ql-align-right": { textAlign: "right" },
-                    "& ul, & ol": { paddingLeft: "1.5em", margin: "0.5em 0" },
+                    "& .ql-align-justify": { textAlign: "justify" },
+                    // Right-aligned lists: bullet on the right (list may have class or be inside .ql-align-right)
+                    "& .ql-align-right ul, & .ql-align-right ol, & ul.ql-align-right, & ol.ql-align-right": {
+                      direction: "rtl",
+                      paddingRight: "1.5em",
+                      paddingLeft: 0,
+                      listStylePosition: "outside",
+                    },
+                    "& .ql-align-right li, & ul.ql-align-right li, & ol.ql-align-right li": {
+                      direction: "ltr",
+                      textAlign: "right",
+                    },
+                    // Center-aligned lists: bullet and text centered
+                    "& .ql-align-center ul, & .ql-align-center ol, & ul.ql-align-center, & ol.ql-align-center": {
+                      listStylePosition: "inside",
+                      paddingLeft: 0,
+                      textAlign: "center",
+                    },
                   }}
                   dangerouslySetInnerHTML={{ __html: selectedOrg.description }}
                 />

@@ -17,13 +17,16 @@ import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/
 import { saveSharingDetails } from "../redux/slices/userHistory.js";
 import { fonts } from "../utility/fonts";
 
-const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) => {
+const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile, shareTitle, modalTitle, onShare }) => {
   const dispatchToRedux = useDispatch();
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const authenticated = useSelector(selectAuthenticated);
 
   const [copySuccess, setCopySuccess] = useState(false);
+
+  // For WhatsApp/Line, include title in message so recipients see what is being shared
+  const textToShare = shareTitle ? `${shareTitle}\n\n${videoUrl}` : videoUrl;
 
   const copyToClipboard = async (text) => {
     try {
@@ -98,15 +101,20 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
     if (authenticated && userId) {
       dispatchToRedux(saveSharingDetails({ userId, videoId, token }));
     }
-    const shareUrl = platform.url(videoUrl);
+    onShare?.();
+    // WhatsApp and Line use full message text; others use URL only (for link preview)
+    const isTextMessage = platformName === "WhatsApp" || platformName === "Line";
+    const linkParam = shareTitle && isTextMessage ? textToShare : videoUrl;
+    const shareUrl = platform.url(linkParam);
     window.open(shareUrl, "_blank");
   };
 
   const handleCopy = () => {
-    copyToClipboard(videoUrl);
+    copyToClipboard(shareTitle ? textToShare : videoUrl);
     if (authenticated && userId) {
       dispatchToRedux(saveSharingDetails({ userId, videoId, token }));
     }
+    onShare?.();
   };
 
   return (
@@ -142,7 +150,7 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
             fontSize: { xs: "1.25rem", sm: "1.5rem" },
           }}
         >
-          {isProfile ? "Share Profile" : " Share Video"}
+          {modalTitle ?? (isProfile ? "Share Profile" : "Share Video")}
         </Typography>
         <Box
           sx={{
@@ -155,7 +163,7 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
         >
           <TextField
             fullWidth
-            label="Video Link"
+            label={shareTitle ? "Link" : "Video Link"}
             value={videoUrl}
             InputProps={{
               readOnly: true,

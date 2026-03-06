@@ -513,6 +513,7 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
                 lineHeight: 1.6,
                 color: colors.darkGray,
                 mb: 2,
+                whiteSpace: "pre-wrap",
               }}
             >
               {podcast.description}

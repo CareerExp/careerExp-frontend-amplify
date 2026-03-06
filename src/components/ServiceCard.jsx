@@ -14,13 +14,15 @@ import { notify } from "../redux/slices/alertSlice.js";
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
 
-// Service mode pill styles (Figma: Hybrid = cream/orange, In person = pink, Online = green)
+// Service mode pill styles (Figma: Hybrid = cream/orange, In person = pink, Online = green). Offline → "In person".
 const SERVICE_MODE_STYLES = {
   hybrid: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
   HYBRID: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
   "in person": { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
   in_person: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
   IN_PERSON: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  offline: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
+  OFFLINE: { bg: "#FFE8F3", textColor: "#DD4595", label: "In person" },
   online: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
   ONLINE: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
 };

@@ -260,6 +260,23 @@ const GovernmentOrganizations = ({ search = "" }) => {
                         "& ol, & ul": { paddingLeft: "1.5em", margin: "0.5em 0" },
                         "& li": { marginBottom: "0.5em" },
                         "& li p": { margin: "0 0 0.25em" },
+                        // Quill alignment – same as article detail / admin gov orgs
+                        "& .ql-align-left": { textAlign: "left" },
+                        "& .ql-align-center": { textAlign: "center" },
+                        "& .ql-align-right": { textAlign: "right" },
+                        "& .ql-align-justify": { textAlign: "justify" },
+                        "& .ql-align-right ul, & .ql-align-right ol, & ul.ql-align-right, & ol.ql-align-right": {
+                          direction: "rtl",
+                          paddingRight: "1.5em",
+                          paddingLeft: 0,
+                          listStylePosition: "outside",
+                        },
+                        "& .ql-align-right li, & ul.ql-align-right li, & ol.ql-align-right li": { direction: "ltr", textAlign: "right" },
+                        "& .ql-align-center ul, & .ql-align-center ol, & ul.ql-align-center, & ol.ql-align-center": {
+                          listStylePosition: "inside",
+                          paddingLeft: 0,
+                          textAlign: "center",
+                        },
                       }}
                       dangerouslySetInnerHTML={{ __html: partner.collaboration.html }}
                     />
