@@ -52,7 +52,10 @@ import {
 } from "../../redux/slices/creatorSlice.js";
 import creatorStyles from "../../styles/CreatorVideo.module.css";
 import { colors } from "../../utility/color.js";
-import { convertUTCDateToLocalDate, formatDateDDMMYYYY } from "../../utility/convertTimeToUTC.js";
+import {
+  convertUTCDateToLocalDate,
+  formatDateDDMMYYYY,
+} from "../../utility/convertTimeToUTC.js";
 import { fonts } from "../../utility/fonts.js";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -151,12 +154,23 @@ const CreatorVideos = () => {
           ).unwrap();
         } catch (error) {
           console.error("Failed to fetch author articles:", error.message);
-          dispatchToRedux(notify({ type: "error", message: error.message || "Failed to load articles" }));
+          dispatchToRedux(
+            notify({
+              type: "error",
+              message: error.message || "Failed to load articles",
+            }),
+          );
         }
       };
       fetchAuthorArticles();
     }
-  }, [activeTab, articlesPage, articlesRowsPerPage, userId, articlesSearchApplied]);
+  }, [
+    activeTab,
+    articlesPage,
+    articlesRowsPerPage,
+    userId,
+    articlesSearchApplied,
+  ]);
 
   useEffect(() => {
     if (userId && activeTab === 3) {
@@ -181,7 +195,13 @@ const CreatorVideos = () => {
       };
       fetchAuthorPodcasts();
     }
-  }, [activeTab, podcastsPage, podcastsRowsPerPage, userId, podcastsSearchApplied]);
+  }, [
+    activeTab,
+    podcastsPage,
+    podcastsRowsPerPage,
+    userId,
+    podcastsSearchApplied,
+  ]);
 
   const handleSearchClick = () => {
     if (activeTab === 1) {
@@ -251,7 +271,9 @@ const CreatorVideos = () => {
       setIsButtonLoading(false);
       setVideoToEdit(null);
       setEditModalOpen(false);
-      dispatchToRedux(notify({ type: "success", message: "Video updated successfully" }));
+      dispatchToRedux(
+        notify({ type: "success", message: "Video updated successfully" }),
+      );
     } catch (error) {
       setIsButtonLoading(false);
       dispatchToRedux(
@@ -274,16 +296,28 @@ const CreatorVideos = () => {
     try {
       setIsButtonLoading(true);
       if (podcastIdToDelete) {
-        await dispatchToRedux(deletePodcast({ userId, podcastId: podcastIdToDelete, token }));
-        dispatchToRedux(notify({ type: "success", message: "Podcast deleted successfully" }));
+        await dispatchToRedux(
+          deletePodcast({ userId, podcastId: podcastIdToDelete, token }),
+        );
+        dispatchToRedux(
+          notify({ type: "success", message: "Podcast deleted successfully" }),
+        );
         setPodcastIdToDelete(null);
       } else if (articleIdToDelete) {
-        await dispatchToRedux(deleteArticle({ userId, articleId: articleIdToDelete, token }));
-        dispatchToRedux(notify({ type: "success", message: "Article deleted successfully" }));
+        await dispatchToRedux(
+          deleteArticle({ userId, articleId: articleIdToDelete, token }),
+        );
+        dispatchToRedux(
+          notify({ type: "success", message: "Article deleted successfully" }),
+        );
         setArticleIdToDelete(null);
       } else {
-        await dispatchToRedux(deleteVideo({ userId, videoId: videoIdToDelete, token }));
-        dispatchToRedux(notify({ type: "success", message: "Video deleted successfully" }));
+        await dispatchToRedux(
+          deleteVideo({ userId, videoId: videoIdToDelete, token }),
+        );
+        dispatchToRedux(
+          notify({ type: "success", message: "Video deleted successfully" }),
+        );
         setVideoIdToDelete(null);
       }
       setIsButtonLoading(false);
@@ -403,7 +437,8 @@ const CreatorVideos = () => {
               color: activeTab === 1 ? "#BC2876" : colors.lightGray,
               padding: ".5rem 2rem",
               fontWeight: activeTab === 1 ? "600" : "",
-              borderBottom: activeTab === 1 ? "2px solid #BC2876" : "2px solid transparent",
+              borderBottom:
+                activeTab === 1 ? "2px solid #BC2876" : "2px solid transparent",
               cursor: "pointer",
             }}
           >
@@ -415,7 +450,8 @@ const CreatorVideos = () => {
               color: activeTab === 2 ? "#BC2876" : colors.lightGray,
               padding: ".5rem 2rem",
               fontWeight: activeTab === 2 ? "600" : "",
-              borderBottom: activeTab === 2 ? "2px solid #BC2876" : "2px solid transparent",
+              borderBottom:
+                activeTab === 2 ? "2px solid #BC2876" : "2px solid transparent",
               cursor: "pointer",
             }}
           >
@@ -427,7 +463,8 @@ const CreatorVideos = () => {
               color: activeTab === 3 ? "#BC2876" : colors.lightGray,
               padding: ".5rem 2rem",
               fontWeight: activeTab === 3 ? "600" : "",
-              borderBottom: activeTab === 3 ? "2px solid #BC2876" : "2px solid transparent",
+              borderBottom:
+                activeTab === 3 ? "2px solid #BC2876" : "2px solid transparent",
               cursor: "pointer",
             }}
           >
@@ -524,14 +561,22 @@ const CreatorVideos = () => {
               }}
             >
               <TableRow sx={{ backgroundColor: "#720361" }}>
-                <TableCell sx={{ ...tableHead, width: "15%" }}>Date published</TableCell>
-                <TableCell sx={{ ...tableHead, width: "20%" }}>Thumbnail</TableCell>
+                <TableCell sx={{ ...tableHead, width: "15%" }}>
+                  Date published
+                </TableCell>
+                <TableCell sx={{ ...tableHead, width: "20%" }}>
+                  Thumbnail
+                </TableCell>
                 <TableCell sx={{ ...tableHead, width: "25%" }}>Title</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Views</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Likes</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Shares</TableCell>
-                <TableCell sx={{ ...tableHead, width: "10%" }}>Rating</TableCell>
-                <TableCell sx={{ ...tableHead, width: "10%" }}>Action</TableCell>
+                <TableCell sx={{ ...tableHead, width: "10%" }}>
+                  Rating
+                </TableCell>
+                <TableCell sx={{ ...tableHead, width: "10%" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -548,7 +593,8 @@ const CreatorVideos = () => {
                     {convertUTCDateToLocalDate(video?.createdAt)}
                   </TableCell>
                   <TableCell sx={{ ...tableData, textAlign: "center" }}>
-                    {(video?.youtubeLink && video?.youtubeVideoId) || video?.thumbnail ? (
+                    {(video?.youtubeLink && video?.youtubeVideoId) ||
+                    video?.thumbnail ? (
                       <Box
                         sx={{
                           width: 160,
@@ -616,17 +662,42 @@ const CreatorVideos = () => {
                       paddingRight: "1rem",
                     }}
                   >
-                    {video?.title}
+                    <span
+                      style={{
+                        marginLeft: "1rem",
+                      }}
+                    >
+                      {video?.title}
+                    </span>
                   </TableCell>
-                  <TableCell sx={{ ...tableData, textAlign: "center" }}>{video?.totalViews || 0}</TableCell>
-                  <TableCell sx={{ ...tableData, textAlign: "center" }}>{video?.totalLikes}</TableCell>
-                  <TableCell sx={{ ...tableData, textAlign: "center" }}>{video?.totalShares || 0}</TableCell>
+                  <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                    {video?.totalViews || 0}
+                  </TableCell>
+                  <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                    {video?.totalLikes}
+                  </TableCell>
+                  <TableCell sx={{ ...tableData, textAlign: "center" }}>
+                    {video?.totalShares || 0}
+                  </TableCell>
                   {/* <TableCell sx={tableData}>{video?.likes.length}</TableCell> */}
                   {/* <TableCell sx={tableData}>{video?.comments.length}</TableCell> */}
                   <TableCell sx={{ ...tableData }}>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Rating value={Math.round(video.averageRating)} readOnly size="small" />
-                      <Typography component="span" sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Rating
+                        value={Math.round(video.averageRating)}
+                        readOnly
+                        size="small"
+                      />
+                      <Typography
+                        component="span"
+                        sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}
+                      >
                         ({Math.round(video.averageRating)})
                       </Typography>
                     </Box>
@@ -684,20 +755,31 @@ const CreatorVideos = () => {
           >
             <TableHead sx={{ height: "50px" }}>
               <TableRow sx={{ backgroundColor: "#720361" }}>
-                <TableCell sx={{ ...tableHead, width: "12%" }}>Date published</TableCell>
-                <TableCell sx={{ ...tableHead, width: "18%" }}>Thumbnail</TableCell>
+                <TableCell sx={{ ...tableHead, width: "12%" }}>
+                  Date published
+                </TableCell>
+                <TableCell sx={{ ...tableHead, width: "18%" }}>
+                  Thumbnail
+                </TableCell>
                 <TableCell sx={{ ...tableHead, width: "22%" }}>Title</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Views</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Likes</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Shares</TableCell>
-                <TableCell sx={{ ...tableHead, width: "10%" }}>Rating</TableCell>
-                <TableCell sx={{ ...tableHead, width: "14%" }}>Action</TableCell>
+                <TableCell sx={{ ...tableHead, width: "10%" }}>
+                  Rating
+                </TableCell>
+                <TableCell sx={{ ...tableHead, width: "14%" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {authorArticles?.articles?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} sx={{ ...tableData, textAlign: "center", py: 4 }}>
+                  <TableCell
+                    colSpan={8}
+                    sx={{ ...tableData, textAlign: "center", py: 4 }}
+                  >
                     No articles yet. Add your first article.
                   </TableCell>
                 </TableRow>
@@ -767,8 +849,20 @@ const CreatorVideos = () => {
                         </Box>
                       )}
                     </TableCell>
-                    <TableCell sx={{ ...tableData, paddingLeft: "1rem", paddingRight: "1rem" }}>
-                      {article?.title}
+                    <TableCell
+                      sx={{
+                        ...tableData,
+                        paddingLeft: "1rem",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          marginLeft: "1rem",
+                        }}
+                      >
+                        {article?.title}
+                      </span>
                     </TableCell>
                     <TableCell sx={{ ...tableData, textAlign: "center" }}>
                       {article?.totalViews ?? 0}
@@ -780,9 +874,26 @@ const CreatorVideos = () => {
                       {article?.totalShares ?? 0}
                     </TableCell>
                     <TableCell sx={{ ...tableData }}>
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Rating value={Math.round(article?.averageRating ?? 0)} readOnly size="small" />
-                        <Typography component="span" sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Rating
+                          value={Math.round(article?.averageRating ?? 0)}
+                          readOnly
+                          size="small"
+                        />
+                        <Typography
+                          component="span"
+                          sx={{
+                            color: "#a1a1a1",
+                            fontSize: "0.875rem",
+                            ml: 0.5,
+                          }}
+                        >
                           ({Math.round(article?.averageRating ?? 0)})
                         </Typography>
                       </Box>
@@ -846,20 +957,31 @@ const CreatorVideos = () => {
           >
             <TableHead sx={{ height: "50px" }}>
               <TableRow sx={{ backgroundColor: "#720361" }}>
-                <TableCell sx={{ ...tableHead, width: "12%" }}>Date published</TableCell>
-                <TableCell sx={{ ...tableHead, width: "18%" }}>Thumbnail</TableCell>
+                <TableCell sx={{ ...tableHead, width: "12%" }}>
+                  Date published
+                </TableCell>
+                <TableCell sx={{ ...tableHead, width: "18%" }}>
+                  Thumbnail
+                </TableCell>
                 <TableCell sx={{ ...tableHead, width: "22%" }}>Title</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Views</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Likes</TableCell>
                 <TableCell sx={{ ...tableHead, width: "8%" }}>Shares</TableCell>
-                <TableCell sx={{ ...tableHead, width: "10%" }}>Rating</TableCell>
-                <TableCell sx={{ ...tableHead, width: "14%" }}>Action</TableCell>
+                <TableCell sx={{ ...tableHead, width: "10%" }}>
+                  Rating
+                </TableCell>
+                <TableCell sx={{ ...tableHead, width: "14%" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {authorPodcasts?.podcasts?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} sx={{ ...tableData, textAlign: "center", py: 4 }}>
+                  <TableCell
+                    colSpan={8}
+                    sx={{ ...tableData, textAlign: "center", py: 4 }}
+                  >
                     No podcasts yet. Add your first podcast.
                   </TableCell>
                 </TableRow>
@@ -876,7 +998,7 @@ const CreatorVideos = () => {
                       {formatDateDDMMYYYY(podcast?.createdAt)}
                     </TableCell>
                     <TableCell sx={{ ...tableData, textAlign: "center" }}>
-                      {(podcast?.spotifyThumbnailUrl || podcast?.thumbnail) ? (
+                      {podcast?.spotifyThumbnailUrl || podcast?.thumbnail ? (
                         <Box
                           sx={{
                             width: 90,
@@ -899,7 +1021,9 @@ const CreatorVideos = () => {
                           />
                           <Box
                             component="img"
-                            src={podcast?.spotifyThumbnailUrl || podcast?.thumbnail}
+                            src={
+                              podcast?.spotifyThumbnailUrl || podcast?.thumbnail
+                            }
                             alt=""
                             sx={{
                               position: "absolute",
@@ -929,8 +1053,20 @@ const CreatorVideos = () => {
                         </Box>
                       )}
                     </TableCell>
-                    <TableCell sx={{ ...tableData, paddingLeft: "1rem", paddingRight: "1rem" }}>
-                      {podcast?.title}
+                    <TableCell
+                      sx={{
+                        ...tableData,
+                        paddingLeft: "1rem",
+                        paddingRight: "1rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          marginLeft: "1rem",
+                        }}
+                      >
+                        {podcast?.title}
+                      </span>
                     </TableCell>
                     <TableCell sx={{ ...tableData, textAlign: "center" }}>
                       {podcast?.totalViews ?? 0}
@@ -942,9 +1078,26 @@ const CreatorVideos = () => {
                       {podcast?.totalShares ?? 0}
                     </TableCell>
                     <TableCell sx={{ ...tableData }}>
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Rating value={Math.round(podcast?.averageRating ?? 0)} readOnly size="small" />
-                        <Typography component="span" sx={{ color: "#a1a1a1", fontSize: "0.875rem", ml: 0.5 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Rating
+                          value={Math.round(podcast?.averageRating ?? 0)}
+                          readOnly
+                          size="small"
+                        />
+                        <Typography
+                          component="span"
+                          sx={{
+                            color: "#a1a1a1",
+                            fontSize: "0.875rem",
+                            ml: 0.5,
+                          }}
+                        >
                           ({Math.round(podcast?.averageRating ?? 0)})
                         </Typography>
                       </Box>
@@ -1083,7 +1236,8 @@ const CreatorVideos = () => {
                   overflow: "hidden",
                 }}
               >
-                {(video?.youtubeLink && video?.youtubeVideoId) || video?.thumbnail ? (
+                {(video?.youtubeLink && video?.youtubeVideoId) ||
+                video?.thumbnail ? (
                   <>
                     <Box
                       sx={{
@@ -1142,19 +1296,37 @@ const CreatorVideos = () => {
                     fontWeight: "500",
                     fontSize: "1rem",
                     marginBottom: "0.5rem",
+                    paddingLeft: "0.5rem",
                   }}
                 >
                   {video?.title}
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-                  <Rating value={Math.round(video.averageRating)} readOnly size="small" />
-                  <Typography variant="body2" sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  <Rating
+                    value={Math.round(video.averageRating)}
+                    readOnly
+                    size="small"
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}
+                  >
                     ({Math.round(video.averageRating)})
                   </Typography>
                 </Box>
                 <Typography
                   variant="body2"
-                  sx={{ color: "#666", fontSize: "0.8rem", marginBottom: "0.5rem" }}
+                  sx={{
+                    color: "#666",
+                    fontSize: "0.8rem",
+                    marginBottom: "0.5rem",
+                  }}
                 >
                   Published on: {convertUTCDateToLocalDate(video?.createdAt)}
                 </Typography>
@@ -1166,7 +1338,9 @@ const CreatorVideos = () => {
                     marginTop: "0.5rem",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", gap: "1rem" }}
+                  >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Box
                         sx={{
@@ -1179,8 +1353,15 @@ const CreatorVideos = () => {
                           alignItems: "center",
                         }}
                       >
-                        <img src={videoViewsIcon} alt="Video Views" style={{ width: "20px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.55rem" }}>
+                        <img
+                          src={videoViewsIcon}
+                          alt="Video Views"
+                          style={{ width: "20px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.55rem" }}
+                        >
                           {video?.totalViews || 0}
                         </Typography>
                       </Box>
@@ -1198,8 +1379,15 @@ const CreatorVideos = () => {
                           marginLeft: "0.5rem",
                         }}
                       >
-                        <img src={videoLikeIcon} alt="Video Like" style={{ width: "20px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.55rem" }}>
+                        <img
+                          src={videoLikeIcon}
+                          alt="Video Like"
+                          style={{ width: "20px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.55rem" }}
+                        >
                           {video?.totalLikes || 0}
                         </Typography>
                       </Box>
@@ -1217,8 +1405,15 @@ const CreatorVideos = () => {
                           marginLeft: "0.5rem",
                         }}
                       >
-                        <img src={shareIconInOrange} alt="Video Share" style={{ width: "18px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.55rem" }}>
+                        <img
+                          src={shareIconInOrange}
+                          alt="Video Share"
+                          style={{ width: "18px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.55rem" }}
+                        >
                           {video?.totalShares || 0}
                         </Typography>
                       </Box>
@@ -1256,7 +1451,9 @@ const CreatorVideos = () => {
       {activeTab === 2 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {authorArticles?.articles?.length === 0 ? (
-            <Typography sx={{ textAlign: "center", py: 4, color: colors.darkGray }}>
+            <Typography
+              sx={{ textAlign: "center", py: 4, color: colors.darkGray }}
+            >
               No articles yet. Add your first article.
             </Typography>
           ) : (
@@ -1336,33 +1533,84 @@ const CreatorVideos = () => {
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#666", fontSize: "0.8rem", marginBottom: "0.5rem" }}
+                    sx={{
+                      color: "#666",
+                      fontSize: "0.8rem",
+                      marginBottom: "0.5rem",
+                    }}
                   >
                     Published on: {formatDateDDMMYYYY(article?.createdAt)}
                   </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-                    <Rating value={Math.round(article?.averageRating ?? 0)} readOnly size="small" />
-                    <Typography variant="body2" sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    <Rating
+                      value={Math.round(article?.averageRating ?? 0)}
+                      readOnly
+                      size="small"
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}
+                    >
                       ({Math.round(article?.averageRating ?? 0)})
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={PViews} alt="Views" style={{ width: "20px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                        <img
+                          src={PViews}
+                          alt="Views"
+                          style={{ width: "20px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}
+                        >
                           {article?.totalViews ?? 0}
                         </Typography>
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={PLikes} alt="Likes" style={{ width: "20px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                        <img
+                          src={PLikes}
+                          alt="Likes"
+                          style={{ width: "20px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}
+                        >
                           {article?.totalLikes ?? 0}
                         </Typography>
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={PShared} alt="Shares" style={{ width: "18px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                        <img
+                          src={PShared}
+                          alt="Shares"
+                          style={{ width: "18px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}
+                        >
                           {article?.totalShares ?? 0}
                         </Typography>
                       </Box>
@@ -1406,7 +1654,9 @@ const CreatorVideos = () => {
       {activeTab === 3 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {authorPodcasts?.podcasts?.length === 0 ? (
-            <Typography sx={{ textAlign: "center", py: 4, color: colors.darkGray }}>
+            <Typography
+              sx={{ textAlign: "center", py: 4, color: colors.darkGray }}
+            >
               No podcasts yet. Add your first podcast.
             </Typography>
           ) : (
@@ -1429,7 +1679,7 @@ const CreatorVideos = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {(podcast?.spotifyThumbnailUrl || podcast?.thumbnail) ? (
+                  {podcast?.spotifyThumbnailUrl || podcast?.thumbnail ? (
                     <>
                       <Box
                         sx={{
@@ -1486,33 +1736,84 @@ const CreatorVideos = () => {
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#666", fontSize: "0.8rem", marginBottom: "0.5rem" }}
+                    sx={{
+                      color: "#666",
+                      fontSize: "0.8rem",
+                      marginBottom: "0.5rem",
+                    }}
                   >
                     Published on: {formatDateDDMMYYYY(podcast?.createdAt)}
                   </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-                    <Rating value={Math.round(podcast?.averageRating ?? 0)} readOnly size="small" />
-                    <Typography variant="body2" sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    <Rating
+                      value={Math.round(podcast?.averageRating ?? 0)}
+                      readOnly
+                      size="small"
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#a1a1a1", marginLeft: "0.25rem" }}
+                    >
                       ({Math.round(podcast?.averageRating ?? 0)})
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={PViews} alt="Views" style={{ width: "20px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                        <img
+                          src={PViews}
+                          alt="Views"
+                          style={{ width: "20px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}
+                        >
                           {podcast?.totalViews ?? 0}
                         </Typography>
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={PLikes} alt="Likes" style={{ width: "20px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                        <img
+                          src={PLikes}
+                          alt="Likes"
+                          style={{ width: "20px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}
+                        >
                           {podcast?.totalLikes ?? 0}
                         </Typography>
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={PShared} alt="Shares" style={{ width: "18px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}>
+                        <img
+                          src={PShared}
+                          alt="Shares"
+                          style={{ width: "18px" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.75rem", marginLeft: "0.35rem" }}
+                        >
                           {podcast?.totalShares ?? 0}
                         </Typography>
                       </Box>
@@ -1585,97 +1886,103 @@ const CreatorVideos = () => {
           >
             Manage My Content
           </Typography>
-        <Box
-          sx={{
-            width: { xs: "100%", sm: "100%", md: "50%" },
-            display: "flex",
-            justifyContent: { xs: "center", sm: "center", md: "flex-end" },
-            gap: "1rem",
-          }}
-        >
           <Box
             sx={{
-              width: "100%",
-              height: "2.5rem",
-              position: "relative",
+              width: { xs: "100%", sm: "100%", md: "50%" },
               display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
+              justifyContent: { xs: "center", sm: "center", md: "flex-end" },
+              gap: "1rem",
             }}
           >
-            <input
-              placeholder="Search"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              style={{
-                width: "70%",
-                height: "100%",
-                paddingLeft: "1rem",
-                paddingRight: "2.5rem", // space for the icon
-                outline: "none",
-                border: "1.5px solid #a9a9a9",
-                borderRadius: "1.2rem",
-                backgroundColor: "white",
-              }}
-            />
-            {searchValue && (
-              <IconButton
-                size="small"
-                onClick={() => setSearchValue("")}
-                sx={{
-                  position: "absolute",
-                  right: "calc(31% + 1.75rem)",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#720361",
-                  p: 0.5,
-                  "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" },
-                }}
-                aria-label="Clear search"
-              >
-                <CloseIcon sx={{ fontSize: "1.1rem" }} />
-              </IconButton>
-            )}
-            <img
-              src={search}
-              alt="search"
-              style={{
-                width: "1.5rem",
-                height: "1.5rem",
-                position: "absolute",
-                right: "31%",
-                top: "50%",
-                transform: "translateY(-50%)",
-                pointerEvents: "none",
-              }}
-            />
-
-            <Button
-              onClick={handleSearchClick}
+            <Box
               sx={{
-                backgroundImage: "linear-gradient(to top left, #720361, #bf2f75)",
-                border: "none",
-                padding: { xs: "0.3rem 0.8rem", sm: "0.5rem 1rem", md: "0.3rem 1rem" },
-                borderRadius: "90px",
+                width: "100%",
+                height: "2.5rem",
+                position: "relative",
                 display: "flex",
-                justifyContent: "center",
                 alignItems: "center",
-                width: "fit-content",
-                fontSize: "1.125rem",
-                gap: "0.875rem",
-                color: "white",
-                cursor: "pointer",
-                textTransform: "none",
-                "&:hover": {
-                  backgroundImage: "linear-gradient(to top left, #720361, #bf2f75)", // same gradient on hover
-                },
+                gap: "0.5rem",
               }}
             >
-              Search
-            </Button>
+              <input
+                placeholder="Search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                style={{
+                  width: "70%",
+                  height: "100%",
+                  paddingLeft: "1rem",
+                  paddingRight: "2.5rem", // space for the icon
+                  outline: "none",
+                  border: "1.5px solid #a9a9a9",
+                  borderRadius: "1.2rem",
+                  backgroundColor: "white",
+                }}
+              />
+              {searchValue && (
+                <IconButton
+                  size="small"
+                  onClick={() => setSearchValue("")}
+                  sx={{
+                    position: "absolute",
+                    right: "calc(31% + 1.75rem)",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#720361",
+                    p: 0.5,
+                    "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" },
+                  }}
+                  aria-label="Clear search"
+                >
+                  <CloseIcon sx={{ fontSize: "1.1rem" }} />
+                </IconButton>
+              )}
+              <img
+                src={search}
+                alt="search"
+                style={{
+                  width: "1.5rem",
+                  height: "1.5rem",
+                  position: "absolute",
+                  right: "31%",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <Button
+                onClick={handleSearchClick}
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to top left, #720361, #bf2f75)",
+                  border: "none",
+                  padding: {
+                    xs: "0.3rem 0.8rem",
+                    sm: "0.5rem 1rem",
+                    md: "0.3rem 1rem",
+                  },
+                  borderRadius: "90px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "fit-content",
+                  fontSize: "1.125rem",
+                  gap: "0.875rem",
+                  color: "white",
+                  cursor: "pointer",
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to top left, #720361, #bf2f75)", // same gradient on hover
+                  },
+                }}
+              >
+                Search
+              </Button>
+            </Box>
           </Box>
         </Box>
-      </Box>
       )}
 
       {activeTab === 1 && selectedVideoId ? (
@@ -1746,11 +2053,25 @@ const CreatorVideos = () => {
                     : authorPodcasts?.totalPodcasts || 0
               }
               rowsPerPage={
-                activeTab === 1 ? rowsPerPage : activeTab === 2 ? articlesRowsPerPage : podcastsRowsPerPage
+                activeTab === 1
+                  ? rowsPerPage
+                  : activeTab === 2
+                    ? articlesRowsPerPage
+                    : podcastsRowsPerPage
               }
-              page={activeTab === 1 ? page : activeTab === 2 ? articlesPage : podcastsPage}
+              page={
+                activeTab === 1
+                  ? page
+                  : activeTab === 2
+                    ? articlesPage
+                    : podcastsPage
+              }
               onPageChange={
-                activeTab === 1 ? handleChangePage : activeTab === 2 ? handleArticlesPageChange : handlePodcastsPageChange
+                activeTab === 1
+                  ? handleChangePage
+                  : activeTab === 2
+                    ? handleArticlesPageChange
+                    : handlePodcastsPageChange
               }
               onRowsPerPageChange={
                 activeTab === 1

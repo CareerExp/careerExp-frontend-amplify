@@ -96,10 +96,18 @@ const UploadVideoModal = ({ open, handleClose, onSuccess }) => {
       if (tabValue === 0) {
         await dispatchToRedux(uploadYoutubeVideo({ userId, formData, token }));
       } else {
+        const videoId = videoData?.video?._id ?? videoData?._id ?? videoData?.videoId;
+        if (!videoId) {
+          dispatchToRedux(
+            notify({ type: "error", message: "Video ID missing. Please upload the video again." })
+          );
+          setIsButtonLoading(false);
+          return;
+        }
         await dispatchToRedux(
           updateVideo({
             userId,
-            videoId: videoData?.video?._id,
+            videoId,
             formData,
             token,
           })

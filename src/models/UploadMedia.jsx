@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, CircularProgress, Box, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "../redux/slices/alertSlice.js";
 import { selectToken, selectUserId } from "../redux/slices/authSlice.js";
@@ -8,6 +8,7 @@ import {
   uploadVideo,
   selectThumbnailLink,
   selectVideoLink,
+  resetVideoData,
 } from "../redux/slices/creatorSlice.js";
 
 const UploadMedia = () => {
@@ -64,6 +65,10 @@ const UploadMedia = () => {
     }
   };
 
+  const handleReplaceVideo = () => {
+    dispatchToRedux(resetVideoData());
+  };
+
   return (
     <Box>
       <Box
@@ -79,23 +84,25 @@ const UploadMedia = () => {
           <Button component="span" variant="outlined">
             <CircularProgress size={25} color="inherit" />
           </Button>
+        ) : videoData ? (
+          <Button variant="outlined" onClick={handleReplaceVideo}>
+            Replace Video
+          </Button>
         ) : (
-          !videoData && (
-            <>
-              <input
-                id="video-input"
-                type="file"
-                onChange={handleVideoChange}
-                accept="video/*"
-                style={{ display: "none" }}
-              />
-              <label htmlFor="video-input">
-                <Button component="span" variant="outlined">
-                  Upload Video
-                </Button>
-              </label>
-            </>
-          )
+          <>
+            <input
+              id="video-input"
+              type="file"
+              onChange={handleVideoChange}
+              accept="video/*"
+              style={{ display: "none" }}
+            />
+            <label htmlFor="video-input">
+              <Button component="span" variant="outlined">
+                Upload Video
+              </Button>
+            </label>
+          </>
         )}
         {isThumbnailButtonLoading ? (
           <Button component="span" variant="outlined">
@@ -122,13 +129,18 @@ const UploadMedia = () => {
       </Box>
       <Box>
         {videoData && (
-          <TextField
-            disabled
-            label="Video Link"
-            fullWidth
-            sx={{ marginBottom: "1rem" }}
-            value={videoData?.link}
-          />
+          <Box sx={{ mb: 1 }}>
+            <TextField
+              disabled
+              label="Video Link"
+              fullWidth
+              sx={{ marginBottom: "0.5rem" }}
+              value={videoData?.link}
+            />
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              To use a different file, click &quot;Replace Video&quot; above, then upload again.
+            </Typography>
+          </Box>
         )}
         {thumbnailLink && (
           <TextField

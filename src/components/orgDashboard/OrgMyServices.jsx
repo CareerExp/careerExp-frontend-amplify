@@ -406,7 +406,7 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
           </Typography>
         </MenuItem>
         <Divider sx={{ my: "0 !important" }} />
-        <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
+        {/* <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
           <ContentCopyIcon sx={{ fontSize: "18px", color: "#667085" }} />
           <Typography
             sx={{
@@ -418,8 +418,8 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
             Duplicate
           </Typography>
         </MenuItem>
-        <Divider sx={{ my: "0 !important" }} />
-        <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
+        <Divider sx={{ my: "0 !important" }} /> */}
+        {/* <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
           <ArchiveIcon sx={{ fontSize: "18px", color: "#667085" }} />
           <Typography
             sx={{
@@ -431,7 +431,7 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
             Archive
           </Typography>
         </MenuItem>
-        <Divider sx={{ my: "0 !important" }} />
+        <Divider sx={{ my: "0 !important" }} /> */}
         <MenuItem onClick={handleDeleteClick} sx={{ gap: 1.5, py: 1.2 }}>
           <DeleteIcon sx={{ fontSize: "18px", color: "#D92D20" }} />
           <Typography

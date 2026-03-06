@@ -341,7 +341,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete, onView }) => {
           </Typography>
         </MenuItem>
         <Divider sx={{ my: "0 !important" }} />
-        <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
+        {/* <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
           <ContentCopyIcon sx={{ fontSize: "18px", color: "#667085" }} />
           <Typography
             sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#344054" }}
@@ -349,8 +349,8 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete, onView }) => {
             Duplicate
           </Typography>
         </MenuItem>
-        <Divider sx={{ my: "0 !important" }} />
-        <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
+        <Divider sx={{ my: "0 !important" }} /> */}
+        {/* <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
           <ArchiveIcon sx={{ fontSize: "18px", color: "#667085" }} />
           <Typography
             sx={{ fontFamily: fonts.sans, fontSize: "14|px", color: "#344054" }}
@@ -358,7 +358,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete, onView }) => {
             Archive
           </Typography>
         </MenuItem>
-        <Divider sx={{ my: "0 !important" }} />
+        <Divider sx={{ my: "0 !important" }} /> */}
         <MenuItem onClick={handleDeleteClick} sx={{ gap: 1.5, py: 1.2 }}>
           <DeleteIcon sx={{ fontSize: "18px", color: "#D92D20" }} />
           <Typography
@@ -697,7 +697,11 @@ const OrgMyAnnouncements = () => {
                   <IconButton
                     size="small"
                     onClick={() => setSearchQuery("")}
-                    sx={{ mr: 0.5, color: "rgba(0,0,0,0.4)", "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" } }}
+                    sx={{
+                      mr: 0.5,
+                      color: "rgba(0,0,0,0.4)",
+                      "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                    }}
                     aria-label="Clear search"
                   >
                     <CloseIcon fontSize="small" />
