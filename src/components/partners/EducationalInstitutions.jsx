@@ -27,7 +27,7 @@ function toCardItem(item) {
   };
 }
 
-const EducationalInstitutions = ({ search = "", country = "" }) => {
+const EducationalInstitutions = ({ search = "", country = "", language = "", program = "" }) => {
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -44,6 +44,8 @@ const EducationalInstitutions = ({ search = "", country = "" }) => {
         const res = await getExploreEi({
           search: search.trim(),
           country: country.trim(),
+          language: language.trim(),
+          program: program.trim(),
           page: pageNum,
           limit: PAGE_SIZE,
         });
@@ -70,7 +72,7 @@ const EducationalInstitutions = ({ search = "", country = "" }) => {
         setLoadingMore(false);
       }
     },
-    [search, country]
+    [search, country, language, program]
   );
 
   useEffect(() => {

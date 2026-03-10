@@ -88,6 +88,35 @@ export const updateService = createAsyncThunk(
   }
 );
 
+/** PATCH /api/services/:id/status — Enable/disable a service. Body: { isActive: boolean }. */
+export const updateServiceStatus = createAsyncThunk(
+  "service/updateStatus",
+  async ({ id, isActive, token }, thunkAPI) => {
+    try {
+      const actingAs = getActingAsHeader(thunkAPI.getState);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/services/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...actingAs,
+          },
+          body: { isActive },
+        }
+      );
+
+      if (!response.success) {
+        return thunkAPI.rejectWithValue({ error: response.message });
+      }
+      return { id, isActive, ...response };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
 export const deleteService = createAsyncThunk(
   "service/delete",
   async ({ id, token }, thunkAPI) => {
@@ -230,6 +259,15 @@ const serviceSlice = createSlice({
       .addCase(deleteService.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to delete service";
+      })
+      .addCase(updateServiceStatus.fulfilled, (state, { payload }) => {
+        const idx = state.myServices.findIndex((s) => s._id === payload.id);
+        if (idx !== -1) {
+          state.myServices[idx] = {
+            ...state.myServices[idx],
+            isActive: payload.isActive,
+          };
+        }
       })
       .addCase(getServiceById.fulfilled, () => {})
       .addCase(getServiceById.rejected, () => {})

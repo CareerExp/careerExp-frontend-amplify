@@ -20,6 +20,7 @@ import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BusinessIcon from "@mui/icons-material/Business";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
@@ -34,6 +35,12 @@ import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
 import { getCourseLikeStatus, toggleCourseLike } from "../redux/slices/likeSlice.js";
 import { getCourseRatingStatus, rateCourse } from "../redux/slices/ratingSlice.js";
+import {
+  getBookmarkedCourses,
+  addCourseBookmark,
+  removeCourseBookmark,
+  selectBookmarkedCourses,
+} from "../redux/slices/bookmarkSlice.js";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
@@ -66,8 +73,15 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const [course, setCourse] = useState(null);
   const [organizationDetails, setOrganizationDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarking, setBookmarking] = useState(false);
   const [userLiked, setUserLiked] = useState(false);
+
+  const bookmarkedCourses = useSelector(selectBookmarkedCourses);
+  const courseBookmarkStatus = useSelector((state) => state.bookmark?.courseBookmarkStatus) ?? {};
+  const isBookmarked =
+    courseId &&
+    (courseBookmarkStatus[courseId] ??
+      bookmarkedCourses.some((c) => (c._id || c.id) === courseId));
   const [userRating, setUserRating] = useState(0);
   const [totalViews, setTotalViews] = useState(null);
   const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
@@ -125,6 +139,34 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     };
     fetchRatingStatus();
   }, [courseId, userId, token, isAuthenticated, dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated && token && courseId) {
+      dispatch(getBookmarkedCourses({ token })).unwrap().catch(() => {});
+    }
+  }, [courseId, isAuthenticated, token, dispatch]);
+
+  const handleBookmarkClick = async () => {
+    if (!isAuthenticated) {
+      dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+      return;
+    }
+    if (!courseId || bookmarking || !token) return;
+    setBookmarking(true);
+    try {
+      if (isBookmarked) {
+        await dispatch(removeCourseBookmark({ courseId, token })).unwrap();
+        dispatch(notify({ type: "success", message: "Removed from bookmarks" }));
+      } else {
+        await dispatch(addCourseBookmark({ courseId, token })).unwrap();
+        dispatch(notify({ type: "success", message: "Added to bookmarks" }));
+      }
+    } catch (e) {
+      dispatch(notify({ type: "error", message: e?.message || "Could not update bookmark" }));
+    } finally {
+      setBookmarking(false);
+    }
+  };
 
   // Set document title and Open Graph meta tags for link preview when sharing
   useEffect(() => {
@@ -335,8 +377,18 @@ const CourseDetailContent = ({ courseId, onBack }) => {
               <IconButton onClick={handleShare} size="small" sx={{ color: ACCENT }}>
                 <ShareOutlinedIcon />
               </IconButton>
-              <IconButton onClick={() => setBookmarked((b) => !b)} size="small" sx={{ color: bookmarked ? ACCENT : "#717171" }}>
-                <BookmarkBorderIcon />
+              <IconButton
+                onClick={handleBookmarkClick}
+                disabled={bookmarking}
+                size="small"
+                sx={{ color: isBookmarked ? ACCENT : "#717171" }}
+                aria-label={isBookmarked ? "Remove bookmark" : "Bookmark"}
+              >
+                {isBookmarked ? (
+                  <BookmarkIcon sx={{ color: ACCENT }} />
+                ) : (
+                  <BookmarkBorderIcon />
+                )}
               </IconButton>
             </Box>
           </Box>

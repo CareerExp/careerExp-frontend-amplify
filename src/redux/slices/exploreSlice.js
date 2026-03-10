@@ -366,14 +366,12 @@ export const getAllCounsellors = createAsyncThunk(
     limit = 24,
     search = "",
     sortBy = "recent",
+    country = "",
   }) => {
     try {
-      const query = new URLSearchParams({
-        page,
-        limit,
-        search,
-        sortBy,
-      }).toString();
+      const params = { page, limit, search, sortBy };
+      if (country) params.country = country;
+      const query = new URLSearchParams(params).toString();
 
       return await FetchApi.fetch(
         `${config.api}/api/explore/getallcounsellors?${query}`,

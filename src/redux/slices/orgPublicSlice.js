@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
+import { getActingAsHeader } from "../../utility/getActingAsHeader.js";
 
 const BASE = `${config.api}/api/organization/public`;
 
@@ -9,11 +10,14 @@ function pathFor(identifier, idType) {
   return `${BASE}/v/${encodeURIComponent(identifier)}`;
 }
 
-/** Headers for public org API; include Authorization when user is logged in so backend optionalAuthenticated can allow org users. */
+/** Headers for public org API: Bearer token when logged in, and X-Acting-As-Organization-Id when admin is in AME context (same as profile/me). */
 function getPublicHeaders(thunkAPI) {
-  const token = thunkAPI.getState()?.auth?.token;
+  const state = thunkAPI.getState();
+  const token = state?.auth?.token;
+  const actingAs = getActingAsHeader(() => state);
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
+  Object.assign(headers, actingAs);
   return headers;
 }
 

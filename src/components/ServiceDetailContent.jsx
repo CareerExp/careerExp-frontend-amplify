@@ -8,7 +8,16 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
-import { Box, Button, IconButton, Typography, Rating, Dialog, DialogTitle, DialogContent } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  Rating,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +28,11 @@ import {
   increaseServiceSharesCount,
   registerServiceCta,
 } from "../redux/slices/serviceSlice.js";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
 import {
   getServiceRatingStatus,
   rateService,
@@ -48,7 +61,8 @@ function serviceModeLabel(mode) {
 function serviceModeTagStyle(mode) {
   const m = String(mode || "").toUpperCase();
   if (m === "ONLINE") return { bg: "#E8F5E9", textColor: "#2E7D32" };
-  if (m === "OFFLINE" || m === "IN_PERSON") return { bg: "#FFE8F3", textColor: "#DD4595" };
+  if (m === "OFFLINE" || m === "IN_PERSON")
+    return { bg: "#FFE8F3", textColor: "#DD4595" };
   if (m === "HYBRID") return { bg: "#FFF3E0", textColor: "#E65100" };
   return { bg: "#f5f5f5", textColor: "#717171" };
 }
@@ -56,7 +70,9 @@ function serviceModeTagStyle(mode) {
 /** Organization home URL from details (slug + organizationType). */
 function getOrgHomeUrl(org) {
   if (!org?.slug || !org?.organizationType) return null;
-  return org.organizationType === "HEI" ? `/org-hei/${org.slug}` : `/org-esp/${org.slug}`;
+  return org.organizationType === "HEI"
+    ? `/org-hei/${org.slug}`
+    : `/org-esp/${org.slug}`;
 }
 
 const ServiceDetailContent = ({ serviceId, onBack }) => {
@@ -71,11 +87,11 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const [userRating, setUserRating] = useState(0);
   const [averageRating, setAverageRating] = useState(null);
   const [totalRatings, setTotalRatings] = useState(null);
-  const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
+  const [messageProviderModalOpen, setMessageProviderModalOpen] =
+    useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  const imageUrl =
-    service?.coverImage || service?.image || eventsPlaceholder;
+  const imageUrl = service?.coverImage || service?.image || eventsPlaceholder;
   const cta = service?.cta || {};
   const durationStr = service?.duration
     ? `${service.duration.value || ""} ${(service.duration.unit || "min").toLowerCase()}`.trim()
@@ -97,12 +113,15 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
       if (!serviceId) return;
       try {
         setLoading(true);
-        const payload = isAuthenticated && token ? { id: serviceId, token } : serviceId;
+        const payload =
+          isAuthenticated && token ? { id: serviceId, token } : serviceId;
         const res = await dispatch(getServiceById(payload)).unwrap();
         if (res?.data) {
           setService(res.data);
-          if (res.data.averageRating != null) setAverageRating(Number(res.data.averageRating));
-          if (res.data.totalRatings != null) setTotalRatings(Number(res.data.totalRatings));
+          if (res.data.averageRating != null)
+            setAverageRating(Number(res.data.averageRating));
+          if (res.data.totalRatings != null)
+            setTotalRatings(Number(res.data.totalRatings));
         } else {
           setService(null);
         }
@@ -124,7 +143,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
       if (!serviceId || !userId || !token || !isAuthenticated) return;
       try {
         const res = await dispatch(
-          getServiceRatingStatus({ serviceId, userId, token })
+          getServiceRatingStatus({ serviceId, userId, token }),
         ).unwrap();
         setUserRating(Number(res?.rating) || 0);
       } catch (e) {
@@ -136,22 +155,28 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
 
   const handleRatingChange = async (event, newValue) => {
     if (!isAuthenticated || !token || !userId) {
-      dispatch(notify({ type: "warning", message: "Please log in to rate this service" }));
+      dispatch(
+        notify({
+          type: "warning",
+          message: "Please log in to rate this service",
+        }),
+      );
       return;
     }
     if (!serviceId || newValue == null) return;
     try {
       setUserRating(newValue);
       const res = await dispatch(
-        rateService({ serviceId, userId, rating: newValue, token })
+        rateService({ serviceId, userId, rating: newValue, token }),
       ).unwrap();
-      if (res?.averageRating != null) setAverageRating(Number(res.averageRating));
+      if (res?.averageRating != null)
+        setAverageRating(Number(res.averageRating));
       if (res?.totalRatings != null) setTotalRatings(Number(res.totalRatings));
       dispatch(
         notify({
           type: "success",
           message: res?.message || "Rating saved successfully",
-        })
+        }),
       );
     } catch (err) {
       setUserRating(userRating);
@@ -159,7 +184,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
         notify({
           type: "error",
           message: err?.message || "Failed to save rating",
-        })
+        }),
       );
     }
   };
@@ -182,7 +207,9 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const handleEnquireNow = async () => {
     if (!serviceId) return;
     if (!isAuthenticated || !token) {
-      dispatch(notify({ type: "warning", message: "Please log in to enquire" }));
+      dispatch(
+        notify({ type: "warning", message: "Please log in to enquire" }),
+      );
       return;
     }
     if (service?.userHasRespondedToCta) return;
@@ -192,22 +219,36 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
           id: serviceId,
           actionType: "CLICK",
           token,
-        })
+        }),
       ).unwrap();
-      dispatch(notify({ type: "success", message: "Response recorded successfully." }));
-      const res = await dispatch(getServiceById({ id: serviceId, token })).unwrap();
+      dispatch(
+        notify({ type: "success", message: "Response recorded successfully." }),
+      );
+      const res = await dispatch(
+        getServiceById({ id: serviceId, token }),
+      ).unwrap();
       if (res?.data) setService(res.data);
     } catch (err) {
-      dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.message || "Could not record response.",
+        }),
+      );
     }
   };
 
   const hasResponded = Boolean(service?.userHasRespondedToCta);
 
-  const contactEmail = organizationDetails?.contactEmail || service?.createdBy?.email;
+  const contactEmail =
+    organizationDetails?.contactEmail || service?.createdBy?.email;
   const providerName =
     organizationDetails?.organizationName ||
-    (service?.createdBy ? [service.createdBy.firstName, service.createdBy.lastName].filter(Boolean).join(" ") : "") ||
+    (service?.createdBy
+      ? [service.createdBy.firstName, service.createdBy.lastName]
+          .filter(Boolean)
+          .join(" ")
+      : "") ||
     "—";
 
   if (loading) {
@@ -295,7 +336,14 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 mb: 2,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
+              >
                 {service.category && (
                   <span
                     style={{
@@ -328,17 +376,22 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 </span>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-                <IconButton onClick={handleShare} size="small" sx={{ color: ACCENT }} aria-label="Share">
+                <IconButton
+                  onClick={handleShare}
+                  size="small"
+                  sx={{ color: ACCENT }}
+                  aria-label="Share"
+                >
                   <ShareIcon />
                 </IconButton>
-                <IconButton
+                {/* <IconButton
                   size="small"
                   sx={{ color: ACCENT }}
                   aria-label="Bookmark"
                   onClick={() => setBookmarked((b) => !b)}
                 >
                   <BookmarkBorderIcon />
-                </IconButton>
+                </IconButton> */}
               </Box>
             </Box>
 
@@ -356,7 +409,15 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               {service.title}
             </Typography>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap", mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                flexWrap: "wrap",
+                mb: 2,
+              }}
+            >
               {(organizationDetails?.organizationName || service.createdBy) && (
                 <Box
                   component={getOrgHomeUrl(organizationDetails) ? Link : Box}
@@ -367,13 +428,38 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                     gap: 0.5,
                     textDecoration: "none",
                     color: "inherit",
-                    ...(getOrgHomeUrl(organizationDetails) && { "&:hover": { opacity: 0.85 }, cursor: "pointer" }),
+                    ...(getOrgHomeUrl(organizationDetails) && {
+                      "&:hover": { opacity: 0.85 },
+                      cursor: "pointer",
+                    }),
                   }}
                 >
-                  {organizationDetails?.logo ? <Box component="img" src={organizationDetails.logo} alt="" sx={{ width: 48, height: 48, borderRadius: "10px", objectFit: "cover" }} /> : <BusinessCenterIcon sx={{ fontSize: 18, color: ACCENT }} />}
-                  <Typography variant="body2" sx={{ fontFamily: fonts.sans, color: colors.darkGray }}>
+                  {organizationDetails?.logo ? (
+                    <Box
+                      component="img"
+                      src={organizationDetails.logo}
+                      alt=""
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "10px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <BusinessCenterIcon sx={{ fontSize: 18, color: ACCENT }} />
+                  )}
+                  <Typography
+                    variant="body2"
+                    sx={{ fontFamily: fonts.sans, color: colors.darkGray }}
+                  >
                     {organizationDetails?.organizationName ||
-                      [service.createdBy?.firstName, service.createdBy?.lastName].filter(Boolean).join(" ") ||
+                      [
+                        service.createdBy?.firstName,
+                        service.createdBy?.lastName,
+                      ]
+                        .filter(Boolean)
+                        .join(" ") ||
                       "—"}
                   </Typography>
                 </Box>
@@ -381,7 +467,10 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               {durationStr && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   <AccessTimeIcon sx={{ fontSize: 18, color: ACCENT }} />
-                  <Typography variant="body2" sx={{ fontFamily: fonts.sans, color: colors.darkGray }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontFamily: fonts.sans, color: colors.darkGray }}
+                  >
                     {durationStr}
                   </Typography>
                 </Box>
@@ -448,7 +537,12 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   lineHeight: 1.7,
                   color: colors.darkGray,
                   "& p": { mb: 1.5 },
-                  "& h2, & h3": { fontFamily: fonts.sans, fontWeight: 600, mt: 2, mb: 1 },
+                  "& h2, & h3": {
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    mt: 2,
+                    mb: 1,
+                  },
                   "& ul, & ol": { pl: 2.5, mb: 1.5 },
                   "& a": { color: ACCENT, textDecoration: "underline" },
                   mb: 3,
@@ -457,77 +551,104 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               />
             )}
 
-            {Array.isArray(service.whatsIncluded) && service.whatsIncluded.length > 0 && (
-              <>
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontWeight: 700,
-                    fontSize: "1.125rem",
-                    color: colors.darkGray,
-                    mb: 1.5,
-                  }}
-                >
-                  What&apos;s Included
-                </Typography>
-                <Box component="ul" sx={{ m: 0, pl: 2.5, mb: 3, listStyle: "none" }}>
-                  {service.whatsIncluded.map((item, idx) => (
-                    <Box
-                      key={idx}
-                      component="li"
-                      sx={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 1,
-                        mb: 0.75,
-                        fontFamily: fonts.sans,
-                        fontSize: "1rem",
-                        color: colors.darkGray,
-                      }}
-                    >
-                      <CheckCircleOutlineIcon sx={{ color: "#2E7D32", fontSize: 20, mt: 0.2, flexShrink: 0 }} />
-                      <span>{typeof item === "string" ? item : item?.text || item?.title || ""}</span>
-                    </Box>
-                  ))}
-                </Box>
-              </>
-            )}
+            {Array.isArray(service.whatsIncluded) &&
+              service.whatsIncluded.length > 0 && (
+                <>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: 700,
+                      fontSize: "1.125rem",
+                      color: colors.darkGray,
+                      mb: 1.5,
+                    }}
+                  >
+                    What&apos;s Included
+                  </Typography>
+                  <Box
+                    component="ul"
+                    sx={{ m: 0, pl: 2.5, mb: 3, listStyle: "none" }}
+                  >
+                    {service.whatsIncluded.map((item, idx) => (
+                      <Box
+                        key={idx}
+                        component="li"
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 1,
+                          mb: 0.75,
+                          fontFamily: fonts.sans,
+                          fontSize: "1rem",
+                          color: colors.darkGray,
+                        }}
+                      >
+                        <CheckCircleOutlineIcon
+                          sx={{
+                            color: "#2E7D32",
+                            fontSize: 20,
+                            mt: 0.2,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span>
+                          {typeof item === "string"
+                            ? item
+                            : item?.text || item?.title || ""}
+                        </span>
+                      </Box>
+                    ))}
+                  </Box>
+                </>
+              )}
 
-            {Array.isArray(service.whatYouWillLearn) && service.whatYouWillLearn.length > 0 && (
-              <>
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontWeight: 700,
-                    fontSize: "1.125rem",
-                    color: colors.darkGray,
-                    mb: 1.5,
-                  }}
-                >
-                  What You Will Learn
-                </Typography>
-                <Box component="ul" sx={{ m: 0, pl: 2.5, listStyle: "none" }}>
-                  {service.whatYouWillLearn.map((item, idx) => (
-                    <Box
-                      key={idx}
-                      component="li"
-                      sx={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 1,
-                        mb: 0.75,
-                        fontFamily: fonts.sans,
-                        fontSize: "1rem",
-                        color: colors.darkGray,
-                      }}
-                    >
-                      <LightbulbOutlinedIcon sx={{ color: ACCENT_DARK, fontSize: 20, mt: 0.2, flexShrink: 0 }} />
-                      <span>{typeof item === "string" ? item : item?.text || item?.title || ""}</span>
-                    </Box>
-                  ))}
-                </Box>
-              </>
-            )}
+            {Array.isArray(service.whatYouWillLearn) &&
+              service.whatYouWillLearn.length > 0 && (
+                <>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: 700,
+                      fontSize: "1.125rem",
+                      color: colors.darkGray,
+                      mb: 1.5,
+                    }}
+                  >
+                    What You Will Learn
+                  </Typography>
+                  <Box component="ul" sx={{ m: 0, pl: 2.5, listStyle: "none" }}>
+                    {service.whatYouWillLearn.map((item, idx) => (
+                      <Box
+                        key={idx}
+                        component="li"
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 1,
+                          mb: 0.75,
+                          fontFamily: fonts.sans,
+                          fontSize: "1rem",
+                          color: colors.darkGray,
+                        }}
+                      >
+                        <LightbulbOutlinedIcon
+                          sx={{
+                            color: ACCENT_DARK,
+                            fontSize: 20,
+                            mt: 0.2,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span>
+                          {typeof item === "string"
+                            ? item
+                            : item?.text || item?.title || ""}
+                        </span>
+                      </Box>
+                    ))}
+                  </Box>
+                </>
+              )}
           </Box>
         </Box>
 
@@ -551,33 +672,113 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             }}
           >
             {/* Key-value rows: label left (muted), value right (bold) */}
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25, mb: 2.5 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "13px", color: "#999999", fontWeight: 500 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.25,
+                mb: 2.5,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "13px",
+                    color: "#999999",
+                    fontWeight: 500,
+                  }}
+                >
                   Duration:
                 </Typography>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#000000", fontWeight: 600 }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "14px",
+                    color: "#000000",
+                    fontWeight: 600,
+                  }}
+                >
                   {durationStr || "—"}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "13px", color: "#999999", fontWeight: 500 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "13px",
+                    color: "#999999",
+                    fontWeight: 500,
+                  }}
+                >
                   Service Mode:
                 </Typography>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#000000", fontWeight: 600 }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "14px",
+                    color: "#000000",
+                    fontWeight: 600,
+                  }}
+                >
                   {serviceModeLabelText}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "13px", color: "#999999", fontWeight: 500 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "13px",
+                    color: "#999999",
+                    fontWeight: 500,
+                  }}
+                >
                   Price:
                 </Typography>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#000000", fontWeight: 600 }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "14px",
+                    color: "#000000",
+                    fontWeight: 600,
+                  }}
+                >
                   {priceLabel}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "13px", color: "#999999", fontWeight: 500 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "13px",
+                    color: "#999999",
+                    fontWeight: 500,
+                  }}
+                >
                   Your Rating:
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -596,7 +797,12 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   {totalRatings != null && totalRatings > 0 && (
                     <Typography
                       component="span"
-                      sx={{ fontFamily: fonts.sans, fontSize: "12px", color: colors.midGray, ml: 0.5 }}
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "12px",
+                        color: colors.midGray,
+                        ml: 0.5,
+                      }}
                     >
                       ({totalRatings})
                     </Typography>
@@ -611,7 +817,8 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               disabled={hasResponded}
               onClick={handleEnquireNow}
               sx={{
-                background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                background:
+                  "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
                 boxShadow: "0 2px 8px rgba(114, 3, 97, 0.35)",
                 textTransform: "none",
                 borderRadius: "25px",
@@ -621,7 +828,8 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 fontSize: "1rem",
                 mb: 1.5,
                 "&:hover": {
-                  background: "linear-gradient(90deg, #5a0250 0%, #9f2663 50%, #c43d82 100%)",
+                  background:
+                    "linear-gradient(90deg, #5a0250 0%, #9f2663 50%, #c43d82 100%)",
                   boxShadow: "0 2px 12px rgba(114, 3, 97, 0.4)",
                 },
               }}
@@ -694,7 +902,8 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                     width: "100%",
                     height: "120px",
                     borderRadius: "10px",
-                    background: "linear-gradient(135deg, rgba(191, 47, 117, 0.06) 0%, rgba(114, 3, 97, 0.06) 100%)",
+                    background:
+                      "linear-gradient(135deg, rgba(191, 47, 117, 0.06) 0%, rgba(114, 3, 97, 0.06) 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -749,15 +958,33 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 </Typography>
               )}
               {organizationDetails.address && (
-                <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "flex-start" }}>
-                  <LocationOnOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00", mt: 0.25 }} />
-                  <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: colors.midGray }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mb: 1,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <LocationOnOutlinedIcon
+                    sx={{ fontSize: 20, color: "#FF8A00", mt: 0.25 }}
+                  />
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: colors.midGray,
+                    }}
+                  >
                     {organizationDetails.address}
                   </Typography>
                 </Box>
               )}
-              {(organizationDetails.contactEmail || service?.createdBy?.email) && (
-                <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}>
+              {(organizationDetails.contactEmail ||
+                service?.createdBy?.email) && (
+                <Box
+                  sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
+                >
                   <EmailOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00" }} />
                   <Typography
                     component="a"
@@ -769,7 +996,8 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                       textDecoration: "none",
                     }}
                   >
-                    {organizationDetails.contactEmail || service?.createdBy?.email}
+                    {organizationDetails.contactEmail ||
+                      service?.createdBy?.email}
                   </Typography>
                 </Box>
               )}
@@ -799,56 +1027,56 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             </Box>
           )}
 
-      {/* Message Provider modal */}
-      <Dialog
-        open={messageProviderModalOpen}
-        onClose={() => setMessageProviderModalOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: "16px", overflow: "hidden" },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontFamily: fonts.sans,
-            fontWeight: 700,
-            fontSize: "1.25rem",
-            color: "#101828",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #EAECF0",
-            py: 2,
-          }}
-        >
-          Message Provider
-          <IconButton
-            onClick={() => setMessageProviderModalOpen(false)}
-            size="small"
-            aria-label="Close"
-            sx={{ ml: 1 }}
+          {/* Message Provider modal */}
+          <Dialog
+            open={messageProviderModalOpen}
+            onClose={() => setMessageProviderModalOpen(false)}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{
+              sx: { borderRadius: "16px", overflow: "hidden" },
+            }}
           >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ p: 0 }}>
-          <NewMessagePanel
-            defaultToEmail={contactEmail}
-            defaultDisplayName={providerName}
-            onSuccess={() => setMessageProviderModalOpen(false)}
+            <DialogTitle
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 700,
+                fontSize: "1.25rem",
+                color: "#101828",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderBottom: "1px solid #EAECF0",
+                py: 2,
+              }}
+            >
+              Message Provider
+              <IconButton
+                onClick={() => setMessageProviderModalOpen(false)}
+                size="small"
+                aria-label="Close"
+                sx={{ ml: 1 }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ p: 0 }}>
+              <NewMessagePanel
+                defaultToEmail={contactEmail}
+                defaultDisplayName={providerName}
+                onSuccess={() => setMessageProviderModalOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+          <SharingVideoModal
+            open={shareModalOpen}
+            handleClose={() => setShareModalOpen(false)}
+            videoUrl={window.location.origin + `/explore/service/${serviceId}`}
+            videoId={serviceId}
+            shareTitle={service?.title}
+            modalTitle="Share Service"
+            onShare={handleShareAction}
           />
-        </DialogContent>
-      </Dialog>
-      <SharingVideoModal
-        open={shareModalOpen}
-        handleClose={() => setShareModalOpen(false)}
-        videoUrl={window.location.origin + `/explore/service/${serviceId}`}
-        videoId={serviceId}
-        shareTitle={service?.title}
-        modalTitle="Share Service"
-        onShare={handleShareAction}
-      />
         </Box>
       </Box>
     </Box>

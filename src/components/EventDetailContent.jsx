@@ -15,7 +15,11 @@ import {
   increaseEventSharesCount,
   registerEventCta,
 } from "../redux/slices/eventSlice.js";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
 import { formatArticleDetailDate } from "../utility/convertTimeToUTC.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
@@ -25,7 +29,7 @@ import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const EVENT_TYPE_LABELS = {
   "in person": "In Person",
-  "in_person": "In Person",
+  in_person: "In Person",
   IN_PERSON: "In Person",
   hybrid: "Hybrid",
   HYBRID: "Hybrid",
@@ -36,7 +40,9 @@ const EVENT_TYPE_LABELS = {
 /** Organization home URL from details (slug + organizationType). */
 function getOrgHomeUrl(org) {
   if (!org?.slug || !org?.organizationType) return null;
-  return org.organizationType === "HEI" ? `/org-hei/${org.slug}` : `/org-esp/${org.slug}`;
+  return org.organizationType === "HEI"
+    ? `/org-hei/${org.slug}`
+    : `/org-esp/${org.slug}`;
 }
 
 const EventDetailContent = ({ eventId, onBack }) => {
@@ -51,24 +57,31 @@ const EventDetailContent = ({ eventId, onBack }) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const imageUrl =
-    event?.coverImage ||
-    event?.banner ||
-    event?.image ||
-    eventsPlaceholder;
+    event?.coverImage || event?.banner || event?.image || eventsPlaceholder;
   const registrationDeadline = event?.registrationDeadline;
-  const rawType = (event?.eventType || event?.type || "").toString().toLowerCase().replace(/\s+/g, "_");
-  const eventTypeLabel = EVENT_TYPE_LABELS[rawType] || EVENT_TYPE_LABELS[event?.eventType] || event?.eventType || event?.type || "Event";
+  const rawType = (event?.eventType || event?.type || "")
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+  const eventTypeLabel =
+    EVENT_TYPE_LABELS[rawType] ||
+    EVENT_TYPE_LABELS[event?.eventType] ||
+    event?.eventType ||
+    event?.type ||
+    "Event";
 
   useEffect(() => {
     const fetchDetail = async () => {
       if (!eventId) return;
       try {
         setLoading(true);
-        const payload = isAuthenticated && token ? { id: eventId, token } : eventId;
+        const payload =
+          isAuthenticated && token ? { id: eventId, token } : eventId;
         const res = await dispatch(getEventById(payload)).unwrap();
         if (res?.data) setEvent(res.data);
         else setEvent(null);
-        if (res?.organizationDetails != null) setOrganizationDetails(res.organizationDetails);
+        if (res?.organizationDetails != null)
+          setOrganizationDetails(res.organizationDetails);
         else setOrganizationDetails(null);
       } catch (e) {
         dispatch(notify({ type: "error", message: "Event not found" }));
@@ -97,7 +110,9 @@ const EventDetailContent = ({ eventId, onBack }) => {
 
   const handleRegister = async () => {
     if (!isAuthenticated || !token) {
-      dispatch(notify({ type: "warning", message: "Please log in to register" }));
+      dispatch(
+        notify({ type: "warning", message: "Please log in to register" }),
+      );
       return;
     }
     if (!eventId || event?.userHasRespondedToCta) return;
@@ -107,13 +122,20 @@ const EventDetailContent = ({ eventId, onBack }) => {
           id: eventId,
           actionType: "CLICK",
           token,
-        })
+        }),
       ).unwrap();
-      dispatch(notify({ type: "success", message: "Response recorded successfully." }));
+      dispatch(
+        notify({ type: "success", message: "Response recorded successfully." }),
+      );
       const res = await dispatch(getEventById({ id: eventId, token })).unwrap();
       if (res?.data) setEvent(res.data);
     } catch (err) {
-      dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.message || "Could not record response.",
+        }),
+      );
     }
   };
 
@@ -207,27 +229,45 @@ const EventDetailContent = ({ eventId, onBack }) => {
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <CalendarTodayIcon sx={{ fontSize: 18, color: "#DD4595" }} />
-                <Typography variant="body2" sx={{ color: colors.darkGray, fontFamily: fonts.sans }}>
-                  {formatArticleDetailDate(event.liveStartDate || event.eventDate || event.createdAt)}
+                <Typography
+                  variant="body2"
+                  sx={{ color: colors.darkGray, fontFamily: fonts.sans }}
+                >
+                  {formatArticleDetailDate(
+                    event.liveStartDate || event.eventDate || event.createdAt,
+                  )}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-                <IconButton onClick={handleShare} size="small" sx={{ color: "#DD4595" }} aria-label="Share">
+                <IconButton
+                  onClick={handleShare}
+                  size="small"
+                  sx={{ color: "#DD4595" }}
+                  aria-label="Share"
+                >
                   <ShareIcon />
                 </IconButton>
-                <IconButton
+                {/* <IconButton
                   size="small"
                   sx={{ color: "#DD4595" }}
                   aria-label="Bookmark"
                   onClick={() => setBookmarked((b) => !b)}
                 >
                   <BookmarkBorderIcon />
-                </IconButton>
+                </IconButton> */}
               </Box>
             </Box>
 
             {/* Title + event type tag (Figma: tag to the right of title) */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 1.5,
+                mb: 2,
+              }}
+            >
               <Typography
                 variant="h1"
                 sx={{
@@ -304,7 +344,12 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   lineHeight: 1.7,
                   color: colors.darkGray,
                   "& p": { mb: 1.5 },
-                  "& h2, & h3": { fontFamily: fonts.sans, fontWeight: 600, mt: 2, mb: 1 },
+                  "& h2, & h3": {
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    mt: 2,
+                    mb: 1,
+                  },
                   "& ul, & ol": { pl: 2.5, mb: 1.5 },
                   "& a": { color: "#DD4595", textDecoration: "underline" },
                 }}
@@ -332,7 +377,8 @@ const EventDetailContent = ({ eventId, onBack }) => {
                     mb: 0.5,
                   }}
                 >
-                  Application Deadline: {formatArticleDetailDate(registrationDeadline)}
+                  Application Deadline:{" "}
+                  {formatArticleDetailDate(registrationDeadline)}
                 </Typography>
                 <Typography
                   sx={{
@@ -341,7 +387,8 @@ const EventDetailContent = ({ eventId, onBack }) => {
                     color: colors.midGray,
                   }}
                 >
-                  Don&apos;t miss this incredible opportunity. Register before the deadline!
+                  Don&apos;t miss this incredible opportunity. Register before
+                  the deadline!
                 </Typography>
               </Box>
             )}
@@ -388,7 +435,8 @@ const EventDetailContent = ({ eventId, onBack }) => {
                 mb: 2,
               }}
             >
-              Get in touch to learn more about this event and registration requirements.
+              Get in touch to learn more about this event and registration
+              requirements.
             </Typography>
             <Button
               variant="contained"
@@ -396,21 +444,22 @@ const EventDetailContent = ({ eventId, onBack }) => {
               disabled={hasResponded}
               onClick={handleRegister}
               sx={{
-                background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                background:
+                  "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
                 textTransform: "capitalize",
                 borderRadius: "25px",
                 py: 1.25,
                 fontFamily: fonts.sans,
                 fontWeight: 600,
                 "&:hover": {
-                  background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                  background:
+                    "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
                 },
               }}
             >
               {hasResponded ? "Registered" : "Register Now"}
             </Button>
           </Box>
-
 
           {organizationDetails && (
             <Box
@@ -422,8 +471,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
                 p: 2.5,
               }}
             >
-
-                     <Typography
+              <Typography
                 sx={{
                   fontFamily: fonts.sans,
                   fontWeight: 600,
@@ -434,7 +482,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
               >
                 Institution Details
               </Typography>
-              
+
               {organizationDetails.logo ? (
                 <Box
                   component="img"
@@ -454,7 +502,8 @@ const EventDetailContent = ({ eventId, onBack }) => {
                     width: "100%",
                     height: "120px",
                     borderRadius: "10px",
-                    background: "linear-gradient(135deg, rgba(191, 47, 117, 0.06) 0%, rgba(114, 3, 97, 0.06) 100%)",
+                    background:
+                      "linear-gradient(135deg, rgba(191, 47, 117, 0.06) 0%, rgba(114, 3, 97, 0.06) 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -509,22 +558,46 @@ const EventDetailContent = ({ eventId, onBack }) => {
                 </Typography>
               )}
               {organizationDetails.address && (
-                <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "flex-start" }}>
-                  <LocationOnOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00", mt: 0.25 }} />
-                  <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: colors.midGray }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mb: 1,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <LocationOnOutlinedIcon
+                    sx={{ fontSize: 20, color: "#FF8A00", mt: 0.25 }}
+                  />
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: colors.midGray,
+                    }}
+                  >
                     {organizationDetails.address}
                   </Typography>
                 </Box>
               )}
-              {(organizationDetails.contactEmail || event?.createdBy?.email) && (
-                <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}>
+              {(organizationDetails.contactEmail ||
+                event?.createdBy?.email) && (
+                <Box
+                  sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
+                >
                   <EmailOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00" }} />
                   <Typography
                     component="a"
                     href={`mailto:${organizationDetails.contactEmail || event?.createdBy?.email}`}
-                    sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: colors.midGray, textDecoration: "none" }}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: colors.midGray,
+                      textDecoration: "none",
+                    }}
                   >
-                    {organizationDetails.contactEmail || event?.createdBy?.email}
+                    {organizationDetails.contactEmail ||
+                      event?.createdBy?.email}
                   </Typography>
                 </Box>
               )}
@@ -533,10 +606,19 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   <LanguageIcon sx={{ fontSize: 20, color: "#FF8A00" }} />
                   <Typography
                     component="a"
-                    href={organizationDetails.website.startsWith("http") ? organizationDetails.website : `https://${organizationDetails.website}`}
+                    href={
+                      organizationDetails.website.startsWith("http")
+                        ? organizationDetails.website
+                        : `https://${organizationDetails.website}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: colors.midGray, textDecoration: "none" }}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: colors.midGray,
+                      textDecoration: "none",
+                    }}
                   >
                     {organizationDetails.website.replace(/^https?:\/\//i, "")}
                   </Typography>

@@ -2,6 +2,10 @@
     width: 150px;
 }
 
+.autocomplete-specialization {
+    width: 200px;
+}
+
 .autocomplete-programs {
     width: 150px;
 }
@@ -26,6 +30,7 @@
 @media (max-width: 900px) {
 
     .autocomplete-country,
+    .autocomplete-specialization,
     .autocomplete-programs,
     .autocomplete-language {
         width: 100% !important;

@@ -1,14 +1,36 @@
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Rating from "@mui/material/Rating";
+import { IconButton } from "@mui/material";
+import { notify } from "../redux/slices/alertSlice.js";
+import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
+import {
+  addArticleBookmark,
+  removeArticleBookmark,
+  selectBookmarkedArticles,
+} from "../redux/slices/bookmarkSlice.js";
 import { fonts } from "../utility/fonts.js";
 
 const ArticleCard = ({ article }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const authenticated = useSelector(selectAuthenticated);
+  const bookmarkedArticles = useSelector(selectBookmarkedArticles);
+  const articleBookmarkStatus = useSelector((state) => state.bookmark?.articleBookmarkStatus) ?? {};
+  const [bookmarking, setBookmarking] = useState(false);
+
+  const articleId = article?._id;
+  const isBookmarked =
+    articleId &&
+    (articleBookmarkStatus[articleId] ??
+      bookmarkedArticles.some((a) => (a._id || a.id) === articleId));
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -135,22 +157,59 @@ const ArticleCard = ({ article }) => {
             {category}
           </span>
         )}
-        <div
-          style={{
+        <IconButton
+          size="small"
+          disabled={bookmarking}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!articleId) return;
+            if (!authenticated) {
+              dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+              return;
+            }
+            if (bookmarking || !token) return;
+            setBookmarking(true);
+            const thunk = isBookmarked
+              ? removeArticleBookmark({ articleId, token })
+              : addArticleBookmark({ articleId, token });
+            dispatch(thunk)
+              .unwrap()
+              .then(() => {
+                dispatch(
+                  notify({
+                    type: "success",
+                    message: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+                  })
+                );
+              })
+              .catch((err) => {
+                dispatch(
+                  notify({
+                    type: "error",
+                    message: err?.message || "Could not update bookmark",
+                  })
+                );
+              })
+              .finally(() => setBookmarking(false));
+          }}
+          sx={{
             position: "absolute",
-            right: "12px",
-            top: "12px",
+            right: "8px",
+            top: "8px",
             width: "36px",
             height: "36px",
             borderRadius: "50%",
             backgroundColor: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
           }}
+          aria-label={isBookmarked ? "Remove bookmark" : "Bookmark"}
         >
-          <BookmarkBorderIcon sx={{ color: "#720361", fontSize: "1.2rem" }} />
-        </div>
+          {isBookmarked ? (
+            <BookmarkIcon sx={{ color: "#720361", fontSize: "1.2rem" }} />
+          ) : (
+            <BookmarkBorderIcon sx={{ color: "#720361", fontSize: "1.2rem" }} />
+          )}
+        </IconButton>
       </div>
 
       {/* Content: flex so footer stays at bottom and aligns across cards */}

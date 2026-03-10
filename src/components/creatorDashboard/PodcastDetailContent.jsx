@@ -1,5 +1,6 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ForwardIcon from "@mui/icons-material/Forward";
 import HeadphonesIcon from "@mui/icons-material/Headphones";
@@ -39,6 +40,11 @@ import {
   ratePodcast,
   togglePodcastLike,
 } from "../../redux/slices/creatorSlice.js";
+import {
+  getPodcastBookmarkStatus,
+  addPodcastBookmark,
+  removePodcastBookmark,
+} from "../../redux/slices/bookmarkSlice.js";
 import SharingVideoModal from "../../models/SharingVideoModal.jsx";
 import { colors } from "../../utility/color.js";
 import { formatArticleDetailDate } from "../../utility/convertTimeToUTC.js";
@@ -92,6 +98,7 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const [bookmarking, setBookmarking] = useState(false);
   const audioRef = useRef(null);
   const viewCountRef = useRef(false);
 
@@ -146,6 +153,9 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
       dispatch(getPodcastRatingStatus({ podcastId: podcast._id, userId, token }))
         .unwrap()
         .then((p) => setUserRating(Number(p?.rating) || 0))
+        .catch(() => {});
+      dispatch(getPodcastBookmarkStatus({ podcastId: podcast._id, token }))
+        .unwrap()
         .catch(() => {});
     }
   }, [authenticated, podcastId, podcast?._id, userId, token, dispatch]);
@@ -222,6 +232,33 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
     const next = Math.max(0, audioRef.current.currentTime - 15);
     audioRef.current.currentTime = next;
     setAudioCurrentTime(next);
+  };
+
+  const podcastBookmarked = useSelector(
+    (state) => state.bookmark?.podcastBookmarkStatus?.[podcast?._id || podcastId] ?? false,
+  );
+
+  const handleBookmarkClick = async () => {
+    if (!authenticated) {
+      dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+      return;
+    }
+    const id = podcast?._id || podcastId;
+    if (!id || bookmarking) return;
+    setBookmarking(true);
+    try {
+      if (podcastBookmarked) {
+        await dispatch(removePodcastBookmark({ podcastId: id, token })).unwrap();
+        dispatch(notify({ type: "success", message: "Removed from bookmarks" }));
+      } else {
+        await dispatch(addPodcastBookmark({ podcastId: id, token })).unwrap();
+        dispatch(notify({ type: "success", message: "Added to bookmarks" }));
+      }
+    } catch (e) {
+      dispatch(notify({ type: "error", message: e?.message || "Could not update bookmark" }));
+    } finally {
+      setBookmarking(false);
+    }
   };
 
   const handleForward15 = () => {
@@ -614,8 +651,18 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
                 <ShareIcon />
               </IconButton>
               {!embedded && (
-                <IconButton size="small" sx={{ color: "#720361" }} aria-label="Bookmark">
-                  <BookmarkBorderIcon />
+                <IconButton
+                  size="small"
+                  sx={{ color: "#720361" }}
+                  aria-label={podcastBookmarked ? "Remove bookmark" : "Bookmark"}
+                  onClick={handleBookmarkClick}
+                  disabled={bookmarking}
+                >
+                  {podcastBookmarked ? (
+                    <BookmarkIcon sx={{ color: "#720361" }} />
+                  ) : (
+                    <BookmarkBorderIcon />
+                  )}
                 </IconButton>
               )}
             </Box>
