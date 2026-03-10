@@ -297,25 +297,47 @@ const EventDetailContent = ({ eventId, onBack }) => {
               </span>
             </Box>
 
-            {/* Cover image */}
+            {/* Cover image: 400px height, blurred image as background fill */}
             <Box
               sx={{
                 width: "100%",
+                height: 400,
+                maxHeight: 400,
                 borderRadius: "12px",
                 overflow: "hidden",
                 mb: 3,
                 position: "relative",
                 backgroundColor: "#e8e8e8",
-                minHeight: 320,
               }}
             >
-              <img
+              {/* Blurred background fill */}
+              <Box
+                component="img"
                 src={imageUrl}
                 alt=""
-                style={{
+                sx={{
+                  position: "absolute",
+                  left: "-10%",
+                  top: "-10%",
+                  width: "120%",
+                  height: "120%",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                  filter: "blur(20px)",
+                }}
+                aria-hidden
+              />
+              {/* Main image */}
+              <Box
+                component="img"
+                src={imageUrl}
+                alt=""
+                sx={{
+                  position: "relative",
+                  zIndex: 1,
                   width: "100%",
                   height: "100%",
-                  minHeight: 320,
+                  maxHeight: 400,
                   objectFit: "cover",
                   objectPosition: "center",
                   display: "block",

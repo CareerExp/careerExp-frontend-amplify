@@ -115,15 +115,58 @@
   cursor: pointer;
 }
 
+/* Mobile: horizontally scrollable tab header; desktop unchanged */
+@media screen and (max-width: 600px) {
+  .tabBarInside .tabList {
+    width: max-content;
+    min-width: 100%;
+  }
+  .tabBarInside .tab {
+    flex: 0 0 auto;
+    min-width: max-content;
+  }
+}
+
+/* Mobile: filter bar stacked layout */
+@media screen and (max-width: 600px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .filtersSearch {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  .filtersDropdownsRow {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .filtersDropdownsRow > * {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+  }
+  .filtersButtonsRow {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+  .filtersButtonsRow > * {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 @media screen and (max-width: 480px) {
   .applyBtn,
   .resetBtn {
     font-size: 1rem;
     padding: 0.6rem 1rem;
     gap: 10px;
-  }
-  .filters {
-    flex-direction: column;
   }
   .select-and-buttons {
     margin-bottom: 1rem;
