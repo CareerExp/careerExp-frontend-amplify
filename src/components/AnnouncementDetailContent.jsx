@@ -15,7 +15,11 @@ import {
   increaseAnnouncementSharesCount,
   registerAnnouncementCta,
 } from "../redux/slices/announcementSlice.js";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
 import { formatArticleDetailDate } from "../utility/convertTimeToUTC.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
@@ -36,12 +40,14 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   /** Organization home URL from details (slug + organizationType). Backend may expose slug/organizationType on organizationDetails. */
-function getOrgHomeUrl(org) {
-  if (!org?.slug || !org?.organizationType) return null;
-  return org.organizationType === "HEI" ? `/org-hei/${org.slug}` : `/org-esp/${org.slug}`;
-}
+  function getOrgHomeUrl(org) {
+    if (!org?.slug || !org?.organizationType) return null;
+    return org.organizationType === "HEI"
+      ? `/org-hei/${org.slug}`
+      : `/org-esp/${org.slug}`;
+  }
 
-const imageUrl =
+  const imageUrl =
     announcement?.coverImage ||
     announcement?.banner ||
     announcement?.image ||
@@ -54,11 +60,15 @@ const imageUrl =
       if (!announcementId) return;
       try {
         setLoading(true);
-        const payload = isAuthenticated && token ? { id: announcementId, token } : announcementId;
+        const payload =
+          isAuthenticated && token
+            ? { id: announcementId, token }
+            : announcementId;
         const res = await dispatch(getAnnouncementById(payload)).unwrap();
         if (res?.data) setAnnouncement(res.data);
         else setAnnouncement(null);
-        if (res?.organizationDetails != null) setOrganizationDetails(res.organizationDetails);
+        if (res?.organizationDetails != null)
+          setOrganizationDetails(res.organizationDetails);
         else setOrganizationDetails(null);
       } catch (e) {
         dispatch(notify({ type: "error", message: "Announcement not found" }));
@@ -87,7 +97,9 @@ const imageUrl =
 
   const handleEnquire = async () => {
     if (!isAuthenticated || !token) {
-      dispatch(notify({ type: "warning", message: "Please log in to enquire" }));
+      dispatch(
+        notify({ type: "warning", message: "Please log in to enquire" }),
+      );
       return;
     }
     if (!announcementId || announcement?.userHasRespondedToCta) return;
@@ -97,13 +109,22 @@ const imageUrl =
           id: announcementId,
           actionType: "CLICK",
           token,
-        })
+        }),
       ).unwrap();
-      dispatch(notify({ type: "success", message: "Enquiry recorded successfully." }));
-      const res = await dispatch(getAnnouncementById({ id: announcementId, token })).unwrap();
+      dispatch(
+        notify({ type: "success", message: "Enquiry recorded successfully." }),
+      );
+      const res = await dispatch(
+        getAnnouncementById({ id: announcementId, token }),
+      ).unwrap();
       if (res?.data) setAnnouncement(res.data);
     } catch (err) {
-      dispatch(notify({ type: "error", message: err?.message || "Could not record response." }));
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.message || "Could not record response.",
+        }),
+      );
     }
   };
 
@@ -207,17 +228,22 @@ const imageUrl =
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-                <IconButton onClick={handleShare} size="small" sx={{ color: "#720361" }} aria-label="Share">
+                <IconButton
+                  onClick={handleShare}
+                  size="small"
+                  sx={{ color: "#720361" }}
+                  aria-label="Share"
+                >
                   <ShareIcon />
                 </IconButton>
-                <IconButton
+                {/* <IconButton
                   size="small"
                   sx={{ color: "#720361" }}
                   aria-label="Bookmark"
                   onClick={() => setBookmarked((b) => !b)}
                 >
                   <BookmarkBorderIcon />
-                </IconButton>
+                </IconButton> */}
               </Box>
             </Box>
 
@@ -295,7 +321,12 @@ const imageUrl =
                   lineHeight: 1.7,
                   color: colors.darkGray,
                   "& p": { mb: 1.5 },
-                  "& h2, & h3": { fontFamily: fonts.sans, fontWeight: 600, mt: 2, mb: 1 },
+                  "& h2, & h3": {
+                    fontFamily: fonts.sans,
+                    fontWeight: 600,
+                    mt: 2,
+                    mb: 1,
+                  },
                   "& ul, & ol": { pl: 2.5, mb: 1.5 },
                   "& a": { color: "#720361", textDecoration: "underline" },
                 }}
@@ -332,7 +363,8 @@ const imageUrl =
                     color: colors.midGray,
                   }}
                 >
-                  Don&apos;t miss this incredible opportunity to pursue your goals with substantial support!
+                  Don&apos;t miss this incredible opportunity to pursue your
+                  goals with substantial support!
                 </Typography>
               </Box>
             )}
@@ -380,7 +412,8 @@ const imageUrl =
                 mb: 2,
               }}
             >
-              Get in touch with our admissions team to learn more about the opportunities and application requirements.
+              Get in touch with our admissions team to learn more about the
+              opportunities and application requirements.
             </Typography>
             <Button
               variant="contained"
@@ -500,22 +533,46 @@ const imageUrl =
                 </Typography>
               )}
               {organizationDetails.address && (
-                <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "flex-start" }}>
-                  <LocationOnOutlinedIcon sx={{ fontSize: 20, color: "#720361", mt: 0.25 }} />
-                  <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: colors.midGray }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mb: 1,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <LocationOnOutlinedIcon
+                    sx={{ fontSize: 20, color: "#720361", mt: 0.25 }}
+                  />
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: colors.midGray,
+                    }}
+                  >
                     {organizationDetails.address}
                   </Typography>
                 </Box>
               )}
-              {(organizationDetails.contactEmail || announcement?.organizationUserId?.email) && (
-                <Box sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}>
+              {(organizationDetails.contactEmail ||
+                announcement?.organizationUserId?.email) && (
+                <Box
+                  sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
+                >
                   <EmailOutlinedIcon sx={{ fontSize: 20, color: "#720361" }} />
                   <Typography
                     component="a"
                     href={`mailto:${organizationDetails.contactEmail || announcement?.organizationUserId?.email}`}
-                    sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#720361", textDecoration: "none" }}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: "#720361",
+                      textDecoration: "none",
+                    }}
                   >
-                    {organizationDetails.contactEmail || announcement?.organizationUserId?.email}
+                    {organizationDetails.contactEmail ||
+                      announcement?.organizationUserId?.email}
                   </Typography>
                 </Box>
               )}
@@ -524,10 +581,19 @@ const imageUrl =
                   <LanguageIcon sx={{ fontSize: 20, color: "#720361" }} />
                   <Typography
                     component="a"
-                    href={organizationDetails.website.startsWith("http") ? organizationDetails.website : `https://${organizationDetails.website}`}
+                    href={
+                      organizationDetails.website.startsWith("http")
+                        ? organizationDetails.website
+                        : `https://${organizationDetails.website}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#720361", textDecoration: "none" }}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.875rem",
+                      color: "#720361",
+                      textDecoration: "none",
+                    }}
                   >
                     {organizationDetails.website.replace(/^https?:\/\//i, "")}
                   </Typography>
@@ -540,7 +606,9 @@ const imageUrl =
       <SharingVideoModal
         open={shareModalOpen}
         handleClose={() => setShareModalOpen(false)}
-        videoUrl={window.location.origin + `/explore/announcement/${announcementId}`}
+        videoUrl={
+          window.location.origin + `/explore/announcement/${announcementId}`
+        }
         videoId={announcementId}
         shareTitle={announcement?.title}
         modalTitle="Share Announcement"

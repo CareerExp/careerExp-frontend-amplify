@@ -27,7 +27,7 @@ function toCardItem(item) {
   };
 }
 
-const EducationServiceProviders = ({ search = "", country = "" }) => {
+const EducationServiceProviders = ({ search = "", country = "", language = "", specialization = "" }) => {
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -44,6 +44,8 @@ const EducationServiceProviders = ({ search = "", country = "" }) => {
         const res = await getExploreEsps({
           search: search.trim(),
           country: country.trim(),
+          language: language.trim(),
+          specialization: specialization.trim(),
           page: pageNum,
           limit: PAGE_SIZE,
         });
@@ -70,7 +72,7 @@ const EducationServiceProviders = ({ search = "", country = "" }) => {
         setLoadingMore(false);
       }
     },
-    [search, country]
+    [search, country, language, specialization]
   );
 
   useEffect(() => {

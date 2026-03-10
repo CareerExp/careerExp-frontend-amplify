@@ -1,5 +1,6 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
@@ -38,6 +39,11 @@ import {
   toggleArticleLike,
   deleteArticle,
 } from "../../redux/slices/creatorSlice.js";
+import {
+  getArticleBookmarkStatus,
+  addArticleBookmark,
+  removeArticleBookmark,
+} from "../../redux/slices/bookmarkSlice.js";
 import { colors } from "../../utility/color.js";
 import { formatArticleDetailDate } from "../../utility/convertTimeToUTC.js";
 import { formatReadTime } from "../../utility/readTime.js";
@@ -74,8 +80,12 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bookmarking, setBookmarking] = useState(false);
   const viewCountRef = useRef(false);
 
+  const articleBookmarked = useSelector(
+    (state) => state.bookmark?.articleBookmarkStatus?.[article?._id || articleId] ?? false,
+  );
   const resolvedCreatorId =
     article?.creatorId && typeof article.creatorId === "object"
       ? article.creatorId._id
@@ -134,6 +144,9 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
       dispatch(getArticleRatingStatus({ articleId, userId, token }))
         .unwrap()
         .then((p) => setUserRating(Number(p?.rating) || 0))
+        .catch(() => {});
+      dispatch(getArticleBookmarkStatus({ articleId, token }))
+        .unwrap()
         .catch(() => {});
     }
   }, [authenticated, articleId, userId, token, dispatch]);
@@ -261,6 +274,29 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
       dispatch(notify({ type: "error", message: "Could not delete article" }));
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleBookmarkClick = async () => {
+    if (!authenticated) {
+      dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+      return;
+    }
+    const id = article?._id || articleId;
+    if (!id || bookmarking) return;
+    setBookmarking(true);
+    try {
+      if (articleBookmarked) {
+        await dispatch(removeArticleBookmark({ articleId: id, token })).unwrap();
+        dispatch(notify({ type: "success", message: "Removed from bookmarks" }));
+      } else {
+        await dispatch(addArticleBookmark({ articleId: id, token })).unwrap();
+        dispatch(notify({ type: "success", message: "Added to bookmarks" }));
+      }
+    } catch (e) {
+      dispatch(notify({ type: "error", message: e?.message || "Could not update bookmark" }));
+    } finally {
+      setBookmarking(false);
     }
   };
 
@@ -472,8 +508,18 @@ const ArticleDetailContent = ({ articleId, onBack, onDeleteSuccess, embedded = f
             <ShareIcon />
           </IconButton>
           {!embedded && (
-            <IconButton size="small" sx={{ color: "#720361" }} aria-label="Bookmark">
-              <BookmarkBorderIcon />
+            <IconButton
+              size="small"
+              sx={{ color: "#720361" }}
+              aria-label={articleBookmarked ? "Remove bookmark" : "Bookmark"}
+              onClick={handleBookmarkClick}
+              disabled={bookmarking}
+            >
+              {articleBookmarked ? (
+                <BookmarkIcon sx={{ color: "#720361" }} />
+              ) : (
+                <BookmarkBorderIcon />
+              )}
             </IconButton>
           )}
         </Box>

@@ -26,6 +26,7 @@ import {
 } from "@mui/material";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -48,6 +49,7 @@ import {
   TelegramIcon,
 } from "../../assets/assest";
 import { selectToken } from "../../redux/slices/authSlice";
+import { selectActingAsOrganizationId } from "../../redux/slices/ameContextSlice";
 import {
   getMyOrganizationProfile,
   updateMyOrganizationProfile,
@@ -71,10 +73,103 @@ import {
   sms,
 } from "../../assets/assest";
 import { notify } from "../../redux/slices/alertSlice";
+import { State } from "country-state-city";
+import { getOrganizationProgramOptions } from "../../api/partnersExploreApi";
 
 const bannerPlaceholderUrl = bannerPlaceholder || defaultHeroBG;
 const logoPlaceholderUrl = logoPlaceholder || organizationLogo;
-import { State } from "country-state-city";
+
+// Map ISO 639-1 language code to ISO 3166 country code for flag image (CDN shows flags as images)
+const LANGUAGE_TO_COUNTRY = {
+  en: "GB",
+  es: "ES",
+  fr: "FR",
+  de: "DE",
+  zh: "CN",
+  ja: "JP",
+  ru: "RU",
+  hi: "IN",
+  ar: "SA",
+  pt: "PT",
+  it: "IT",
+  ko: "KR",
+  nl: "NL",
+  sv: "SE",
+  tr: "TR",
+  el: "GR",
+  pl: "PL",
+  th: "TH",
+  vi: "VN",
+  he: "IL",
+  fi: "FI",
+  da: "DK",
+  no: "NO",
+  cs: "CZ",
+  hu: "HU",
+  ms: "MY",
+  id: "ID",
+  tl: "PH",
+  uk: "UA",
+  bn: "BD",
+  ta: "IN",
+  te: "IN",
+  ab: "GE",
+  aa: "ET",
+  af: "ZA",
+  ak: "GH",
+  sq: "AL",
+  am: "ET",
+  an: "ES",
+  hy: "AM",
+  as: "IN",
+  av: "RU",
+  ae: "IR",
+  az: "AZ",
+  bm: "ML",
+  ba: "RU",
+  eu: "ES",
+  be: "BY",
+  bi: "VU",
+  bs: "BA",
+  br: "FR",
+  bg: "BG",
+  my: "MM",
+  ca: "ES",
+  ch: "GU",
+  ny: "MW",
+  co: "FR",
+  cr: "CA",
+  hr: "HR",
+  dv: "MV",
+  dz: "BT",
+  eo: "EU",
+  et: "EE",
+  ee: "GH",
+  fo: "FO",
+  fj: "FJ",
+  ff: "SN",
+  gd: "GB",
+  gl: "ES",
+  ka: "GE",
+  gn: "PY",
+  gu: "IN",
+  ht: "HT",
+  ha: "NG",
+  ho: "PG",
+  ig: "NG",
+  io: "EU",
+  ia: "EU",
+  ie: "EU",
+  iu: "CA",
+  rw: "RW",
+};
+const FLAG_CDN_BASE =
+  "https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images";
+function getLanguageFlagImageUrl(langCode) {
+  if (!langCode) return null;
+  const country = LANGUAGE_TO_COUNTRY[langCode.toLowerCase()];
+  return country ? `${FLAG_CDN_BASE}/${country}.svg` : null;
+}
 
 const AddLocationModal = ({ open, handleClose, handleSave, initialData }) => {
   const [formData, setFormData] = useState({
@@ -1173,8 +1268,7 @@ const Offices = ({ profile }) => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
   const isLoading = useSelector(selectOrganizationLoading);
-  const [selectedLangs, setSelectedLangs] = useState(["", "", ""]);
-  const [enabledCount, setEnabledCount] = useState(1);
+  const [selectedLangs, setSelectedLangs] = useState([""]);
   const [locations, setLocations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -1184,25 +1278,23 @@ const Offices = ({ profile }) => {
       if (profile.locations) {
         setLocations(profile.locations);
       }
-      if (profile.languages) {
-        const langs = ["", "", ""];
-        profile.languages.forEach((l, i) => {
-          if (i < 3) langs[i] = l;
-        });
+      if (profile.languages && profile.languages.length > 0) {
+        const langs = profile.languages.slice(0, 3);
         setSelectedLangs(langs);
-        setEnabledCount(Math.min(profile.languages.length + 1, 3));
+      } else {
+        setSelectedLangs([""]);
       }
     }
   }, [profile]);
 
-  const handleAddLanguage = (index) => {
-    if (
-      selectedLangs[index] &&
-      enabledCount === index + 1 &&
-      enabledCount < 3
-    ) {
-      setEnabledCount(enabledCount + 1);
-    }
+  const handleAddLanguageRow = () => {
+    if (selectedLangs.length >= 3) return;
+    setSelectedLangs([...selectedLangs, ""]);
+  };
+
+  const handleRemoveLanguage = (index) => {
+    const next = selectedLangs.filter((_, i) => i !== index);
+    setSelectedLangs(next.length > 0 ? next : [""]);
   };
 
   const handleOpenModal = (index = null) => {
@@ -1376,7 +1468,6 @@ const Offices = ({ profile }) => {
                   placeholder="Select Languages"
                   variant="standard"
                   value={lang}
-                  disabled={index >= enabledCount}
                   onChange={(e) => {
                     const newLangs = [...selectedLangs];
                     newLangs[index] = e.target.value;
@@ -1412,59 +1503,123 @@ const Offices = ({ profile }) => {
                   InputProps={{
                     disableUnderline: true,
                     sx: {
-                      backgroundColor:
-                        index < enabledCount ? "#f2f2f2" : "#f9f9f9",
+                      backgroundColor: "#f2f2f2",
                       borderRadius: "90px",
                       px: 3,
                       py: 1.5,
                       fontFamily: fonts.sans,
                       fontSize: "16px",
-                      // Removed opacity here to keep it visible but disabled
-                    },
-                  }}
-                  sx={{
-                    "& .Mui-disabled": {
-                      color: "rgba(0, 0, 0, 0.38)",
-                      WebkitTextFillColor: "rgba(0, 0, 0, 0.38)",
                     },
                   }}
                 >
                   <MenuItem value="">Select Languages</MenuItem>
-                  {availableLanguages.map((l) => (
-                    <MenuItem
-                      key={l.code}
-                      value={l.name}
-                      sx={{ fontFamily: fonts.sans }}
-                    >
-                      {l.flag} {l.name}
-                    </MenuItem>
-                  ))}
+                  {availableLanguages.map((l) => {
+                    const flagUrl = getLanguageFlagImageUrl(l.code);
+                    return (
+                      <MenuItem
+                        key={l.code}
+                        value={l.name}
+                        sx={{ fontFamily: fonts.sans }}
+                      >
+                        {flagUrl ? (
+                          <Box
+                            component="img"
+                            src={flagUrl}
+                            alt=""
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              objectFit: "contain",
+                              mr: 1.5,
+                              verticalAlign: "middle",
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            component="span"
+                            sx={{
+                              mr: 1.5,
+                              fontSize: "1.25rem",
+                              lineHeight: 1,
+                              verticalAlign: "middle",
+                            }}
+                          >
+                            {l.flag}
+                          </Box>
+                        )}
+                        {l.name}
+                      </MenuItem>
+                    );
+                  })}
                 </TextField>
                 <IconButton
-                  onClick={() => handleAddLanguage(index)}
+                  onClick={() =>
+                    lang ? handleRemoveLanguage(index) : undefined
+                  }
+                  disabled={!lang}
                   sx={{
                     width: "54px",
                     height: "54px",
                     borderRadius: "90px",
-                    background:
-                      index < enabledCount
-                        ? "linear-gradient(124.89deg, #BF2F75 3.87%, #720361 63.8%)"
-                        : "#9e9e9e",
+                    background: lang
+                      ? "linear-gradient(124.89deg, #BF2F75 3.87%, #720361 63.8%)"
+                      : "#9e9e9e",
                     color: "#fff",
-                    opacity: index < enabledCount ? 1 : 0.5,
-                    "&:hover": {
-                      opacity: 0.9,
-                      background:
-                        index < enabledCount
-                          ? "linear-gradient(124.89deg, #BF2F75 3.87%, #720361 63.8%)"
-                          : "#9e9e9e",
+                    opacity: lang ? 1 : 0.5,
+                    "&:hover": lang
+                      ? {
+                          opacity: 0.9,
+                          background:
+                            "linear-gradient(124.89deg, #BF2F75 3.87%, #720361 63.8%)",
+                        }
+                      : {},
+                    "&.Mui-disabled": {
+                      backgroundColor: "#9e9e9e",
+                      color: "#fff",
+                      opacity: 0.5,
                     },
                   }}
+                  aria-label={lang ? "Remove language" : "Add language"}
                 >
-                  <AddIcon sx={{ fontSize: "28px" }} />
+                  {lang ? (
+                    <RemoveIcon sx={{ fontSize: "28px" }} />
+                  ) : (
+                    <AddIcon sx={{ fontSize: "28px" }} />
+                  )}
                 </IconButton>
               </Box>
             ))}
+            {selectedLangs.length < 3 &&
+              (() => {
+                const lastRowFilled =
+                  selectedLangs.length > 0 &&
+                  Boolean(selectedLangs[selectedLangs.length - 1]);
+                return (
+                  <Typography
+                    component="button"
+                    type="button"
+                    onClick={lastRowFilled ? handleAddLanguageRow : undefined}
+                    disabled={!lastRowFilled}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      color: lastRowFilled ? "#BC2876" : "#9e9e9e",
+                      cursor: lastRowFilled ? "pointer" : "default",
+                      border: "none",
+                      background: "none",
+                      padding: 0,
+                      textAlign: "left",
+                      "&:hover": lastRowFilled
+                        ? { textDecoration: "underline" }
+                        : {},
+                      "&:disabled": { cursor: "default" },
+                    }}
+                  >
+                    + Add language
+                  </Typography>
+                );
+              })()}
           </Box>
         </Grid>
 
@@ -1881,10 +2036,11 @@ const HeiGallery = ({ profile, onRefetch }) => {
   );
 };
 
-/** HEI only: Institute Information tab – numeric fields + offers chips, save via PUT profile. */
+/** HEI only: Institute Information tab – numeric fields + programs (like Specializations), save via PUT profile. */
 const HeiInstituteInformation = ({ profile, onRefetch }) => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
+  const actingAsOrganizationId = useSelector(selectActingAsOrganizationId);
   const isLoading = useSelector(selectOrganizationLoading);
   const [totalStudents, setTotalStudents] = useState("");
   const [malePercent, setMalePercent] = useState("");
@@ -1892,8 +2048,26 @@ const HeiInstituteInformation = ({ profile, onRefetch }) => {
   const [internationalPercent, setInternationalPercent] = useState("");
   const [staffToStudentRatio, setStaffToStudentRatio] = useState("");
   const [employmentRatePercent, setEmploymentRatePercent] = useState("");
-  const [offers, setOffers] = useState([]);
-  const [offerInput, setOfferInput] = useState("");
+  const [defaultProgramOptions, setDefaultProgramOptions] = useState([]);
+  const [programs, setPrograms] = useState([]); // { name, checked }[]
+  const [showNewProgramInput, setShowNewProgramInput] = useState(false);
+  const [newProgramValue, setNewProgramValue] = useState("");
+
+  // Fetch default program options from API (auth required: Bearer token + optional X-Acting-As-Organization-Id)
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    getOrganizationProgramOptions(token, actingAsOrganizationId ?? undefined)
+      .then((opts) => {
+        if (!cancelled && Array.isArray(opts)) setDefaultProgramOptions(opts);
+      })
+      .catch(() => {
+        if (!cancelled) setDefaultProgramOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, actingAsOrganizationId]);
 
   useEffect(() => {
     if (profile) {
@@ -1921,23 +2095,59 @@ const HeiInstituteInformation = ({ profile, onRefetch }) => {
           ? String(profile.employmentRatePercent)
           : "",
       );
-      setOffers(Array.isArray(profile.offers) ? [...profile.offers] : []);
+      const fromProfile = Array.isArray(profile.programs)
+        ? profile.programs
+        : [];
+      const built = defaultProgramOptions.map((name) => ({
+        name,
+        checked: fromProfile.includes(name),
+      }));
+      fromProfile.forEach((p) => {
+        if (
+          typeof p === "string" &&
+          p.trim() &&
+          !defaultProgramOptions.includes(p.trim())
+        ) {
+          built.push({ name: p.trim(), checked: true });
+        }
+      });
+      setPrograms(
+        built.length > 0
+          ? built
+          : defaultProgramOptions.map((name) => ({ name, checked: false })),
+      );
     }
-  }, [profile]);
+  }, [profile, defaultProgramOptions]);
 
-  const handleAddOffer = () => {
-    const v = offerInput.trim();
-    if (v && !offers.includes(v)) {
-      setOffers([...offers, v]);
-      setOfferInput("");
+  const handleToggleProgram = (index) => {
+    const updated = [...programs];
+    if (updated[index]) {
+      updated[index] = { ...updated[index], checked: !updated[index].checked };
+      setPrograms(updated);
     }
   };
 
-  const handleRemoveOffer = (o) => {
-    setOffers(offers.filter((x) => x !== o));
+  const handleAddProgram = (e) => {
+    if (e.key === "Enter" && newProgramValue.trim()) {
+      const name = newProgramValue.trim();
+      if (!programs.some((p) => p.name === name)) {
+        setPrograms([...programs, { name, checked: true }]);
+      }
+      setNewProgramValue("");
+      setShowNewProgramInput(false);
+    }
+  };
+
+  const handleRemoveCustomProgram = (index) => {
+    if (!defaultProgramOptions.includes(programs[index]?.name)) {
+      setPrograms(programs.filter((_, i) => i !== index));
+    }
   };
 
   const handleSave = async () => {
+    const selectedPrograms = programs
+      .filter((p) => p.checked)
+      .map((p) => p.name);
     const updateData = {
       totalStudents: totalStudents === "" ? null : Number(totalStudents),
       maleStudentsPercent: malePercent === "" ? null : Number(malePercent),
@@ -1948,7 +2158,7 @@ const HeiInstituteInformation = ({ profile, onRefetch }) => {
       staffToStudentRatio: staffToStudentRatio || undefined,
       employmentRatePercent:
         employmentRatePercent === "" ? null : Number(employmentRatePercent),
-      offers,
+      programs: selectedPrograms,
     };
     try {
       await dispatch(
@@ -2066,36 +2276,128 @@ const HeiInstituteInformation = ({ profile, onRefetch }) => {
         variant="standard"
       />
 
-      <Typography sx={labelSx}>Offers</Typography>
-      <TextField
-        fullWidth
-        placeholder="Add your offer for students."
-        value={offerInput}
-        onChange={(e) => setOfferInput(e.target.value)}
-        onKeyDown={(e) =>
-          e.key === "Enter" && (e.preventDefault(), handleAddOffer())
-        }
-        InputProps={{ disableUnderline: true, sx: fieldSx }}
-        variant="standard"
-      />
-      <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", mt: 0.5 }}>
-        {offers.map((o) => (
-          <Chip
-            key={o}
-            label={o}
-            onDelete={() => handleRemoveOffer(o)}
-            size="small"
-            sx={{
-              bgcolor: "rgba(188,40,118,0.07)",
-              color: "#BC2876",
-              fontFamily: fonts.sans,
-              fontWeight: 500,
-              fontSize: "14px",
-              "& .MuiChip-deleteIcon": { color: "#BC2876" },
-            }}
-          />
-        ))}
+      <Typography sx={{ ...labelSx }}>Programs</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          // mb: 1,
+        }}
+      >
+        <Typography
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 400,
+            fontSize: "16px",
+            color: "#000",
+          }}
+        >
+          Select or add programs offered
+        </Typography>
+        <Button
+          onClick={() => setShowNewProgramInput(true)}
+          startIcon={<AddIcon sx={{ color: "#BC2876" }} />}
+          sx={{
+            color: "#BC2876",
+            fontFamily: fonts.sans,
+            fontWeight: 600,
+            fontSize: "16px",
+            textTransform: "none",
+          }}
+        >
+          Add New
+        </Button>
       </Box>
+      <Grid container spacing={1} sx={{ mb: 2 }}>
+        {programs.map((prog, index) => {
+          const isCustom = !defaultProgramOptions.includes(prog.name);
+          return (
+            <Grid item xs={12} sm={6} md={4} key={`${prog.name}-${index}`}>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  position: "relative",
+                  "&:hover .delete-program-btn": { opacity: 1 },
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={prog.checked}
+                      onChange={() => handleToggleProgram(index)}
+                      sx={{
+                        color: "#ddd",
+                        "&.Mui-checked": { color: "#BC2876" },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontWeight: 500,
+                        fontSize: "15px",
+                        color: prog.checked ? "#000" : "#666",
+                      }}
+                    >
+                      {prog.name}
+                    </Typography>
+                  }
+                />
+                {isCustom && (
+                  <IconButton
+                    className="delete-program-btn"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveCustomProgram(index);
+                    }}
+                    sx={{
+                      opacity: 0,
+                      transition: "opacity 0.2s",
+                      padding: "2px",
+                      marginLeft: "2px",
+                      color: "#666",
+                      "&:hover": {
+                        color: "#BC2876",
+                        backgroundColor: "transparent",
+                      },
+                    }}
+                    aria-label="Remove program"
+                  >
+                    <CloseIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                )}
+              </Box>
+            </Grid>
+          );
+        })}
+      </Grid>
+      {showNewProgramInput && (
+        <TextField
+          fullWidth
+          placeholder="Enter new program"
+          variant="standard"
+          value={newProgramValue}
+          onChange={(e) => setNewProgramValue(e.target.value)}
+          onKeyDown={handleAddProgram}
+          autoFocus
+          InputProps={{
+            disableUnderline: true,
+            sx: {
+              backgroundColor: "#f2f2f2",
+              borderRadius: "90px",
+              px: 3,
+              py: 1.5,
+              mb: 2,
+              fontFamily: fonts.sans,
+              fontSize: "16px",
+            },
+          }}
+        />
+      )}
 
       <Button
         variant="contained"

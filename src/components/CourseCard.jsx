@@ -2,13 +2,22 @@ import React, { useState } from "react";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BusinessIcon from "@mui/icons-material/Business";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { Box, Typography } from "@mui/material";
 import { fonts } from "../utility/fonts.js";
 import { servicesPlaceholder } from "../assets/assest.js";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import { notify } from "../redux/slices/alertSlice.js";
+import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
+import {
+  addCourseBookmark,
+  removeCourseBookmark,
+  selectBookmarkedCourses,
+} from "../redux/slices/bookmarkSlice.js";
 
 const ACCENT = "#BC2876";
 
@@ -26,8 +35,19 @@ const DELIVERY_MODE_STYLES = {
 
 const CourseCard = ({ course }) => {
   const navigate = useNavigate();
-  const [bookmarked, setBookmarked] = useState(false);
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const authenticated = useSelector(selectAuthenticated);
+  const bookmarkedCourses = useSelector(selectBookmarkedCourses);
+  const courseBookmarkStatus = useSelector((state) => state.bookmark?.courseBookmarkStatus) ?? {};
+  const [bookmarking, setBookmarking] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  const courseId = course?._id;
+  const isBookmarked =
+    courseId &&
+    (courseBookmarkStatus[courseId] ??
+      bookmarkedCourses.some((c) => (c._id || c.id) === courseId));
 
   const stripHtml = (html) => {
     if (!html || typeof html !== "string") return "";
@@ -246,9 +266,38 @@ const CourseCard = ({ course }) => {
             <Box
               component="button"
               type="button"
+              disabled={bookmarking}
               onClick={(e) => {
                 e.stopPropagation();
-                setBookmarked((b) => !b);
+                if (!courseId) return;
+                if (!authenticated) {
+                  dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+                  return;
+                }
+                if (bookmarking || !token) return;
+                setBookmarking(true);
+                const thunk = isBookmarked
+                  ? removeCourseBookmark({ courseId, token })
+                  : addCourseBookmark({ courseId, token });
+                dispatch(thunk)
+                  .unwrap()
+                  .then(() => {
+                    dispatch(
+                      notify({
+                        type: "success",
+                        message: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
+                      })
+                    );
+                  })
+                  .catch((err) => {
+                    dispatch(
+                      notify({
+                        type: "error",
+                        message: err?.message || "Could not update bookmark",
+                      })
+                    );
+                  })
+                  .finally(() => setBookmarking(false));
               }}
               sx={{
                 width: 30,
@@ -261,9 +310,13 @@ const CourseCard = ({ course }) => {
                 justifyContent: "center",
                 cursor: "pointer",
               }}
-              aria-label="Save"
+              aria-label={isBookmarked ? "Remove bookmark" : "Bookmark"}
             >
-              <BookmarkBorderIcon sx={{ color: bookmarked ? ACCENT : "#9E9E9E", fontSize: "1.1rem" }} />
+              {isBookmarked ? (
+                <BookmarkIcon sx={{ color: ACCENT, fontSize: "1.1rem" }} />
+              ) : (
+                <BookmarkBorderIcon sx={{ color: "#9E9E9E", fontSize: "1.1rem" }} />
+              )}
             </Box>
           </Box>
         </Box>

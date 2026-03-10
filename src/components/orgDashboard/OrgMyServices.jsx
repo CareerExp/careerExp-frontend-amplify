@@ -24,6 +24,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BlockIcon from "@mui/icons-material/Block";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { fonts } from "../../utility/fonts";
 import { uploadDocument } from "../../assets/assest";
 import AddService from "./AddService";
@@ -34,6 +36,7 @@ import {
   selectMyServices,
   selectServiceLoading,
   deleteService,
+  updateServiceStatus,
 } from "../../redux/slices/serviceSlice";
 import { selectToken } from "../../redux/slices/authSlice";
 import { notify } from "../../redux/slices/alertSlice";
@@ -51,7 +54,7 @@ const SERVICE_MODE_STYLES = {
   ONLINE: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
 };
 
-const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
+const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -84,6 +87,11 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
     onDelete(service);
   };
 
+  const handleToggleActiveClick = () => {
+    handleClose();
+    onToggleActive?.(service);
+  };
+
   const getStatusStyles = (status) => {
     switch (status) {
       case "PUBLISHED":
@@ -101,6 +109,11 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
           bg: "rgba(255, 85, 93, 0.3)",
           color: "#FF555E",
         };
+      case "DISABLED":
+        return {
+          bg: "#F2F4F7",
+          color: "#667085",
+        };
       default:
         return {
           bg: "#F2F4F7",
@@ -109,7 +122,10 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
     }
   };
 
-  const statusStyles = getStatusStyles(service.status);
+  // When inactive, show "Disabled" badge; otherwise show status (Published, Draft, etc.)
+  const displayStatus =
+    service.isActive === false ? "DISABLED" : (service.status || "DRAFT");
+  const statusStyles = getStatusStyles(displayStatus);
 
   return (
     <Paper
@@ -317,7 +333,7 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
                   textTransform: "capitalize",
                 }}
               >
-                {service.status?.toLowerCase()}
+                {displayStatus?.toLowerCase()}
               </Typography>
             </Box>
           </Box>
@@ -405,33 +421,36 @@ const ServiceCard = ({ service, onEdit, onDelete, onView }) => {
             Edit
           </Typography>
         </MenuItem>
+        <MenuItem onClick={handleToggleActiveClick} sx={{ gap: 1.5, py: 1.2 }}>
+          {service.isActive !== false ? (
+            <>
+              <BlockIcon sx={{ fontSize: "18px", color: "#667085" }} />
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "14px",
+                  color: "#344054",
+                }}
+              >
+                Disable
+              </Typography>
+            </>
+          ) : (
+            <>
+              <CheckCircleOutlineIcon sx={{ fontSize: "18px", color: "#667085" }} />
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "14px",
+                  color: "#344054",
+                }}
+              >
+                Enable
+              </Typography>
+            </>
+          )}
+        </MenuItem>
         <Divider sx={{ my: "0 !important" }} />
-        {/* <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
-          <ContentCopyIcon sx={{ fontSize: "18px", color: "#667085" }} />
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontSize: "14px",
-              color: "#344054",
-            }}
-          >
-            Duplicate
-          </Typography>
-        </MenuItem>
-        <Divider sx={{ my: "0 !important" }} /> */}
-        {/* <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
-          <ArchiveIcon sx={{ fontSize: "18px", color: "#667085" }} />
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontSize: "14px",
-              color: "#344054",
-            }}
-          >
-            Archive
-          </Typography>
-        </MenuItem>
-        <Divider sx={{ my: "0 !important" }} /> */}
         <MenuItem onClick={handleDeleteClick} sx={{ gap: 1.5, py: 1.2 }}>
           <DeleteIcon sx={{ fontSize: "18px", color: "#D92D20" }} />
           <Typography
@@ -625,6 +644,7 @@ const OrgMyServices = () => {
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDisabling, setIsDisabling] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -643,6 +663,44 @@ const OrgMyServices = () => {
   const handleDeleteService = (service) => {
     setServiceToDelete(service);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleToggleActive = async (service) => {
+    if (!service?._id || !token) return;
+    const nextActive = service.isActive !== false ? false : true;
+    setIsDisabling(true);
+    try {
+      const resultAction = await dispatch(
+        updateServiceStatus({
+          id: service._id,
+          isActive: nextActive,
+          token,
+        }),
+      );
+      if (updateServiceStatus.fulfilled.match(resultAction)) {
+        const message = nextActive
+          ? "Service enabled."
+          : "Service disabled.";
+        dispatch(notify({ message, type: "success" }));
+        dispatch(fetchMyServices({ token }));
+      } else {
+        dispatch(
+          notify({
+            message:
+              resultAction.payload?.error ||
+              (nextActive ? "Failed to enable service" : "Failed to disable service"),
+            type: "error",
+          }),
+        );
+      }
+    } catch (error) {
+      console.error("Toggle active error:", error);
+      dispatch(
+        notify({ message: "An unexpected error occurred", type: "error" }),
+      );
+    } finally {
+      setIsDisabling(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -810,6 +868,7 @@ const OrgMyServices = () => {
                     service={service}
                     onEdit={handleEditService}
                     onDelete={handleDeleteService}
+                    onToggleActive={handleToggleActive}
                     onView={async (srv) => {
                       setSelectedService(srv);
                       if (token) {

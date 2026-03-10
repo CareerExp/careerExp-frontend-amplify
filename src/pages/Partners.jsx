@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -9,11 +9,14 @@ import {
   Button,
   InputAdornment,
   IconButton,
-  Typography
+  Typography,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import { countryList } from "../utility/countryList";
+import { languages as languageList } from "../utility/category";
+import { espSpecializationOptions } from "../utility/espSpecializations";
+import { getHeiProgramOptions } from "../api/partnersExploreApi";
 import { fonts } from "../utility/fonts";
 import partnersStyles from "../styles/Partners.module.css";
 import EducationalInstitutions from "../components/partners/EducationalInstitutions";
@@ -30,12 +33,35 @@ const Partners = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [selectedSpecialization, setSelectedSpecialization] = useState(null);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [programOptions, setProgramOptions] = useState([]);
   const [appliedSearch, setAppliedSearch] = useState("");
   const [appliedCountry, setAppliedCountry] = useState("");
+  const [appliedLanguage, setAppliedLanguage] = useState("");
+  const [appliedSpecialization, setAppliedSpecialization] = useState("");
+  const [appliedProgram, setAppliedProgram] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Fetch HEI program options (default + dynamic) from API
+  useEffect(() => {
+    let cancelled = false;
+    getHeiProgramOptions()
+      .then((options) => {
+        if (!cancelled && Array.isArray(options)) setProgramOptions(options);
+      })
+      .catch(() => {
+        if (!cancelled) setProgramOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [isServiceProviderOpen, setServiceProviderOpen] = useState(false);
-  const [isEducationalInstitutionOpen, setEducationalInstitutionOpen] = useState(false);
+  const [isEducationalInstitutionOpen, setEducationalInstitutionOpen] =
+    useState(false);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -43,7 +69,12 @@ const Partners = () => {
 
   const handleSearch = () => {
     setAppliedSearch(searchValue.trim());
-    setAppliedCountry(activeTab === 2 ? "" : (selectedCountry?.name || ""));
+    setAppliedCountry(activeTab === 2 ? "" : selectedCountry?.name || "");
+    setAppliedLanguage(activeTab === 2 ? "" : selectedLanguage?.name || "");
+    setAppliedSpecialization(
+      activeTab === 1 ? selectedSpecialization || "" : "",
+    );
+    setAppliedProgram(activeTab === 0 ? selectedProgram || "" : "");
   };
 
   const autocompleteStyle = {
@@ -85,162 +116,244 @@ const Partners = () => {
             paddingX: "30px",
           }}
         >
-        {/* Tabs Section - scrollable on mobile so all tabs are accessible */}
-        <Box className={partnersStyles["tabs-box"]}>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            aria-label="partners categories"
-            variant="scrollable"
-            scrollButtons="auto"
-            allowScrollButtonsMobile
-            TabIndicatorProps={{
-              style: {
-                backgroundColor: "#bf2f75",
-                height: "3px",
-              },
-            }}
-            sx={{
-              "& .MuiTabs-scroller": { overflowX: "auto", WebkitOverflowScrolling: "touch" },
-              "& .MuiTabs-flexContainer": {
-                flexWrap: "nowrap",
-                justifyContent: { xs: "flex-start", md: "center" },
-              },
-              "& .MuiTab-root": {
-                textTransform: "none",
-                fontFamily: fonts.poppins,
-                fontSize: "16px",
-                fontWeight: 500,
-                color: "#999999",
-                minWidth: "auto",
-                px: 4,
-                whiteSpace: "nowrap",
-                "&.Mui-selected": {
-                  color: "#bf2f75",
+          {/* Tabs Section - scrollable on mobile so all tabs are accessible */}
+          <Box className={partnersStyles["tabs-box"]}>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              aria-label="partners categories"
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: "#bf2f75",
+                  height: "3px",
                 },
-              },
-            }}
-          >
-            <Tab label="Education Institutions" />
-            <Tab label="Education Service Providers" />
-            <Tab label="Government & Community Organizations" />
-          </Tabs>
-        </Box>
-
-        {/* Filters Row */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 2,
-            width: "100%",
-          }}
-        >
-          {/* Search Input */}
-          <TextField
-            placeholder="Search"
-            variant="outlined"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            sx={{
-              flex: 2,
-              width: "100%",
-              maxWidth: "379px",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "90px",
-                backgroundColor: "#F6F6F6",
-                "& fieldset": {
-                  border: "1px solid #dddddd",
+              }}
+              sx={{
+                "& .MuiTabs-scroller": {
+                  overflowX: "auto",
+                  WebkitOverflowScrolling: "touch",
                 },
-                "&:hover fieldset": {
-                  borderColor: "#dddddd",
+                "& .MuiTabs-flexContainer": {
+                  flexWrap: "nowrap",
+                  justifyContent: { xs: "flex-start", md: "center" },
                 },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#dddddd",
+                "& .MuiTab-root": {
+                  textTransform: "none",
+                  fontFamily: fonts.poppins,
+                  fontSize: "16px",
+                  fontWeight: 500,
+                  color: "#999999",
+                  minWidth: "auto",
+                  px: 4,
+                  whiteSpace: "nowrap",
+                  "&.Mui-selected": {
+                    color: "#bf2f75",
+                  },
                 },
-              },
-              "& .MuiInputBase-input": {
-                fontFamily: fonts.poppins,
-                fontSize: "14px",
-              },
-            }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  {searchValue && (
-                    <IconButton
-                      size="small"
-                      onClick={() => setSearchValue("")}
-                      sx={{ mr: 0.5, color: "#720361", "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" } }}
-                      aria-label="Clear search"
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                  <SearchIcon sx={{ color: "#720361" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Box sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: "center",
-            gap: 2,
-          }}>
-          {/* Country Dropdown - only for Education Institutions and Education Service Providers */}
-          {activeTab !== 2 && (
-            <Autocomplete
-              options={countryList}
-              getOptionLabel={(option) => option.name}
-              value={selectedCountry}
-              onChange={(event, newValue) => setSelectedCountry(newValue)}
-              className={partnersStyles["autocomplete-country"]}
-              renderInput={(params) => (
-                <TextField {...params} placeholder="Country" variant="outlined" />
-              )}
-              sx={autocompleteStyle}
-            />
-          )}
-
-          {/* Search Button */}
-          <Button
-            variant="contained"
-            onClick={handleSearch}
-            sx={{
-              background: "linear-gradient(to top left, #720361, #bf2f75)",
-              borderRadius: "90px",
-              px: 4,
-              py: 1.5,
-              textTransform: "none",
-              fontFamily: fonts.poppins,
-              fontWeight: "bold",
-              fontSize: "16px",
-              "&:hover": {
-                background: "linear-gradient(to top left, #720361, #bf2f75)",
-                opacity: 0.9,
-              },
-            }}
-          >
-            Search
-          </Button>
-
+              }}
+            >
+              <Tab label="Education Institutions" />
+              <Tab label="Education Service Providers" />
+              <Tab label="Government & Community Organizations" />
+            </Tabs>
           </Box>
 
-          
-        </Box>
+          {/* Filters Row */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
+              width: "100%",
+            }}
+          >
+            {/* Search Input */}
+            <TextField
+              placeholder="Search"
+              variant="outlined"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              sx={{
+                flex: 2,
+                width: "100%",
+                maxWidth: "379px",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "90px",
+                  backgroundColor: "#F6F6F6",
+                  "& fieldset": {
+                    border: "1px solid #dddddd",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#dddddd",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#dddddd",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  fontFamily: fonts.poppins,
+                  fontSize: "14px",
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {searchValue && (
+                      <IconButton
+                        size="small"
+                        onClick={() => setSearchValue("")}
+                        sx={{
+                          mr: 0.5,
+                          color: "#720361",
+                          "&:hover": {
+                            backgroundColor: "rgba(114, 3, 97, 0.08)",
+                          },
+                        }}
+                        aria-label="Clear search"
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                    <SearchIcon sx={{ color: "#720361" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              {/* Country Dropdown - only for Education Institutions and Education Service Providers */}
+              {activeTab !== 2 && (
+                <Autocomplete
+                  options={countryList}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedCountry}
+                  onChange={(event, newValue) => setSelectedCountry(newValue)}
+                  className={partnersStyles["autocomplete-country"]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Country"
+                      variant="outlined"
+                    />
+                  )}
+                  sx={autocompleteStyle}
+                />
+              )}
+
+              {/* Language Dropdown - only for Education Institutions and Education Service Providers */}
+              {activeTab !== 2 && (
+                <Autocomplete
+                  options={languageList}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedLanguage}
+                  onChange={(event, newValue) => setSelectedLanguage(newValue)}
+                  className={partnersStyles["autocomplete-country"]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Language"
+                      variant="outlined"
+                    />
+                  )}
+                  sx={autocompleteStyle}
+                />
+              )}
+
+              {/* Specialization Dropdown - only for Education Service Providers */}
+              {activeTab === 1 && (
+                <Autocomplete
+                  options={espSpecializationOptions}
+                  getOptionLabel={(option) => option}
+                  value={selectedSpecialization}
+                  onChange={(event, newValue) =>
+                    setSelectedSpecialization(newValue)
+                  }
+                  className={partnersStyles["autocomplete-specialization"]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Specialization"
+                      variant="outlined"
+                    />
+                  )}
+                  sx={autocompleteStyle}
+                />
+              )}
+
+              {/* Programs Dropdown - only for Education Institutions (HEI) */}
+              {activeTab === 0 && (
+                <Autocomplete
+                  options={programOptions}
+                  getOptionLabel={(option) => option}
+                  value={selectedProgram}
+                  onChange={(event, newValue) => setSelectedProgram(newValue)}
+                  className={partnersStyles["autocomplete-specialization"]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Program"
+                      variant="outlined"
+                    />
+                  )}
+                  sx={autocompleteStyle}
+                />
+              )}
+
+              {/* Search Button */}
+              <Button
+                variant="contained"
+                onClick={handleSearch}
+                sx={{
+                  background: "linear-gradient(to top left, #720361, #bf2f75)",
+                  borderRadius: "90px",
+                  px: 4,
+                  py: 1.5,
+                  textTransform: "none",
+                  fontFamily: fonts.poppins,
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(to top left, #720361, #bf2f75)",
+                    opacity: 0.9,
+                  },
+                }}
+              >
+                Search
+              </Button>
+            </Box>
+          </Box>
         </Box>
 
         {/* Tab Content Section */}
         <Box className={partnersStyles["tabs-content"]}>
           {activeTab === 0 && (
-            <EducationalInstitutions search={appliedSearch} country={appliedCountry} />
+            <EducationalInstitutions
+              search={appliedSearch}
+              country={appliedCountry}
+              language={appliedLanguage}
+              program={appliedProgram}
+            />
           )}
           {activeTab === 1 && (
-            <EducationServiceProviders search={appliedSearch} country={appliedCountry} />
+            <EducationServiceProviders
+              search={appliedSearch}
+              country={appliedCountry}
+              language={appliedLanguage}
+              specialization={appliedSpecialization}
+            />
           )}
           {activeTab === 2 && (
             <GovernmentOrganizations search={appliedSearch} />
@@ -253,7 +366,8 @@ const Partners = () => {
             mt: { xs: 4, md: 6 },
             mb: { xs: 4, md: 10 },
             mx: { xs: "0", md: 7 },
-            background: "linear-gradient(153.09deg, #BF2F75 3.87%, #720361 63.8%)",
+            background:
+              "linear-gradient(153.09deg, #BF2F75 3.87%, #720361 63.8%)",
             borderRadius: "20px",
             p: { xs: 4, md: "52px 42px" },
             display: "flex",
@@ -287,7 +401,13 @@ const Partners = () => {
           </Box>
 
           {/* Content side */}
-          <Box sx={{ flex: 1, color: "white", textAlign: { xs: "center", md: "left" } }}>
+          <Box
+            sx={{
+              flex: 1,
+              color: "white",
+              textAlign: { xs: "center", md: "left" },
+            }}
+          >
             <Typography
               variant="h2"
               sx={{
@@ -308,8 +428,9 @@ const Partners = () => {
                 lineHeight: "23px",
               }}
             >
-              Join our growing network of trusted education partners and connect directly with students
-              and counsellors actively exploring career opportunities.
+              Join our growing network of trusted education partners and connect
+              directly with students and counsellors actively exploring career
+              opportunities.
             </Typography>
             <Typography
               sx={{
@@ -321,9 +442,10 @@ const Partners = () => {
                 lineHeight: "27px",
               }}
             >
-              Whether you are an Education Service Provider or an Educational Institution, becoming a
-              partner gives you a branded presence, direct enquiries, and visibility across the Career
-              Explorer ecosystem.
+              Whether you are an Education Service Provider or an Educational
+              Institution, becoming a partner gives you a branded presence,
+              direct enquiries, and visibility across the Career Explorer
+              ecosystem.
             </Typography>
 
             <Button
@@ -351,7 +473,8 @@ const Partners = () => {
                 sx={{
                   fontWeight: 600,
                   fontSize: "16px",
-                  backgroundImage: "linear-gradient(166.74deg, #BF2F75 3.87%, #720361 63.8%)",
+                  backgroundImage:
+                    "linear-gradient(166.74deg, #BF2F75 3.87%, #720361 63.8%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   mr: "12px",
@@ -368,7 +491,8 @@ const Partners = () => {
                   width: "36px",
                   height: "36px",
                   borderRadius: "50%",
-                  background: "linear-gradient(166.74deg, #BF2F75 3.87%, #720361 63.8%)",
+                  background:
+                    "linear-gradient(166.74deg, #BF2F75 3.87%, #720361 63.8%)",
                   color: "white",
                 }}
               >
@@ -382,26 +506,25 @@ const Partners = () => {
       <CorporateRegistrationModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-          onContinueAsServiceProvider={() => {
-    setIsModalOpen(false);
-    setServiceProviderOpen(true);
-  }}
-  onContinueAsEducationalInstitution={() => {
-    setIsModalOpen(false);
-    setEducationalInstitutionOpen(true);
-  }}
+        onContinueAsServiceProvider={() => {
+          setIsModalOpen(false);
+          setServiceProviderOpen(true);
+        }}
+        onContinueAsEducationalInstitution={() => {
+          setIsModalOpen(false);
+          setEducationalInstitutionOpen(true);
+        }}
       />
 
       <ServiceProviderRegistrationModal
-      open={isServiceProviderOpen}
-      onClose={() => setServiceProviderOpen(false)}
-/>
+        open={isServiceProviderOpen}
+        onClose={() => setServiceProviderOpen(false)}
+      />
 
       <EducationalInstitutionModal
-      open={isEducationalInstitutionOpen}
-      onClose={() => setEducationalInstitutionOpen(false)}
-  />
- 
+        open={isEducationalInstitutionOpen}
+        onClose={() => setEducationalInstitutionOpen(false)}
+      />
     </Box>
   );
 };

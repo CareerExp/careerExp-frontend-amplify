@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getPaymentTransactions,
   selectPaymentTransactionsData,
+  syncSubscriptionPayments,
 } from "../../redux/slices/adminSlice.js";
 import { notify } from "../../redux/slices/alertSlice.js";
 import { selectToken } from "../../redux/slices/authSlice.js";
@@ -97,6 +98,7 @@ const AdminPayments = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [syncing, setSyncing] = useState(false);
 
   const transactions = paymentData?.transactions ?? [];
   const totalCount = paymentData?.totalCount ?? 0;
@@ -136,6 +138,43 @@ const AdminPayments = () => {
         message: "Transaction detail view can be added here.",
       }),
     );
+  };
+
+  const handleSyncSubscriptionPayments = async () => {
+    setSyncing(true);
+    try {
+      const result = await dispatchToRedux(
+        syncSubscriptionPayments({ token }),
+      ).unwrap();
+      const count = result?.synced ?? result?.data?.synced ?? result?.count;
+      dispatchToRedux(
+        notify({
+          type: "success",
+          message:
+            count != null
+              ? `Synced ${count} payment(s) from Stripe.`
+              : "Subscription payments synced successfully.",
+        }),
+      );
+      dispatchToRedux(
+        getPaymentTransactions({
+          token,
+          page: page + 1,
+          limit: rowsPerPage,
+          search: appliedSearch,
+          status: statusFilter,
+        }),
+      );
+    } catch (err) {
+      dispatchToRedux(
+        notify({
+          type: "error",
+          message: err?.message || "Failed to sync subscription payments.",
+        }),
+      );
+    } finally {
+      setSyncing(false);
+    }
   };
 
   return (
@@ -290,6 +329,20 @@ const AdminPayments = () => {
                 onClick={handleSearchClick}
               >
                 SEARCH
+              </Button>
+              <Button
+                sx={{
+                  ...buttonStyle,
+                  width: "auto",
+                  px: 3,
+                  borderRadius: "10px",
+                  background: "linear-gradient(180deg, #5a6268 0%, #343a40 100%)",
+                  "&:disabled": { opacity: 0.7 },
+                }}
+                onClick={handleSyncSubscriptionPayments}
+                disabled={syncing}
+              >
+                {syncing ? "Syncing…" : "Sync from Stripe"}
               </Button>
             </Box>
 

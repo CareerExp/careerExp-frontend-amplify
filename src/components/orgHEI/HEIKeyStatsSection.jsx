@@ -54,7 +54,7 @@ const HEIKeyStatsSection = ({ profile: profileProp }) => {
   const profile = profileProp ?? profileFromRedux;
   const hei = getHeiProfile(profile);
 
-  const offers = hei?.offers ?? [];
+  const programs = hei?.programs ?? [];
 
   const stats = [];
   if (hei?.totalStudents != null) {
@@ -77,9 +77,9 @@ const HEIKeyStatsSection = ({ profile: profileProp }) => {
   }
 
   const hasStats = stats.length > 0;
-  const hasOffers = offers.length > 0;
+  const hasPrograms = programs.length > 0;
 
-  if (!hasOffers && !hasStats) return null;
+  if (!hasPrograms && !hasStats) return null;
 
   return (
     <Box
@@ -95,7 +95,7 @@ const HEIKeyStatsSection = ({ profile: profileProp }) => {
         px: { xs: 2, md: 4 },
       }}
     >
-      {hasOffers && (
+      {hasPrograms && (
         <>
           <Typography
             sx={{
@@ -106,13 +106,13 @@ const HEIKeyStatsSection = ({ profile: profileProp }) => {
               mb: 2,
             }}
           >
-            Offers
+            Programs
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 3 }}>
-            {offers.map((offer) => (
+            {programs.map((program) => (
               <Chip
-                key={offer}
-                label={offer}
+                key={program}
+                label={program}
                 sx={{
                   backgroundColor: 'rgba(188, 40, 118, 0.1)',
                   color: '#BC2876',

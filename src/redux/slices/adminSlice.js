@@ -292,6 +292,33 @@ export const getPaymentTransactions = createAsyncThunk(
   },
 );
 
+/** POST /api/admin/sync-subscription-payments – Admin only. Backfill payment transactions from Stripe. */
+export const syncSubscriptionPayments = createAsyncThunk(
+  "admin/syncSubscriptionPayments",
+  async ({ token }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/sync-subscription-payments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response?.success && response?.message) {
+        return rejectWithValue({ message: response.message });
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to sync subscription payments",
+      });
+    }
+  },
+);
+
 export const getGeneralUserData = createAsyncThunk("admin/getGeneralUserData", async ({ token }) => {
   return FetchApi.fetch(`${config.api}/api/admin/getgeneralinformation`, {
     method: "GET",

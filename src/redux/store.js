@@ -45,6 +45,7 @@ import courseSlice from "./slices/courseSlice.js";
 import followerSlice from "./slices/followerSlice.js";
 import dashboardActivitySlice from "./slices/dashboardActivitySlice.js";
 import messageSlice from "./slices/messageSlice.js";
+import bookmarkReducer from "./slices/bookmarkSlice.js";
 
 const persistConfig = {
   key: "user",
@@ -88,6 +89,7 @@ const rootReducer = combineReducers({
   follower: followerSlice,
   message: messageSlice,
   dashboardActivity: dashboardActivitySlice,
+  bookmark: bookmarkReducer,
 });
 
 const store = configureStore({
