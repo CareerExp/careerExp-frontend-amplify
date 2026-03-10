@@ -446,7 +446,7 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
               >
                 <Autocomplete
                   sx={{
-                    width: "80px", // Reduced width slightly
+                    width: "110px", // Reduced width slightly
                   }}
                   options={countryList}
                   autoHighlight
@@ -697,9 +697,15 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                placeholder="Select Country"
                 sx={inputStyle}
                 SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (value) =>
+                  value ? (
+                    value
+                  ) : (
+                    <span style={{ color: "#999" }}>Select Country</span>
+                  ),
                   MenuProps: {
                     PaperProps: {
                       sx: {
@@ -733,7 +739,6 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
                 value={formData.state}
                 onChange={handleChange}
                 disabled={!formData.country}
-                placeholder="Select State/City"
                 sx={{
                   ...inputStyle,
                   "& .MuiOutlinedInput-root": {
@@ -742,6 +747,13 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
                   },
                 }}
                 SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (value) =>
+                  value ? (
+                    value
+                  ) : (
+                    <span style={{ color: "#999" }}>Select State/City</span>
+                  ),
                   MenuProps: {
                     PaperProps: {
                       sx: {
@@ -842,7 +854,12 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
                   component="label"
                   variant="contained"
                   startIcon={
-                    <Box component="img" src={upload2} alt="" sx={{ width: 16, height: 16 }} />
+                    <Box
+                      component="img"
+                      src={upload2}
+                      alt=""
+                      sx={{ width: 16, height: 16 }}
+                    />
                   }
                   sx={{
                     borderRadius: "8px",
@@ -869,7 +886,12 @@ const ServiceProviderRegistrationModal = ({ open, onClose }) => {
                   variant="outlined"
                   onClick={() => setIsAddLinkModalOpen(true)}
                   startIcon={
-                    <Box component="img" src={link2} alt="" sx={{ width: 16, height: 16 }} />
+                    <Box
+                      component="img"
+                      src={link2}
+                      alt=""
+                      sx={{ width: 16, height: 16 }}
+                    />
                   }
                   sx={{
                     borderRadius: "8px",

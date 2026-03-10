@@ -286,9 +286,7 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
           website: "",
         });
         setAvailableStates([]);
-        setDocuments([
-          { id: Date.now(), type: "FILE", name: "", value: null },
-        ]);
+        setDocuments([{ id: Date.now(), type: "FILE", name: "", value: null }]);
         setShowPassword(false);
         setShowConfirmPassword(false);
         setShowSuccessModal(true);
@@ -443,7 +441,11 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
                 placeholder="First Name"
                 inputProps={{ maxLength: 50 }}
                 error={formData.firstName.length === 50}
-                helperText={formData.firstName.length === 50 ? "Cannot add more than 50 characters" : ""}
+                helperText={
+                  formData.firstName.length === 50
+                    ? "Cannot add more than 50 characters"
+                    : ""
+                }
                 sx={inputStyle}
               />
             </Box>
@@ -459,7 +461,11 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
                 placeholder="Last Name"
                 inputProps={{ maxLength: 50 }}
                 error={formData.lastName.length === 50}
-                helperText={formData.lastName.length === 50 ? "Cannot add more than 50 characters" : ""}
+                helperText={
+                  formData.lastName.length === 50
+                    ? "Cannot add more than 50 characters"
+                    : ""
+                }
                 sx={inputStyle}
               />
             </Box>
@@ -499,7 +505,7 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
               >
                 <Autocomplete
                   sx={{
-                    width: "80px", // Reduced width slightly
+                    width: "110px", // Reduced width slightly
                   }}
                   options={countryList}
                   autoHighlight
@@ -750,9 +756,15 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                placeholder="Select Country"
                 sx={inputStyle}
                 SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (value) =>
+                  value ? (
+                    value
+                  ) : (
+                    <span style={{ color: "#999" }}>Select Country</span>
+                  ),
                   MenuProps: {
                     PaperProps: {
                       sx: {
@@ -786,7 +798,6 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
                 value={formData.state}
                 onChange={handleChange}
                 disabled={!formData.country}
-                placeholder="Select State/City"
                 sx={{
                   ...inputStyle,
                   "& .MuiOutlinedInput-root": {
@@ -795,6 +806,13 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
                   },
                 }}
                 SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (value) =>
+                  value ? (
+                    value
+                  ) : (
+                    <span style={{ color: "#999" }}>Select State/City</span>
+                  ),
                   MenuProps: {
                     PaperProps: {
                       sx: {
@@ -861,9 +879,11 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", md: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: { xs: "flex-start", md: "center" },
                 mb: 2,
+                gap: { xs: 1.5, md: 0 },
               }}
             >
               <Typography
@@ -876,13 +896,18 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
               >
                 Required Documents
               </Typography>
-              <Stack direction="row" spacing={1.5}>
-                <Button
+              <Stack direction="row" spacing={1.5} mt={{ xs: 0, md: 2 }}>
+                {/* <Button
                   variant="contained"
                   onClick={() => addDocument("FILE")}
                   disabled={documents.length >= 3}
                   startIcon={
-                    <Box component="img" src={upload2} alt="" sx={{ width: 16, height: 16 }} />
+                    <Box
+                      component="img"
+                      src={upload2}
+                      alt=""
+                      sx={{ width: 16, height: 16 }}
+                    />
                   }
                   sx={{
                     borderRadius: "8px",
@@ -902,13 +927,18 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
                   }}
                 >
                   Upload File
-                </Button>
+                </Button> */}
                 <Button
                   variant="outlined"
                   onClick={() => addDocument("LINK")}
                   disabled={documents.length >= 3}
                   startIcon={
-                    <Box component="img" src={link2} alt="" sx={{ width: 16, height: 16 }} />
+                    <Box
+                      component="img"
+                      src={link2}
+                      alt=""
+                      sx={{ width: 16, height: 16 }}
+                    />
                   }
                   sx={{
                     borderRadius: "8px",

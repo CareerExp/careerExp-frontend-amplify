@@ -22,8 +22,6 @@ import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ArchiveIcon from '@mui/icons-material/Archive';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fonts } from '../../utility/fonts';
 import { uploadDocument } from '../../assets/assest';
@@ -305,16 +303,6 @@ const EventCard = ({ event, onEdit, onDelete, onView }) => {
                 <MenuItem onClick={handleEditClick} sx={{ gap: 1.5, py: 1.2 }}>
                     <EditIcon sx={{ fontSize: '18px', color: '#667085' }} />
                     <Typography sx={{ fontFamily: fonts.sans, fontSize: '14px', color: '#344054' }}>Edit</Typography>
-                </MenuItem>
-                <Divider sx={{ my: '0 !important' }} />
-                <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
-                    <ContentCopyIcon sx={{ fontSize: '18px', color: '#667085' }} />
-                    <Typography sx={{ fontFamily: fonts.sans, fontSize: '14px', color: '#344054' }}>Duplicate</Typography>
-                </MenuItem>
-                <Divider sx={{ my: '0 !important' }} />
-                <MenuItem onClick={handleClose} sx={{ gap: 1.5, py: 1.2 }}>
-                    <ArchiveIcon sx={{ fontSize: '18px', color: '#667085' }} />
-                    <Typography sx={{ fontFamily: fonts.sans, fontSize: '14px', color: '#344054' }}>Archive</Typography>
                 </MenuItem>
                 <Divider sx={{ my: '0 !important' }} />
                 <MenuItem onClick={handleDeleteClick} sx={{ gap: 1.5, py: 1.2 }}>

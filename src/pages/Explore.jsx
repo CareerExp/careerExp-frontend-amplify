@@ -7,7 +7,6 @@ import {
   Chip,
   FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
   Pagination,
   Select,
@@ -705,6 +704,7 @@ const Explore = () => {
         {/* Single white box: tabs inside top, then filters row */}
 
         <Box
+          className={exploreStyles.filterBox}
           sx={{
             backgroundColor: "#ffffff",
             boxShadow: "2px 2px 10px #a7a7a764",
@@ -712,7 +712,8 @@ const Explore = () => {
             marginBottom: "2rem",
             borderRadius: "19px",
             marginTop: "2rem",
-            paddingX: "2rem",
+            paddingLeft: { xs: "0.75rem", sm: "2rem" },
+            paddingRight: { xs: "0.75rem", sm: "2rem" },
           }}
         >
           {/* Tabs inside box, equally distributed */}
@@ -746,13 +747,14 @@ const Explore = () => {
               justifyContent: "space-between",
               gap: "12px",
               width: "100%",
-              padding: "15px 24px 20px",
+              padding: { xs: "15px 0 20px", sm: "15px 24px 20px" },
               borderTop: "1px solid #eeeeee",
             }}
             className={exploreStyles["filters"]}
           >
-            {/* Search input - reduced width, magnifying glass on right */}
+            {/* Search input - full width on mobile, reduced on desktop */}
             <Box
+              className={exploreStyles.filtersSearch}
               sx={{
                 position: "relative",
                 flex: "1 1 280px",
@@ -812,301 +814,33 @@ const Explore = () => {
                 }}
               />
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              {/* Announcements/Events/Services/Counsellors/Courses: SortBy */}
-              {(activeTab === "announcements" ||
-                activeTab === "events" ||
-                activeTab === "services" ||
-                activeTab === "counsellors" ||
-                activeTab === "courses") && (
-                <FormControl
-                  sx={{
-                    minWidth: { xs: "140px", sm: "180px" },
-                    height: "46px",
-                    "& .MuiOutlinedInput-root": {
-                      height: "100%",
-                      borderRadius: "90px",
-                      backgroundColor: "#F6F6F6",
-                      fontSize: "0.9375rem",
-                      fontFamily: fonts.sans,
-                      "& fieldset": { borderColor: "#dddddd" },
-                      "&:hover fieldset": { borderColor: "#dddddd" },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#BC2876",
-                        borderWidth: "1px",
-                      },
-                    },
-                  }}
-                  size="small"
-                >
-                  {activeTab === "announcements" && (
-                    <Select
-                      key="sort-announcements"
-                      id="explore-sortby-select-announcements"
-                      variant="outlined"
-                      value={selectedSortByAnnouncements}
-                      displayEmpty
-                      renderValue={(v) => {
-                        if (!v) return "Sort By";
-                        return v === "popular" ? "Most popular" : "Most recent";
-                      }}
-                      onChange={(e) =>
-                        setSelectedSortByAnnouncements(e.target.value ?? "")
-                      }
-                      IconComponent={KeyboardArrowDownIcon}
-                      MenuProps={{
-                        disableScrollLock: true,
-                        PaperProps: { sx: { zIndex: 9999 } },
-                      }}
-                      sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
-                    >
-                      <MenuItem value="recent" sx={{ fontFamily: fonts.sans }}>
-                        Most recent
-                      </MenuItem>
-                      <MenuItem value="popular" sx={{ fontFamily: fonts.sans }}>
-                        Most popular
-                      </MenuItem>
-                    </Select>
-                  )}
-                  {activeTab === "events" && (
-                    <Select
-                      key="sort-events"
-                      id="explore-sortby-select-events"
-                      variant="outlined"
-                      value={selectedSortByEvents}
-                      displayEmpty
-                      renderValue={(v) => {
-                        if (!v) return "Sort By";
-                        return v === "popular" ? "Most popular" : "Most recent";
-                      }}
-                      onChange={(e) =>
-                        setSelectedSortByEvents(e.target.value ?? "")
-                      }
-                      IconComponent={KeyboardArrowDownIcon}
-                      MenuProps={{
-                        disableScrollLock: true,
-                        PaperProps: { sx: { zIndex: 9999 } },
-                      }}
-                      sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
-                    >
-                      <MenuItem value="recent" sx={{ fontFamily: fonts.sans }}>
-                        Most recent
-                      </MenuItem>
-                      <MenuItem value="popular" sx={{ fontFamily: fonts.sans }}>
-                        Most popular
-                      </MenuItem>
-                    </Select>
-                  )}
-                  {activeTab === "services" && (
-                    <Select
-                      key="sort-services"
-                      id="explore-sortby-select-services"
-                      variant="outlined"
-                      value={selectedSortByServices}
-                      displayEmpty
-                      renderValue={(v) => {
-                        if (!v) return "Sort By";
-                        return v === "popular" ? "Most popular" : "Most recent";
-                      }}
-                      onChange={(e) =>
-                        setSelectedSortByServices(e.target.value ?? "")
-                      }
-                      IconComponent={KeyboardArrowDownIcon}
-                      MenuProps={{
-                        disableScrollLock: true,
-                        PaperProps: { sx: { zIndex: 9999 } },
-                      }}
-                      sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
-                    >
-                      <MenuItem value="recent" sx={{ fontFamily: fonts.sans }}>
-                        Most recent
-                      </MenuItem>
-                      <MenuItem value="popular" sx={{ fontFamily: fonts.sans }}>
-                        Most popular
-                      </MenuItem>
-                    </Select>
-                  )}
-                  {activeTab === "counsellors" && (
-                    <Select
-                      key="sort-counsellors"
-                      id="explore-sortby-select-counsellors"
-                      variant="outlined"
-                      value={selectedSortByCounsellors}
-                      displayEmpty
-                      renderValue={(v) => {
-                        if (!v) return "Sort By";
-                        return v === "name" ? "Name" : "Most recent";
-                      }}
-                      onChange={(e) =>
-                        setSelectedSortByCounsellors(e.target.value ?? "")
-                      }
-                      IconComponent={KeyboardArrowDownIcon}
-                      MenuProps={{
-                        disableScrollLock: true,
-                        PaperProps: { sx: { zIndex: 9999 } },
-                      }}
-                      sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
-                    >
-                      <MenuItem value="recent" sx={{ fontFamily: fonts.sans }}>
-                        Most recent
-                      </MenuItem>
-                      <MenuItem value="name" sx={{ fontFamily: fonts.sans }}>
-                        Name
-                      </MenuItem>
-                    </Select>
-                  )}
-                  {activeTab === "courses" && (
-                    <Select
-                      key="sort-courses"
-                      id="explore-sortby-select-courses"
-                      variant="outlined"
-                      value={selectedSortByCourses}
-                      displayEmpty
-                      renderValue={(v) => {
-                        if (!v) return "Sort By";
-                        return v === "popular" ? "Most popular" : "Most recent";
-                      }}
-                      onChange={(e) =>
-                        setSelectedSortByCourses(e.target.value ?? "")
-                      }
-                      IconComponent={KeyboardArrowDownIcon}
-                      MenuProps={{
-                        disableScrollLock: true,
-                        PaperProps: { sx: { zIndex: 9999 } },
-                      }}
-                      sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
-                    >
-                      <MenuItem value="recent" sx={{ fontFamily: fonts.sans }}>
-                        Most recent
-                      </MenuItem>
-                      <MenuItem value="popular" sx={{ fontFamily: fonts.sans }}>
-                        Most popular
-                      </MenuItem>
-                    </Select>
-                  )}
-                </FormControl>
-              )}
-
-              {/* Counsellors only: Country dropdown (matches Sort By UI) */}
-              {activeTab === "counsellors" && (
-                <Autocomplete
-                  options={countryList}
-                  getOptionLabel={(option) => option.name}
-                  value={selectedCountryCounsellors}
-                  onChange={(e, newValue) =>
-                    setSelectedCountryCounsellors(newValue)
-                  }
-                  popupIcon={
-                    <KeyboardArrowDownIcon sx={{ color: "#720361" }} />
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Country"
-                      variant="outlined"
-                      inputProps={{
-                        ...params.inputProps,
-                        style: {
-                          textAlign: "start",
-                          padding: "0px",
-                          paddingLeft: "10px",
-                        },
-                      }}
-                    />
-                  )}
-                  sx={{
-                    minWidth: { xs: "140px", sm: "180px" },
-                    height: "46px",
-                    "& .MuiOutlinedInput-root": {
-                      height: "46px",
-                      borderRadius: "90px",
-                      py: "0px",
-                      px: 0,
-                      backgroundColor: "#F6F6F6",
-                      fontSize: "0.9375rem",
-                      fontFamily: fonts.sans,
-                      "& fieldset": { borderColor: "#dddddd" },
-                      "&:hover fieldset": { borderColor: "#dddddd" },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#BC2876",
-                        borderWidth: "1px",
-                      },
-                      "& .MuiInputBase-input::placeholder": {
-                        color: "#333333",
-                        opacity: 1,
-                      },
-                    },
-                    "& .MuiInputBase-input": {
-                      py: "0px",
-                      px: 0,
-                      // border: "1px solid #dddddd",
-                    },
-                  }}
-                />
-              )}
-
-              {/* Services only: Provider type dropdown */}
-              {activeTab === "services" && (
-                <FormControl
-                  sx={{
-                    minWidth: { xs: "140px", sm: "180px" },
-                    height: "46px",
-                    "& .MuiOutlinedInput-root": {
-                      height: "100%",
-                      borderRadius: "90px",
-                      backgroundColor: "#F6F6F6",
-                      fontSize: "0.9375rem",
-                      fontFamily: fonts.sans,
-                      "& fieldset": { borderColor: "#dddddd" },
-                      "&:hover fieldset": { borderColor: "#dddddd" },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#BC2876",
-                        borderWidth: "1px",
-                      },
-                    },
-                  }}
-                  size="small"
-                >
-                  <Select
-                    id="explore-provider-type-select"
-                    value={selectedProviderType}
-                    displayEmpty
-                    renderValue={(v) =>
-                      v === "all"
-                        ? "All services"
-                        : v === "ESP"
-                          ? "ESP"
-                          : v === "HEI"
-                            ? "HEI"
-                            : "All services"
-                    }
-                    onChange={(e) => setSelectedProviderType(e.target.value)}
-                    IconComponent={KeyboardArrowDownIcon}
-                    sx={{
-                      "& .MuiSelect-icon": {
-                        color: "#720361",
-                      },
-                    }}
-                  >
-                    <MenuItem value="all" sx={{ fontFamily: fonts.sans }}>
-                      All services
-                    </MenuItem>
-                    <MenuItem value="ESP" sx={{ fontFamily: fonts.sans }}>
-                      ESP
-                    </MenuItem>
-                    <MenuItem value="HEI" sx={{ fontFamily: fonts.sans }}>
-                      HEI
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-
-              {/* Categories dropdown (hidden for announcements/events/services/counsellors; for courses use separate category state) */}
-              {activeTab !== "announcements" &&
-                activeTab !== "events" &&
-                activeTab !== "services" &&
-                activeTab !== "counsellors" &&
-                activeTab !== "courses" && (
+            {/* On desktop: search left, filters right (space-between); on mobile: stacked */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { sm: "center" },
+                gap: "12px",
+                flex: { sm: "0 0 auto" },
+                minWidth: 0,
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              <Box
+                className={exploreStyles.filtersDropdownsRow}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  flexWrap: { sm: "nowrap" },
+                }}
+              >
+                {/* Announcements/Events/Services/Counsellors/Courses: SortBy */}
+                {(activeTab === "announcements" ||
+                  activeTab === "events" ||
+                  activeTab === "services" ||
+                  activeTab === "counsellors" ||
+                  activeTab === "courses") && (
                   <FormControl
                     sx={{
                       minWidth: { xs: "140px", sm: "180px" },
@@ -1127,16 +861,392 @@ const Explore = () => {
                     }}
                     size="small"
                   >
-                    <InputLabel id="explore-category-label">
-                      Categories
-                    </InputLabel>
+                    {activeTab === "announcements" && (
+                      <Select
+                        key="sort-announcements"
+                        id="explore-sortby-select-announcements"
+                        variant="outlined"
+                        value={selectedSortByAnnouncements}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByAnnouncements(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "events" && (
+                      <Select
+                        key="sort-events"
+                        id="explore-sortby-select-events"
+                        variant="outlined"
+                        value={selectedSortByEvents}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByEvents(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "services" && (
+                      <Select
+                        key="sort-services"
+                        id="explore-sortby-select-services"
+                        variant="outlined"
+                        value={selectedSortByServices}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByServices(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "counsellors" && (
+                      <Select
+                        key="sort-counsellors"
+                        id="explore-sortby-select-counsellors"
+                        variant="outlined"
+                        value={selectedSortByCounsellors}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "name" ? "Name" : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByCounsellors(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem value="name" sx={{ fontFamily: fonts.sans }}>
+                          Name
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "courses" && (
+                      <Select
+                        key="sort-courses"
+                        id="explore-sortby-select-courses"
+                        variant="outlined"
+                        value={selectedSortByCourses}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByCourses(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                  </FormControl>
+                )}
+
+                {/* Counsellors only: Country dropdown (matches Sort By UI) */}
+                {activeTab === "counsellors" && (
+                  <Autocomplete
+                    options={countryList}
+                    getOptionLabel={(option) => option.name}
+                    value={selectedCountryCounsellors}
+                    onChange={(e, newValue) =>
+                      setSelectedCountryCounsellors(newValue)
+                    }
+                    popupIcon={
+                      <KeyboardArrowDownIcon sx={{ color: "#720361" }} />
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Country"
+                        variant="outlined"
+                        inputProps={{
+                          ...params.inputProps,
+                          style: {
+                            textAlign: "start",
+                            padding: "0px",
+                            paddingLeft: "10px",
+                          },
+                        }}
+                      />
+                    )}
+                    sx={{
+                      minWidth: { xs: "140px", sm: "180px" },
+                      height: "46px",
+                      "& .MuiOutlinedInput-root": {
+                        height: "46px",
+                        borderRadius: "90px",
+                        py: "0px",
+                        px: 0,
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
+                        "& .MuiInputBase-input::placeholder": {
+                          color: "#333333",
+                          opacity: 1,
+                        },
+                      },
+                      "& .MuiInputBase-input": {
+                        py: "0px",
+                        px: 0,
+                        // border: "1px solid #dddddd",
+                      },
+                    }}
+                  />
+                )}
+
+                {/* Services only: Provider type dropdown */}
+                {activeTab === "services" && (
+                  <FormControl
+                    sx={{
+                      minWidth: { xs: "140px", sm: "180px" },
+                      height: "46px",
+                      "& .MuiOutlinedInput-root": {
+                        height: "100%",
+                        borderRadius: "90px",
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
+                      },
+                    }}
+                    size="small"
+                  >
                     <Select
-                      labelId="explore-category-label"
-                      id="explore-category-select"
-                      value={selectedCatagory || ""}
-                      label="Categories"
+                      id="explore-provider-type-select"
+                      value={selectedProviderType}
+                      displayEmpty
+                      renderValue={(v) =>
+                        v === "all"
+                          ? "All services"
+                          : v === "ESP"
+                            ? "ESP"
+                            : v === "HEI"
+                              ? "HEI"
+                              : "All services"
+                      }
+                      onChange={(e) => setSelectedProviderType(e.target.value)}
+                      IconComponent={KeyboardArrowDownIcon}
+                      sx={{
+                        "& .MuiSelect-icon": {
+                          color: "#720361",
+                        },
+                      }}
+                    >
+                      <MenuItem value="all" sx={{ fontFamily: fonts.sans }}>
+                        All services
+                      </MenuItem>
+                      <MenuItem value="ESP" sx={{ fontFamily: fonts.sans }}>
+                        ESP
+                      </MenuItem>
+                      <MenuItem value="HEI" sx={{ fontFamily: fonts.sans }}>
+                        HEI
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+
+                {/* Categories dropdown (same UI as Sort By for Courses) */}
+                {activeTab !== "announcements" &&
+                  activeTab !== "events" &&
+                  activeTab !== "services" &&
+                  activeTab !== "counsellors" &&
+                  activeTab !== "courses" && (
+                    <FormControl
+                      sx={{
+                        minWidth: { xs: "140px", sm: "180px" },
+                        height: "46px",
+                        "& .MuiOutlinedInput-root": {
+                          height: "100%",
+                          borderRadius: "90px",
+                          backgroundColor: "#F6F6F6",
+                          fontSize: "0.9375rem",
+                          fontFamily: fonts.sans,
+                          "& fieldset": { borderColor: "#dddddd" },
+                          "&:hover fieldset": { borderColor: "#dddddd" },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#BC2876",
+                            borderWidth: "1px",
+                          },
+                        },
+                      }}
+                      size="small"
+                    >
+                      <Select
+                        id="explore-category-select"
+                        variant="outlined"
+                        value={selectedCatagory || ""}
+                        displayEmpty
+                        renderValue={(v) => v || "Categories"}
+                        onChange={(e) =>
+                          setSelectedCatagory(e.target.value || "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: {
+                            sx: { zIndex: 9999, maxHeight: 400 },
+                          },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          <em>All</em>
+                        </MenuItem>
+                        {categories.map((cat) => (
+                          <MenuItem
+                            key={cat}
+                            value={cat}
+                            sx={{ fontFamily: fonts.sans }}
+                          >
+                            {cat}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+
+                {/* Courses: Category dropdown */}
+                {activeTab === "courses" && (
+                  <FormControl
+                    sx={{
+                      minWidth: { xs: "140px", sm: "180px" },
+                      height: "46px",
+                      "& .MuiOutlinedInput-root": {
+                        height: "100%",
+                        borderRadius: "90px",
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
+                      },
+                    }}
+                    size="small"
+                  >
+                    <Select
+                      id="explore-courses-category-select"
+                      value={selectedCategoryCourses || ""}
+                      displayEmpty
+                      renderValue={(v) => v || "Category"}
                       onChange={(e) =>
-                        setSelectedCatagory(e.target.value || "")
+                        setSelectedCategoryCourses(e.target.value || "")
                       }
                       IconComponent={KeyboardArrowDownIcon}
                       sx={{
@@ -1145,7 +1255,7 @@ const Explore = () => {
                         },
                       }}
                     >
-                      <MenuItem value="">
+                      <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
                         <em>All</em>
                       </MenuItem>
                       {categories.map((cat) => (
@@ -1161,107 +1271,61 @@ const Explore = () => {
                   </FormControl>
                 )}
 
-              {/* Courses: Category dropdown */}
-              {activeTab === "courses" && (
-                <FormControl
-                  sx={{
-                    minWidth: { xs: "140px", sm: "180px" },
-                    height: "46px",
-                    "& .MuiOutlinedInput-root": {
-                      height: "100%",
-                      borderRadius: "90px",
-                      backgroundColor: "#F6F6F6",
-                      fontSize: "0.9375rem",
-                      fontFamily: fonts.sans,
-                      "& fieldset": { borderColor: "#dddddd" },
-                      "&:hover fieldset": { borderColor: "#dddddd" },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#BC2876",
-                        borderWidth: "1px",
-                      },
-                    },
-                  }}
-                  size="small"
-                >
-                  <Select
-                    id="explore-courses-category-select"
-                    value={selectedCategoryCourses || ""}
-                    displayEmpty
-                    renderValue={(v) => v || "Category"}
-                    onChange={(e) =>
-                      setSelectedCategoryCourses(e.target.value || "")
-                    }
-                    IconComponent={KeyboardArrowDownIcon}
-                    sx={{
-                      "& .MuiSelect-icon": {
-                        color: "#720361",
-                      },
-                    }}
-                  >
-                    <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
-                      <em>All</em>
-                    </MenuItem>
-                    {categories.map((cat) => (
-                      <MenuItem
-                        key={cat}
-                        value={cat}
-                        sx={{ fontFamily: fonts.sans }}
-                      >
-                        {cat}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-
-              {/* Tags (hidden for announcements/events/services/counsellors/courses) */}
-              {activeTab !== "announcements" &&
-                activeTab !== "events" &&
-                activeTab !== "services" &&
-                activeTab !== "counsellors" &&
-                activeTab !== "courses" && (
-                  <Autocomplete
-                    multiple
-                    options={formattedTags}
-                    getOptionLabel={(option) => option.label}
-                    value={formattedTags.filter((tag) =>
-                      selectedTags.includes(tag.value),
-                    )}
-                    onChange={(event, newValue) => {
-                      setSelectedTags(newValue.map((tag) => tag.value));
-                    }}
-                    filterSelectedOptions
-                    disableCloseOnSelect
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        placeholder="Tags"
-                        size="small"
-                        sx={{
-                          width: { xs: "140px", sm: "169px" },
-                          "& .MuiOutlinedInput-root": {
-                            height: "46px",
-                            borderRadius: "90px",
-                            backgroundColor: "#F6F6F6",
-                            padding: "0 35px 0 15px",
-                            fontFamily: fonts.sans,
-                            "& fieldset": { borderColor: "#dddddd" },
-                            "&:hover fieldset": { borderColor: "#dddddd" },
-                            "&.Mui-focused fieldset": {
-                              borderColor: "#BC2876",
-                              borderWidth: "1px",
+                {/* Tags (same UI as Sort By for Courses: same icon and styling) */}
+                {activeTab !== "announcements" &&
+                  activeTab !== "events" &&
+                  activeTab !== "services" &&
+                  activeTab !== "counsellors" &&
+                  activeTab !== "courses" && (
+                    <Autocomplete
+                      multiple
+                      options={formattedTags}
+                      getOptionLabel={(option) => option.label}
+                      value={formattedTags.filter((tag) =>
+                        selectedTags.includes(tag.value),
+                      )}
+                      onChange={(event, newValue) => {
+                        setSelectedTags(newValue.map((tag) => tag.value));
+                      }}
+                      filterSelectedOptions
+                      disableCloseOnSelect
+                      popupIcon={
+                        <KeyboardArrowDownIcon sx={{ color: "#720361" }} />
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Tags"
+                          size="small"
+                          sx={{
+                            width: { xs: "100%", sm: "180px" },
+                            "& .MuiOutlinedInput-root": {
+                              height: "46px",
+                              borderRadius: "90px",
+                              backgroundColor: "#F6F6F6",
+                              fontSize: "0.9375rem",
+                              fontFamily: fonts.sans,
+                              padding: "0 9px 0 14px",
+                              "& fieldset": { borderColor: "#dddddd" },
+                              "&:hover fieldset": { borderColor: "#dddddd" },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#BC2876",
+                                borderWidth: "1px",
+                              },
                             },
-                          },
-                        }}
-                      />
-                    )}
-                    renderTags={() => null}
-                  />
-                )}
-
-              {/* Apply & Reset */}
-              <Box sx={{ display: "flex", gap: "10px", flexShrink: 0 }}>
+                          }}
+                        />
+                      )}
+                      renderTags={() => null}
+                    />
+                  )}
+              </Box>
+              {/* Apply & Reset - 50% width each on mobile */}
+              <Box
+                className={exploreStyles.filtersButtonsRow}
+                sx={{ display: "flex", gap: "10px", flexShrink: 0 }}
+              >
                 <Button
                   variant="contained"
                   onClick={handleApply}
@@ -1310,7 +1374,7 @@ const Explore = () => {
                   gap: "10px",
                   width: "100%",
                   margin: "auto",
-                  padding: "0 30px 15px 30px",
+                  padding: { xs: "0 0 15px 0", sm: "0 30px 15px 30px" },
                 }}
               >
                 {selectedTags?.length > 0 &&

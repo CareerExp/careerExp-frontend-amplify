@@ -19,6 +19,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LinkIcon from '@mui/icons-material/Link';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import { fonts } from '../../utility/fonts';
 import { uploadDocument } from '../../assets/assest';
 import { createEvent, updateEvent, selectEventLoading } from '../../redux/slices/eventSlice';
@@ -182,15 +183,49 @@ const AddEvent = ({ onBack, eventToEdit }) => {
                                     justifyContent: 'center',
                                     cursor: 'pointer',
                                     overflow: 'hidden',
-                                    position: 'relative'
+                                    position: 'relative',
+                                    '&:hover .event-edit-image-overlay': {
+                                        opacity: 1,
+                                    },
                                 }}
                             >
                                 {imagePreview ? (
-                                    <Box
-                                        component="img"
-                                        src={imagePreview}
-                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
+                                    <>
+                                        <Box
+                                            component="img"
+                                            src={imagePreview}
+                                            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                        {eventToEdit && (
+                                            <Box
+                                                className="event-edit-image-overlay"
+                                                sx={{
+                                                    position: 'absolute',
+                                                    inset: 0,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                                    opacity: 0,
+                                                    transition: 'opacity 0.2s',
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        width: 48,
+                                                        height: 48,
+                                                        borderRadius: '50%',
+                                                        backgroundColor: 'rgba(255,255,255,0.9)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                    }}
+                                                >
+                                                    <EditIcon sx={{ fontSize: 24, color: '#BC2876' }} />
+                                                </Box>
+                                            </Box>
+                                        )}
+                                    </>
                                 ) : (
                                     <>
                                         <Box
