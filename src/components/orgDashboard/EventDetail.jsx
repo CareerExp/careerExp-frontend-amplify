@@ -16,6 +16,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LanguageIcon from '@mui/icons-material/Language';
 import TagIcon from '@mui/icons-material/Tag';
 import { fonts } from '../../utility/fonts';
+import { eventsPlaceholder } from '../../assets/assest';
 
 const EventDetail = ({ event, onBack, onEdit, onDelete }) => {
     if (!event) return null;
@@ -170,7 +171,7 @@ const EventDetail = ({ event, onBack, onEdit, onDelete }) => {
                 >
                     <Box
                         component="img"
-                        src={event.coverImage || event.image}
+                        src={event.banner || event.coverImage || event.image || eventsPlaceholder}
                         sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     

@@ -47,10 +47,21 @@ function formatArticleDetailDate(utcDate) {
   });
 }
 
+/** Format as mm/dd/yyyy for explore (Events, Announcements, Services) */
+function formatDateMMDDYYYY(utcDate) {
+  if (!utcDate) return "";
+  return new Date(utcDate).toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  });
+}
+
 export {
   convertToUTC,
   convertUTCDateToLocalDate,
   convertUTCtoMonthAndYear,
   formatDateDDMMYYYY,
   formatArticleDetailDate,
+  formatDateMMDDYYYY,
 };

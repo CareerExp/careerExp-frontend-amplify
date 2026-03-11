@@ -20,7 +20,7 @@ import {
   selectToken,
   selectUserId,
 } from "../redux/slices/authSlice.js";
-import { formatArticleDetailDate } from "../utility/convertTimeToUTC.js";
+import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
 import { eventsPlaceholder } from "../assets/assest.js";
@@ -233,7 +233,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   variant="body2"
                   sx={{ color: colors.darkGray, fontFamily: fonts.sans }}
                 >
-                  {formatArticleDetailDate(
+                  {formatDateMMDDYYYY(
                     event.liveStartDate || event.eventDate || event.createdAt,
                   )}
                 </Typography>
@@ -400,7 +400,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   }}
                 >
                   Application Deadline:{" "}
-                  {formatArticleDetailDate(registrationDeadline)}
+                  {formatDateMMDDYYYY(registrationDeadline)}
                 </Typography>
                 <Typography
                   sx={{
