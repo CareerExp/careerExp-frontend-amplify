@@ -167,7 +167,7 @@ const Sidebar = ({
           },
           { name: "My Events", icon: <EventIcon />, route: "/myevents" },
           {
-            name: "My Services",
+            name: "Connect 1-2-1",
             icon: <BusinessCenterIcon />,
             route: "/myservices",
           },
@@ -209,7 +209,7 @@ const Sidebar = ({
           },
           { name: "My Events", icon: <EventIcon />, route: "/myevents" },
           {
-            name: "My Services",
+            name: "Connect 1-2-1",
             icon: <BusinessCenterIcon />,
             route: "/myservices",
           },

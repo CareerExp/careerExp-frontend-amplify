@@ -39,6 +39,7 @@ import {
   updateServiceStatus,
 } from "../../redux/slices/serviceSlice";
 import { selectToken } from "../../redux/slices/authSlice";
+import { selectOrganizationProfile } from "../../redux/slices/organizationSlice";
 import { notify } from "../../redux/slices/alertSlice";
 
 // Service mode badge styles (Offline → "In person"). Same as Explore ServiceCard.
@@ -634,6 +635,7 @@ const DeleteConfirmationModal = ({ open, onClose, onConfirm, isLoading }) => (
 const OrgMyServices = () => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
+  const orgProfile = useSelector(selectOrganizationProfile);
   const services = useSelector(selectMyServices);
   const isLoading = useSelector(selectServiceLoading);
 
@@ -744,6 +746,7 @@ const OrgMyServices = () => {
           dispatch(fetchMyServices({ token }));
         }}
         serviceToEdit={serviceToEdit}
+        organizationType={orgProfile?.organizationType}
       />
     );
   }
@@ -785,7 +788,7 @@ const OrgMyServices = () => {
             flexGrow: 1,
           }}
         >
-          My Services
+          Connect 1-2-1
         </Typography>
 
         <TextField
@@ -849,7 +852,7 @@ const OrgMyServices = () => {
             "&:hover": { opacity: 0.9 },
           }}
         >
-          Add Service
+          Add Call
         </Button>
       </Box>
 

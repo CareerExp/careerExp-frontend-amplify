@@ -32,39 +32,55 @@ import { selectToken } from "../../redux/slices/authSlice";
 import { notify } from "../../redux/slices/alertSlice";
 
 const MAX_DESCRIPTION_CHARS = 3000;
-const MAX_LIST_CHARS = 3000; // for What's included & What you will learn (total)
+const MAX_LIST_CHARS = 3000; // for What's included (total)
 
-const AddService = ({ onBack, serviceToEdit }) => {
+const ESP_CATEGORIES = [
+  "Building your Career Plan",
+  "Education options",
+  "Financing your studies",
+  "Career readiness",
+  "Planning your future",
+  "Where can I study?",
+  "General advice",
+];
+
+const HEI_CATEGORIES = [
+  "Ask Admissions",
+  "Ask Financial Aid",
+  "Ask Faculty",
+  "Student chat",
+];
+
+const AddService = ({ onBack, serviceToEdit, organizationType }) => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
   const isLoading = useSelector(selectServiceLoading);
 
+  const isHEI = (organizationType || "").toString().toUpperCase() === "HEI";
+  const categories = isHEI ? HEI_CATEGORIES : ESP_CATEGORIES;
+  const defaultCategory = categories[0] || "";
+
   const [formData, setFormData] = useState({
-    title: serviceToEdit?.title || "",
     description: serviceToEdit?.description || "",
-    category: serviceToEdit?.category || "Academic Programs",
-    priceType: serviceToEdit?.priceType || "PAID",
-    price: serviceToEdit?.price || "",
-    currency: serviceToEdit?.currency || "INR",
+    category: serviceToEdit?.category || defaultCategory,
     referenceNumber: serviceToEdit?.referenceNumber || "",
-    durationValue: serviceToEdit?.duration?.value || "",
-    durationUnit: serviceToEdit?.duration?.unit || "weeks",
     serviceMode: serviceToEdit?.serviceMode || "ONLINE",
+    calendarLink: serviceToEdit?.calendarLink || "",
     ctaType: serviceToEdit?.cta?.type || "LINK",
     ctaValue: serviceToEdit?.cta?.value || "",
     ctaLabel: serviceToEdit?.cta?.label || "Book Slot",
     coverImage: null,
   });
 
+  const categoryOptions =
+    formData.category && !categories.includes(formData.category)
+      ? [formData.category, ...categories]
+      : categories;
+
   const [whatsIncluded, setWhatsIncluded] = useState(
     serviceToEdit?.whatsIncluded || [],
   );
   const [newItemIncluded, setNewItemIncluded] = useState("");
-
-  const [whatYouWillLearn, setWhatYouWillLearn] = useState(
-    serviceToEdit?.whatYouWillLearn || [],
-  );
-  const [newItemLearn, setNewItemLearn] = useState("");
 
   const [imagePreview, setImagePreview] = useState(
     serviceToEdit?.coverImage || null,
@@ -73,14 +89,6 @@ const AddService = ({ onBack, serviceToEdit }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "price") {
-      const num = Number(value);
-      if (value !== "" && (Number.isNaN(num) || num < 0)) return; // disallow negative or invalid price
-    }
-    if (name === "durationValue" && value !== "") {
-      const num = Number(value);
-      if (Number.isNaN(num) || num < 1) return; // minimum 1
-    }
     if (name === "description" && value.length > MAX_DESCRIPTION_CHARS) {
       setFormData((prev) => ({
         ...prev,
@@ -137,14 +145,16 @@ const AddService = ({ onBack, serviceToEdit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.title ||
-      !formData.description ||
-      !formData.category ||
-      !formData.ctaValue
-    ) {
+    if (!formData.description?.trim()) {
       dispatch(
-        notify({ message: "Please fill all required fields", type: "error" }),
+        notify({ message: "Please enter Description", type: "error" }),
+      );
+      return;
+    }
+
+    if (!formData.category) {
+      dispatch(
+        notify({ message: "Please select Category", type: "error" }),
       );
       return;
     }
@@ -170,50 +180,6 @@ const AddService = ({ onBack, serviceToEdit }) => {
       return;
     }
 
-    const whatYouWillLearnTotal = whatYouWillLearn.reduce(
-      (s, x) => s + x.length,
-      0,
-    );
-    if (whatYouWillLearnTotal > MAX_LIST_CHARS) {
-      dispatch(
-        notify({
-          message: `What you will learn cannot exceed ${MAX_LIST_CHARS} characters in total`,
-          type: "error",
-        }),
-      );
-      return;
-    }
-
-    if (!formData.priceType) {
-      dispatch(
-        notify({ message: "Please select Price Type", type: "error" }),
-      );
-      return;
-    }
-
-    const durationNum = Number(formData.durationValue);
-    if (
-      formData.durationValue === "" ||
-      formData.durationValue == null ||
-      Number.isNaN(durationNum) ||
-      durationNum < 1
-    ) {
-      dispatch(
-        notify({
-          message: "Duration is required and must be at least 1",
-          type: "error",
-        }),
-      );
-      return;
-    }
-
-    if (!formData.durationUnit) {
-      dispatch(
-        notify({ message: "Please select Duration Unit", type: "error" }),
-      );
-      return;
-    }
-
     if (!formData.serviceMode) {
       dispatch(
         notify({ message: "Please select Service Mode", type: "error" }),
@@ -221,17 +187,20 @@ const AddService = ({ onBack, serviceToEdit }) => {
       return;
     }
 
-    if (formData.priceType === "PAID" && !formData.price) {
+    if (!formData.calendarLink?.trim()) {
       dispatch(
         notify({
-          message: "Please enter the price for paid service",
+          message: "Please enter Link to Appointment Calendar",
           type: "error",
         }),
       );
       return;
     }
-    if (formData.priceType === "PAID" && Number(formData.price) < 0) {
-      dispatch(notify({ message: "Price cannot be negative", type: "error" }));
+
+    if (!formData.ctaValue?.trim()) {
+      dispatch(
+        notify({ message: "Please enter Add link or email (CTA)", type: "error" }),
+      );
       return;
     }
 
@@ -247,34 +216,25 @@ const AddService = ({ onBack, serviceToEdit }) => {
 
     try {
       const data = new FormData();
-      data.append("title", formData.title);
+      data.append("title", formData.category);
       data.append("description", formData.description);
       data.append("category", formData.category);
-      data.append("priceType", formData.priceType);
-      if (formData.priceType === "PAID") {
-        data.append("price", formData.price);
-        data.append("currency", formData.currency);
-      }
+      data.append("priceType", "FREE");
       data.append("referenceNumber", formData.referenceNumber || "");
-
       data.append(
         "duration",
-        JSON.stringify({
-          value: formData.durationValue,
-          unit: formData.durationUnit,
-        }),
+        JSON.stringify({ value: 1, unit: "weeks" }),
       );
-
       data.append("serviceMode", formData.serviceMode);
+      data.append("calendarLink", formData.calendarLink.trim());
       data.append("whatsIncluded", JSON.stringify(whatsIncluded));
-      data.append("whatYouWillLearn", JSON.stringify(whatYouWillLearn));
+      data.append("whatYouWillLearn", JSON.stringify([]));
       data.append("status", "PUBLISHED");
-
       data.append(
         "cta",
         JSON.stringify({
           type: formData.ctaType,
-          value: formData.ctaValue,
+          value: formData.ctaValue.trim(),
           label: formData.ctaLabel || "Book Slot",
         }),
       );
@@ -362,7 +322,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
             color: "#000",
           }}
         >
-          {serviceToEdit ? "Edit Service" : "Add Service"}
+          {serviceToEdit ? "Edit Call" : "Add Call"}
         </Typography>
       </Box>
 
@@ -422,44 +382,6 @@ const AddService = ({ onBack, serviceToEdit }) => {
               </Box>
             </Grid>
 
-            {/* Title */}
-            <Grid item xs={12}>
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#545454",
-                  mb: 1,
-                }}
-              >
-                Service title <Box component="span" sx={{ color: "#d32f2f" }}>*</Box>
-              </Typography>
-              <TextField
-                fullWidth
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Enter Service title"
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "90px",
-                    backgroundColor: "#f2f2f2",
-                    height: "54px",
-                    "& fieldset": { border: "none" },
-                    px: 2,
-                  },
-                  "& .MuiInputBase-input": {
-                    fontFamily: fonts.sans,
-                    fontSize: "16px",
-                    color: "#000",
-                    "&::placeholder": { color: "rgba(0,0,0,0.5)", opacity: 1 },
-                  },
-                }}
-              />
-            </Grid>
-
             {/* Category & Reference Number */}
             <Grid item xs={12} sm={6}>
               <Typography
@@ -494,53 +416,11 @@ const AddService = ({ onBack, serviceToEdit }) => {
                     px: 1,
                   }}
                 >
-                  <MenuItem value="Academic Programs">
-                    Academic Programs
-                  </MenuItem>
-                  <MenuItem value="Career Counselling & Guidance">
-                    Career Counselling & Guidance
-                  </MenuItem>
-                  <MenuItem value="Mentoring & Coaching">
-                    Mentoring & Coaching
-                  </MenuItem>
-                  <MenuItem value="Admissions Support">
-                    Admissions Support
-                  </MenuItem>
-                  <MenuItem value="Test Preparation">Test Preparation</MenuItem>
-                  <MenuItem value="Study Abroad Support">
-                    Study Abroad Support
-                  </MenuItem>
-                  <MenuItem value="Scholarship & Financial Aid Guidance">
-                    Scholarship & Financial Aid Guidance
-                  </MenuItem>
-                  <MenuItem value="Skill Development & Training">
-                    Skill Development & Training
-                  </MenuItem>
-                  <MenuItem value="Professional Certification Programs">
-                    Professional Certification Programs
-                  </MenuItem>
-                  <MenuItem value="Language Training">
-                    Language Training
-                  </MenuItem>
-                  <MenuItem value="Internship & Placement Support">
-                    Internship & Placement Support
-                  </MenuItem>
-                  <MenuItem value="Research & Innovation Opportunities">
-                    Research & Innovation Opportunities
-                  </MenuItem>
-                  <MenuItem value="Industry Training & Corporate Programs">
-                    Industry Training & Corporate Programs
-                  </MenuItem>
-                  <MenuItem value="Workshops, Seminars & Events">
-                    Workshops, Seminars & Events
-                  </MenuItem>
-                  <MenuItem value="Student Support Services">
-                    Student Support Services
-                  </MenuItem>
-                  <MenuItem value="Networking & Community Programs">
-                    Networking & Community Programs
-                  </MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
+                  {categoryOptions.map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                      {cat}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -554,7 +434,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
                   mb: 1,
                 }}
               >
-                Reference Number (Optional)
+                Ref no (Optional)
               </Typography>
               <TextField
                 fullWidth
@@ -624,199 +504,8 @@ const AddService = ({ onBack, serviceToEdit }) => {
               />
             </Grid>
 
-            {/* Price Type & Price */}
-            <Grid item xs={12} sm={4}>
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#545454",
-                  mb: 1,
-                }}
-              >
-                Price Type <Box component="span" sx={{ color: "#d32f2f" }}>*</Box>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  name="priceType"
-                  value={formData.priceType}
-                  onChange={handleChange}
-                  sx={{
-                    borderRadius: "90px",
-                    backgroundColor: "#f2f2f2",
-                    height: "54px",
-                    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                    fontFamily: fonts.sans,
-                    fontSize: "16px",
-                    color: "#000",
-                    px: 1,
-                  }}
-                >
-                  <MenuItem value="FREE">Free</MenuItem>
-                  <MenuItem value="PAID">Paid</MenuItem>
-                  <MenuItem value="CUSTOM">Custom</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            {formData.priceType === "PAID" && (
-              <>
-                <Grid item xs={12} sm={4}>
-                  <Typography
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      color: "#545454",
-                      mb: 1,
-                    }}
-                  >
-                    Price
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    placeholder="Enter amount"
-                    inputProps={{ min: 0, step: "any" }}
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "90px",
-                        backgroundColor: "#f2f2f2",
-                        height: "54px",
-                        "& fieldset": { border: "none" },
-                        px: 2,
-                      },
-                      "& .MuiInputBase-input": {
-                        fontFamily: fonts.sans,
-                        fontSize: "16px",
-                        color: "#000",
-                        "&::placeholder": {
-                          color: "rgba(0,0,0,0.5)",
-                          opacity: 1,
-                        },
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      color: "#545454",
-                      mb: 1,
-                    }}
-                  >
-                    Currency
-                  </Typography>
-                  <FormControl fullWidth>
-                    <Select
-                      name="currency"
-                      value={formData.currency}
-                      onChange={handleChange}
-                      sx={{
-                        borderRadius: "90px",
-                        backgroundColor: "#f2f2f2",
-                        height: "54px",
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
-                        },
-                        fontFamily: fonts.sans,
-                        fontSize: "16px",
-                        color: "#000",
-                        px: 1,
-                      }}
-                    >
-                      <MenuItem value="INR">INR</MenuItem>
-                      <MenuItem value="USD">USD</MenuItem>
-                      <MenuItem value="AED">AED</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </>
-            )}
-
-            {/* Duration */}
-            <Grid item xs={12} sm={4}>
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#545454",
-                  mb: 1,
-                }}
-              >
-                Duration Value <Box component="span" sx={{ color: "#d32f2f" }}>*</Box>
-              </Typography>
-              <TextField
-                fullWidth
-                type="number"
-                name="durationValue"
-                value={formData.durationValue}
-                onChange={handleChange}
-                placeholder="Value"
-                inputProps={{ min: 1 }}
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "90px",
-                    backgroundColor: "#f2f2f2",
-                    height: "54px",
-                    "& fieldset": { border: "none" },
-                    px: 2,
-                  },
-                  "& .MuiInputBase-input": {
-                    fontFamily: fonts.sans,
-                    fontSize: "16px",
-                    color: "#000",
-                    "&::placeholder": { color: "rgba(0,0,0,0.5)", opacity: 1 },
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#545454",
-                  mb: 1,
-                }}
-              >
-                Unit <Box component="span" sx={{ color: "#d32f2f" }}>*</Box>
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  name="durationUnit"
-                  value={formData.durationUnit}
-                  onChange={handleChange}
-                  sx={{
-                    borderRadius: "90px",
-                    backgroundColor: "#f2f2f2",
-                    height: "54px",
-                    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                    fontFamily: fonts.sans,
-                    fontSize: "16px",
-                    color: "#000",
-                    px: 1,
-                  }}
-                >
-                  <MenuItem value="minutes">Minutes</MenuItem>
-                  <MenuItem value="hours">Hours</MenuItem>
-                  <MenuItem value="days">Days</MenuItem>
-                  <MenuItem value="weeks">Weeks</MenuItem>
-                  <MenuItem value="months">Months</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={4}>
+            {/* Service Mode: Online / In-Person */}
+            <Grid item xs={12} sm={6}>
               <Typography
                 sx={{
                   fontFamily: fonts.sans,
@@ -846,9 +535,46 @@ const AddService = ({ onBack, serviceToEdit }) => {
                 >
                   <MenuItem value="ONLINE">Online</MenuItem>
                   <MenuItem value="OFFLINE">In-Person</MenuItem>
-                  <MenuItem value="HYBRID">Hybrid</MenuItem>
                 </Select>
               </FormControl>
+            </Grid>
+
+            {/* Link to Appointment Calendar */}
+            <Grid item xs={12} sm={6}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 500,
+                  fontSize: "16px",
+                  color: "#545454",
+                  mb: 1,
+                }}
+              >
+                Link to Appointment Calendar <Box component="span" sx={{ color: "#d32f2f" }}>*</Box>
+              </Typography>
+              <TextField
+                fullWidth
+                name="calendarLink"
+                value={formData.calendarLink}
+                onChange={handleChange}
+                placeholder="https://calendly.com/..."
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "90px",
+                    backgroundColor: "#f2f2f2",
+                    height: "54px",
+                    "& fieldset": { border: "none" },
+                    px: 2,
+                  },
+                  "& .MuiInputBase-input": {
+                    fontFamily: fonts.sans,
+                    fontSize: "16px",
+                    color: "#000",
+                    "&::placeholder": { color: "rgba(0,0,0,0.5)", opacity: 1 },
+                  },
+                }}
+              />
             </Grid>
 
             {/* What's Included */}
@@ -964,120 +690,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
               </Box>
             </Grid>
 
-            {/* What you will learn */}
-            <Grid item xs={12}>
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#545454",
-                  mb: 1,
-                }}
-              >
-                What you will learn
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontFamily: fonts.sans,
-                  color: "#545454",
-                  display: "block",
-                  mb: 0.5,
-                }}
-              >
-                {whatYouWillLearn.reduce((s, x) => s + x.length, 0) +
-                  newItemLearn.length}
-                /{MAX_LIST_CHARS} characters max
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1.5, mb: 1.5 }}>
-                <TextField
-                  fullWidth
-                  value={newItemLearn}
-                  onChange={(e) => {
-                    const total = whatYouWillLearn.reduce(
-                      (s, x) => s + x.length,
-                      0,
-                    );
-                    const maxNew = MAX_LIST_CHARS - total;
-                    setNewItemLearn(e.target.value.slice(0, maxNew));
-                  }}
-                  placeholder="Add what the user will learn"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "90px",
-                      backgroundColor: "#f2f2f2",
-                      height: "54px",
-                      "& fieldset": { border: "none" },
-                      px: 2,
-                    },
-                    "& .MuiInputBase-input": {
-                      fontFamily: fonts.sans,
-                      fontSize: "16px",
-                    },
-                  }}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addItem(
-                        whatYouWillLearn,
-                        setWhatYouWillLearn,
-                        newItemLearn,
-                        setNewItemLearn,
-                        MAX_LIST_CHARS,
-                      );
-                    }
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={() =>
-                    addItem(
-                      whatYouWillLearn,
-                      setWhatYouWillLearn,
-                      newItemLearn,
-                      setNewItemLearn,
-                      MAX_LIST_CHARS,
-                    )
-                  }
-                  sx={{
-                    borderRadius: "90px",
-                    minWidth: "100px",
-                    background:
-                      "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
-                  }}
-                >
-                  <AddIcon />
-                </Button>
-              </Box>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {whatYouWillLearn.map((item, index) => (
-                  <Chip
-                    key={index}
-                    label={item}
-                    onDelete={() =>
-                      removeItem(whatYouWillLearn, setWhatYouWillLearn, index)
-                    }
-                    deleteIcon={
-                      <DeleteOutlineIcon style={{ color: "#bc2876" }} />
-                    }
-                    sx={{
-                      fontFamily: fonts.sans,
-                      backgroundColor: "#f2f2f2",
-                      color: "#545454",
-                      fontWeight: 500,
-                      borderRadius: "8px",
-                      "& .MuiChip-deleteIcon": {
-                        color: "#bc2876",
-                        "&:hover": { color: "#720361" },
-                      },
-                    }}
-                  />
-                ))}
-              </Box>
-            </Grid>
-
-            {/* CTA Section */}
+            {/* CTA Section - Add link or email */}
             <Grid item xs={12}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
@@ -1090,7 +703,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
                     color: "#545454",
                   }}
                 >
-                  Add link or email
+                  Add link or email - For CTA
                 </Typography>
                 <Tooltip title="Enter the URL or email where users should be directed when they click the service CTA.">
                   <InfoOutlinedIcon
@@ -1223,7 +836,7 @@ const AddService = ({ onBack, serviceToEdit }) => {
                 ) : serviceToEdit ? (
                   "Save Changes"
                 ) : (
-                  "Add New Service"
+                  "Add Call"
                 )}
               </Button>
             </Grid>
