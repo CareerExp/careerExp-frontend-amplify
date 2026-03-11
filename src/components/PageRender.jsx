@@ -176,7 +176,7 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
         return <OrgMyAnnouncements />;
       case "My Events":
         return <OrgMyEvents />;
-      case "My Services":
+      case "Connect 1-2-1":
         return <OrgMyServices />;
       case "My Courses":
         return <OrgMyCourses />;

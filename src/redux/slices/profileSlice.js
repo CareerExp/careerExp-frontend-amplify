@@ -80,6 +80,8 @@ export const updatePassword = createAsyncThunk(
 );
 
 // Async thunk for updating user profile
+// updatedData may include: firstName, lastName, introBio, personalWebsite, calendarLink, etc.
+// Backend PATCH /api/profile/updateProfile/:userId should accept and persist these fields (e.g. calendarLink).
 export const updateUserProfile = createAsyncThunk(
   "profile/updateUserProfile",
   async ({ userId, updatedData, token }, thunkAPI) => {
