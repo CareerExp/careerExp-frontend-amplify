@@ -24,7 +24,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fonts } from '../../utility/fonts';
-import { uploadDocument } from '../../assets/assest';
+import { uploadDocument, eventsPlaceholder } from '../../assets/assest';
 import AddEvent from './AddEvent';
 import EventDetail from './EventDetail';
 import { fetchMyEvents, getEventById, selectMyEvents, selectEventLoading, deleteEvent } from '../../redux/slices/eventSlice';
@@ -118,7 +118,7 @@ const EventCard = ({ event, onEdit, onDelete, onView }) => {
             >
                 <Box
                     component="img"
-                    src={event.coverImage || event.image}
+                    src={event.banner || event.coverImage || event.image || eventsPlaceholder}
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <Box

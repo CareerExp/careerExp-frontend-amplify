@@ -4,6 +4,7 @@ import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useNavigate } from "react-router-dom";
 import { fonts } from "../utility/fonts.js";
+import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
 import { announcementsPlaceholder } from "../assets/assest.js";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
@@ -12,15 +13,7 @@ const AnnouncementCard = ({ announcement }) => {
   const [bookmarked, setBookmarked] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateStr) => formatDateMMDDYYYY(dateStr);
 
   const stripHtml = (html) => {
     if (!html || typeof html !== "string") return "";

@@ -20,7 +20,7 @@ import {
   selectToken,
   selectUserId,
 } from "../redux/slices/authSlice.js";
-import { formatArticleDetailDate } from "../utility/convertTimeToUTC.js";
+import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
 import { announcementsPlaceholder } from "../assets/assest.js";
@@ -224,7 +224,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
                   variant="body2"
                   sx={{ color: colors.darkGray, fontFamily: fonts.sans }}
                 >
-                  {formatArticleDetailDate(announcement.createdAt)}
+                  {formatDateMMDDYYYY(announcement.createdAt)}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
@@ -354,7 +354,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
                     mb: 0.5,
                   }}
                 >
-                  Application Deadline: {formatArticleDetailDate(liveEndDate)}
+                  Application Deadline: {formatDateMMDDYYYY(liveEndDate)}
                 </Typography>
                 <Typography
                   sx={{

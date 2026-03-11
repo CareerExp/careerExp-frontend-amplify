@@ -9,6 +9,7 @@ import { eventsPlaceholder } from "../assets/assest.js";
 import { registerEventCta } from "../redux/slices/eventSlice.js";
 import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
+import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 // Figma: In person = light pink bg #FFE8F3, text #DD4595; Hybrid/Online = light bg + accent text
@@ -31,15 +32,7 @@ const EventCard = ({ event: ev }) => {
   const [bookmarked, setBookmarked] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateStr) => formatDateMMDDYYYY(dateStr);
 
   const stripHtml = (html) => {
     if (!html || typeof html !== "string") return "";
