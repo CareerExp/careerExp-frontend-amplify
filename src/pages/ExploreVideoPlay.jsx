@@ -1,3 +1,4 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Avatar, Divider, IconButton, Rating } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { Box, Container } from "@mui/system";
@@ -355,6 +356,27 @@ const ExploreVideoPlay = () => {
           }}
         >
           <Box sx={{ px: { sm: "0.5rem", md: "1rem" } }}>
+            <Typography
+              component="button"
+              onClick={() => navigate("/explore?tab=videos")}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                fontFamily: fonts.poppins,
+                fontSize: "0.9375rem",
+                color: "#720361",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                mb: 2,
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              <ArrowBackIcon sx={{ fontSize: "1.25rem" }} />
+              Back to Videos
+            </Typography>
             <Typography
               variant="h5"
               sx={{

@@ -17,6 +17,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import ClearIcon from '@mui/icons-material/Clear';
 import LinkIcon from '@mui/icons-material/Link';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -46,6 +47,8 @@ const AddEvent = ({ onBack, eventToEdit }) => {
     });
     const [imagePreview, setImagePreview] = useState(eventToEdit?.coverImage || null);
     const fileInputRef = useRef(null);
+
+    const todayMin = new Date().toISOString().split('T')[0];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -381,6 +384,7 @@ const AddEvent = ({ onBack, eventToEdit }) => {
                                 name="liveStartDate"
                                 value={formData.liveStartDate}
                                 onChange={handleChange}
+                                inputProps={{ min: todayMin }}
                                 InputLabelProps={{ shrink: true }}
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
@@ -427,6 +431,7 @@ const AddEvent = ({ onBack, eventToEdit }) => {
                                 name="liveEndDate"
                                 value={formData.liveEndDate}
                                 onChange={handleChange}
+                                inputProps={{ min: todayMin }}
                                 InputLabelProps={{ shrink: true }}
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
@@ -497,12 +502,22 @@ const AddEvent = ({ onBack, eventToEdit }) => {
                                 }}
                                 InputProps={{
                                     endAdornment: (
-                                        <InputAdornment position="end">
+                                        <InputAdornment position="end" sx={{ gap: 0.25 }}>
+                                            {formData.registrationDeadline && (
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => setFormData(prev => ({ ...prev, registrationDeadline: '' }))}
+                                                    aria-label="Clear registration deadline"
+                                                    sx={{ p: 0.5 }}
+                                                >
+                                                    <ClearIcon sx={{ fontSize: '20px', color: 'rgba(0,0,0,0.5)' }} />
+                                                </IconButton>
+                                            )}
                                             <CalendarTodayIcon
                                                 sx={{ color: 'rgba(0,0,0,0.5)', fontSize: '20px', cursor: 'pointer' }}
                                                 onClick={(e) => {
-                                                    const input = e.currentTarget.closest('.MuiInputBase-root').querySelector('input');
-                                                    if (input.showPicker) input.showPicker();
+                                                    const input = e.currentTarget.closest('.MuiInputBase-root')?.querySelector('input');
+                                                    if (input?.showPicker) input.showPicker();
                                                 }}
                                             />
                                         </InputAdornment>

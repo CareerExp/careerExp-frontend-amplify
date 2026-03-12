@@ -125,7 +125,7 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
 
   // When inactive, show "Disabled" badge; otherwise show status (Published, Draft, etc.)
   const displayStatus =
-    service.isActive === false ? "DISABLED" : (service.status || "DRAFT");
+    service.isActive === false ? "DISABLED" : service.status || "DRAFT";
   const statusStyles = getStatusStyles(displayStatus);
 
   return (
@@ -381,7 +381,9 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
             </>
           ) : (
             <>
-              <CheckCircleOutlineIcon sx={{ fontSize: "18px", color: "#667085" }} />
+              <CheckCircleOutlineIcon
+                sx={{ fontSize: "18px", color: "#667085" }}
+              />
               <Typography
                 sx={{
                   fontFamily: fonts.sans,
@@ -623,9 +625,7 @@ const OrgMyServices = () => {
         }),
       );
       if (updateServiceStatus.fulfilled.match(resultAction)) {
-        const message = nextActive
-          ? "Service enabled."
-          : "Service disabled.";
+        const message = nextActive ? "Service enabled." : "Service disabled.";
         dispatch(notify({ message, type: "success" }));
         dispatch(fetchMyServices({ token }));
       } else {
@@ -633,7 +633,9 @@ const OrgMyServices = () => {
           notify({
             message:
               resultAction.payload?.error ||
-              (nextActive ? "Failed to enable service" : "Failed to disable service"),
+              (nextActive
+                ? "Failed to enable service"
+                : "Failed to disable service"),
             type: "error",
           }),
         );
@@ -735,7 +737,7 @@ const OrgMyServices = () => {
         </Typography>
 
         <TextField
-          placeholder="Search services by name"
+          placeholder="Search"
           variant="outlined"
           size="small"
           value={searchQuery}
@@ -748,6 +750,10 @@ const OrgMyServices = () => {
               px: 2,
               boxShadow: "0px 7px 6px 0px rgba(0,0,0,0.03)",
               "& fieldset": { borderColor: "rgba(0,0,0,0.16)" },
+            },
+            "&.Mui-focused": {
+              border: "1px solid #BC2876",
+              outline: "none",
             },
             "& .MuiInputBase-input": {
               fontFamily: fonts.sans,

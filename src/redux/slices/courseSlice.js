@@ -124,6 +124,30 @@ export const getCourseById = createAsyncThunk(
   }
 );
 
+/** Register course CTA (explore). POST /api/explore/course/:id/cta. Bearer token required. Body: { actionType: "CLICK" | "SUBMISSION" }. */
+export const registerCourseCta = createAsyncThunk(
+  "course/registerCta",
+  async ({ id, actionType = "CLICK", token }, thunkAPI) => {
+    const response = await FetchApi.fetch(
+      `${config.api}/api/explore/course/${id}/cta`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ actionType }),
+      }
+    );
+    if (!response.success) {
+      return thunkAPI.rejectWithValue({
+        error: response.message || "Failed to record CTA",
+      });
+    }
+    return response;
+  }
+);
+
 /** DELETE /api/courses/:id */
 export const deleteCourse = createAsyncThunk(
   "course/deleteCourse",
@@ -204,7 +228,9 @@ const courseSlice = createSlice({
       .addCase(deleteCourse.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to delete course";
-      });
+      })
+      .addCase(registerCourseCta.fulfilled, () => {})
+      .addCase(registerCourseCta.rejected, () => {});
   },
 });
 

@@ -275,18 +275,16 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
                     </Box>
                 </Grid>
 
-                {/* Locations Grid Section */}
-                <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5, mt: 2 }}>
-                        {locations.length > 0 ? locations.map((loc, idx) => (
-                            <LocationCard key={idx} index={idx + 1} location={loc} />
-                        )) : (
-                            [1, 2, 3].map((num) => (
-                                <LocationCard key={num} index={num} />
-                            ))
-                        )}
-                    </Box>
-                </Grid>
+                {/* Locations Grid Section – only show when ESP has locations */}
+                {locations.length > 0 && (
+                    <Grid item xs={12}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5, mt: 2 }}>
+                            {locations.map((loc, idx) => (
+                                <LocationCard key={idx} index={idx + 1} location={loc} />
+                            ))}
+                        </Box>
+                    </Grid>
+                )}
             </Grid>
         </Box>
     );

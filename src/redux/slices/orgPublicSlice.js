@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
-import { getActingAsHeader } from "../../utility/getActingAsHeader.js";
 
 const BASE = `${config.api}/api/organization/public`;
 
@@ -10,14 +9,16 @@ function pathFor(identifier, idType) {
   return `${BASE}/v/${encodeURIComponent(identifier)}`;
 }
 
-/** Headers for public org API: Bearer token when logged in, and X-Acting-As-Organization-Id when admin is in AME context (same as profile/me). */
+/**
+ * Headers for public org API only. No X-Acting-As-Organization-Id so any user
+ * (including unauthenticated) can access org home pages without 403.
+ * Optional Bearer token when logged in for backend personalization if needed.
+ */
 function getPublicHeaders(thunkAPI) {
   const state = thunkAPI.getState();
   const token = state?.auth?.token;
-  const actingAs = getActingAsHeader(() => state);
   const headers = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  Object.assign(headers, actingAs);
   return headers;
 }
 

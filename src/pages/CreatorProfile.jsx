@@ -1,13 +1,16 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Avatar,
+  Box,
   CircularProgress,
   Divider,
   Pagination,
   Rating,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   creatorIconLocation,
@@ -56,6 +59,7 @@ import {
 
 const Profile = () => {
   const dispatchToRedux = useDispatch();
+  const navigate = useNavigate();
   const { userId } = useParams(); //targetUserId for creator profile
 
   const studentUserId = useSelector(selectUserId);
@@ -219,6 +223,28 @@ const Profile = () => {
 
   return (
     <div className={creatorStyle.container}>
+      <Box sx={{ maxWidth: "80rem", width: "100%", mx: "auto", mb: 2 }}>
+        <Typography
+          component="button"
+          onClick={() => navigate("/explore?tab=counsellors")}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "0.9375rem",
+            color: "#720361",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            "&:hover": { textDecoration: "underline" },
+          }}
+        >
+          <ArrowBackIcon sx={{ fontSize: "1.25rem" }} />
+          Back to Counsellors
+        </Typography>
+      </Box>
       {/* ========== NEW PROFILE TOP (Figma 763-116391) ========== */}
       <div className={creatorStyle.profileTopV2}>
         <div className={creatorStyle.profileTopV2Banner}>
