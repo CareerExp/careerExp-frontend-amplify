@@ -159,28 +159,6 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
           src={service.coverImage || service.image}
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
-        <Box
-          sx={{
-            position: "absolute",
-            top: "12px",
-            left: "12px",
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            borderRadius: "6px",
-            px: 1.5,
-            py: 0.5,
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#101828",
-            }}
-          >
-            {service.category || "Service"}
-          </Typography>
-        </Box>
       </Box>
 
       {/* Content Section */}
@@ -227,7 +205,7 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
                 mb: 0.5,
               }}
             >
-              {service.title}
+              {service.category || "Service"}
             </Typography>
             <Typography
               sx={{
@@ -242,41 +220,6 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
           <IconButton size="small" onClick={handleClick}>
             <MoreVertIcon sx={{ color: "#667085" }} />
           </IconButton>
-        </Box>
-
-        <Box sx={{ display: "flex", gap: 2.5, mb: 2 }}>
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontSize: "13px",
-              color: "#BC2876",
-              fontWeight: 500,
-            }}
-          >
-            Price :{" "}
-            <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 400 }}>
-              {service.priceType === "FREE"
-                ? "Free"
-                : service.priceType === "CUSTOM"
-                  ? "Custom"
-                  : `${service.currency || "INR"} ${service.price}`}
-            </span>
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontSize: "13px",
-              color: "#BC2876",
-              fontWeight: 500,
-            }}
-          >
-            Duration :{" "}
-            <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 400 }}>
-              {service.duration
-                ? `${service.duration.value} ${service.duration.unit}`
-                : "N/A"}
-            </span>
-          </Typography>
         </Box>
 
         <Typography

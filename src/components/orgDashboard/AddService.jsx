@@ -197,12 +197,13 @@ const AddService = ({ onBack, serviceToEdit, organizationType }) => {
       return;
     }
 
-    if (!formData.ctaValue?.trim()) {
-      dispatch(
-        notify({ message: "Please enter Add link or email (CTA)", type: "error" }),
-      );
-      return;
-    }
+    // CTA field commented out – CTA is now registered when user schedules call on explore page
+    // if (!formData.ctaValue?.trim()) {
+    //   dispatch(
+    //     notify({ message: "Please enter Add link or email (CTA)", type: "error" }),
+    //   );
+    //   return;
+    // }
 
     if (!token) {
       dispatch(
@@ -690,8 +691,8 @@ const AddService = ({ onBack, serviceToEdit, organizationType }) => {
               </Box>
             </Grid>
 
-            {/* CTA Section - Add link or email */}
-            <Grid item xs={12}>
+            {/* CTA Section - Add link or email (commented out: CTA is now registered when user schedules call on explore page) */}
+            {/* <Grid item xs={12}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
@@ -805,7 +806,7 @@ const AddService = ({ onBack, serviceToEdit, organizationType }) => {
                   </IconButton>
                 </Box>
               </Box>
-            </Grid>
+            </Grid> */}
 
             {/* Submit Button */}
             <Grid
