@@ -16,6 +16,7 @@ import {
     Tooltip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EditIcon from '@mui/icons-material/Edit';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LinkIcon from '@mui/icons-material/Link';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -158,7 +159,26 @@ const AddCourse = ({ onBack, courseToEdit }) => {
                         <Grid item xs={12}>
                             <Box onClick={handleUploadClick} sx={{ height: '194px', borderRadius: '12px', border: '1px dashed #BC2876', backgroundColor: '#f2f2f2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
                                 {imagePreview ? (
-                                    <Box component="img" src={imagePreview} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <Box sx={{ width: '100%', height: '100%', position: 'relative', '&:hover .edit-image-overlay': { opacity: 1 } }}>
+                                        <Box component="img" src={imagePreview} alt="" sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <Box
+                                            className="edit-image-overlay"
+                                            sx={{
+                                                position: 'absolute',
+                                                inset: 0,
+                                                backgroundColor: 'rgba(0,0,0,0.4)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                opacity: 0,
+                                                transition: 'opacity 0.2s',
+                                            }}
+                                        >
+                                            <Box sx={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <EditIcon sx={{ fontSize: 24, color: '#BC2876' }} />
+                                            </Box>
+                                        </Box>
+                                    </Box>
                                 ) : (
                                     <>
                                         <Box component="img" src={uploadDocument} sx={{ width: '140px', height: '140px', mb: -2 }} />

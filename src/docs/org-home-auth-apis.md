@@ -17,13 +17,14 @@ As soon as you land on `/org-hei/<slug>` or `/org-esp/<slug>`, the page dispatch
 - **Frontend:** `src/redux/slices/orgPublicSlice.js` → `pathFor(identifier, "slug")`  
   → `GET ${config.api}/api/organization/public/s/${encodeURIComponent(slug)}`
 
-**Headers sent:**
+**Headers sent (frontend):**
 
-| Header                     | When sent |
-|----------------------------|-----------|
-| `Content-Type`             | Always: `application/json` |
-| `Authorization`            | When user is logged in: `Bearer <access_token>` |
-| `X-Acting-As-Organization-Id` | When admin is in AME context: `<OrganizationProfile._id>` |
+| Header          | When sent |
+|-----------------|-----------|
+| `Content-Type`  | Always: `application/json` |
+| `Authorization` | When user is logged in: `Bearer <access_token>` (optional) |
+
+The frontend does **not** send `X-Acting-As-Organization-Id` for public org APIs, so any user (including unauthenticated) can access org home pages without permission errors. The backend should allow these requests based on the public path only.
 
 So the backend route to check first for the 403 is:
 
@@ -74,11 +75,8 @@ The **dashboard** APIs (used when you’re inside Workspace at `/workspace/...`)
 - **Primary candidate for the 403:**  
   **`GET /api/organization/public/s/:slug`**
 
-- **Request:** GET, with optional `Authorization: Bearer <token>` and optional `X-Acting-As-Organization-Id: <id>`.
+- **Request:** GET, with optional `Authorization: Bearer <token>`. No `X-Acting-As-Organization-Id` is sent from the frontend for public org pages.
 
-- **Expected behavior:** Allow access for at least:
-  - Public (no auth), and/or  
-  - Logged-in user whose organization has this `slug`, and/or  
-  - Admin in acting-as context for this org.
+- **Expected behavior:** Allow access for any user (unauthenticated or authenticated) so that org home pages linked from Explore (Institution Details) never return 403.
 
 - If the profile call is allowed but the message still appears, check the other public routes under `/api/organization/public/s/:slug/...` (announcements, services, events, videos, counsellors) and ensure they use the same auth rules and don’t return 403 for the same users.

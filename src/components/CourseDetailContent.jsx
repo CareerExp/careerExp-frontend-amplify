@@ -29,18 +29,32 @@ import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
 import { fonts } from "../utility/fonts.js";
-import { getExploreCourseById, increaseCourseViewsCount } from "../redux/slices/exploreSlice.js";
+import {
+  getExploreCourseById,
+  increaseCourseViewsCount,
+} from "../redux/slices/exploreSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
-import { getCourseLikeStatus, toggleCourseLike } from "../redux/slices/likeSlice.js";
-import { getCourseRatingStatus, rateCourse } from "../redux/slices/ratingSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
+import {
+  getCourseLikeStatus,
+  toggleCourseLike,
+} from "../redux/slices/likeSlice.js";
+import {
+  getCourseRatingStatus,
+  rateCourse,
+} from "../redux/slices/ratingSlice.js";
 import {
   getBookmarkedCourses,
   addCourseBookmark,
   removeCourseBookmark,
   selectBookmarkedCourses,
 } from "../redux/slices/bookmarkSlice.js";
+import { registerCourseCta } from "../redux/slices/courseSlice.js";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
@@ -59,7 +73,8 @@ const deliveryModeLabel = (mode) => {
 const deliveryModeTagStyle = (mode) => {
   const m = String(mode || "").toUpperCase();
   if (m === "ONLINE") return { bg: "#E8F5E9", textColor: "#2E7D32" };
-  if (m === "OFFLINE" || m === "IN_PERSON") return { bg: "#fff", textColor: ACCENT, border: `1px solid ${ACCENT}` };
+  if (m === "OFFLINE" || m === "IN_PERSON")
+    return { bg: "#fff", textColor: ACCENT, border: `1px solid ${ACCENT}` };
   if (m === "HYBRID") return { bg: "#FFF3E0", textColor: "#E65100" };
   return { bg: "#f5f5f5", textColor: "#717171" };
 };
@@ -77,14 +92,16 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const [userLiked, setUserLiked] = useState(false);
 
   const bookmarkedCourses = useSelector(selectBookmarkedCourses);
-  const courseBookmarkStatus = useSelector((state) => state.bookmark?.courseBookmarkStatus) ?? {};
+  const courseBookmarkStatus =
+    useSelector((state) => state.bookmark?.courseBookmarkStatus) ?? {};
   const isBookmarked =
     courseId &&
     (courseBookmarkStatus[courseId] ??
       bookmarkedCourses.some((c) => (c._id || c.id) === courseId));
   const [userRating, setUserRating] = useState(0);
   const [totalViews, setTotalViews] = useState(null);
-  const [messageProviderModalOpen, setMessageProviderModalOpen] = useState(false);
+  const [messageProviderModalOpen, setMessageProviderModalOpen] =
+    useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   useEffect(() => {
@@ -98,14 +115,19 @@ const CourseDetailContent = ({ courseId, onBack }) => {
         if (result?.data) {
           setTotalViews(result.data.totalViews ?? 0);
           try {
-            const viewRes = await dispatch(increaseCourseViewsCount(courseId)).unwrap();
-            if (viewRes?.updatedValue != null) setTotalViews(viewRes.updatedValue);
+            const viewRes = await dispatch(
+              increaseCourseViewsCount(courseId),
+            ).unwrap();
+            if (viewRes?.updatedValue != null)
+              setTotalViews(viewRes.updatedValue);
           } catch (e) {
             // view count best-effort
           }
         }
       } catch (e) {
-        dispatch(notify({ type: "error", message: e?.message || "Course not found" }));
+        dispatch(
+          notify({ type: "error", message: e?.message || "Course not found" }),
+        );
         onBack?.();
       } finally {
         setLoading(false);
@@ -118,7 +140,9 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     if (!courseId || !userId || !token || !isAuthenticated) return;
     const fetchLikeStatus = async () => {
       try {
-        const res = await dispatch(getCourseLikeStatus({ courseId, userId, token })).unwrap();
+        const res = await dispatch(
+          getCourseLikeStatus({ courseId, userId, token }),
+        ).unwrap();
         setUserLiked(!!res?.userLiked);
       } catch (e) {
         setUserLiked(false);
@@ -131,7 +155,9 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     if (!courseId || !userId || !token || !isAuthenticated) return;
     const fetchRatingStatus = async () => {
       try {
-        const res = await dispatch(getCourseRatingStatus({ courseId, userId, token })).unwrap();
+        const res = await dispatch(
+          getCourseRatingStatus({ courseId, userId, token }),
+        ).unwrap();
         setUserRating(Number(res?.rating) || 0);
       } catch (e) {
         setUserRating(0);
@@ -142,13 +168,17 @@ const CourseDetailContent = ({ courseId, onBack }) => {
 
   useEffect(() => {
     if (isAuthenticated && token && courseId) {
-      dispatch(getBookmarkedCourses({ token })).unwrap().catch(() => {});
+      dispatch(getBookmarkedCourses({ token }))
+        .unwrap()
+        .catch(() => {});
     }
   }, [courseId, isAuthenticated, token, dispatch]);
 
   const handleBookmarkClick = async () => {
     if (!isAuthenticated) {
-      dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+      dispatch(
+        notify({ type: "warning", message: "Please login to bookmark" }),
+      );
       return;
     }
     if (!courseId || bookmarking || !token) return;
@@ -156,13 +186,20 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     try {
       if (isBookmarked) {
         await dispatch(removeCourseBookmark({ courseId, token })).unwrap();
-        dispatch(notify({ type: "success", message: "Removed from bookmarks" }));
+        dispatch(
+          notify({ type: "success", message: "Removed from bookmarks" }),
+        );
       } else {
         await dispatch(addCourseBookmark({ courseId, token })).unwrap();
         dispatch(notify({ type: "success", message: "Added to bookmarks" }));
       }
     } catch (e) {
-      dispatch(notify({ type: "error", message: e?.message || "Could not update bookmark" }));
+      dispatch(
+        notify({
+          type: "error",
+          message: e?.message || "Could not update bookmark",
+        }),
+      );
     } finally {
       setBookmarking(false);
     }
@@ -173,8 +210,13 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     if (!course) return;
     const prevTitle = document.title;
     document.title = `${course.title} | Career Explorer`;
-    const url = window.location.origin + (courseId ? `/explore/course/${courseId}` : "");
-    const description = (course.description || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+    const url =
+      window.location.origin + (courseId ? `/explore/course/${courseId}` : "");
+    const description = (course.description || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200);
     const setMeta = (property, content) => {
       let el = document.querySelector(`meta[property="${property}"]`);
       if (!el) {
@@ -209,44 +251,84 @@ const CourseDetailContent = ({ courseId, onBack }) => {
 
   const handleLikeClick = async () => {
     if (!isAuthenticated || !token || !userId) {
-      dispatch(notify({ type: "warning", message: "Please log in to like this course" }));
+      dispatch(
+        notify({
+          type: "warning",
+          message: "Please log in to like this course",
+        }),
+      );
       return;
     }
     if (!courseId) return;
     try {
-      const res = await dispatch(toggleCourseLike({ courseId, userId, token })).unwrap();
+      const res = await dispatch(
+        toggleCourseLike({ courseId, userId, token }),
+      ).unwrap();
       setUserLiked(!!res?.userLiked);
-      if (res?.totalLikes != null && course) setCourse((prev) => (prev ? { ...prev, totalLikes: res.totalLikes } : null));
-      dispatch(notify({ type: "success", message: res?.message || (res?.userLiked ? "Liked" : "Unliked") }));
+      if (res?.totalLikes != null && course)
+        setCourse((prev) =>
+          prev ? { ...prev, totalLikes: res.totalLikes } : null,
+        );
+      dispatch(
+        notify({
+          type: "success",
+          message: res?.message || (res?.userLiked ? "Liked" : "Unliked"),
+        }),
+      );
     } catch (e) {
-      dispatch(notify({ type: "error", message: e?.message || "Could not update like" }));
+      dispatch(
+        notify({
+          type: "error",
+          message: e?.message || "Could not update like",
+        }),
+      );
     }
   };
 
   const handleRatingChange = async (event, newValue) => {
     if (!isAuthenticated || !token || !userId) {
-      dispatch(notify({ type: "warning", message: "Please log in to rate this course" }));
+      dispatch(
+        notify({
+          type: "warning",
+          message: "Please log in to rate this course",
+        }),
+      );
       return;
     }
     if (!courseId || newValue == null) return;
     try {
       setUserRating(newValue);
-      const res = await dispatch(rateCourse({ courseId, userId, rating: newValue, token })).unwrap();
+      const res = await dispatch(
+        rateCourse({ courseId, userId, rating: newValue, token }),
+      ).unwrap();
       if (course && res != null) {
         setCourse((prev) =>
           prev
             ? {
                 ...prev,
-                averageRating: res.averageRating != null ? Number(res.averageRating) : prev.averageRating,
-                totalRatings: res.totalRatings != null ? Number(res.totalRatings) : prev.totalRatings,
+                averageRating:
+                  res.averageRating != null
+                    ? Number(res.averageRating)
+                    : prev.averageRating,
+                totalRatings:
+                  res.totalRatings != null
+                    ? Number(res.totalRatings)
+                    : prev.totalRatings,
               }
-            : null
+            : null,
         );
       }
-      dispatch(notify({ type: "success", message: res?.message || "Rating saved" }));
+      dispatch(
+        notify({ type: "success", message: res?.message || "Rating saved" }),
+      );
     } catch (e) {
       setUserRating(Number(course?.averageRating) || 0);
-      dispatch(notify({ type: "error", message: e?.message || "Could not save rating" }));
+      dispatch(
+        notify({
+          type: "error",
+          message: e?.message || "Could not save rating",
+        }),
+      );
     }
   };
 
@@ -271,11 +353,23 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const providerName =
     organizationDetails?.organizationName ||
     course?.organizationDetails?.organizationName ||
-    (course?.createdBy ? [course.createdBy.firstName, course.createdBy.lastName].filter(Boolean).join(" ") : "") ||
+    (course?.createdBy
+      ? [course.createdBy.firstName, course.createdBy.lastName]
+          .filter(Boolean)
+          .join(" ")
+      : "") ||
     "—";
   const cta = course?.cta || {};
-  const ctaUrl = cta?.type === "LINK" ? cta?.value : null;
-  const ctaLabel = cta?.label || "Enquire Now";
+  const ctaType = (cta?.type || "LINK").toUpperCase();
+  const ctaValue = cta?.value?.trim();
+  const ctaLabel = cta?.label || "Enroll Now";
+  const ctaHref =
+    ctaValue && ctaType === "EMAIL"
+      ? `mailto:${ctaValue}`
+      : ctaValue && ctaType === "LINK"
+        ? ctaValue
+        : null;
+  const hasCta = Boolean(ctaValue);
   const priceLabel =
     course.priceType === "FREE"
       ? "Free"
@@ -288,14 +382,63 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     ? `${course.duration.value ?? ""} ${(course.duration.unit || "min").toLowerCase()}`.trim()
     : "N/A";
   const modeStyle = deliveryModeTagStyle(course.deliveryMode);
-  const averageRating = course?.averageRating != null ? Number(course.averageRating) : 0;
+  const averageRating =
+    course?.averageRating != null ? Number(course.averageRating) : 0;
   const totalLikes = course?.totalLikes ?? 0;
-  const viewsCount = totalViews != null ? totalViews : (course?.totalViews ?? 0);
-  const contactEmail = organizationDetails?.contactEmail || course?.createdBy?.email;
+  const viewsCount =
+    totalViews != null ? totalViews : (course?.totalViews ?? 0);
+  const contactEmail =
+    organizationDetails?.contactEmail || course?.createdBy?.email;
   const messageProviderUrl = contactEmail ? `mailto:${contactEmail}` : null;
 
   const handleShare = () => {
     setShareModalOpen(true);
+  };
+
+  const handleCtaClick = async () => {
+    if (!hasCta || !courseId) return;
+    if (isAuthenticated && token) {
+      try {
+        await dispatch(
+          registerCourseCta({ id: courseId, actionType: "CLICK", token })
+        ).unwrap();
+        dispatch(
+          notify({
+            type: "success",
+            message: "Response recorded successfully.",
+          })
+        );
+      } catch (err) {
+        dispatch(
+          notify({
+            type: "error",
+            message: err?.message || "Could not record response.",
+          })
+        );
+      }
+    }
+    if (ctaType === "EMAIL" && ctaValue) {
+      try {
+        await navigator.clipboard.writeText(ctaValue);
+        dispatch(
+          notify({
+            type: "success",
+            message: "Email address copied to clipboard. If your email client did not open, paste it there.",
+          })
+        );
+      } catch {
+        // clipboard may be blocked; continue to try mailto
+      }
+      const mailtoUrl = `mailto:${encodeURIComponent(ctaValue)}`;
+      const link = document.createElement("a");
+      link.href = mailtoUrl;
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (ctaType === "LINK" && ctaValue) {
+      window.open(ctaValue, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -341,7 +484,15 @@ const CourseDetailContent = ({ courseId, onBack }) => {
         {/* Main content */}
         <Grid item xs={12} md={8}>
           {/* Tags + Share / Bookmark */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 1.5,
+              mb: 1.5,
+            }}
+          >
             {course.category && (
               <Box
                 sx={{
@@ -373,8 +524,19 @@ const CourseDetailContent = ({ courseId, onBack }) => {
             >
               {deliveryModeLabel(course.deliveryMode)}
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: "auto" }}>
-              <IconButton onClick={handleShare} size="small" sx={{ color: ACCENT }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                ml: "auto",
+              }}
+            >
+              <IconButton
+                onClick={handleShare}
+                size="small"
+                sx={{ color: ACCENT }}
+              >
                 <ShareOutlinedIcon />
               </IconButton>
               <IconButton
@@ -394,21 +556,49 @@ const CourseDetailContent = ({ courseId, onBack }) => {
           </Box>
 
           {/* Title */}
-          <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: { xs: "1.5rem", sm: "2rem" }, color: "#000", mb: 1.5 }}>
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontWeight: 700,
+              fontSize: { xs: "1.5rem", sm: "2rem" },
+              color: "#000",
+              mb: 1.5,
+            }}
+          >
             {course.title}
           </Typography>
 
           {/* Provider + Duration */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 2, mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 2,
+              mb: 2,
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
               <BusinessIcon sx={{ color: ACCENT, fontSize: "1.25rem" }} />
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.9375rem", color: "#545454" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "0.9375rem",
+                  color: "#545454",
+                }}
+              >
                 {providerName}
               </Typography>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <AccessTimeIcon sx={{ color: "#9CA3AF", fontSize: "1.1rem" }} />
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.9375rem", color: "#545454" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "0.9375rem",
+                  color: "#545454",
+                }}
+              >
                 {durationStr}
               </Typography>
             </Box>
@@ -464,31 +654,88 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                 />
               </>
             ) : (
-              <Box sx={{ width: "100%", height: 280, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Box
+                sx={{
+                  width: "100%",
+                  height: 280,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <MenuBookIcon sx={{ fontSize: 64, color: "#ccc" }} />
               </Box>
             )}
           </Box>
 
           {/* About This Course */}
-          <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "1.25rem", color: "#000", mb: 1 }}>
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontWeight: 700,
+              fontSize: "1.25rem",
+              color: "#000",
+              mb: 1,
+            }}
+          >
             About This Course
           </Typography>
-          <Typography sx={{ fontFamily: fonts.sans, fontSize: "1rem", color: "#545454", lineHeight: 1.75, whiteSpace: "pre-wrap", mb: 3 }}>
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontSize: "1rem",
+              color: "#545454",
+              lineHeight: 1.75,
+              whiteSpace: "pre-wrap",
+              mb: 3,
+            }}
+          >
             {course.description || "No description."}
           </Typography>
 
           {/* What's Included */}
           {course.whatsIncluded?.length > 0 && (
             <Box sx={{ mb: 3 }}>
-              <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "1.25rem", color: "#000", mb: 1.5 }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 700,
+                  fontSize: "1.25rem",
+                  color: "#000",
+                  mb: 1.5,
+                }}
+              >
                 What's Included
               </Typography>
               <Box component="ul" sx={{ m: 0, pl: 2.5, listStyle: "none" }}>
                 {course.whatsIncluded.map((item, i) => (
-                  <Box key={i} component="li" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 1 }}>
-                    <CheckCircleOutlineIcon sx={{ color: ACCENT, fontSize: "1.25rem", mt: 0.2, flexShrink: 0 }} />
-                    <Typography sx={{ fontFamily: fonts.sans, fontSize: "1rem", color: "#545454" }}>{item}</Typography>
+                  <Box
+                    key={i}
+                    component="li"
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 1,
+                      mb: 1,
+                    }}
+                  >
+                    <CheckCircleOutlineIcon
+                      sx={{
+                        color: ACCENT,
+                        fontSize: "1.25rem",
+                        mt: 0.2,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "1rem",
+                        color: "#545454",
+                      }}
+                    >
+                      {item}
+                    </Typography>
                   </Box>
                 ))}
               </Box>
@@ -498,14 +745,46 @@ const CourseDetailContent = ({ courseId, onBack }) => {
           {/* What You Will Learn */}
           {course.whatYouWillLearn?.length > 0 && (
             <Box sx={{ mb: 3 }}>
-              <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "1.25rem", color: "#000", mb: 1.5 }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 700,
+                  fontSize: "1.25rem",
+                  color: "#000",
+                  mb: 1.5,
+                }}
+              >
                 What You Will Learn
               </Typography>
               <Box component="ul" sx={{ m: 0, pl: 2.5, listStyle: "none" }}>
                 {course.whatYouWillLearn.map((item, i) => (
-                  <Box key={i} component="li" sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 1 }}>
-                    <LightbulbOutlinedIcon sx={{ color: ACCENT, fontSize: "1.25rem", mt: 0.2, flexShrink: 0 }} />
-                    <Typography sx={{ fontFamily: fonts.sans, fontSize: "1rem", color: "#545454" }}>{item}</Typography>
+                  <Box
+                    key={i}
+                    component="li"
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 1,
+                      mb: 1,
+                    }}
+                  >
+                    <LightbulbOutlinedIcon
+                      sx={{
+                        color: ACCENT,
+                        fontSize: "1.25rem",
+                        mt: 0.2,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "1rem",
+                        color: "#545454",
+                      }}
+                    >
+                      {item}
+                    </Typography>
                   </Box>
                 ))}
               </Box>
@@ -526,27 +805,50 @@ const CourseDetailContent = ({ courseId, onBack }) => {
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <IconButton onClick={handleLikeClick} size="small" sx={{ p: 0.25 }} aria-label={userLiked ? "Unlike" : "Like"}>
+                <IconButton
+                  onClick={handleLikeClick}
+                  size="small"
+                  sx={{ p: 0.25 }}
+                  aria-label={userLiked ? "Unlike" : "Like"}
+                >
                   {userLiked ? (
                     <ThumbUpIcon sx={{ color: ACCENT, fontSize: "1.25rem" }} />
                   ) : (
-                    <ThumbUpOutlinedIcon sx={{ color: "#9CA3AF", fontSize: "1.25rem" }} />
+                    <ThumbUpOutlinedIcon
+                      sx={{ color: "#9CA3AF", fontSize: "1.25rem" }}
+                    />
                   )}
                 </IconButton>
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.9375rem", color: "#545454" }}>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "0.9375rem",
+                    color: "#545454",
+                  }}
+                >
                   {totalLikes} likes
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <VisibilityOutlinedIcon sx={{ color: "#9CA3AF", fontSize: "1.25rem" }} />
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.9375rem", color: "#545454" }}>
+                <VisibilityOutlinedIcon
+                  sx={{ color: "#9CA3AF", fontSize: "1.25rem" }}
+                />
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "0.9375rem",
+                    color: "#545454",
+                  }}
+                >
                   {viewsCount} views
                 </Typography>
               </Box>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Rating
-                value={isAuthenticated ? (userRating || averageRating) : averageRating}
+                value={
+                  isAuthenticated ? userRating || averageRating : averageRating
+                }
                 readOnly={!isAuthenticated}
                 precision={0.5}
                 size="small"
@@ -556,7 +858,15 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                   "& .MuiRating-iconEmpty": { color: "#D0D5DD" },
                 }}
               />
-              <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#9CA3AF" }}>Your Rating</Typography>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontSize: "0.875rem",
+                  color: "#9CA3AF",
+                }}
+              >
+                Your Rating
+              </Typography>
             </Box>
           </Box>
         </Grid>
@@ -565,19 +875,57 @@ const CourseDetailContent = ({ courseId, onBack }) => {
         <Grid item xs={12} md={4}>
           <Box sx={{ position: { md: "sticky" }, top: 100 }}>
             {/* Summary + CTA card */}
-            <Paper elevation={0} sx={{ p: 2.5, borderRadius: "16px", border: "1px solid #EAECF0", mb: 2 }}>
-              <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: "#101828", mb: 1 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.5,
+                borderRadius: "16px",
+                border: "1px solid #EAECF0",
+                mb: 2,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 600,
+                  fontSize: "0.9375rem",
+                  color: "#101828",
+                  mb: 1,
+                }}
+              >
                 Duration: {durationStr}
               </Typography>
-              <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: "#101828", mb: 1 }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 600,
+                  fontSize: "0.9375rem",
+                  color: "#101828",
+                  mb: 1,
+                }}
+              >
                 Service Mode: {deliveryModeLabel(course.deliveryMode)}
               </Typography>
-              <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "0.9375rem", color: "#101828", mb: 2 }}>
-                Price: {priceLabel.toLowerCase()}
+              <Typography
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 600,
+                  fontSize: "0.9375rem",
+                  color: "#101828",
+                  mb: 2,
+                }}
+              >
+                Price: {priceLabel.toUpperCase()}
               </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <Rating
-                  value={isAuthenticated ? (userRating || averageRating) : averageRating}
+                  value={
+                    isAuthenticated
+                      ? userRating || averageRating
+                      : averageRating
+                  }
                   readOnly={!isAuthenticated}
                   precision={0.5}
                   size="small"
@@ -587,15 +935,21 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                     "& .MuiRating-iconEmpty": { color: "#D0D5DD" },
                   }}
                 />
-                <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#667085" }}>Your Rating</Typography>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "0.875rem",
+                    color: "#667085",
+                  }}
+                >
+                  Your Rating
+                </Typography>
               </Box>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                {ctaUrl && (
+                {hasCta && (
                   <Button
                     variant="contained"
-                    href={ctaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    onClick={handleCtaClick}
                     fullWidth
                     sx={{
                       borderRadius: "90px",
@@ -625,7 +979,10 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                       fontFamily: fonts.sans,
                       fontWeight: 600,
                       fontSize: "1rem",
-                      "&:hover": { borderColor: ACCENT_PURPLE, backgroundColor: "rgba(114, 3, 97, 0.04)" },
+                      "&:hover": {
+                        borderColor: ACCENT_PURPLE,
+                        backgroundColor: "rgba(114, 3, 97, 0.04)",
+                      },
                     }}
                   >
                     Message Provider
@@ -635,103 +992,222 @@ const CourseDetailContent = ({ courseId, onBack }) => {
             </Paper>
 
             {/* Institution Details */}
-            {(organizationDetails?.organizationName || organizationDetails?.logo) && (
-              <Paper elevation={0} sx={{ p: 2.5, borderRadius: "16px", border: "1px solid #EAECF0" }}>
-                <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "1.125rem", color: "#000", mb: 2 }}>
+            {(organizationDetails?.organizationName ||
+              organizationDetails?.logo) && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  borderRadius: "16px",
+                  border: "1px solid #EAECF0",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 700,
+                    fontSize: "1.125rem",
+                    color: "#000",
+                    mb: 2,
+                  }}
+                >
                   Institution Details
                 </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                    mb: 2,
+                  }}
+                >
                   {organizationDetails.logo ? (
-                    <Box component="img" src={organizationDetails.logo} alt="" sx={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover", mb: 1 }} />
+                    <Box
+                      component="img"
+                      src={organizationDetails.logo}
+                      alt=""
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        mb: 1,
+                      }}
+                    />
                   ) : (
-                    <Box sx={{ width: 80, height: 80, borderRadius: "50%", backgroundColor: "rgba(114, 3, 97, 0.12)", display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
-                      <BusinessIcon sx={{ color: ACCENT_PURPLE, fontSize: 40 }} />
+                    <Box
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(114, 3, 97, 0.12)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mb: 1,
+                      }}
+                    >
+                      <BusinessIcon
+                        sx={{ color: ACCENT_PURPLE, fontSize: 40 }}
+                      />
                     </Box>
                   )}
-                  <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "1rem", color: "#000" }}>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: 700,
+                      fontSize: "1rem",
+                      color: "#000",
+                    }}
+                  >
                     {organizationDetails.organizationName || "—"}
                   </Typography>
                 </Box>
                 {organizationDetails.address && (
-                  <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 1 }}>
-                    <LocationOnOutlinedIcon sx={{ color: "#9CA3AF", fontSize: "1.1rem", mt: 0.3, flexShrink: 0 }} />
-                    <Typography sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#545454" }}>{organizationDetails.address}</Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 1,
+                      mb: 1,
+                    }}
+                  >
+                    <LocationOnOutlinedIcon
+                      sx={{
+                        color: "#9CA3AF",
+                        fontSize: "1.1rem",
+                        mt: 0.3,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "0.875rem",
+                        color: "#545454",
+                      }}
+                    >
+                      {organizationDetails.address}
+                    </Typography>
                   </Box>
                 )}
                 {organizationDetails.contactEmail && (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                    <EmailOutlinedIcon sx={{ color: "#9CA3AF", fontSize: "1.1rem", flexShrink: 0 }} />
-                    <Typography component="a" href={`mailto:${organizationDetails.contactEmail}`} sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#545454", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 1,
+                    }}
+                  >
+                    <EmailOutlinedIcon
+                      sx={{
+                        color: "#9CA3AF",
+                        fontSize: "1.1rem",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      component="a"
+                      href={`mailto:${organizationDetails.contactEmail}`}
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "0.875rem",
+                        color: "#545454",
+                        textDecoration: "none",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
                       {organizationDetails.contactEmail}
                     </Typography>
                   </Box>
                 )}
                 {organizationDetails.website && (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <LanguageIcon sx={{ color: "#9CA3AF", fontSize: "1.1rem", flexShrink: 0 }} />
+                    <LanguageIcon
+                      sx={{
+                        color: "#9CA3AF",
+                        fontSize: "1.1rem",
+                        flexShrink: 0,
+                      }}
+                    />
                     <Typography
                       component="a"
-                      href={organizationDetails.website.startsWith("http") ? organizationDetails.website : `https://${organizationDetails.website}`}
+                      href={
+                        organizationDetails.website.startsWith("http")
+                          ? organizationDetails.website
+                          : `https://${organizationDetails.website}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{ fontFamily: fonts.sans, fontSize: "0.875rem", color: "#545454", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "0.875rem",
+                        color: "#545454",
+                        textDecoration: "none",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
                     >
                       {organizationDetails.website}
                     </Typography>
                   </Box>
-            )}
-          </Paper>
+                )}
+              </Paper>
             )}
 
-      {/* Message Provider modal */}
-      <Dialog
-        open={messageProviderModalOpen}
-        onClose={() => setMessageProviderModalOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: "16px", overflow: "hidden" },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontFamily: fonts.sans,
-            fontWeight: 700,
-            fontSize: "1.25rem",
-            color: "#101828",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #EAECF0",
-            py: 2,
-          }}
-        >
-          Message Provider
-          <IconButton
-            onClick={() => setMessageProviderModalOpen(false)}
-            size="small"
-            aria-label="Close"
-            sx={{ ml: 1 }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ p: 0 }}>
-          <NewMessagePanel
-            defaultToEmail={contactEmail}
-            defaultDisplayName={providerName}
-            onSuccess={() => setMessageProviderModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-      <SharingVideoModal
-        open={shareModalOpen}
-        handleClose={() => setShareModalOpen(false)}
-        videoUrl={window.location.origin + (courseId ? `/explore/course/${courseId}` : "")}
-        videoId={courseId}
-        shareTitle={course?.title}
-        modalTitle="Share Course"
-      />
+            {/* Message Provider modal */}
+            <Dialog
+              open={messageProviderModalOpen}
+              onClose={() => setMessageProviderModalOpen(false)}
+              maxWidth="sm"
+              fullWidth
+              PaperProps={{
+                sx: { borderRadius: "16px", overflow: "hidden" },
+              }}
+            >
+              <DialogTitle
+                sx={{
+                  fontFamily: fonts.sans,
+                  fontWeight: 700,
+                  fontSize: "1.25rem",
+                  color: "#101828",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: "1px solid #EAECF0",
+                  py: 2,
+                }}
+              >
+                Message Provider
+                <IconButton
+                  onClick={() => setMessageProviderModalOpen(false)}
+                  size="small"
+                  aria-label="Close"
+                  sx={{ ml: 1 }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </DialogTitle>
+              <DialogContent sx={{ p: 0 }}>
+                <NewMessagePanel
+                  defaultToEmail={contactEmail}
+                  defaultDisplayName={providerName}
+                  onSuccess={() => setMessageProviderModalOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+            <SharingVideoModal
+              open={shareModalOpen}
+              handleClose={() => setShareModalOpen(false)}
+              videoUrl={
+                window.location.origin +
+                (courseId ? `/explore/course/${courseId}` : "")
+              }
+              videoId={courseId}
+              shareTitle={course?.title}
+              modalTitle="Share Course"
+            />
           </Box>
         </Grid>
       </Grid>

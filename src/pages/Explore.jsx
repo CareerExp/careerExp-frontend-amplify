@@ -7,6 +7,7 @@ import {
   Chip,
   FormControl,
   IconButton,
+  InputAdornment,
   MenuItem,
   Pagination,
   Select,
@@ -883,6 +884,24 @@ const Explore = () => {
                           PaperProps: { sx: { zIndex: 9999 } },
                         }}
                         sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        endAdornment={
+                          selectedSortByAnnouncements ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByAnnouncements("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null
+                        }
                       >
                         <MenuItem
                           value="recent"
