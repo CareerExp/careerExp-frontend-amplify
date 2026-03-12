@@ -1,15 +1,10 @@
 import React, { useState } from "react";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { Box, Rating, Typography } from "@mui/material";
 import { fonts } from "../utility/fonts.js";
 import { servicesPlaceholder } from "../assets/assest.js";
-import { registerServiceCta } from "../redux/slices/serviceSlice.js";
-import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
-import { notify } from "../redux/slices/alertSlice.js";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const ACCENT = "#BC2876";
@@ -30,9 +25,6 @@ const SERVICE_MODE_STYLES = {
 
 const ServiceCard = ({ service }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const token = useSelector(selectToken);
-  const isAuthenticated = useSelector(selectAuthenticated);
   const [bookmarked, setBookmarked] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
@@ -45,6 +37,7 @@ const ServiceCard = ({ service }) => {
   };
 
   const title = service?.title || "";
+  const category = service?.category || "";
   const description = service?.description
     ? stripHtml(service.description)
     : "";
@@ -54,19 +47,6 @@ const ServiceCard = ({ service }) => {
     : servicesPlaceholder;
   const isPlaceholder = !hasCoverImage;
   const id = service?._id;
-
-  const durationStr = service?.duration
-    ? `${service.duration.value ?? ""} ${(service.duration.unit || "min").toLowerCase()}`.trim()
-    : "";
-
-  const priceLabel =
-    service?.priceType === "FREE"
-      ? "Free"
-      : service?.priceType === "CUSTOM"
-        ? "Custom"
-        : service?.price != null
-          ? `${service.currency || "INR"} ${service.price}`
-          : null;
 
   const rawMode = (service?.serviceMode || "Online")
     .toString()
@@ -99,34 +79,9 @@ const ServiceCard = ({ service }) => {
   const totalRatings =
     service?.totalRatings != null ? Number(service.totalRatings) : null;
 
-  const handleCardClick = () => {
-    if (id) navigate(`/explore/service/${id}`);
-  };
-
-  const handleCtaClick = async (e) => {
+  const handleViewDetails = (e) => {
     e.stopPropagation();
-    if (!id) return;
-    if (isAuthenticated && token) {
-      try {
-        await dispatch(
-          registerServiceCta({ id, actionType: "CLICK", token }),
-        ).unwrap();
-        dispatch(
-          notify({
-            type: "success",
-            message: "Response recorded successfully.",
-          }),
-        );
-      } catch (err) {
-        dispatch(
-          notify({
-            type: "error",
-            message: err?.message || "Could not record response.",
-          }),
-        );
-      }
-    }
-    navigate(`/explore/service/${id}`);
+    if (id) navigate(`/explore/service/${id}`);
   };
 
   const handleShare = (e) => {
@@ -151,20 +106,10 @@ const ServiceCard = ({ service }) => {
   return (
     <>
       <Box
-        role="button"
-        tabIndex={0}
-        onClick={handleCardClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleCardClick();
-          }
-        }}
         sx={{
           borderRadius: "20px",
           overflow: "hidden",
           backgroundColor: "#ffffff",
-          cursor: "pointer",
           boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
           display: "flex",
           flexDirection: "column",
@@ -216,28 +161,9 @@ const ServiceCard = ({ service }) => {
               objectPosition: "center",
             }}
           />
-          {priceLabel && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: "999px",
-                backgroundColor: "rgba(114, 3, 97, 0.85)",
-                color: "#ffffff",
-                fontFamily: fonts.sans,
-                fontSize: "0.8125rem",
-                fontWeight: 600,
-              }}
-            >
-              {priceLabel}
-            </Box>
-          )}
         </Box>
 
-        {/* Meta row: duration (clock + text) left, share + bookmark right */}
+        {/* Meta row: share (right) */}
         <Box
           sx={{
             display: "flex",
@@ -246,19 +172,32 @@ const ServiceCard = ({ service }) => {
             padding: "12px 16px 0",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <AccessTimeIcon sx={{ color: "#E65100", fontSize: "1.1rem" }} />
-            <Typography
-              sx={{
-                fontFamily: fonts.sans,
-                fontSize: "0.875rem",
-                color: "#737373",
-              }}
-            >
-              {durationStr || "—"}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          {/* Category (as heading) */}
+          <Typography
+            sx={{
+              fontFamily: fonts.sans,
+              fontWeight: 700,
+              fontSize: "1.0625rem",
+              lineHeight: 1.35,
+              color: "#000000",
+              px: 0,
+              pt: 1,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {category || "Service"}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              marginLeft: "auto",
+            }}
+          >
             <Box
               component="button"
               type="button"
@@ -307,25 +246,6 @@ const ServiceCard = ({ service }) => {
           </Box>
         </Box>
 
-        {/* Title */}
-        <Typography
-          sx={{
-            fontFamily: fonts.sans,
-            fontWeight: 700,
-            fontSize: "1.0625rem",
-            lineHeight: 1.35,
-            color: "#000000",
-            px: 2,
-            pt: 1,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
-          {title}
-        </Typography>
-
         {/* Description – 3 lines */}
         {description && (
           <Typography
@@ -340,6 +260,7 @@ const ServiceCard = ({ service }) => {
               WebkitLineClamp: 3,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
+              mt: 0.5,
             }}
           >
             {description}
@@ -478,7 +399,7 @@ const ServiceCard = ({ service }) => {
           <Box
             component="button"
             type="button"
-            onClick={handleCtaClick}
+            onClick={handleViewDetails}
             sx={{
               flex: 1,
               minWidth: 0,
@@ -496,7 +417,7 @@ const ServiceCard = ({ service }) => {
               "&:hover": { opacity: 0.92 },
             }}
           >
-            Enquire Now
+            View details
           </Box>
         </Box>
       </Box>
@@ -505,8 +426,8 @@ const ServiceCard = ({ service }) => {
         handleClose={() => setShareModalOpen(false)}
         videoUrl={shareUrl}
         videoId={id}
-        shareTitle={title}
-        modalTitle="Share Service"
+        shareTitle={category || title}
+        modalTitle="Share"
       />
     </>
   );

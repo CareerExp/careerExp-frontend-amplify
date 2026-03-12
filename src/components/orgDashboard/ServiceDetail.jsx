@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -9,19 +9,22 @@ import {
   Avatar,
   Divider,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LanguageIcon from "@mui/icons-material/Language";
 import TagIcon from "@mui/icons-material/Tag";
-import PaymentsIcon from "@mui/icons-material/Payments";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import LinkIcon from "@mui/icons-material/Link";
 import { fonts } from "../../utility/fonts";
 
 const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
+  const [calendarLinkPopupOpen, setCalendarLinkPopupOpen] = useState(false);
+
   if (!service) return null;
 
   const formatDate = (dateString) => {
@@ -80,7 +83,7 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
               color: "#000",
             }}
           >
-            Service Detail
+            Details
           </Typography>
         </Box>
 
@@ -120,7 +123,7 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
               "&:hover": { opacity: 0.9 },
             }}
           >
-            Edit Service
+            Edit Details
           </Button>
         </Box>
       </Box>
@@ -180,20 +183,6 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
           </Box>
         </Box>
 
-        {/* Title */}
-        <Typography
-          sx={{
-            fontFamily: fonts.sans,
-            fontWeight: 700,
-            fontSize: "32px",
-            color: "#000",
-            mb: 4,
-            lineHeight: 1.2,
-          }}
-        >
-          {service.title}
-        </Typography>
-
         {/* Banner with Overlay */}
         <Box
           sx={{
@@ -248,7 +237,7 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
           <Grid item xs={12} sm={6} md={3}>
             <Stack spacing={1}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <PaymentsIcon sx={{ fontSize: "18px", color: "#BC2876" }} />
+                <LinkIcon sx={{ fontSize: "18px", color: "#BC2876" }} />
                 <Typography
                   sx={{
                     fontFamily: fonts.sans,
@@ -257,51 +246,25 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
                     color: "#BC2876",
                   }}
                 >
-                  Price
+                  Calendar Link
                 </Typography>
               </Box>
               <Typography
+                component="span"
+                onClick={() =>
+                  service.calendarLink && setCalendarLinkPopupOpen(true)
+                }
                 sx={{
                   fontFamily: fonts.sans,
                   fontSize: "15px",
-                  color: "#101828",
+                  color: service.calendarLink ? "#BC2876" : "#101828",
                   pl: "26px",
+                  textDecoration: service.calendarLink ? "underline" : "none",
+                  cursor: service.calendarLink ? "pointer" : "default",
+                  "&:hover": service.calendarLink ? { opacity: 0.85 } : {},
                 }}
               >
-                {service.priceType === "FREE"
-                  ? "Free"
-                  : service.priceType === "CUSTOM"
-                    ? "Custom"
-                    : `${service.currency || "INR"} ${service.price}`}
-              </Typography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Stack spacing={1}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <AccessTimeIcon sx={{ fontSize: "18px", color: "#BC2876" }} />
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    color: "#BC2876",
-                  }}
-                >
-                  Duration
-                </Typography>
-              </Box>
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontSize: "15px",
-                  color: "#101828",
-                  pl: "26px",
-                }}
-              >
-                {service.duration
-                  ? `${service.duration.value} ${service.duration.unit}`
-                  : "N/A"}
+                {service.calendarLink?.trim() ? "View Link" : "—"}
               </Typography>
             </Stack>
           </Grid>
@@ -468,49 +431,6 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
               ))}
             </Stack>
           </Grid>
-
-          {/* What You'll Learn */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <LightbulbOutlinedIcon sx={{ color: "#BC2876" }} />
-              <Typography
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 700,
-                  fontSize: "20px",
-                  color: "#000",
-                }}
-              >
-                What You'll Learn
-              </Typography>
-            </Box>
-            <Stack spacing={1.5}>
-              {service.whatYouWillLearn?.map((item, idx) => (
-                <Box
-                  key={idx}
-                  sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
-                >
-                  <Box
-                    sx={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      backgroundColor: "#BC2876",
-                    }}
-                  />
-                  <Typography
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontSize: "15px",
-                      color: "#545454",
-                    }}
-                  >
-                    {item}
-                  </Typography>
-                </Box>
-              ))}
-            </Stack>
-          </Grid>
         </Grid>
       </Paper>
 
@@ -599,6 +519,70 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
           </Typography>
         )}
       </Paper>
+
+      {/* Calendar link popup */}
+      <Dialog
+        open={calendarLinkPopupOpen}
+        onClose={() => setCalendarLinkPopupOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            maxWidth: 420,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 600,
+            fontSize: "1rem",
+          }}
+        >
+          Calendar Link
+        </DialogTitle>
+        <DialogContent>
+          <Typography
+            component="a"
+            href={service.calendarLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              fontFamily: fonts.sans,
+              fontSize: "0.875rem",
+              color: "#BC2876",
+              wordBreak: "break-all",
+              textDecoration: "underline",
+              "&:hover": { opacity: 0.85 },
+            }}
+          >
+            {service.calendarLink?.trim()}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => window.open(service.calendarLink, "_blank")}
+            sx={{
+              fontFamily: fonts.sans,
+              fontWeight: 600,
+              color: "#fff",
+              borderRadius: "90px",
+              background:
+                "linear-gradient(161.27deg, #BF2F75 3.87%, #720361 63.8%)",
+              "&:hover": { backgroundColor: "#9e2062" },
+            }}
+          >
+            Open link
+          </Button>
+          <Button
+            onClick={() => setCalendarLinkPopupOpen(false)}
+            sx={{ fontFamily: fonts.sans, fontWeight: 600, color: "#344054" }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

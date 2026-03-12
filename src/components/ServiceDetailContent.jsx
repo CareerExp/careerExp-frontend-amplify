@@ -2,7 +2,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import ShareIcon from "@mui/icons-material/Share";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -93,20 +92,9 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
 
   const imageUrl = service?.coverImage || service?.image || eventsPlaceholder;
   const cta = service?.cta || {};
-  const durationStr = service?.duration
-    ? `${service.duration.value || ""} ${(service.duration.unit || "min").toLowerCase()}`.trim()
-    : "";
   const serviceModeRaw = (service?.serviceMode || "Online").toString();
   const serviceModeLabelText = serviceModeLabel(serviceModeRaw);
   const serviceModeStyle = serviceModeTagStyle(serviceModeRaw);
-  const priceLabel =
-    service?.priceType === "FREE"
-      ? "Free"
-      : service?.priceType === "CUSTOM"
-        ? "Custom"
-        : service?.price != null
-          ? `${service.currency || "INR"} ${service.price}`
-          : "—";
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -204,37 +192,53 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
     }
   };
 
-  const handleEnquireNow = async () => {
+  const handleScheduleNow = async () => {
     if (!serviceId) return;
     if (!isAuthenticated || !token) {
       dispatch(
-        notify({ type: "warning", message: "Please log in to enquire" }),
+        notify({ type: "warning", message: "Please log in to schedule" }),
       );
       return;
     }
-    if (service?.userHasRespondedToCta) return;
-    try {
-      await dispatch(
-        registerServiceCta({
-          id: serviceId,
-          actionType: "CLICK",
-          token,
-        }),
-      ).unwrap();
+    const calendarLink = service?.calendarLink?.trim();
+    // Only allow scheduling (and CTA registration) when calendar link is present
+    if (!calendarLink && !service?.userHasRespondedToCta) {
       dispatch(
-        notify({ type: "success", message: "Response recorded successfully." }),
+        notify({ type: "warning", message: "No calendar link available." }),
       );
-      const res = await dispatch(
-        getServiceById({ id: serviceId, token }),
-      ).unwrap();
-      if (res?.data) setService(res.data);
-    } catch (err) {
-      dispatch(
-        notify({
-          type: "error",
-          message: err?.message || "Could not record response.",
-        }),
-      );
+      return;
+    }
+    if (!service?.userHasRespondedToCta) {
+      try {
+        await dispatch(
+          registerServiceCta({
+            id: serviceId,
+            actionType: "CLICK",
+            token,
+          }),
+        ).unwrap();
+        dispatch(
+          notify({
+            type: "success",
+            message: "Response recorded successfully.",
+          }),
+        );
+        const res = await dispatch(
+          getServiceById({ id: serviceId, token }),
+        ).unwrap();
+        if (res?.data) setService(res.data);
+      } catch (err) {
+        dispatch(
+          notify({
+            type: "error",
+            message: err?.message || "Could not record response.",
+          }),
+        );
+        return;
+      }
+    }
+    if (calendarLink) {
+      window.open(calendarLink, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -305,7 +309,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
         }}
       >
         <ArrowBackIcon sx={{ fontSize: "1.25rem" }} />
-        Back to Services
+        Back to Connect 1-2-1
       </Typography>
 
       <Box
@@ -344,22 +348,6 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   flexWrap: "wrap",
                 }}
               >
-                {service.category && (
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      backgroundColor: "#BC2876",
-                      color: "white",
-                      fontFamily: fonts.sans,
-                      fontSize: "0.8125rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {service.category}
-                  </span>
-                )}
                 <span
                   style={{
                     display: "inline-flex",
@@ -406,7 +394,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 mb: 1.5,
               }}
             >
-              {service.title}
+              {service.category || service.title}
             </Typography>
 
             <Box
@@ -461,17 +449,6 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                         .filter(Boolean)
                         .join(" ") ||
                       "—"}
-                  </Typography>
-                </Box>
-              )}
-              {durationStr && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <AccessTimeIcon sx={{ fontSize: 18, color: ACCENT }} />
-                  <Typography
-                    variant="body2"
-                    sx={{ fontFamily: fonts.sans, color: colors.darkGray }}
-                  >
-                    {durationStr}
                   </Typography>
                 </Box>
               )}
@@ -662,7 +639,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             alignSelf: { md: "flex-start" },
           }}
         >
-          {/* Service Overview card – Figma: key-value rows, rating stars, gradient + outlined buttons */}
+          {/* Book your appointment card */}
           <Box
             sx={{
               backgroundColor: "#ffffff",
@@ -671,7 +648,18 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               p: 2.5,
             }}
           >
-            {/* Key-value rows: label left (muted), value right (bold) */}
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 700,
+                fontSize: "1.125rem",
+                color: colors.darkGray,
+                mb: 2,
+              }}
+            >
+              Book your appointment
+            </Typography>
+            {/* Key-value rows: Service Mode, Your Rating */}
             <Box
               sx={{
                 display: "flex",
@@ -680,34 +668,6 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 mb: 2.5,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontSize: "13px",
-                    color: "#999999",
-                    fontWeight: 500,
-                  }}
-                >
-                  Duration:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontSize: "14px",
-                    color: "#000000",
-                    fontWeight: 600,
-                  }}
-                >
-                  {durationStr || "—"}
-                </Typography>
-              </Box>
               <Box
                 sx={{
                   display: "flex",
@@ -734,34 +694,6 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   }}
                 >
                   {serviceModeLabelText}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontSize: "13px",
-                    color: "#999999",
-                    fontWeight: 500,
-                  }}
-                >
-                  Price:
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontSize: "14px",
-                    color: "#000000",
-                    fontWeight: 600,
-                  }}
-                >
-                  {priceLabel}
                 </Typography>
               </Box>
               <Box
@@ -814,11 +746,12 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             <Button
               variant="contained"
               fullWidth
-              disabled={hasResponded}
-              onClick={handleEnquireNow}
+              disabled={!service?.calendarLink?.trim()}
+              onClick={handleScheduleNow}
               sx={{
                 background:
                   "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                color: "#ffffff",
                 boxShadow: "0 2px 8px rgba(114, 3, 97, 0.35)",
                 textTransform: "none",
                 borderRadius: "25px",
@@ -832,9 +765,14 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                     "linear-gradient(90deg, #5a0250 0%, #9f2663 50%, #c43d82 100%)",
                   boxShadow: "0 2px 12px rgba(114, 3, 97, 0.4)",
                 },
+                "&.Mui-disabled": {
+                  color: "rgba(255, 255, 255, 0.85)",
+                  background:
+                    "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                },
               }}
             >
-              {hasResponded ? "Registered" : "Enquire Now"}
+              {hasResponded ? "Scheduled" : "Schedule Now"}
             </Button>
             {isAuthenticated && contactEmail && (
               <Button
@@ -885,17 +823,24 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
               </Typography>
               {organizationDetails.logo ? (
                 <Box
-                  component="img"
-                  src={organizationDetails.logo}
-                  alt=""
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "10px",
-                    objectFit: "cover",
+                    display: "flex",
+                    justifyContent: "center",
                     mb: 1.5,
                   }}
-                />
+                >
+                  <Box
+                    component="img"
+                    src={organizationDetails.logo}
+                    alt=""
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: "10px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
               ) : (
                 <Box
                   sx={{

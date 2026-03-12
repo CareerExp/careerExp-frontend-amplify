@@ -99,7 +99,7 @@ const EXPLORE_TABS = [
   { id: "courses", label: "Courses" },
   { id: "announcements", label: "Announcements" },
   { id: "events", label: "Events" },
-  { id: "services", label: "Services" },
+  { id: "services", label: "Connect 1-2-1" },
   { id: "counsellors", label: "Counsellors" },
 ];
 
@@ -1130,12 +1130,12 @@ const Explore = () => {
                       displayEmpty
                       renderValue={(v) =>
                         v === "all"
-                          ? "All services"
+                          ? "All"
                           : v === "ESP"
-                            ? "ESP"
+                            ? "Service Providers"
                             : v === "HEI"
-                              ? "HEI"
-                              : "All services"
+                              ? "Edu Institutions"
+                              : "All"
                       }
                       onChange={(e) => setSelectedProviderType(e.target.value)}
                       IconComponent={KeyboardArrowDownIcon}
@@ -1146,13 +1146,13 @@ const Explore = () => {
                       }}
                     >
                       <MenuItem value="all" sx={{ fontFamily: fonts.sans }}>
-                        All services
+                        All
                       </MenuItem>
                       <MenuItem value="ESP" sx={{ fontFamily: fonts.sans }}>
-                        ESP
+                        Service Providers
                       </MenuItem>
                       <MenuItem value="HEI" sx={{ fontFamily: fonts.sans }}>
-                        HEI
+                        Edu Institutions
                       </MenuItem>
                     </Select>
                   </FormControl>

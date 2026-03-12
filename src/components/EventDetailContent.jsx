@@ -507,17 +507,24 @@ const EventDetailContent = ({ eventId, onBack }) => {
 
               {organizationDetails.logo ? (
                 <Box
-                  component="img"
-                  src={organizationDetails.logo}
-                  alt=""
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "10px",
-                    objectFit: "cover",
+                    display: "flex",
+                    justifyContent: "center",
                     mb: 1.5,
                   }}
-                />
+                >
+                  <Box
+                    component="img"
+                    src={organizationDetails.logo}
+                    alt=""
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: "10px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
               ) : (
                 <Box
                   sx={{
