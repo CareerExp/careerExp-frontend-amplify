@@ -27,14 +27,15 @@ import { eventsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
-const EVENT_TYPE_LABELS = {
-  "in person": "In Person",
-  in_person: "In Person",
-  IN_PERSON: "In Person",
-  hybrid: "Hybrid",
-  HYBRID: "Hybrid",
-  online: "Online",
-  ONLINE: "Online",
+// Match EventCard: different colors per mode (In person / Hybrid / Online)
+const EVENT_TYPE_STYLES = {
+  "in person": { bg: "#FFE8F3", textColor: "#DD4595", label: "In Person" },
+  in_person: { bg: "#FFE8F3", textColor: "#DD4595", label: "In Person" },
+  IN_PERSON: { bg: "#FFE8F3", textColor: "#DD4595", label: "In Person" },
+  hybrid: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
+  HYBRID: { bg: "#FFF3E0", textColor: "#E65100", label: "Hybrid" },
+  online: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
+  ONLINE: { bg: "#E8F5E9", textColor: "#2E7D32", label: "Online" },
 };
 
 /** Organization home URL from details (slug + organizationType). */
@@ -63,12 +64,13 @@ const EventDetailContent = ({ eventId, onBack }) => {
     .toString()
     .toLowerCase()
     .replace(/\s+/g, "_");
-  const eventTypeLabel =
-    EVENT_TYPE_LABELS[rawType] ||
-    EVENT_TYPE_LABELS[event?.eventType] ||
-    event?.eventType ||
-    event?.type ||
-    "Event";
+  const eventModeStyle =
+    EVENT_TYPE_STYLES[rawType] ||
+    EVENT_TYPE_STYLES[event?.mode] || {
+      bg: "#f5f5f5",
+      textColor: "#717171",
+      label: event?.eventType || event?.mode || "Event",
+    };
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -286,14 +288,14 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   alignItems: "center",
                   padding: "6px 12px",
                   borderRadius: "999px",
-                  backgroundColor: "#FFE8F3",
-                  color: "#DD4595",
+                  backgroundColor: eventModeStyle.bg,
+                  color: eventModeStyle.textColor,
                   fontFamily: fonts.sans,
                   fontSize: "0.8125rem",
                   fontWeight: 600,
                 }}
               >
-                {eventTypeLabel}
+                {eventModeStyle.label}
               </span>
             </Box>
 
