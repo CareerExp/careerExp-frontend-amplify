@@ -311,8 +311,8 @@ const Partners = () => {
                     sx: {
                       "& .MuiAutocomplete-option": {
                         whiteSpace: "normal",
-                        maxWidth: "120px",
-                        wordBreak: "break-word",
+                        // maxWidth: "130px",
+                        // wordBreak: "break-word",
                       },
                     },
                   }}

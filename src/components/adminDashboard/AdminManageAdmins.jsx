@@ -600,20 +600,6 @@ const AdminManageAdmins = () => {
                       color: tableHeaderText,
                       py: "16px",
                       px: "24px",
-                      width: "150px",
-                      border: "none",
-                    }}
-                  >
-                    Last Active
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontFamily: fonts.poppins,
-                      fontWeight: 600,
-                      fontSize: "13px",
-                      color: tableHeaderText,
-                      py: "16px",
-                      px: "24px",
                       width: "80px",
                       border: "none",
                     }}
@@ -639,7 +625,7 @@ const AdminManageAdmins = () => {
               <TableBody>
                 {admins.length === 0 && !adminsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <Typography
                         sx={{
                           fontFamily: fonts.poppins,
@@ -662,9 +648,6 @@ const AdminManageAdmins = () => {
                       "—";
                     const invitedDate = formatDate(
                       row.invitedAt ?? row.createdAt,
-                    );
-                    const lastActive = formatDateTime(
-                      row.lastActiveAt ?? row.lastLoginAt,
                     );
                     const isUpdating = updatingUserId === row._id;
                     const canToggle = !row.isMainAdmin && !isPending;
@@ -718,20 +701,6 @@ const AdminManageAdmins = () => {
                           }}
                         >
                           {invitedDate}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            fontFamily: fonts.poppins,
-                            fontWeight: 400,
-                            fontSize: "14px",
-                            color: bodyTextColor,
-                            py: "17px",
-                            px: "24px",
-                            width: "150px",
-                            border: "none",
-                          }}
-                        >
-                          {lastActive}
                         </TableCell>
                         <TableCell
                           sx={{

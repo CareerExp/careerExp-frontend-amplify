@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { enterAMEContext, getAMEOrganizations, selectAMEOrganizationsData } from "../../redux/slices/adminSlice.js";
+import { setActingAsAME } from "../../redux/slices/ameContextSlice.js";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
 import { getMyOrganizationProfile } from "../../redux/slices/organizationSlice.js";
 import { buttonStyle, tableBodyStyle, tableHeadStyle } from "../../utility/commonStyle.js";
@@ -83,11 +84,12 @@ const AdminManagedESPsData = () => {
     );
   };
 
-  /** Option 1: enter-context API; profile is updated by enterAMEContext.fulfilled in profileSlice; then fetch org and go to workspace. */
+  /** Option 1: enter-context API; set acting-as so PUT /api/organization/profile/me sends X-Acting-As-Organization-Id; then fetch org and go to workspace. */
   const handleOpenDashboardClick = async (org) => {
     setOpenDashboardError(null);
     try {
       await dispatch(enterAMEContext({ actingAsOrganizationId: org._id, token })).unwrap();
+      dispatch(setActingAsAME({ organizationProfileId: org._id, organizationName: org.organizationName ?? org.name }));
       await dispatch(getMyOrganizationProfile({ token })).unwrap();
       navigate(`/workspace/${userId}`);
     } catch (err) {

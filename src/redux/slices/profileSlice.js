@@ -165,10 +165,14 @@ const profileSlice = createSlice({
       state.userProfile = payload.user;
     });
     builder.addCase(enterAMEContext.fulfilled, (state, { payload }) => {
-      state.userProfile = payload;
+      state.userProfile = state.userProfile
+        ? { ...state.userProfile, ...payload }
+        : payload;
     });
     builder.addCase(exitAMEContext.fulfilled, (state, { payload }) => {
-      state.userProfile = payload;
+      state.userProfile = state.userProfile
+        ? { ...state.userProfile, ...payload }
+        : payload;
     });
     builder.addCase(uploadProfilePicture.fulfilled, (state, { payload }) => {
       state.userProfile.profilePicture = payload.profilePicture;
