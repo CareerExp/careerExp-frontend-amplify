@@ -15,10 +15,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { State } from "country-state-city";
 import { countryList } from "../utility/countryList";
 import { fonts } from "../utility/fonts";
+import { upload2, link2 } from "../assets/assest";
 import AddLinkModal from "./AddLinkModal";
 import { createAME } from "../redux/slices/adminSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
 import { selectToken } from "../redux/slices/authSlice.js";
+
+const CORPORATE_NAME_MAX = 100;
+const ADDRESS_MAX = 256;
 
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
@@ -79,8 +83,12 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
         state: "",
       });
       setAvailableStates(
-        selectedCountry ? State.getStatesOfCountry(selectedCountry.code) : []
+        selectedCountry ? State.getStatesOfCountry(selectedCountry.code) : [],
       );
+    } else if (name === "corporateName" && value.length > CORPORATE_NAME_MAX) {
+      return;
+    } else if (name === "registeredAddress" && value.length > ADDRESS_MAX) {
+      return;
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -153,8 +161,30 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
       dispatch(
         notify({
           type: "warning",
-          message: "Please fill all required fields (Corporate Name, Company Registration No, Telephone No)",
-        })
+          message:
+            "Please fill all required fields (Corporate Name, Company Registration No, Telephone No)",
+        }),
+      );
+      return;
+    }
+    if (formData.corporateName.length > CORPORATE_NAME_MAX) {
+      dispatch(
+        notify({
+          type: "warning",
+          message: `Corporate name cannot exceed ${CORPORATE_NAME_MAX} characters`,
+        }),
+      );
+      return;
+    }
+    if (
+      formData.registeredAddress &&
+      formData.registeredAddress.length > ADDRESS_MAX
+    ) {
+      dispatch(
+        notify({
+          type: "warning",
+          message: `Address cannot exceed ${ADDRESS_MAX} characters`,
+        }),
       );
       return;
     }
@@ -171,15 +201,19 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
     if (!pendingFormData) return;
     try {
       setIsButtonLoading(true);
-      const resultAction = await dispatch(createAME({ formData: pendingFormData, token }));
+      const resultAction = await dispatch(
+        createAME({ formData: pendingFormData, token }),
+      );
       setIsButtonLoading(false);
 
       if (createAME.fulfilled.match(resultAction)) {
         dispatch(
           notify({
             type: "success",
-            message: resultAction.payload?.message || "Admin Managed ESP created successfully",
-          })
+            message:
+              resultAction.payload?.message ||
+              "Admin Managed ESP created successfully",
+          }),
         );
         handleCloseConfirmModal();
         resetForm();
@@ -190,8 +224,9 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
         dispatch(
           notify({
             type: "error",
-            message: payload?.message || "Failed to create Education Service Provider",
-          })
+            message:
+              payload?.message || "Failed to create Education Service Provider",
+          }),
         );
       }
     } catch (error) {
@@ -200,7 +235,7 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
         notify({
           type: "error",
           message: error?.message || "An unexpected error occurred",
-        })
+        }),
       );
     }
   };
@@ -283,6 +318,9 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
               value={formData.corporateName}
               onChange={handleChange}
               placeholder="Enter corporate/company name"
+              inputProps={{ maxLength: CORPORATE_NAME_MAX }}
+              helperText={`${formData.corporateName.length}/${CORPORATE_NAME_MAX}`}
+              FormHelperTextProps={{ sx: { fontFamily: fonts.poppins } }}
               sx={inputStyle}
             />
           </Box>
@@ -297,44 +335,14 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
               value={formData.registeredAddress}
               onChange={handleChange}
               placeholder="Enter location"
+              inputProps={{ maxLength: ADDRESS_MAX }}
+              helperText={`${formData.registeredAddress.length}/${ADDRESS_MAX}`}
+              FormHelperTextProps={{ sx: { fontFamily: fonts.poppins } }}
               sx={inputStyle}
             />
           </Box>
 
           <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
-            <Box sx={{ flex: 1 }}>
-              <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
-                Select State
-              </Typography>
-              <TextField
-                select
-                fullWidth
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                placeholder="Select State/City"
-                sx={{
-                  ...inputStyle,
-                  "& .MuiOutlinedInput-root": {
-                    ...inputStyle["& .MuiOutlinedInput-root"],
-                    backgroundColor: !formData.country ? "#e0e0e0" : "#f6f6f6",
-                  },
-                }}
-                disabled={!formData.country}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: { sx: { maxHeight: 300 } },
-                  },
-                }}
-              >
-                <MenuItem value="">Select State/City</MenuItem>
-                {availableStates.map((s) => (
-                  <MenuItem key={s.name} value={s.name}>
-                    {s.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Box>
             <Box sx={{ flex: 1 }}>
               <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
                 Select Country
@@ -345,9 +353,15 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                placeholder="Select Country"
                 sx={inputStyle}
                 SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (value) =>
+                    value ? (
+                      value
+                    ) : (
+                      <span style={{ color: "#999" }}>Select Country</span>
+                    ),
                   MenuProps: {
                     PaperProps: { sx: { maxHeight: 300 } },
                   },
@@ -362,6 +376,45 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
                       sx={{ width: 20, height: 15, mr: 1, objectFit: "cover" }}
                     />
                     {c.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
+                Select State
+              </Typography>
+              <TextField
+                select
+                fullWidth
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                disabled={!formData.country}
+                sx={{
+                  ...inputStyle,
+                  "& .MuiOutlinedInput-root": {
+                    ...inputStyle["& .MuiOutlinedInput-root"],
+                    backgroundColor: !formData.country ? "#e0e0e0" : "#f6f6f6",
+                  },
+                }}
+                SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (value) =>
+                    value ? (
+                      value
+                    ) : (
+                      <span style={{ color: "#999" }}>Select State/City</span>
+                    ),
+                  MenuProps: {
+                    PaperProps: { sx: { maxHeight: 300 } },
+                  },
+                }}
+              >
+                <MenuItem value="">Select State/City</MenuItem>
+                {availableStates.map((s) => (
+                  <MenuItem key={s.name} value={s.name}>
+                    {s.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -398,7 +451,9 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
           </Stack>
 
           <Box>
-            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>Website</Typography>
+            <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
+              Website
+            </Typography>
             <TextField
               fullWidth
               name="website"
@@ -409,59 +464,40 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
             />
           </Box>
 
-          <Typography
-            sx={{
-              fontFamily: fonts.poppins,
-              fontWeight: 600,
-              fontSize: "20px",
-              color: "#bc2876",
-              mt: 2,
-              mb: -1,
-            }}
-          >
-            Required Documents
-          </Typography>
-
           <Box sx={{ mt: 2 }}>
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", md: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: { xs: "flex-start", md: "center" },
                 mb: 2,
+                gap: { xs: 1.5, md: 0 },
               }}
             >
               <Typography
                 sx={{
                   fontFamily: fonts.poppins,
                   fontWeight: 600,
-                  fontSize: "18px",
-                  color: "#545454",
+                  fontSize: "20px",
+                  color: "#bc2876",
+                  // mt: 2,
+                  mb: -2,
                 }}
               >
-                Upload Verification Documents
+                Required Documents
               </Typography>
-              <Stack direction="row" spacing={1.5}>
+              <Stack direction="row" spacing={1.5} mt={{ xs: 0, md: 0 }}>
                 <Button
                   component="label"
                   variant="contained"
                   startIcon={
                     <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        border: "2px solid #fff",
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        color: "#fff",
-                      }}
-                    >
-                      +
-                    </Box>
+                      component="img"
+                      src={upload2}
+                      alt=""
+                      sx={{ width: 16, height: 16 }}
+                    />
                   }
                   sx={{
                     borderRadius: "8px",
@@ -490,21 +526,11 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
                   onClick={() => setIsAddLinkModalOpen(true)}
                   startIcon={
                     <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        border: "2px solid #bc2876",
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        color: "#bc2876",
-                      }}
-                    >
-                      +
-                    </Box>
+                      component="img"
+                      src={link2}
+                      alt=""
+                      sx={{ width: 16, height: 16 }}
+                    />
                   }
                   sx={{
                     borderRadius: "8px",
@@ -553,8 +579,8 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
                       mb: 1,
                     }}
                   >
-                    No documents added yet. Click "Upload File" or "Add Link" to add
-                    documents.
+                    No documents added yet. Click "Upload File" or "Add Link" to
+                    add documents.
                   </Typography>
                   <Typography
                     sx={{
@@ -651,7 +677,8 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
                 width: "350px",
                 height: "48px",
                 borderRadius: "58px",
-                background: "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
+                background:
+                  "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
                 boxShadow: "0px 6px 18px 0px rgba(191, 47, 117, 0.4)",
                 fontFamily: fonts.poppins,
                 fontWeight: 700,
@@ -760,13 +787,15 @@ const AddEducationServiceProviderModal = ({ open, onClose, onSuccess }) => {
               fontWeight: 600,
               fontSize: "15px",
               textTransform: "none",
-              background: "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
+              background:
+                "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
               borderRadius: "25px",
               px: 2.5,
               py: 1.25,
               boxShadow: "none",
               "&:hover": {
-                background: "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
+                background:
+                  "linear-gradient(161.01deg, #BF2F75 3.87%, #720361 63.8%)",
                 opacity: 0.9,
               },
               width: "50%",
