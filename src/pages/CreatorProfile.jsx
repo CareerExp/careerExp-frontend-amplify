@@ -82,6 +82,16 @@ const Profile = () => {
   const creatorProfile = creatorProfileWithFollowersCount?.user;
   const orgProfile = creatorProfileWithFollowersCount?.organization;
 
+  const getInitials = () => {
+    const first = (creatorProfile?.firstName || "").trim();
+    const last = (creatorProfile?.lastName || "").trim();
+    if (first && last) return (first[0] + last[0]).toUpperCase();
+    const name = (first || last || creatorProfile?.name || "").trim();
+    if (name.length >= 2) return name.slice(0, 2).toUpperCase();
+    if (name.length === 1) return name[0].toUpperCase();
+    return "?";
+  };
+
   useEffect(() => {
     dispatchToRedux(getCreatorProfile({ userId }));
   }, []);
@@ -276,15 +286,23 @@ const Profile = () => {
           <div className={creatorStyle.profileTopV2Left}>
             <div className={creatorStyle.profileTopV2AvatarWrap}>
               <Avatar
-                src={creatorProfile?.profilePicture || ""}
+                src={creatorProfile?.profilePicture ? creatorProfile.profilePicture : undefined}
                 alt="profile"
                 className={creatorStyle.profileTopV2Avatar}
                 sx={{
                   height: { sm: "97px", xs: "120px" },
                   width: { sm: "97px", xs: "120px" },
                   border: "9px solid #ffffff",
+                  ...(!creatorProfile?.profilePicture && {
+                    background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                    color: "#ffffff",
+                    fontSize: "1.75rem",
+                    fontWeight: 600,
+                  }),
                 }}
-              />
+              >
+                {!creatorProfile?.profilePicture ? getInitials() : null}
+              </Avatar>
             </div>
             <p className={creatorStyle.profileTopV2FollowersText}>
               {formattedFollowerCount} Followers

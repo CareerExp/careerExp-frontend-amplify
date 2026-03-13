@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, Typography, Button, IconButton, Tooltip, CircularProgress } from "@mui/material";
 import ShareIcon from "@mui/icons-material/Share";
 import { fonts } from "../../utility/fonts";
-import { defaultHeroBG, organizationLogo } from "../../assets/assest";
+import { defaultHeroBG } from "../../assets/assest";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice";
 import { toggleFollow } from "../../redux/slices/followerSlice";
 import { getDashboardFollowing } from "../../redux/slices/dashboardActivitySlice";
@@ -134,7 +134,7 @@ const OrgPublicHero = ({ profile }) => {
           sx={{
             width: "120px",
             height: "120px",
-            backgroundColor: "#fff",
+            background: profile?.logo ? "#fff" : "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
             borderRadius: "20px 20px 0 0",
             border: "4px solid #fff",
             boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
@@ -145,12 +145,30 @@ const OrgPublicHero = ({ profile }) => {
             overflow: "hidden",
           }}
         >
-          <Box
-            component="img"
-            src={profile?.logo || organizationLogo}
-            sx={{ width: "80%", height: "80%", objectFit: "contain" }}
-            alt=""
-          />
+          {profile?.logo ? (
+            <Box
+              component="img"
+              src={profile.logo}
+              sx={{ width: "80%", height: "80%", objectFit: "contain" }}
+              alt=""
+            />
+          ) : (
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 700,
+                fontSize: "2rem",
+                color: "#ffffff",
+              }}
+            >
+              {(profile?.organizationName || "Org")
+                .split(/\s+/)
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 3)
+                .toUpperCase()}
+            </Typography>
+          )}
         </Box>
         <Box sx={{ flexGrow: 1, textAlign: { xs: "center", md: "left" } }}>
           <Typography
