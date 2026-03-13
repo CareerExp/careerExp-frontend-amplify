@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { logout } from "./authSlice.js";
+import { exitAMEContext } from "./adminSlice.js";
 
 const initialState = {
   actingAsOrganizationId: null,
@@ -22,6 +23,7 @@ const ameContextSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(logout, () => initialState);
+    builder.addCase(exitAMEContext.fulfilled, () => initialState);
   },
 });
 

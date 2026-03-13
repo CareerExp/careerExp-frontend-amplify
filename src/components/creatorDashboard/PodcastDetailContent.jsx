@@ -403,8 +403,11 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
           <Box
             sx={{
               position: "relative",
-              width: { xs: "100%", sm: "100%", md: "100%", lg: "100%" },
-              aspectRatio: spotifyEmbedUrl ? "3 / 1" : "3 / 1",
+              width: "100%",
+              maxWidth: "100%",
+              minHeight: spotifyEmbedUrl ? { xs: 152, sm: 200 } : undefined,
+              height: spotifyEmbedUrl ? { xs: 152, sm: 200 } : undefined,
+              aspectRatio: spotifyEmbedUrl ? undefined : "3 / 1",
               mx: "auto",
               mb: 3,
               borderRadius: "12px",
@@ -422,6 +425,7 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
                   left: 0,
                   width: "100%",
                   height: "100%",
+                  minHeight: 152,
                   border: 0,
                   borderRadius: 12,
                 }}
@@ -595,6 +599,9 @@ const PodcastDetailContent = ({ podcastId, onBack, embedded = false }) => {
                 color: colors.darkGray,
                 mb: 2,
                 whiteSpace: "pre-wrap",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+                maxWidth: "100%",
               }}
             >
               {podcast.description}

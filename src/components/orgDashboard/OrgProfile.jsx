@@ -191,9 +191,11 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
     }
   }, [userData]);
 
+  const isPersonalInfoTab = tabValue === 2 || (isAdminInOrgView && tabValue === 1);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (tabValue === 2) {
+    if (isPersonalInfoTab) {
       const {
         password,
         newPassword,
@@ -203,18 +205,19 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
         ...updatedData
       } = formData;
       setIsButtonLoading2(true);
-      // 1. Contact person: existing user profile API (unchanged)
+      // 1. Contact person: user profile API
       dispatch(
         updateUserProfile({ updatedData, userId: userData?._id, token })
       )
         .then(() => {
-          // 2. Organization profile: PUT /api/organization/profile/me (Business Entity fields)
+          // 2. Organization profile: PUT /api/organization/profile/me (with X-Acting-As-Organization-Id in AME)
           const orgPayload = businessEntityToOrgPayload(businessEntity, orgProfile);
           return dispatch(updateMyOrganizationProfile({ updateData: orgPayload, token }));
         })
         .then((result) => {
           if (updateMyOrganizationProfile.fulfilled.match(result)) {
             dispatch(notify({ type: "success", message: "Profile updated successfully" }));
+            dispatch(getMyOrganizationProfile({ token }));
           }
         })
         .catch(() => {
