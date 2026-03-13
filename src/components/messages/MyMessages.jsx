@@ -25,6 +25,42 @@ import NewMessagePanel from "./NewMessagePanel";
 
 const BODY_SNIPPET_LEN = 120;
 
+/** Match http(s) URLs and www. URLs for linkification */
+const URL_REGEX = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
+
+/**
+ * Splits text by URLs and returns an array of strings and <a> elements so links are clickable.
+ */
+const linkify = (text) => {
+  if (!text || typeof text !== "string") return text;
+  const parts = text.split(URL_REGEX);
+  return parts.map((part, i) => {
+    if (!part) return null;
+    const isUrl = /^https?:\/\//i.test(part) || /^www\./i.test(part);
+    if (isUrl) {
+      let href = part;
+      if (/^www\./i.test(part)) href = "https://" + part;
+      return (
+        <a
+          key={i}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "#BC2876",
+            textDecoration: "underline",
+            wordBreak: "break-all",
+            fontFamily: "inherit",
+          }}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 const formatDate = (dateString) => {
   if (!dateString) return "";
   return new Date(dateString).toLocaleDateString("en-GB", {
@@ -139,6 +175,7 @@ const MessageCard = ({ message, tab }) => {
       </Box>
 
       <Typography
+        component="span"
         sx={{
           fontFamily: fonts.poppins,
           fontSize: "14px",
@@ -147,9 +184,10 @@ const MessageCard = ({ message, tab }) => {
           mt: 2,
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",
+          display: "block",
         }}
       >
-        {message.body}
+        {linkify(message.body)}
       </Typography>
     </Paper>
   );

@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import { fonts } from '../../utility/fonts';
-import { defaultHeroBG, organizationLogo } from '../../assets/assest';
+import { defaultHeroBG } from '../../assets/assest';
 import { selectOrganizationProfile } from '../../redux/slices/organizationSlice';
 import { selectToken, selectUserId } from '../../redux/slices/authSlice';
 import { toggleFollow } from '../../redux/slices/followerSlice';
@@ -153,7 +153,7 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                     sx={{
                         width: '120px',
                         height: '120px',
-                        backgroundColor: '#fff',
+                        background: orgProfile?.logo ? '#fff' : 'linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)',
                         borderRadius: '20px 20px 0 0',
                         border: '4px solid #fff',
                         boxShadow: '0px 4px 10px rgba(0,0,0,0.1)',
@@ -164,11 +164,29 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                         overflow: 'hidden'
                     }}
                 >
-                    <Box
-                        component="img"
-                        src={orgProfile?.logo || organizationLogo}
-                        sx={{ width: '80%', height: '80%', objectFit: 'contain' }}
-                    />
+                    {orgProfile?.logo ? (
+                        <Box
+                            component="img"
+                            src={orgProfile.logo}
+                            sx={{ width: '80%', height: '80%', objectFit: 'contain' }}
+                        />
+                    ) : (
+                        <Typography
+                            sx={{
+                                fontFamily: fonts.sans,
+                                fontWeight: 700,
+                                fontSize: '2rem',
+                                color: '#ffffff'
+                            }}
+                        >
+                            {(orgProfile?.organizationName || 'Org')
+                                .split(/\s+/)
+                                .map((w) => w[0])
+                                .join('')
+                                .slice(0, 3)
+                                .toUpperCase()}
+                        </Typography>
+                    )}
                 </Box>
 
                 {/* Company Name & Subtitle */}
