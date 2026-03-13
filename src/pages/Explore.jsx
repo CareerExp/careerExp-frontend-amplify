@@ -884,8 +884,8 @@ const Explore = () => {
                           PaperProps: { sx: { zIndex: 9999 } },
                         }}
                         sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
-                        endAdornment={
-                          selectedSortByAnnouncements ? (
+                        InputProps={{
+                          endAdornment: selectedSortByAnnouncements ? (
                             <InputAdornment position="end" sx={{ mr: 1 }}>
                               <IconButton
                                 size="small"
@@ -900,9 +900,12 @@ const Explore = () => {
                                 <CloseIcon sx={{ fontSize: "18px" }} />
                               </IconButton>
                             </InputAdornment>
-                          ) : null
-                        }
+                          ) : null,
+                        }}
                       >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
                         <MenuItem
                           value="recent"
                           sx={{ fontFamily: fonts.sans }}
@@ -939,7 +942,28 @@ const Explore = () => {
                           PaperProps: { sx: { zIndex: 9999 } },
                         }}
                         sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByEvents ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByEvents("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
                       >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
                         <MenuItem
                           value="recent"
                           sx={{ fontFamily: fonts.sans }}
@@ -976,7 +1000,28 @@ const Explore = () => {
                           PaperProps: { sx: { zIndex: 9999 } },
                         }}
                         sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByServices ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByServices("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
                       >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
                         <MenuItem
                           value="recent"
                           sx={{ fontFamily: fonts.sans }}
@@ -1011,7 +1056,28 @@ const Explore = () => {
                           PaperProps: { sx: { zIndex: 9999 } },
                         }}
                         sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByCounsellors ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByCounsellors("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
                       >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
                         <MenuItem
                           value="recent"
                           sx={{ fontFamily: fonts.sans }}
@@ -1045,7 +1111,28 @@ const Explore = () => {
                           PaperProps: { sx: { zIndex: 9999 } },
                         }}
                         sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByCourses ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByCourses("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
                       >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
                         <MenuItem
                           value="recent"
                           sx={{ fontFamily: fonts.sans }}
