@@ -4,7 +4,7 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useNavigate } from "react-router-dom";
 import { Box, Rating, Typography } from "@mui/material";
 import { fonts } from "../utility/fonts.js";
-import { servicesPlaceholder } from "../assets/assest.js";
+import { servicePL } from "../assets/assest.js";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 
 const ACCENT = "#BC2876";
@@ -44,7 +44,7 @@ const ServiceCard = ({ service }) => {
   const hasCoverImage = service?.coverImage || service?.image;
   const imageUrl = hasCoverImage
     ? service.coverImage || service.image
-    : servicesPlaceholder;
+    : servicePL;
   const isPlaceholder = !hasCoverImage;
   const id = service?._id;
 
@@ -117,7 +117,7 @@ const ServiceCard = ({ service }) => {
           border: "1px solid #eeeeee",
         }}
       >
-        {/* Cover image with "Free" badge top-right */}
+        {/* Cover image; no price badge when using placeholder */}
         <Box
           sx={{
             position: "relative",

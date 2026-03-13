@@ -27,7 +27,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { fonts } from "../../utility/fonts";
-import { uploadDocument } from "../../assets/assest";
+import { uploadDocument, servicePL } from "../../assets/assest";
 import AddService from "./AddService";
 import ServiceDetail from "./ServiceDetail";
 import {
@@ -156,7 +156,8 @@ const ServiceCard = ({ service, onEdit, onDelete, onToggleActive, onView }) => {
       >
         <Box
           component="img"
-          src={service.coverImage || service.image}
+          src={service.coverImage || service.image || servicePL}
+          alt=""
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </Box>
@@ -472,7 +473,7 @@ const DeleteConfirmationModal = ({ open, onClose, onConfirm, isLoading }) => (
       sx: {
         borderRadius: "15px",
         width: "403px",
-        height: "255px",
+        height: "auto",
         p: 0,
         position: "relative",
         overflow: "hidden",
@@ -664,6 +665,8 @@ const OrgMyServices = () => {
         );
         setIsDeleteModalOpen(false);
         setServiceToDelete(null);
+        setSelectedService(null);
+        dispatch(fetchMyServices({ token }));
       } else {
         dispatch(
           notify({
@@ -698,17 +701,28 @@ const OrgMyServices = () => {
 
   if (selectedService) {
     return (
-      <ServiceDetail
-        service={selectedService}
-        onBack={() => setSelectedService(null)}
-        onEdit={(srv) => {
-          setSelectedService(null);
-          handleEditService(srv);
-        }}
-        onDelete={(srv) => {
-          handleDeleteService(srv);
-        }}
-      />
+      <>
+        <ServiceDetail
+          service={selectedService}
+          onBack={() => setSelectedService(null)}
+          onEdit={(srv) => {
+            setSelectedService(null);
+            handleEditService(srv);
+          }}
+          onDelete={(srv) => {
+            handleDeleteService(srv);
+          }}
+        />
+        <DeleteConfirmationModal
+          open={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setServiceToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+          isLoading={isDeleting}
+        />
+      </>
     );
   }
 

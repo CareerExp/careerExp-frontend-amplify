@@ -21,6 +21,7 @@ import TagIcon from "@mui/icons-material/Tag";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import LinkIcon from "@mui/icons-material/Link";
 import { fonts } from "../../utility/fonts";
+import { servicePL } from "../../assets/assest";
 
 const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
   const [calendarLinkPopupOpen, setCalendarLinkPopupOpen] = useState(false);
@@ -197,7 +198,8 @@ const ServiceDetail = ({ service, onBack, onEdit, onDelete }) => {
         >
           <Box
             component="img"
-            src={service.coverImage || service.image}
+            src={service.coverImage || service.image || servicePL}
+            alt=""
             sx={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
 

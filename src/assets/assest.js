@@ -190,6 +190,7 @@ import announce4 from "./announcements/announce4.png";
 import announcementsPlaceholder from "./announcements/AnnouncementsPlaceholder.svg";
 import eventsPlaceholder from "./announcements/EventsPlaceholder.svg";
 import servicesPlaceholder from "./announcements/ServicesPlaceholder.svg";
+import servicePL from "./announcements/servicePL.svg";
 import yellowBG from "./Profile/yellowBG.png";
 
 export {
@@ -383,5 +384,6 @@ export {
   announcementsPlaceholder,
   eventsPlaceholder,
   servicesPlaceholder,
+  servicePL,
   yellowBG,
 };

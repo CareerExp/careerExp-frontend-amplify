@@ -67,7 +67,7 @@ const Pricing = () => {
             "Highlighted specialization and expertise",
             "2Gb of cloud storage for file uploads",
           ]}
-          buttons={[{ label: "Guide. Share. Inspire.", price: "$49" }]}
+          buttons={[{ label: "Guide. Share. Inspire.", price: "" }]}
           // buttonsRow
         />
 
@@ -86,7 +86,12 @@ const Pricing = () => {
             "Access a built-in Content Management System",
             "View performance through the Administrator Analytics Dashboard",
           ]}
-          buttons={[{ label: "Activate Institution Plan", price: "$100" }]}
+          buttons={[
+            {
+              label: "Activate Institution Plan",
+              price: "$100/month or $1000/year",
+            },
+          ]}
           twoColumnList
           onCtaClick={() => setIsModalOpen(true)}
         />
@@ -106,7 +111,12 @@ const Pricing = () => {
             "Access a built-in Content Management System",
             "View performance through the Administrator Analytics Dashboard",
           ]}
-          buttons={[{ label: "Activate Company Plan", price: "$150" }]}
+          buttons={[
+            {
+              label: "Activate Company Plan",
+              price: "$150/month or $1500/year",
+            },
+          ]}
           twoColumnList
           onCtaClick={() => setIsModalOpen(true)}
         />
