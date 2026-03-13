@@ -299,7 +299,7 @@ const Partners = () => {
                   getOptionLabel={(option) => option}
                   value={selectedProgram}
                   onChange={(event, newValue) => setSelectedProgram(newValue)}
-                  className={partnersStyles["autocomplete-specialization"]}
+                  className={partnersStyles["autocomplete-programs"]}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -307,6 +307,15 @@ const Partners = () => {
                       variant="outlined"
                     />
                   )}
+                  ListboxProps={{
+                    sx: {
+                      "& .MuiAutocomplete-option": {
+                        whiteSpace: "normal",
+                        maxWidth: "120px",
+                        wordBreak: "break-word",
+                      },
+                    },
+                  }}
                   sx={autocompleteStyle}
                 />
               )}
