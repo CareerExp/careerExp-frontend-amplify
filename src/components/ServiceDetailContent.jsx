@@ -38,7 +38,7 @@ import {
 } from "../redux/slices/ratingSlice.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
-import { eventsPlaceholder } from "../assets/assest.js";
+import { servicePL } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
@@ -90,7 +90,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
     useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  const imageUrl = service?.coverImage || service?.image || eventsPlaceholder;
+  const imageUrl = service?.coverImage || service?.image || servicePL;
   const cta = service?.cta || {};
   const serviceModeRaw = (service?.serviceMode || "Online").toString();
   const serviceModeLabelText = serviceModeLabel(serviceModeRaw);
@@ -772,7 +772,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 },
               }}
             >
-              {hasResponded ? "Scheduled" : "Schedule Now"}
+              {hasResponded ? "Re-Schedule" : "Schedule Now"}
             </Button>
             {isAuthenticated && contactEmail && (
               <Button

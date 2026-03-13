@@ -171,8 +171,8 @@
 }
 
 .pricingCardButtonPrice {
-  font-weight: 700;
-  font-size: 27px;
+  font-weight: 600;
+  font-size: 24px;
   white-space: nowrap;
   flex-shrink: 0;
 }

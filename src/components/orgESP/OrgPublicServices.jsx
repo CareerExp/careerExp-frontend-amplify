@@ -44,11 +44,31 @@ const OrgPublicServiceCard = ({ service }) => {
         "&:hover": { boxShadow: "0px 8px 16px rgba(0,0,0,0.12)" },
       }}
     >
-      <Box sx={{ height: "181px", width: "100%", borderRadius: "8px", overflow: "hidden", backgroundColor: "#f0f0f0" }}>
-        <Box component="img" src={imageUrl} alt="" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <Box
+        sx={{
+          height: "181px",
+          width: "100%",
+          borderRadius: "8px",
+          overflow: "hidden",
+          backgroundColor: "#f0f0f0",
+        }}
+      >
+        <Box
+          component="img"
+          src={imageUrl}
+          alt=""
+          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
       </Box>
       {category && (
-        <Typography sx={{ fontSize: "12px", fontFamily: fonts.sans, color: "#BC2876", fontWeight: 600 }}>
+        <Typography
+          sx={{
+            fontSize: "12px",
+            fontFamily: fonts.sans,
+            color: "#BC2876",
+            fontWeight: 600,
+          }}
+        >
           {category}
         </Typography>
       )}
@@ -67,8 +87,19 @@ const OrgPublicServiceCard = ({ service }) => {
       >
         {title}
       </Typography>
-      <Typography sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#666" }}>{priceLabel}</Typography>
-      <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: "14px", color: "#BC2876" }}>
+      <Typography
+        sx={{ fontFamily: fonts.sans, fontSize: "14px", color: "#666" }}
+      >
+        {priceLabel}
+      </Typography>
+      <Typography
+        sx={{
+          fontFamily: fonts.sans,
+          fontWeight: 600,
+          fontSize: "14px",
+          color: "#BC2876",
+        }}
+      >
         View details
       </Typography>
     </Paper>
@@ -82,7 +113,9 @@ const OrgPublicServices = ({ identifier, idType }) => {
 
   useEffect(() => {
     if (!identifier || !idType) return;
-    dispatch(getPublicServices({ identifier, idType, limit: 12, sortBy: "recent" }));
+    dispatch(
+      getPublicServices({ identifier, idType, limit: 12, sortBy: "recent" }),
+    );
   }, [dispatch, identifier, idType]);
 
   if (!identifier) return null;
@@ -98,16 +131,28 @@ const OrgPublicServices = ({ identifier, idType }) => {
   if (services.length === 0) {
     return (
       <Box sx={{ my: 6 }}>
-        <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "32px", color: "#000", mb: 3 }}>
-          Services
+        <Typography
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 700,
+            fontSize: "32px",
+            color: "#000",
+            mb: 3,
+          }}
+        >
+          Connect 1-2-1
         </Typography>
-        <Typography sx={{ fontFamily: fonts.sans, fontSize: "16px", color: "#666" }}>No services yet.</Typography>
+        <Typography
+          sx={{ fontFamily: fonts.sans, fontSize: "16px", color: "#666" }}
+        >
+          No services yet.
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <ESPSlider title="Services">
+    <ESPSlider title="Connect 1-2-1">
       {services.map((srv) => (
         <OrgPublicServiceCard key={srv._id} service={srv} />
       ))}
