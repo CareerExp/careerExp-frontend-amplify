@@ -27,6 +27,17 @@ const LABEL_COLOR = "#6B7280";
 const VALUE_COLOR = "#1F2937";
 const BORDER_COLOR = "#E0E0E0";
 const LINK_COLOR = "#BC2876";
+
+/** True if url is our AWS S3 document URL (uploaded file); else treat as external link. */
+const isS3DocumentUrl = (url) => {
+  if (!url || typeof url !== "string") return false;
+  const u = url.trim().toLowerCase();
+  return (
+    u.includes("amazonaws.com") &&
+    (u.includes(".s3.") || u.startsWith("https://s3."))
+  );
+};
+
 const STATUS_OPTIONS = [
   { value: "active", label: "Active" },
   { value: "pending", label: "Pending" },
@@ -477,23 +488,7 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                       }}
                     >
                       {linkHref && (
-                        <>
-                          {/* <Typography
-                            component="a"
-                            href={linkHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                              fontFamily: fonts.poppins,
-                              fontSize: "0.875rem",
-                              fontWeight: 400,
-                              color: LINK_COLOR,
-                              textDecoration: "none",
-                              "&:hover": { textDecoration: "underline" },
-                            }}
-                          >
-                            View
-                          </Typography> */}
+                        isS3DocumentUrl(linkHref) ? (
                           <Typography
                             component="a"
                             href={linkHref}
@@ -513,7 +508,28 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                             <DownloadIcon sx={{ fontSize: 16 }} />
                             Download
                           </Typography>
-                        </>
+                        ) : (
+                          <Typography
+                            component="a"
+                            href={linkHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              fontFamily: fonts.poppins,
+                              fontSize: "0.875rem",
+                              fontWeight: 500,
+                              color: LINK_COLOR,
+                              textDecoration: "none",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              "&:hover": { textDecoration: "underline" },
+                            }}
+                          >
+                            Open Link
+                            <OpenInNewIcon sx={{ fontSize: 16, color: LINK_COLOR }} />
+                          </Typography>
+                        )
                       )}
                     </Box>
                   </Box>

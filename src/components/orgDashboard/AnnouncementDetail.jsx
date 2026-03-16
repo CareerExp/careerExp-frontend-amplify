@@ -16,15 +16,13 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ShareIcon from "@mui/icons-material/Share";
 import { fonts } from "../../utility/fonts";
 import { notify } from "../../redux/slices/alertSlice";
+import { formatDateMMDDYYYY } from "../../utility/convertTimeToUTC";
 
 const AnnouncementDetail = ({ announcement, onBack, onEdit, onDelete }) => {
   const dispatch = useDispatch();
   if (!announcement) return null;
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-GB");
-  };
+  const formatDate = (dateString) => formatDateMMDDYYYY(dateString) || "N/A";
 
   const ctaResponses = announcement.ctaResponses || [];
 

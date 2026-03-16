@@ -7,8 +7,13 @@ import B from "./About/B.png";
 import C from "./About/C.png";
 import D from "./About/D.png";
 import E from "./About/E.png";
+import JClaytonKennedy from "./About/JCK.jpeg";
+import MatthiasFeist from "./About/MF.jpeg";
 //about
 import Founder from "./About/Founder.png";
+import opportunity1 from "./About/opportunity1.svg";
+import opportunity2 from "./About/opportunity2.svg";
+import opportunity3 from "./About/opportunity3.svg";
 import assessmentCardBg from "./assessmentCenter/cardBg.png";
 // assesment center
 import assessmentHeaderImg from "./assessmentCenter/headerBg.png";
@@ -282,6 +287,8 @@ export {
   C,
   D,
   E,
+  JClaytonKennedy,
+  MatthiasFeist,
   //assessement result
   assessmentResult,
   assessmentResultbottom,
@@ -386,4 +393,7 @@ export {
   servicesPlaceholder,
   servicePL,
   yellowBG,
+  opportunity1,
+  opportunity2,
+  opportunity3,
 };

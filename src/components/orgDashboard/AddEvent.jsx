@@ -95,8 +95,11 @@ const AddEvent = ({ onBack, eventToEdit }) => {
             data.append('mode', formData.mode);
             data.append('liveStartDate', new Date(formData.liveStartDate).toISOString());
             data.append('liveEndDate', new Date(formData.liveEndDate).toISOString());
+            // Always send registrationDeadline on update so backend can clear it when user clears the field
             if (formData.registrationDeadline) {
                 data.append('registrationDeadline', new Date(formData.registrationDeadline).toISOString());
+            } else if (eventToEdit) {
+                data.append('registrationDeadline', '');
             }
             if (formData.referenceNumber) {
                 data.append('referenceNumber', formData.referenceNumber);

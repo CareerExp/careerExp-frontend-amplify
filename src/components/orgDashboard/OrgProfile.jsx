@@ -101,9 +101,20 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
     if (!justEnteredAME) return;
     setTabValue((prev) => (prev === 2 ? 1 : 0));
   }, [isAdminInOrgView]);
+
+  // Sync Shared Content Visibility toggle from org profile (GET /api/organization/profile/me).
+  useEffect(() => {
+    if (orgProfile && typeof orgProfile.sharedContentVisibility === "boolean") {
+      setSharedContentVisibility(orgProfile.sharedContentVisibility);
+    } else if (orgProfile && orgProfile.sharedContentVisibility === undefined) {
+      setSharedContentVisibility(true);
+    }
+  }, [orgProfile?.sharedContentVisibility]);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isButtonLoading2, setIsButtonLoading2] = useState(false);
+  const [isSavingSharedContent, setIsSavingSharedContent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [sharedContentVisibility, setSharedContentVisibility] = useState(true);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -281,6 +292,30 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSharedContentVisibilitySave = async (visibleOnProfile) => {
+    if (!token) return;
+    setIsSavingSharedContent(true);
+    try {
+      await dispatch(
+        updateMyOrganizationProfile({
+          updateData: { sharedContentVisibility: !!visibleOnProfile },
+          token,
+        })
+      ).unwrap();
+      dispatch(notify({ type: "success", message: "Shared content visibility updated" }));
+      dispatch(getMyOrganizationProfile({ token }));
+    } catch (err) {
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.error || err?.message || "Failed to update shared content visibility",
+        })
+      );
+    } finally {
+      setIsSavingSharedContent(false);
+    }
+  };
+
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   const submittedDocuments = mapOrgDocuments(orgProfile?.documents);
@@ -311,7 +346,14 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
     if (isAdminInOrgView) {
       switch (tabValue) {
         case 0:
-          return <SharedContentVisibilityTab />;
+          return (
+            <SharedContentVisibilityTab
+              visibleOnProfile={sharedContentVisibility}
+              onVisibleChange={setSharedContentVisibility}
+              onSaveChanges={handleSharedContentVisibilitySave}
+              isSaving={isSavingSharedContent}
+            />
+          );
         case 1:
           return (
             <OrgPersonalInfoForm
@@ -336,7 +378,14 @@ const OrgProfile = ({ isAdminInOrgView = false }) => {
       case 0:
         return <SubscriptionTab />;
       case 1:
-        return <SharedContentVisibilityTab />;
+        return (
+          <SharedContentVisibilityTab
+            visibleOnProfile={sharedContentVisibility}
+            onVisibleChange={setSharedContentVisibility}
+            onSaveChanges={handleSharedContentVisibilitySave}
+            isSaving={isSavingSharedContent}
+          />
+        );
       case 2:
         return (
           <OrgPersonalInfoForm

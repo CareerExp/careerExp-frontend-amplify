@@ -210,6 +210,7 @@ const Workspace = (props) => {
     try {
       await dispatchToRedux(exitAMEContext({ token })).unwrap();
       dispatchToRedux(resetOrganizationState());
+      setCurrentPage("Dashboard"); // Show admin dashboard; currentPage may still be an org page name (e.g. "My Events") which has no admin case
       navigate(`/workspace/${userId}`);
     } finally {
       setIsExitingContext(false);
