@@ -118,6 +118,43 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
         getAnnouncementById({ id: announcementId, token }),
       ).unwrap();
       if (res?.data) setAnnouncement(res.data);
+      // After CTA registration: redirect to link or open email (same as Services/Courses).
+      const rawCta = res?.data?.cta ?? announcement?.cta;
+      const cta =
+        typeof rawCta === "string"
+          ? (() => {
+              try {
+                return JSON.parse(rawCta);
+              } catch {
+                return null;
+              }
+            })()
+          : rawCta;
+      const ctaType = (cta?.type || "LINK").toUpperCase();
+      const ctaValue = cta?.value?.trim();
+      if (ctaType === "EMAIL" && ctaValue) {
+        try {
+          await navigator.clipboard.writeText(ctaValue);
+          dispatch(
+            notify({
+              type: "success",
+              message:
+                "Email address copied to clipboard. If your email client did not open, paste it there.",
+            })
+          );
+        } catch {
+          // clipboard may be blocked; continue to try mailto
+        }
+        const mailtoUrl = `mailto:${encodeURIComponent(ctaValue)}`;
+        const link = document.createElement("a");
+        link.href = mailtoUrl;
+        link.rel = "noopener noreferrer";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else if (ctaType === "LINK" && ctaValue) {
+        window.open(ctaValue, "_blank", "noopener,noreferrer");
+      }
     } catch (err) {
       dispatch(
         notify({
@@ -262,52 +299,52 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
               {announcement.title}
             </Typography>
 
-            {/* Cover image with overlay */}
+            {/* Cover image: 400px height, blurred fill background */}
             <Box
               sx={{
                 width: "100%",
+                height: 400,
                 borderRadius: "12px",
                 overflow: "hidden",
                 mb: 3,
                 position: "relative",
                 backgroundColor: "#e8e8e8",
-                minHeight: 320,
               }}
             >
-              <img
-                src={imageUrl}
-                alt=""
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  minHeight: 320,
-                  objectFit: "cover",
-                  objectPosition: "center",
-                  display: "block",
-                }}
-              />
-              {/* <Box
+              <Box
                 sx={{
                   position: "absolute",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
-                  padding: 3,
+                  inset: "-40px",
+                  backgroundImage: `url(${imageUrl})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  filter: "blur(14px)",
+                  transform: "scale(1.15)",
                 }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    fontSize: "1rem",
-                    lineHeight: 1.4,
-                    color: "#fff",
-                    fontWeight: 500,
-                  }}
-                >
-                  {overlayTitle}
-                </Typography>
-              </Box> */}
+                aria-hidden
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  backgroundColor: "rgba(0,0,0,0.06)",
+                  pointerEvents: "none",
+                }}
+                aria-hidden
+              />
+              <Box
+                component="img"
+                src={imageUrl}
+                alt=""
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                }}
+              />
             </Box>
 
             {/* Description (HTML or plain) */}

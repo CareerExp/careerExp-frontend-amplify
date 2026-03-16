@@ -29,6 +29,10 @@ import { createCourse, updateCourse, selectCourseLoading } from '../../redux/sli
 import { selectToken } from '../../redux/slices/authSlice';
 import { notify } from '../../redux/slices/alertSlice';
 
+const TITLE_MAX = 150;
+const DESCRIPTION_MAX = 4000;
+const DURATION_MIN = 1;
+
 const AddCourse = ({ onBack, courseToEdit }) => {
     const dispatch = useDispatch();
     const token = useSelector(selectToken);
@@ -42,7 +46,7 @@ const AddCourse = ({ onBack, courseToEdit }) => {
         price: courseToEdit?.price ?? '',
         currency: courseToEdit?.currency || 'INR',
         referenceNumber: courseToEdit?.referenceNumber || '',
-        durationValue: courseToEdit?.duration?.value ?? '',
+        durationValue: courseToEdit?.duration?.value != null && courseToEdit?.duration?.value !== '' ? courseToEdit.duration.value : DURATION_MIN,
         durationUnit: courseToEdit?.duration?.unit || 'weeks',
         deliveryMode: courseToEdit?.deliveryMode || 'ONLINE',
         ctaType: courseToEdit?.cta?.type || 'LINK',
@@ -60,6 +64,19 @@ const AddCourse = ({ onBack, courseToEdit }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === 'title') {
+            setFormData((prev) => ({ ...prev, title: value.slice(0, TITLE_MAX) }));
+            return;
+        }
+        if (name === 'description') {
+            setFormData((prev) => ({ ...prev, description: value.slice(0, DESCRIPTION_MAX) }));
+            return;
+        }
+        if (name === 'durationValue') {
+            const num = value === '' ? '' : Math.max(DURATION_MIN, parseInt(value, 10) || DURATION_MIN);
+            setFormData((prev) => ({ ...prev, durationValue: num }));
+            return;
+        }
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -86,10 +103,19 @@ const AddCourse = ({ onBack, courseToEdit }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.title || !formData.description) {
+        if (!formData.title?.trim() || !formData.description?.trim()) {
             dispatch(notify({ message: 'Please fill title and description', type: 'error' }));
             return;
         }
+        if (formData.title.length > TITLE_MAX) {
+            dispatch(notify({ message: `Course title cannot exceed ${TITLE_MAX} characters`, type: 'error' }));
+            return;
+        }
+        if (formData.description.length > DESCRIPTION_MAX) {
+            dispatch(notify({ message: `Description cannot exceed ${DESCRIPTION_MAX} characters`, type: 'error' }));
+            return;
+        }
+        const durationNum = Math.max(DURATION_MIN, Number(formData.durationValue) || DURATION_MIN);
         if (formData.priceType === 'PAID' && !formData.price) {
             dispatch(notify({ message: 'Please enter the price for paid course', type: 'error' }));
             return;
@@ -101,8 +127,8 @@ const AddCourse = ({ onBack, courseToEdit }) => {
 
         try {
             const data = new FormData();
-            data.append('title', formData.title);
-            data.append('description', formData.description);
+            data.append('title', formData.title.trim());
+            data.append('description', formData.description.trim());
             data.append('category', formData.category);
             data.append('priceType', formData.priceType);
             if (formData.priceType === 'PAID') {
@@ -110,7 +136,7 @@ const AddCourse = ({ onBack, courseToEdit }) => {
                 data.append('currency', formData.currency);
             }
             if (formData.referenceNumber) data.append('referenceNumber', formData.referenceNumber);
-            data.append('duration', JSON.stringify({ value: Number(formData.durationValue) || 0, unit: formData.durationUnit }));
+            data.append('duration', JSON.stringify({ value: durationNum, unit: formData.durationUnit }));
             data.append('deliveryMode', formData.deliveryMode);
             data.append('whatsIncluded', JSON.stringify(whatsIncluded));
             data.append('whatYouWillLearn', JSON.stringify(whatYouWillLearn));
@@ -191,7 +217,7 @@ const AddCourse = ({ onBack, courseToEdit }) => {
 
                         <Grid item xs={12}>
                             <Typography sx={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: '16px', color: '#545454', mb: 1 }}>Course title</Typography>
-                            <TextField fullWidth name="title" value={formData.title} onChange={handleChange} placeholder="Enter course title" variant="outlined" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '90px', backgroundColor: '#f2f2f2', height: '54px', '& fieldset': { border: 'none' }, px: 2 }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#000', '&::placeholder': { color: 'rgba(0,0,0,0.5)', opacity: 1 } } }} />
+                            <TextField fullWidth name="title" value={formData.title} onChange={handleChange} placeholder="Enter course title" variant="outlined" inputProps={{ maxLength: TITLE_MAX }} helperText={`${formData.title.length}/${TITLE_MAX}`} FormHelperTextProps={{ sx: { fontFamily: fonts.sans } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '90px', backgroundColor: '#f2f2f2', height: '54px', '& fieldset': { border: 'none' }, px: 2 }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#000', '&::placeholder': { color: 'rgba(0,0,0,0.5)', opacity: 1 } } }} />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
@@ -216,7 +242,7 @@ const AddCourse = ({ onBack, courseToEdit }) => {
 
                         <Grid item xs={12}>
                             <Typography sx={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: '16px', color: '#545454', mb: 1 }}>Description</Typography>
-                            <TextField fullWidth multiline rows={4} name="description" value={formData.description} onChange={handleChange} placeholder="Enter a detailed description" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '24px', backgroundColor: '#f2f2f2', '& fieldset': { border: 'none' }, p: 2 }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#000', '&::placeholder': { color: 'rgba(0,0,0,0.5)', opacity: 1 } } }} />
+                            <TextField fullWidth multiline rows={4} name="description" value={formData.description} onChange={handleChange} placeholder="Enter a detailed description" inputProps={{ maxLength: DESCRIPTION_MAX }} helperText={`${formData.description.length}/${DESCRIPTION_MAX}`} FormHelperTextProps={{ sx: { fontFamily: fonts.sans } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '24px', backgroundColor: '#f2f2f2', '& fieldset': { border: 'none' }, p: 2 }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#000', '&::placeholder': { color: 'rgba(0,0,0,0.5)', opacity: 1 } } }} />
                         </Grid>
 
                         <Grid item xs={12} sm={4}>
@@ -250,7 +276,7 @@ const AddCourse = ({ onBack, courseToEdit }) => {
 
                         <Grid item xs={12} sm={4}>
                             <Typography sx={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: '16px', color: '#545454', mb: 1 }}>Duration Value</Typography>
-                            <TextField fullWidth type="number" name="durationValue" value={formData.durationValue} onChange={handleChange} placeholder="e.g. 4" variant="outlined" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '90px', backgroundColor: '#f2f2f2', height: '54px', '& fieldset': { border: 'none' }, px: 2 }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#000' } }} />
+                            <TextField fullWidth type="number" name="durationValue" value={formData.durationValue} onChange={handleChange} placeholder="e.g. 4" variant="outlined" inputProps={{ min: DURATION_MIN }} helperText={formData.durationValue < DURATION_MIN ? `Minimum duration is ${DURATION_MIN}` : ''} FormHelperTextProps={{ sx: { fontFamily: fonts.sans } }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '90px', backgroundColor: '#f2f2f2', height: '54px', '& fieldset': { border: 'none' }, px: 2 }, '& .MuiInputBase-input': { fontFamily: fonts.sans, fontSize: '16px', color: '#000' } }} />
                         </Grid>
                         <Grid item xs={12} sm={4}>
                             <Typography sx={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: '16px', color: '#545454', mb: 1 }}>Duration Unit</Typography>

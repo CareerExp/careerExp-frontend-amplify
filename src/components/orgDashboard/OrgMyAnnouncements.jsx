@@ -44,6 +44,7 @@ import {
 } from "../../redux/slices/announcementSlice";
 import { selectToken } from "../../redux/slices/authSlice";
 import { notify } from "../../redux/slices/alertSlice";
+import { formatDateMMDDYYYY } from "../../utility/convertTimeToUTC";
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete, onView }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -99,10 +100,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete, onView }) => {
 
   const statusStyles = getStatusStyles(announcement.status);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-GB"); // dd/mm/yyyy
-  };
+  const formatDate = (dateString) => formatDateMMDDYYYY(dateString) || "N/A";
 
   return (
     <Paper

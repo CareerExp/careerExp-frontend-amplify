@@ -113,8 +113,8 @@ const Partners = () => {
             marginBottom: "2rem",
             borderRadius: "19px",
             paddingY: "15px",
-            paddingX: "30px",
           }}
+          className={partnersStyles["top-container"]}
         >
           {/* Tabs Section - scrollable on mobile so all tabs are accessible */}
           <Box className={partnersStyles["tabs-box"]}>
@@ -147,7 +147,7 @@ const Partners = () => {
                   fontWeight: 500,
                   color: "#999999",
                   minWidth: "auto",
-                  px: 4,
+                  // px: 4,
                   whiteSpace: "nowrap",
                   "&.Mui-selected": {
                     color: "#bf2f75",
@@ -226,6 +226,7 @@ const Partners = () => {
             />
 
             <Box
+              className={partnersStyles["filters-row"]}
               sx={{
                 display: "flex",
                 flexDirection: { xs: "column", md: "row" },

@@ -77,8 +77,8 @@ const Pricing = () => {
           image={HighSchools}
           heading="For Higher Education Institutions:"
           listItems={[
-            "Dedicated company profile page",
-            "Add counselors to represent your institution",
+            "Dedicated Institutional profile page",
+            "Add counselors, advisors to represent your institution",
             "Promote events to reach prospective students",
             "Receive Premium Onboarding & Dedicated Support",
             "Publish videos, podcasts, and articles",
@@ -107,7 +107,7 @@ const Pricing = () => {
             "Promote events to reach prospective students",
             "Receive Premium Onboarding & Dedicated Support",
             "Publish videos, podcasts, and articles",
-            "Share institutional news and announcements",
+            "Share news and announcements",
             "Access a built-in Content Management System",
             "View performance through the Administrator Analytics Dashboard",
           ]}

@@ -53,8 +53,10 @@
   font-size: 34px;
   line-height: 34px;
   color: #000000;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   flex-shrink: 0;
+  text-wrap: wrap;
+  width: 100%;
 }
 
 .pricingCardAccentLine {
@@ -260,6 +262,17 @@
   .pricingCardButtonsRow .pricingCardButton {
     min-width: 0;
   }
+
+    .pricingCardButton {
+      flex-direction: column;
+      align-items: start;
+      justify-content: start;
+    }
+
+    .pricingCardButtonPrice{
+      font-size: 22px;
+    }
+
   .container {
     padding: 15px;
   }
