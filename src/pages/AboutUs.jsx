@@ -230,7 +230,8 @@ const AboutUs = () => {
               src={selectedCard.image}
               alt={selectedCard.name}
               width="200px"
-              height="230px"
+              height="200px"
+              style={{ borderRadius: "18px" }}
             />
             <h3>{selectedCard.name}</h3>
             <p>{selectedCard.designation}</p>

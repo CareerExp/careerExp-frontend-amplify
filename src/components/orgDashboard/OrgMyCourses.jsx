@@ -18,6 +18,7 @@ import {
   Stack,
   Avatar,
 } from "@mui/material";
+import LinkIcon from "@mui/icons-material/Link";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -598,7 +599,12 @@ const OrgMyCourses = () => {
           notify({ message: "Course deleted successfully!", type: "success" }),
         );
         setIsDeleteModalOpen(false);
+        const deletedId = courseToDelete._id;
         setCourseToDelete(null);
+        if (selectedCourse?._id === deletedId) {
+          setSelectedCourse(null);
+          if (token) dispatch(fetchMyCourses({ token }));
+        }
       } else {
         dispatch(
           notify({
@@ -638,6 +644,7 @@ const OrgMyCourses = () => {
     const responses = course.ctaResponses || [];
 
     return (
+      <>
       <Box sx={{ p: 4, minHeight: "100%" }}>
         {/* Header: back + title on left, Delete + Edit on right (like ServiceDetail) */}
         <Box
@@ -888,7 +895,7 @@ const OrgMyCourses = () => {
             );
           })()}
 
-          {/* Banner with overlay (image + stats on top of image per Figma: ratings/like/view on image) */}
+          {/* Banner: full image centered, no crop; remaining space filled with blurred image */}
           <Box
             sx={{
               width: "100%",
@@ -900,29 +907,58 @@ const OrgMyCourses = () => {
               backgroundColor: "#e8e8e8",
             }}
           >
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 0,
-              }}
-            >
-              <MenuBookIcon sx={{ fontSize: 120, color: "#9ca3af" }} />
-            </Box>
+            {/* Blurred background layer when image exists */}
             {course.coverImage && (
               <Box
                 component="img"
                 src={course.coverImage}
                 alt=""
                 sx={{
-                  position: "relative",
-                  zIndex: 1,
+                  position: "absolute",
+                  inset: 0,
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
+                  filter: "blur(12px)",
+                  transform: "scale(1.05)",
+                  zIndex: 0,
+                }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            )}
+            {/* Placeholder icon when no image */}
+            {!course.coverImage && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 0,
+                }}
+              >
+                <MenuBookIcon sx={{ fontSize: 120, color: "#9ca3af" }} />
+              </Box>
+            )}
+            {/* Main image: full, centered, not cropped */}
+            {course.coverImage && (
+              <Box
+                component="img"
+                src={course.coverImage}
+                alt=""
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  margin: "auto",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                  zIndex: 1,
                 }}
                 onError={(e) => {
                   e.target.style.display = "none";
@@ -1058,6 +1094,58 @@ const OrgMyCourses = () => {
               </Stack>
             </Grid>
           </Grid>
+
+          {/* CTA link/email – just above About This Course */}
+          {(() => {
+            const rawCta = course.cta;
+            const cta =
+              typeof rawCta === "string"
+                ? (() => {
+                    try {
+                      return rawCta ? JSON.parse(rawCta) : null;
+                    } catch {
+                      return null;
+                    }
+                  })()
+                : rawCta;
+            const ctaValue = cta?.value?.trim();
+            if (!ctaValue) return null;
+            const ctaType = (cta?.type || "LINK").toUpperCase();
+            const href = ctaType === "EMAIL" ? `mailto:${ctaValue}` : ctaValue;
+            const label =
+              cta?.label || (ctaType === "EMAIL" ? "Email" : "Link");
+            return (
+              <Box sx={{ mb: 4 }}>
+                <LinkIcon sx={{ fontSize: "18px", color: "#BC2876" }} />
+                <Typography
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    color: "#BC2876",
+                    mb: 1,
+                  }}
+                >
+                  CTA Link
+                </Typography>
+                <Typography
+                  component="a"
+                  href={href}
+                  target={ctaType === "LINK" ? "_blank" : undefined}
+                  rel={ctaType === "LINK" ? "noopener noreferrer" : undefined}
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontSize: "16px",
+                    color: "black",
+                    textDecoration: "underline",
+                    "&:hover": { color: "#720361" },
+                  }}
+                >
+                  {ctaValue}
+                </Typography>
+              </Box>
+            );
+          })()}
 
           {/* About */}
           <Typography
@@ -1282,6 +1370,17 @@ const OrgMyCourses = () => {
           )}
         </Paper>
       </Box>
+
+      <DeleteConfirmationModal
+        open={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setCourseToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        isLoading={isDeleting}
+      />
+    </>
     );
   }
 
