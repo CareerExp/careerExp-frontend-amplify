@@ -11,6 +11,7 @@ import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
 import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 
 // Figma: In person = light pink bg #FFE8F3, text #DD4595; Hybrid/Online = light bg + accent text
 const EVENT_TYPE_STYLES = {
@@ -31,6 +32,7 @@ const EventCard = ({ event: ev }) => {
   const isAuthenticated = useSelector(selectAuthenticated);
   const [bookmarked, setBookmarked] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const formatDate = (dateStr) => formatDateMMDDYYYY(dateStr);
 
@@ -77,9 +79,7 @@ const EventCard = ({ event: ev }) => {
     e.stopPropagation();
     if (!id) return;
     if (!isAuthenticated || !token) {
-      dispatch(
-        notify({ type: "warning", message: "Please log in to register" }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     try {
@@ -344,6 +344,10 @@ const EventCard = ({ event: ev }) => {
         videoId={id}
         shareTitle={title}
         modalTitle="Share Event"
+      />
+      <EnquiryLoginModal
+        open={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
       />
     </>
   );

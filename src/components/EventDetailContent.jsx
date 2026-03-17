@@ -26,6 +26,7 @@ import { colors } from "../utility/color.js";
 import { eventsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 
 // Match EventCard: different colors per mode (In person / Hybrid / Online)
 const EVENT_TYPE_STYLES = {
@@ -56,6 +57,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const imageUrl =
     event?.coverImage || event?.banner || event?.image || eventsPlaceholder;
@@ -112,9 +114,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
 
   const handleRegister = async () => {
     if (!isAuthenticated || !token) {
-      dispatch(
-        notify({ type: "warning", message: "Please log in to register" }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     if (!eventId || event?.userHasRespondedToCta) return;
@@ -704,6 +704,10 @@ const EventDetailContent = ({ eventId, onBack }) => {
         shareTitle={event?.title}
         modalTitle="Share Event"
         onShare={handleShareAction}
+      />
+      <EnquiryLoginModal
+        open={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
       />
     </Box>
   );

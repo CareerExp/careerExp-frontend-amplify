@@ -11,6 +11,7 @@ import { fonts } from "../utility/fonts.js";
 import { servicesPlaceholder } from "../assets/assest.js";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 import { notify } from "../redux/slices/alertSlice.js";
 import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
 import {
@@ -42,6 +43,7 @@ const CourseCard = ({ course }) => {
   const courseBookmarkStatus = useSelector((state) => state.bookmark?.courseBookmarkStatus) ?? {};
   const [bookmarking, setBookmarking] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const courseId = course?._id;
   const isBookmarked =
@@ -271,7 +273,7 @@ const CourseCard = ({ course }) => {
                 e.stopPropagation();
                 if (!courseId) return;
                 if (!authenticated) {
-                  dispatch(notify({ type: "warning", message: "Please login to bookmark" }));
+                  setLoginModalOpen(true);
                   return;
                 }
                 if (bookmarking || !token) return;
@@ -445,6 +447,10 @@ const CourseCard = ({ course }) => {
       videoId={id}
       shareTitle={title}
       modalTitle="Share Course"
+    />
+    <EnquiryLoginModal
+      open={loginModalOpen}
+      onClose={() => setLoginModalOpen(false)}
     />
     </>
   );
