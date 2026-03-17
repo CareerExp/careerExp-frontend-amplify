@@ -26,6 +26,7 @@ import { colors } from "../utility/color.js";
 import { announcementsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 
 const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   /** Organization home URL from details (slug + organizationType). Backend may expose slug/organizationType on organizationDetails. */
   function getOrgHomeUrl(org) {
@@ -91,15 +93,13 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
           announcementId,
           userId: isAuthenticated ? userId : undefined,
         }),
-      ).catch(() => {});
+      ).catch(() => { });
     }
   };
 
   const handleEnquire = async () => {
     if (!isAuthenticated || !token) {
-      dispatch(
-        notify({ type: "warning", message: "Please log in to enquire" }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     if (!announcementId || announcement?.userHasRespondedToCta) return;
@@ -123,12 +123,12 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
       const cta =
         typeof rawCta === "string"
           ? (() => {
-              try {
-                return JSON.parse(rawCta);
-              } catch {
-                return null;
-              }
-            })()
+            try {
+              return JSON.parse(rawCta);
+            } catch {
+              return null;
+            }
+          })()
           : rawCta;
       const ctaType = (cta?.type || "LINK").toUpperCase();
       const ctaValue = cta?.value?.trim();
@@ -601,25 +601,25 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
               )}
               {(organizationDetails.contactEmail ||
                 announcement?.organizationUserId?.email) && (
-                <Box
-                  sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
-                >
-                  <EmailOutlinedIcon sx={{ fontSize: 20, color: "#720361" }} />
-                  <Typography
-                    component="a"
-                    href={`mailto:${organizationDetails.contactEmail || announcement?.organizationUserId?.email}`}
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontSize: "0.875rem",
-                      color: "#720361",
-                      textDecoration: "none",
-                    }}
+                  <Box
+                    sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
                   >
-                    {organizationDetails.contactEmail ||
-                      announcement?.organizationUserId?.email}
-                  </Typography>
-                </Box>
-              )}
+                    <EmailOutlinedIcon sx={{ fontSize: 20, color: "#720361" }} />
+                    <Typography
+                      component="a"
+                      href={`mailto:${organizationDetails.contactEmail || announcement?.organizationUserId?.email}`}
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontSize: "0.875rem",
+                        color: "#720361",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {organizationDetails.contactEmail ||
+                        announcement?.organizationUserId?.email}
+                    </Typography>
+                  </Box>
+                )}
               {organizationDetails.website && (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   <LanguageIcon sx={{ fontSize: 20, color: "#720361" }} />
@@ -657,6 +657,10 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
         shareTitle={announcement?.title}
         modalTitle="Share Announcement"
         onShare={handleShareAction}
+      />
+      <EnquiryLoginModal
+        open={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
       />
     </Box>
   );

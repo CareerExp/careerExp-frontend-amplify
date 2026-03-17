@@ -42,6 +42,7 @@ import { servicePL } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 
 const ACCENT = "#DD4595";
 const ACCENT_DARK = "#720361";
@@ -89,6 +90,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const [messageProviderModalOpen, setMessageProviderModalOpen] =
     useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const imageUrl = service?.coverImage || service?.image || servicePL;
   const cta = service?.cta || {};
@@ -143,12 +145,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
 
   const handleRatingChange = async (event, newValue) => {
     if (!isAuthenticated || !token || !userId) {
-      dispatch(
-        notify({
-          type: "warning",
-          message: "Please log in to rate this service",
-        }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     if (!serviceId || newValue == null) return;
@@ -195,9 +192,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
   const handleScheduleNow = async () => {
     if (!serviceId) return;
     if (!isAuthenticated || !token) {
-      dispatch(
-        notify({ type: "warning", message: "Please log in to schedule" }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     const calendarLink = service?.calendarLink?.trim();
@@ -1021,6 +1016,10 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
             shareTitle={service?.title}
             modalTitle="Share Service"
             onShare={handleShareAction}
+          />
+          <EnquiryLoginModal
+            open={loginModalOpen}
+            onClose={() => setLoginModalOpen(false)}
           />
         </Box>
       </Box>

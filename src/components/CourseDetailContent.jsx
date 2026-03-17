@@ -57,6 +57,7 @@ import {
 import { registerCourseCta } from "../redux/slices/courseSlice.js";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
+import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
@@ -103,6 +104,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
   const [messageProviderModalOpen, setMessageProviderModalOpen] =
     useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -176,9 +178,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
 
   const handleBookmarkClick = async () => {
     if (!isAuthenticated) {
-      dispatch(
-        notify({ type: "warning", message: "Please login to bookmark" }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     if (!courseId || bookmarking || !token) return;
@@ -251,12 +251,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
 
   const handleLikeClick = async () => {
     if (!isAuthenticated || !token || !userId) {
-      dispatch(
-        notify({
-          type: "warning",
-          message: "Please log in to like this course",
-        }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     if (!courseId) return;
@@ -287,12 +282,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
 
   const handleRatingChange = async (event, newValue) => {
     if (!isAuthenticated || !token || !userId) {
-      dispatch(
-        notify({
-          type: "warning",
-          message: "Please log in to rate this course",
-        }),
-      );
+      setLoginModalOpen(true);
       return;
     }
     if (!courseId || newValue == null) return;
@@ -397,25 +387,27 @@ const CourseDetailContent = ({ courseId, onBack }) => {
 
   const handleCtaClick = async () => {
     if (!hasCta || !courseId) return;
-    if (isAuthenticated && token) {
-      try {
-        await dispatch(
-          registerCourseCta({ id: courseId, actionType: "CLICK", token })
-        ).unwrap();
-        dispatch(
-          notify({
-            type: "success",
-            message: "Response recorded successfully.",
-          })
-        );
-      } catch (err) {
-        dispatch(
-          notify({
-            type: "error",
-            message: err?.message || "Could not record response.",
-          })
-        );
-      }
+    if (!isAuthenticated || !token) {
+      setLoginModalOpen(true);
+      return;
+    }
+    try {
+      await dispatch(
+        registerCourseCta({ id: courseId, actionType: "CLICK", token })
+      ).unwrap();
+      dispatch(
+        notify({
+          type: "success",
+          message: "Response recorded successfully.",
+        })
+      );
+    } catch (err) {
+      dispatch(
+        notify({
+          type: "error",
+          message: err?.message || "Could not record response.",
+        })
+      );
     }
     if (ctaType === "EMAIL" && ctaValue) {
       try {
@@ -1207,6 +1199,10 @@ const CourseDetailContent = ({ courseId, onBack }) => {
               videoId={courseId}
               shareTitle={course?.title}
               modalTitle="Share Course"
+            />
+            <EnquiryLoginModal
+              open={loginModalOpen}
+              onClose={() => setLoginModalOpen(false)}
             />
           </Box>
         </Grid>
