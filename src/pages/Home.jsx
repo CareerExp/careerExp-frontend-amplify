@@ -36,14 +36,14 @@ const Home = () => {
       title: "Skills & Experiences",
       description:
         "Find the right course to do or the right experience to build up your application profile to both Universities and employers. Being relevant and up-to-date determines how much success you will achieve.",
-      to: "/explore?tab=events",
+      to: "/explore?tab=courses",
       image: opportunity2,
     },
     {
       title: "Live Events",
       description:
         "Events are a way of broadening knowledge so you can more easily identify the educational or career opportunities that make sense for you. \n Look here for events run by Universities, Colleges, Education & Training Providers.",
-      to: "/explore?tab=announcements",
+      to: "/explore?tab=events",
       image: opportunity3,
     },
   ];
