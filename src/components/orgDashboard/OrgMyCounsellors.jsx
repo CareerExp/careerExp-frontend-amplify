@@ -22,6 +22,7 @@ import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { fonts } from "../../utility/fonts";
+import { formatDateDDMMYYYY } from "../../utility/convertTimeToUTC.js";
 import { counsellorsDataEsp } from "../../utility/counsellorDataEsp";
 import InviteCounsellorModal from "../../models/InviteCounsellorModal";
 import {
@@ -41,8 +42,10 @@ const InvitedCard = ({ counsellor, onClick }) => {
     ? `${creator.firstName} ${creator.lastName}`
     : counsellor.name || creator.email || "Unknown Counselor";
   const invitedDate = counsellor.invitedAt
-    ? new Date(counsellor.invitedAt).toLocaleDateString()
-    : counsellor.invitation?.invitedOn || "N/A";
+    ? formatDateDDMMYYYY(counsellor.invitedAt) || "N/A"
+    : counsellor.invitation?.invitedOn
+      ? formatDateDDMMYYYY(counsellor.invitation.invitedOn) || "N/A"
+      : "N/A";
 
   return (
     <Paper
@@ -232,8 +235,10 @@ const AcceptedCard = ({ counsellor, onClick }) => {
     ? `${creator.firstName} ${creator.lastName}`
     : counsellor.name || "Active Counselor";
   const joinedDate = counsellor.joinedAt
-    ? new Date(counsellor.joinedAt).toLocaleDateString()
-    : counsellor.joinedOn || "N/A";
+    ? formatDateDDMMYYYY(counsellor.joinedAt) || "N/A"
+    : counsellor.joinedOn
+      ? formatDateDDMMYYYY(counsellor.joinedOn) || "N/A"
+      : "N/A";
 
   return (
     <Paper

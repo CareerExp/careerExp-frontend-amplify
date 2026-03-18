@@ -47,6 +47,7 @@ import AddCourse from "./AddCourse";
 import {
   fetchMyCourses,
   deleteCourse,
+  getCourseById,
   selectMyCourses,
   selectCourseLoading,
 } from "../../redux/slices/courseSlice";
@@ -125,34 +126,67 @@ const CourseCard = ({ course, onEdit, onDelete, onView }) => {
           position: "relative",
         }}
       >
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 0,
-          }}
-        >
-          <MenuBookIcon sx={{ fontSize: 80, color: "#9ca3af" }} />
-        </Box>
-        {course.coverImage && (
+        {!course.coverImage && (
           <Box
-            component="img"
-            src={course.coverImage}
-            alt=""
             sx={{
-              position: "relative",
-              zIndex: 1,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 0,
             }}
-            onError={(e) => {
-              e.target.style.display = "none";
-            }}
-          />
+          >
+            <MenuBookIcon sx={{ fontSize: 80, color: "#9ca3af" }} />
+          </Box>
+        )}
+        {course.coverImage && (
+          <>
+            <Box
+              component="img"
+              src={course.coverImage}
+              alt=""
+              sx={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                filter: "blur(18px)",
+                transform: "scale(1.12)",
+                zIndex: 0,
+              }}
+              onError={(e) => {
+                e.target.style.display = "none";
+              }}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1,
+              }}
+            >
+              <Box
+                component="img"
+                src={course.coverImage}
+                alt=""
+                sx={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            </Box>
+          </>
         )}
         <Box
           sx={{
@@ -628,7 +662,27 @@ const OrgMyCourses = () => {
         onBack={() => {
           setShowAddCourse(false);
           setCourseToEdit(null);
-          if (token) dispatch(fetchMyCourses({ token }));
+          if (token)
+            dispatch(
+              fetchMyCourses({ token, search: searchQuery, limit: 12 }),
+            );
+        }}
+        onCourseSaved={async (courseId) => {
+          if (!courseId || !token || selectedCourse?._id !== courseId) return;
+          try {
+            const fresh = await dispatch(
+              getCourseById({ id: courseId, token }),
+            ).unwrap();
+            if (fresh) {
+              setSelectedCourse((prev) =>
+                prev && prev._id === courseId
+                  ? { ...prev, ...fresh }
+                  : fresh,
+              );
+            }
+          } catch {
+            /* detail stays stale only if fetch fails */
+          }
         }}
         courseToEdit={courseToEdit}
       />
@@ -919,8 +973,8 @@ const OrgMyCourses = () => {
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  filter: "blur(12px)",
-                  transform: "scale(1.05)",
+                  filter: "blur(22px)",
+                  transform: "scale(1.12)",
                   zIndex: 0,
                 }}
                 onError={(e) => {
@@ -928,7 +982,6 @@ const OrgMyCourses = () => {
                 }}
               />
             )}
-            {/* Placeholder icon when no image */}
             {!course.coverImage && (
               <Box
                 sx={{
@@ -943,27 +996,33 @@ const OrgMyCourses = () => {
                 <MenuBookIcon sx={{ fontSize: 120, color: "#9ca3af" }} />
               </Box>
             )}
-            {/* Main image: full, centered, not cropped */}
             {course.coverImage && (
               <Box
-                component="img"
-                src={course.coverImage}
-                alt=""
                 sx={{
                   position: "absolute",
                   inset: 0,
-                  margin: "auto",
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  width: "auto",
-                  height: "auto",
-                  objectFit: "contain",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   zIndex: 1,
                 }}
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
-              />
+              >
+                <Box
+                  component="img"
+                  src={course.coverImage}
+                  alt=""
+                  sx={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    width: "auto",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
+              </Box>
             )}
             {/* Overlay at bottom of image */}
             {/* {(course.category || course.cta?.label) && (

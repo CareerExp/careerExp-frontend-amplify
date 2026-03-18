@@ -124,6 +124,8 @@ const UserMyActivities = () => {
   const [notesModalRow, setNotesModalRow] = useState(null);
   const [notesModalValue, setNotesModalValue] = useState("");
   const [notesSaving, setNotesSaving] = useState(false);
+  const [viewNoteModalOpen, setViewNoteModalOpen] = useState(false);
+  const [viewNoteModalRow, setViewNoteModalRow] = useState(null);
 
   const activityData = useSelector((state) =>
     selectDashboardActivityByType(state, activeTab),
@@ -165,6 +167,28 @@ const UserMyActivities = () => {
 
   const handleEditNotes = (e, row) => {
     e.stopPropagation();
+    setViewNoteModalOpen(false);
+    setViewNoteModalRow(null);
+    setNotesModalRow(row);
+    setNotesModalValue(row.notes ?? "");
+    setNotesModalOpen(true);
+  };
+
+  const handleViewNoteOpen = (e, row) => {
+    e.stopPropagation();
+    setViewNoteModalRow(row);
+    setViewNoteModalOpen(true);
+  };
+
+  const handleViewNoteClose = () => {
+    setViewNoteModalOpen(false);
+    setViewNoteModalRow(null);
+  };
+
+  const handleEditNoteFromView = () => {
+    if (!viewNoteModalRow) return;
+    const row = viewNoteModalRow;
+    handleViewNoteClose();
     setNotesModalRow(row);
     setNotesModalValue(row.notes ?? "");
     setNotesModalOpen(true);
@@ -352,7 +376,7 @@ const UserMyActivities = () => {
                                 src={row.thumbnail}
                                 alt=""
                                 sx={{
-                                  width: 56,
+                                  width: 70,
                                   height: 56,
                                   objectFit: "cover",
                                   borderRadius: 1,
@@ -415,6 +439,7 @@ const UserMyActivities = () => {
                             {row.shared != null ? Number(row.shared) : "0"}
                           </TableCell>
                           <TableCell
+                            onClick={(e) => handleViewNoteOpen(e, row)}
                             sx={{
                               fontFamily: fonts.poppins,
                               fontSize: "0.8125rem",
@@ -424,7 +449,12 @@ const UserMyActivities = () => {
                               overflow: "hidden",
                               textOverflow: "ellipsis",
                               whiteSpace: "nowrap",
+                              cursor: "pointer",
+                              "&:hover": {
+                                backgroundColor: "rgba(188, 39, 118, 0.06)",
+                              },
                             }}
+                            title="Click to view full note"
                           >
                             {row.notes ? (
                               String(row.notes)
@@ -495,12 +525,14 @@ const UserMyActivities = () => {
               "& .MuiInputLabel-root": { fontFamily: fonts.poppins },
               "& .MuiInputLabel-root.Mui-focused": { color: "#BC2876" },
               "& .MuiInputBase-input": { fontFamily: fonts.poppins },
-              "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#BC2876",
-              },
-              "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#BC2876",
-              },
+              "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor: "#BC2876",
+                },
+              "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor: "#BC2876",
+                },
             }}
           />
         </DialogContent>
@@ -532,6 +564,61 @@ const UserMyActivities = () => {
             }}
           >
             {notesSaving ? "Saving…" : "Save"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={viewNoteModalOpen}
+        onClose={handleViewNoteClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ fontFamily: fonts.poppins, fontWeight: 600 }}>
+          {viewNoteModalRow
+            ? `Notes: ${viewNoteModalRow.title || "Item"}`
+            : "My notes"}
+        </DialogTitle>
+        <DialogContent>
+          <Typography
+            sx={{
+              fontFamily: fonts.poppins,
+              fontSize: "0.9375rem",
+              color: "#333",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              minHeight: 80,
+              pt: 0.5,
+            }}
+          >
+            {viewNoteModalRow?.notes != null &&
+            String(viewNoteModalRow.notes).trim() !== ""
+              ? String(viewNoteModalRow.notes)
+              : "No notes added yet. Use the edit icon to add a note."}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, flexWrap: "wrap", gap: 1 }}>
+          <Button
+            onClick={handleViewNoteClose}
+            sx={{
+              fontFamily: fonts.poppins,
+              color: "#BC2876",
+              "&:hover": { backgroundColor: "rgba(188, 39, 118, 0.08)" },
+            }}
+          >
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleEditNoteFromView}
+            sx={{
+              fontFamily: fonts.poppins,
+              background: "linear-gradient(180deg, #BF2F75 0%, #720361 100%)",
+              "&:hover": { opacity: 0.95 },
+            }}
+          >
+            Edit note
           </Button>
         </DialogActions>
       </Dialog>

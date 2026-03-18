@@ -27,6 +27,7 @@ import { announcementsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
+import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
 
 const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const dispatch = useDispatch();
@@ -504,16 +505,11 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
                     mb: 1.5,
                   }}
                 >
-                  <Box
-                    component="img"
+                  <InstitutionLogoDisplay
                     src={organizationDetails.logo}
                     alt=""
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                    }}
+                    size={100}
+                    borderRadius="10px"
                   />
                 </Box>
               ) : (

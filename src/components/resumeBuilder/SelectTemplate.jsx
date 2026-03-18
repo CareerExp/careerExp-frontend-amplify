@@ -306,7 +306,11 @@ const SelectTemplate = () => {
                     >
                       <p style={{ fontSize: "14px" }}>
                         <strong>{cert.name}</strong> - {cert.institution} | <strong>Issued:</strong>{" "}
-                        {new Date(cert.issueDate).toLocaleDateString()}
+                        {(() => {
+                          const d = new Date(cert.issueDate);
+                          if (Number.isNaN(d.getTime())) return "";
+                          return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+                        })()}
                       </p>
                     </div>
                   ))}
@@ -496,7 +500,11 @@ const SelectTemplate = () => {
                       >
                         <p style={{ fontSize: "14px" }}>
                           <strong>{cert.name}</strong> - {cert.institution} | <strong>Issued:</strong>{" "}
-                          {new Date(cert.issueDate).toLocaleDateString()}
+                          {(() => {
+                          const d = new Date(cert.issueDate);
+                          if (Number.isNaN(d.getTime())) return "";
+                          return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+                        })()}
                         </p>
                       </div>
                     ))}

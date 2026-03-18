@@ -62,6 +62,29 @@ const UploadVideoModal = ({ open, handleClose, onSuccess }) => {
   };
 
   const handleClick = async () => {
+    const manualVideoId =
+      videoData?.video?._id ?? videoData?._id ?? videoData?.videoId;
+    const hasThumbnail =
+      thumbnailLink && String(thumbnailLink).trim().length > 0;
+
+    if (tabValue === 1) {
+      if (!manualVideoId) {
+        dispatchToRedux(
+          notify({
+            type: "error",
+            message: "Please upload your video file first.",
+          })
+        );
+        return;
+      }
+      if (!hasThumbnail) {
+        dispatchToRedux(
+          notify({ type: "error", message: "Thumbnail is missing" })
+        );
+        return;
+      }
+    }
+
     const formData = {
       title,
       description,
@@ -84,19 +107,12 @@ const UploadVideoModal = ({ open, handleClose, onSuccess }) => {
       return;
     }
 
-    if (tabValue === 1 && !thumbnailLink) {
-      dispatchToRedux(
-        notify({ type: "error", message: "Please upload thumbnail first" })
-      );
-      return;
-    }
-
     try {
       setIsButtonLoading(true);
       if (tabValue === 0) {
         await dispatchToRedux(uploadYoutubeVideo({ userId, formData, token }));
       } else {
-        const videoId = videoData?.video?._id ?? videoData?._id ?? videoData?.videoId;
+        const videoId = manualVideoId;
         if (!videoId) {
           dispatchToRedux(
             notify({ type: "error", message: "Video ID missing. Please upload the video again." })
@@ -584,7 +600,12 @@ const UploadVideoModal = ({ open, handleClose, onSuccess }) => {
                 width: isMobile ? "100%" : "auto",
               }}
               disabled={
-                (tabValue === 1 && (!videoData || !thumbnailLink)) ||
+                (tabValue === 1 &&
+                  !(
+                    videoData?.video?._id ??
+                    videoData?._id ??
+                    videoData?.videoId
+                  )) ||
                 isButtonLoading ||
                 isLinkTranscriptLoading
               }

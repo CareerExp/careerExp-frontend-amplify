@@ -27,34 +27,25 @@ function convertUTCtoMonthAndYear(utcDate) {
   return formattedDate;
 }
 
-/** Format as dd/mm/yyyy for articles table (Figma) */
+/** dd/mm/yyyy (local calendar) — explore, dashboards, lists */
 function formatDateDDMMYYYY(utcDate) {
   if (!utcDate) return "";
-  const date = new Date(utcDate);
-  const day = date.getUTCDate();
-  const month = date.getUTCMonth() + 1;
-  const year = date.getUTCFullYear();
-  return `${day < 10 ? "0" + day : day}/${month < 10 ? "0" + month : month}/${year}`;
+  const d = new Date(utcDate);
+  if (Number.isNaN(d.getTime())) return "";
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
 }
 
-/** Format as "Jan 18, 2026" for article detail page */
+/** Same as formatDateDDMMYYYY (detail pages, articles) */
 function formatArticleDetailDate(utcDate) {
-  if (!utcDate) return "";
-  return new Date(utcDate).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDateDDMMYYYY(utcDate);
 }
 
-/** Format as mm/dd/yyyy for explore (Events, Announcements, Services) */
+/** Same as formatDateDDMMYYYY (cards; name kept for existing imports) */
 function formatDateMMDDYYYY(utcDate) {
-  if (!utcDate) return "";
-  return new Date(utcDate).toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-  });
+  return formatDateDDMMYYYY(utcDate);
 }
 
 export {

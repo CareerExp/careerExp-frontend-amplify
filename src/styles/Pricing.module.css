@@ -177,6 +177,7 @@
   font-size: 24px;
   white-space: nowrap;
   flex-shrink: 0;
+  text-wrap: wrap;
 }
 
 /* Two-column feature list for HEI / ESP */
@@ -271,6 +272,7 @@
 
     .pricingCardButtonPrice{
       font-size: 22px;
+      text-align: left;
     }
 
   .container {

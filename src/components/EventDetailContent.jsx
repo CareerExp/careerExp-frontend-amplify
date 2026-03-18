@@ -27,6 +27,7 @@ import { eventsPlaceholder } from "../assets/assest.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
+import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
 
 // Match EventCard: different colors per mode (In person / Hybrid / Online)
 const EVENT_TYPE_STYLES = {
@@ -552,16 +553,11 @@ const EventDetailContent = ({ eventId, onBack }) => {
                     mb: 1.5,
                   }}
                 >
-                  <Box
-                    component="img"
+                  <InstitutionLogoDisplay
                     src={organizationDetails.logo}
                     alt=""
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                    }}
+                    size={100}
+                    borderRadius="10px"
                   />
                 </Box>
               ) : (

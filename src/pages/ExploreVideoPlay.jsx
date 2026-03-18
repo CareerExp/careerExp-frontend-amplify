@@ -16,6 +16,7 @@ import {
 } from "../assets/assest.js";
 import Headers from "../components/Headers";
 import { config } from "../config/config.js";
+import { formatDateDDMMYYYY } from "../utility/convertTimeToUTC.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import AddVideoToPlaylistModal from "../models/AddVideoToPlaylistModal.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
@@ -453,7 +454,7 @@ const ExploreVideoPlay = () => {
                   ml: 0.5,
                 }}
               >
-                {new Date(videoData?.updatedAt).toLocaleDateString()}
+                {formatDateDDMMYYYY(videoData?.updatedAt) || "—"}
               </Typography>
 
               {/* Divider */}

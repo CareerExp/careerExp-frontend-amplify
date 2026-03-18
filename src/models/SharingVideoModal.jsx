@@ -13,11 +13,24 @@ import {
   wechat,
   WhatsappIcon,
 } from "../assets/assest.js";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
 import { saveSharingDetails } from "../redux/slices/userHistory.js";
 import { fonts } from "../utility/fonts";
 
-const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile, shareTitle, modalTitle, onShare }) => {
+const SharingVideoModal = ({
+  open,
+  handleClose,
+  videoUrl,
+  videoId,
+  isProfile,
+  shareTitle,
+  modalTitle,
+  onShare,
+}) => {
   const dispatchToRedux = useDispatch();
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
@@ -41,7 +54,8 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile, sh
     {
       icon: FacebookIcon,
       name: "Facebook",
-      url: (link) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
@@ -52,19 +66,22 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile, sh
     {
       icon: LinkedinIcon,
       name: "Linkedin",
-      url: (link) => `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
       icon: TelegramIcon,
       name: "Telegram",
-      url: (link) => `https://telegram.me/share/url?url=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://telegram.me/share/url?url=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
       icon: TwitterIcon,
       name: "Twitter",
-      url: (link) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://twitter.com/intent/tweet?url=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
@@ -103,7 +120,8 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile, sh
     }
     onShare?.();
     // WhatsApp and Line use full message text; others use URL only (for link preview)
-    const isTextMessage = platformName === "WhatsApp" || platformName === "Line";
+    const isTextMessage =
+      platformName === "WhatsApp" || platformName === "Line";
     const linkParam = shareTitle && isTextMessage ? textToShare : videoUrl;
     const shareUrl = platform.url(linkParam);
     window.open(shareUrl, "_blank");
@@ -182,6 +200,7 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile, sh
               color: "white",
               padding: "0.5rem 1.5rem",
               borderRadius: "0.5rem",
+              marginLeft: "24px",
               width: { xs: "100%", sm: "auto" },
               "&:hover": {
                 background: "linear-gradient(to right, #720361, #bf2f75)",

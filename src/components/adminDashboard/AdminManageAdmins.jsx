@@ -67,13 +67,11 @@ function formatDate(value) {
   if (!value) return "—";
   try {
     const d = new Date(value);
-    return Number.isNaN(d.getTime())
-      ? "—"
-      : d.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
+    if (Number.isNaN(d.getTime())) return "—";
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   } catch {
     return "—";
   }
@@ -134,13 +132,13 @@ function formatActivityTimestamp(isoString) {
   try {
     const d = new Date(isoString);
     if (Number.isNaN(d.getTime())) return "—";
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const y = d.getFullYear();
     const h = String(d.getHours()).padStart(2, "0");
     const min = String(d.getMinutes()).padStart(2, "0");
     const s = String(d.getSeconds()).padStart(2, "0");
-    return `${y}-${m}-${day} ${h}:${min}:${s}`;
+    return `${day}/${m}/${y} ${h}:${min}:${s}`;
   } catch {
     return "—";
   }

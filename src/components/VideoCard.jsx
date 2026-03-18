@@ -1,4 +1,5 @@
 import Rating from "@mui/material/Rating";
+import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined";
 import * as React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,11 +8,49 @@ import ExploreVideoPlayPopup from "../models/ExploreVideoPlayPopup.jsx";
 import { selectUserId } from "../redux/slices/authSlice.js";
 import videoCardStyles from "../styles/VideoCard.module.css";
 
+function getExploreVideoThumbnailUrl(video) {
+  if (!video) return "";
+  if (video.youtubeLink && video.youtubeVideoId) {
+    return `https://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`;
+  }
+  const t = video.thumbnail;
+  return typeof t === "string" && t.trim() ? t.trim() : "";
+}
+
+const thumbnailAreaStyle = {
+  width: "100%",
+  aspectRatio: "16/9",
+  borderRadius: "8px",
+  objectFit: "cover",
+};
+
+const VideoThumbnailPlaceholder = () => (
+  <div
+    style={{
+      ...thumbnailAreaStyle,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "linear-gradient(145deg, #f3e8f0 0%, #e8ecf4 45%, #eceff5 100%)",
+      border: "1px solid #e8e0ea",
+      boxSizing: "border-box",
+    }}
+    aria-hidden
+  >
+    <PlayCircleOutlinedIcon sx={{ fontSize: 64, color: "#BC2876", opacity: 0.85 }} />
+  </div>
+);
+
 const VideoCard = ({ video, isAuthenticated }) => {
   const userId = useSelector(selectUserId);
   const navigate = useNavigate();
   const [videoPlayPopup, setVideoPlayPopup] = React.useState(false);
   const [videoId, setVideoId] = React.useState("");
+  const thumbUrl = React.useMemo(() => getExploreVideoThumbnailUrl(video), [video]);
+  const [thumbFailed, setThumbFailed] = React.useState(false);
+  React.useEffect(() => {
+    setThumbFailed(false);
+  }, [thumbUrl, video?._id]);
 
   const handleVideoClick = (videoId) => {
     if (!isAuthenticated && !userId) {
@@ -42,22 +81,15 @@ const VideoCard = ({ video, isAuthenticated }) => {
       className={videoCardStyles["card"]}
       onClick={() => handleVideoClick(video._id)}
     >
-      {video?.youtubeLink ? (
-        <>
-          <img
-            src={`https://img.youtube.com/vi/${video?.youtubeVideoId}/0.jpg`}
-            alt="thumbnail"
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: "8px" }}
-          />
-        </>
+      {thumbUrl && !thumbFailed ? (
+        <img
+          src={thumbUrl}
+          alt=""
+          style={thumbnailAreaStyle}
+          onError={() => setThumbFailed(true)}
+        />
       ) : (
-        <>
-          <img
-            src={video?.thumbnail}
-            alt="thumbnail"
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: "8px" }}
-          />
-        </>
+        <VideoThumbnailPlaceholder />
       )}
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end" }}>

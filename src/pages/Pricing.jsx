@@ -6,6 +6,7 @@ import { Box, Typography, Button } from "@mui/material";
 import {
   assessmentHeaderImg,
   Councellers,
+  espServiceProviders,
   HighSchools,
   student,
   partners,
@@ -99,7 +100,7 @@ const Pricing = () => {
         {/* Card 4: Education Service Providers */}
         <PricingCard
           title="Education Service Providers"
-          image={Councellers}
+          image={espServiceProviders}
           heading="For Education Service Providers:"
           listItems={[
             "Dedicated company profile page",
