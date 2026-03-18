@@ -106,7 +106,7 @@ const AboutUs = () => {
                   handleClickOpen({
                     image: JClaytonKennedy,
                     name: "J Clayton Kennedy",
-                    designation: "Founder, CE",
+                    designation: "",
                     about:
                       "J. Clayton Kennedy is a dynamic executive leader and international business professional with a proven record of building rapport, inspiring trust, and driving successful outcomes in global markets. His rich experience includes  five years as the Vice President of International Client Relations at Kuder, a leading career guidance solutions company",
                   })
@@ -115,7 +115,7 @@ const AboutUs = () => {
                 <Card
                   image={JClaytonKennedy}
                   name="J Clayton Kennedy"
-                  designation="Founder, CE"
+                  designation=""
                 />
               </div>
               <div
@@ -123,15 +123,16 @@ const AboutUs = () => {
                   handleClickOpen({
                     image: MatthiasFeist,
                     name: "Matthias Feist",
-                    designation: "Founder, CE",
-                    about: "Details about To Be Announced.",
+                    designation: "",
+                    about:
+                      "Matthias Feist works across EdTech and Higher Education. He collaborates globally on education and technology, startups, and the future of work. He currently supports early stage startups at Queen’s University Belfast and beyond. Educated in Germany, the UK and Japan, Matthias holds a master’s degree in Japanese studies, intercultural communication and psychology.",
                   })
                 }
               >
                 <Card
                   image={MatthiasFeist}
                   name="Matthias Feist"
-                  designation="Founder, CE"
+                  designation=""
                 />
               </div>
               <div
@@ -139,16 +140,12 @@ const AboutUs = () => {
                   handleClickOpen({
                     image: C,
                     name: "To Be Announced",
-                    designation: "Founder, CE",
+                    designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card
-                  image={C}
-                  name="To Be Announced"
-                  designation="Founder, CE"
-                />
+                <Card image={C} name="To Be Announced" designation="" />
               </div>
             </div>
             <div>
@@ -157,48 +154,36 @@ const AboutUs = () => {
                   handleClickOpen({
                     image: D,
                     name: "To Be Announced",
-                    designation: "Founder, CE",
+                    designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card
-                  image={D}
-                  name="To Be Announced"
-                  designation="Founder, CE"
-                />
+                <Card image={D} name="To Be Announced" designation="" />
               </div>
               <div
                 onClick={() =>
                   handleClickOpen({
                     image: E,
                     name: "To Be Announced",
-                    designation: "Founder, CE",
+                    designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card
-                  image={E}
-                  name="To Be Announced"
-                  designation="Founder, CE"
-                />
+                <Card image={E} name="To Be Announced" designation="" />
               </div>
               <div
                 onClick={() =>
                   handleClickOpen({
                     image: E,
                     name: "To Be Announced",
-                    designation: "Founder, CE",
+                    designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card
-                  image={E}
-                  name="To Be Announced"
-                  designation="Founder, CE"
-                />
+                <Card image={E} name="To Be Announced" designation="" />
               </div>
             </div>
           </div>

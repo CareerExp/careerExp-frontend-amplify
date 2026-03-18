@@ -16,6 +16,7 @@ import {
   selectBookmarkedArticles,
 } from "../redux/slices/bookmarkSlice.js";
 import { fonts } from "../utility/fonts.js";
+import { formatDateDDMMYYYY } from "../utility/convertTimeToUTC.js";
 
 const ArticleCard = ({ article }) => {
   const navigate = useNavigate();
@@ -32,15 +33,8 @@ const ArticleCard = ({ article }) => {
     (articleBookmarkStatus[articleId] ??
       bookmarkedArticles.some((a) => (a._id || a.id) === articleId));
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateStr) =>
+    dateStr ? formatDateDDMMYYYY(dateStr) : "";
 
   // Strip HTML tags and decode entities (e.g. &nbsp;) to plain text
   const stripHtml = (html) => {

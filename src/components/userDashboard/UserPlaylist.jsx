@@ -71,6 +71,20 @@ const PLAYLIST_TABS = [
   },
 ];
 
+const BookmarkTabHint = () => (
+  <Typography
+    sx={{
+      fontFamily: fonts.poppins,
+      fontSize: "0.875rem",
+      color: "#667085",
+      mb: 2,
+      lineHeight: 1.5,
+    }}
+  >
+    Your bookmarked items will appear here
+  </Typography>
+);
+
 const UserPlaylist = () => {
   const navigate = useNavigate();
   const dispatchToRedux = useDispatch();
@@ -531,7 +545,7 @@ const UserPlaylist = () => {
                                 alt={video.title}
                                 style={{
                                   width: "100%",
-                                  height: "150px",
+                                  height: "175px",
                                   objectFit: "cover",
                                   borderRadius: "8px",
                                 }}
@@ -678,6 +692,7 @@ const UserPlaylist = () => {
 
             {activeTab === "articles" && (
               <Box sx={{ p: 2 }}>
+                <BookmarkTabHint />
                 {!Array.isArray(bookmarkedArticles) ||
                 bookmarkedArticles.length === 0 ? (
                   <Typography
@@ -719,7 +734,7 @@ const UserPlaylist = () => {
                                 alt=""
                                 sx={{
                                   width: "100%",
-                                  height: 120,
+                                  height: 180,
                                   objectFit: "cover",
                                   borderRadius: "8px",
                                 }}
@@ -777,6 +792,7 @@ const UserPlaylist = () => {
 
             {activeTab === "podcasts" && (
               <Box sx={{ p: 2 }}>
+                <BookmarkTabHint />
                 {!Array.isArray(bookmarkedPodcasts) ||
                 bookmarkedPodcasts.length === 0 ? (
                   <Typography
@@ -821,7 +837,7 @@ const UserPlaylist = () => {
                                 alt=""
                                 sx={{
                                   width: "100%",
-                                  height: 120,
+                                  height: 180,
                                   objectFit: "cover",
                                   borderRadius: "8px",
                                 }}
@@ -879,6 +895,7 @@ const UserPlaylist = () => {
 
             {activeTab === "courses" && (
               <Box sx={{ p: 2 }}>
+                <BookmarkTabHint />
                 {!Array.isArray(bookmarkedCourses) ||
                 bookmarkedCourses.length === 0 ? (
                   <Typography
@@ -921,7 +938,7 @@ const UserPlaylist = () => {
                                 alt=""
                                 sx={{
                                   width: "100%",
-                                  height: 120,
+                                  height: 180,
                                   objectFit: "cover",
                                   borderRadius: "8px",
                                 }}

@@ -8,12 +8,13 @@ import C from "./About/C.png";
 import D from "./About/D.png";
 import E from "./About/E.png";
 import JClaytonKennedy from "./About/JCK.jpeg";
-import MatthiasFeist from "./About/MF.jpeg";
+import MatthiasFeist from "./About/MF1.jpeg";
 //about
 import Founder from "./About/Founder.png";
 import opportunity1 from "./About/opportunity1.svg";
 import opportunity2 from "./About/opportunity2.svg";
 import opportunity3 from "./About/opportunity3.svg";
+import espServiceProviders from "./About/esp.jpg";
 import assessmentCardBg from "./assessmentCenter/cardBg.png";
 // assesment center
 import assessmentHeaderImg from "./assessmentCenter/headerBg.png";
@@ -277,6 +278,7 @@ export {
   student,
   HighSchools,
   partners,
+  espServiceProviders,
   //auth
   leftPannelAuth,
   background,

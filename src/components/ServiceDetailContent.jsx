@@ -43,6 +43,7 @@ import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
+import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
 
 const ACCENT = "#DD4595";
 const ACCENT_DARK = "#720361";
@@ -418,16 +419,12 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   }}
                 >
                   {organizationDetails?.logo ? (
-                    <Box
-                      component="img"
+                    <InstitutionLogoDisplay
                       src={organizationDetails.logo}
                       alt=""
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "10px",
-                        objectFit: "cover",
-                      }}
+                      size={48}
+                      borderRadius="10px"
+                      blurPx={10}
                     />
                   ) : (
                     <BusinessCenterIcon sx={{ fontSize: 18, color: ACCENT }} />
@@ -791,7 +788,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                   },
                 }}
               >
-                Message Provider
+                Send Message
               </Button>
             )}
           </Box>
@@ -824,16 +821,11 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                     mb: 1.5,
                   }}
                 >
-                  <Box
-                    component="img"
+                  <InstitutionLogoDisplay
                     src={organizationDetails.logo}
                     alt=""
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                    }}
+                    size={100}
+                    borderRadius="10px"
                   />
                 </Box>
               ) : (
@@ -990,7 +982,7 @@ const ServiceDetailContent = ({ serviceId, onBack }) => {
                 py: 2,
               }}
             >
-              Message Provider
+              Send Message
               <IconButton
                 onClick={() => setMessageProviderModalOpen(false)}
                 size="small"

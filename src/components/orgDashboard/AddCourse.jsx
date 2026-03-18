@@ -33,7 +33,7 @@ const TITLE_MAX = 150;
 const DESCRIPTION_MAX = 4000;
 const DURATION_MIN = 1;
 
-const AddCourse = ({ onBack, courseToEdit }) => {
+const AddCourse = ({ onBack, courseToEdit, onCourseSaved }) => {
     const dispatch = useDispatch();
     const token = useSelector(selectToken);
     const isLoading = useSelector(selectCourseLoading);
@@ -148,6 +148,7 @@ const AddCourse = ({ onBack, courseToEdit }) => {
                 const updateAction = await dispatch(updateCourse({ id: courseToEdit._id, formData: data, token }));
                 if (updateCourse.fulfilled.match(updateAction)) {
                     dispatch(notify({ message: 'Course updated successfully!', type: 'success' }));
+                    onCourseSaved?.(courseToEdit._id);
                     onBack();
                 } else {
                     dispatch(notify({ message: updateAction.payload?.error || 'Failed to update course', type: 'error' }));

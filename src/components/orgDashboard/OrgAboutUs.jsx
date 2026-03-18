@@ -2635,6 +2635,20 @@ const OrgAboutUs = () => {
               <EditIcon sx={{ fontSize: "20px", color: "#ff8a00" }} />
             </Box>
           </Box>
+          <Typography
+            sx={{
+              mt: 0.75,
+              mb: 0,
+              textAlign: "right",
+              fontFamily: fonts.sans,
+              fontSize: "12px",
+              color: "#667085",
+              lineHeight: 1.4,
+              pr: 0.5,
+            }}
+          >
+            Please use image in aspect ratio 4:1 for better result
+          </Typography>
 
           {/* Logo */}
           <Box

@@ -1027,6 +1027,10 @@ const creatorSlice = createSlice({
       state.uploadingVideoData = null;
       state.uploadingThumbnailData = null;
     },
+    /** Clear only manual-upload thumbnail (keep video). */
+    clearThumbnailOnly: (state) => {
+      state.uploadingThumbnailData = null;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(uploadVideo.fulfilled, (state, { payload }) => {
@@ -1204,7 +1208,8 @@ const creatorSlice = createSlice({
   },
 });
 
-export const { resetState, resetVideoData } = creatorSlice.actions;
+export const { resetState, resetVideoData, clearThumbnailOnly } =
+  creatorSlice.actions;
 
 export const selectVideoLink = (state) => state.creator.uploadingVideoData;
 export const selectThumbnailLink = (state) => state.creator.uploadingThumbnailData;

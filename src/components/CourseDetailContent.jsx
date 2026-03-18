@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -58,6 +59,7 @@ import { registerCourseCta } from "../redux/slices/courseSlice.js";
 import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
+import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
 
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
@@ -105,6 +107,14 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  /** Organization home URL (slug + organizationType), same as announcement details. */
+  function getOrgHomeUrl(org) {
+    if (!org?.slug || !org?.organizationType) return null;
+    return org.organizationType === "HEI"
+      ? `/org-hei/${org.slug}`
+      : `/org-esp/${org.slug}`;
+  }
 
   useEffect(() => {
     if (!courseId) return;
@@ -393,20 +403,20 @@ const CourseDetailContent = ({ courseId, onBack }) => {
     }
     try {
       await dispatch(
-        registerCourseCta({ id: courseId, actionType: "CLICK", token })
+        registerCourseCta({ id: courseId, actionType: "CLICK", token }),
       ).unwrap();
       dispatch(
         notify({
           type: "success",
           message: "Response recorded successfully.",
-        })
+        }),
       );
     } catch (err) {
       dispatch(
         notify({
           type: "error",
           message: err?.message || "Could not record response.",
-        })
+        }),
       );
     }
     if (ctaType === "EMAIL" && ctaValue) {
@@ -415,8 +425,9 @@ const CourseDetailContent = ({ courseId, onBack }) => {
         dispatch(
           notify({
             type: "success",
-            message: "Email address copied to clipboard. If your email client did not open, paste it there.",
-          })
+            message:
+              "Email address copied to clipboard. If your email client did not open, paste it there.",
+          }),
         );
       } catch {
         // clipboard may be blocked; continue to try mailto
@@ -977,7 +988,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                       },
                     }}
                   >
-                    Message Provider
+                    Send Message
                   </Button>
                 )}
               </Box>
@@ -1015,17 +1026,12 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                   }}
                 >
                   {organizationDetails.logo ? (
-                    <Box
-                      component="img"
+                    <InstitutionLogoDisplay
                       src={organizationDetails.logo}
                       alt=""
-                      sx={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        mb: 1,
-                      }}
+                      size={80}
+                      borderRadius="50%"
+                      sx={{ mb: 1 }}
                     />
                   ) : (
                     <Box
@@ -1045,16 +1051,33 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                       />
                     </Box>
                   )}
-                  <Typography
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontWeight: 700,
-                      fontSize: "1rem",
-                      color: "#000",
-                    }}
-                  >
-                    {organizationDetails.organizationName || "—"}
-                  </Typography>
+                  {getOrgHomeUrl(organizationDetails) ? (
+                    <Typography
+                      component={Link}
+                      to={getOrgHomeUrl(organizationDetails)}
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontWeight: 600,
+                        fontSize: "1rem",
+                        color: ACCENT,
+                        textDecoration: "none",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {organizationDetails.organizationName || "—"}
+                    </Typography>
+                  ) : (
+                    <Typography
+                      sx={{
+                        fontFamily: fonts.sans,
+                        fontWeight: 700,
+                        fontSize: "1rem",
+                        color: "#000",
+                      }}
+                    >
+                      {organizationDetails.organizationName || "—"}
+                    </Typography>
+                  )}
                 </Box>
                 {organizationDetails.address && (
                   <Box
@@ -1171,7 +1194,7 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                   py: 2,
                 }}
               >
-                Message Provider
+                Send Message
                 <IconButton
                   onClick={() => setMessageProviderModalOpen(false)}
                   size="small"
