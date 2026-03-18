@@ -67,7 +67,7 @@ const OrgESP = () => {
         backgroundColor: "#f9fafb",
         pt: "10rem",
         pb: 8,
-        px: { xs: 0, md: "5rem" },
+        px: { xs: "1rem", md: "5rem" },
       }}
     >
       <Box sx={{ width: "100%", mx: "auto" }}>

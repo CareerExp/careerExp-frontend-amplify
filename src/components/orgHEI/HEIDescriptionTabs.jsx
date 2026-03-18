@@ -17,21 +17,52 @@ import {
 import { selectOrganizationProfile } from "../../redux/slices/organizationSlice";
 
 const InfoRow = ({ label, children, isLast = false }) => (
-  <Box sx={{ width: "100%" }}>
-    <Box sx={{ display: "flex", gap: 2, py: 1.5, alignItems: "flex-start" }}>
+  <Box sx={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2,
+        py: 1.5,
+        alignItems: "flex-start",
+        flexDirection: { xs: "column", md: "row" },
+        width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+      }}
+    >
       <Typography
         sx={{
           fontFamily: fonts.sans,
           fontWeight: 600,
           fontSize: "16px",
           color: "#000",
-          width: "140px",
+          width: { xs: "100%", md: "140px" },
           flexShrink: 0,
         }}
       >
         {label}
       </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, flexGrow: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          flexGrow: 1,
+          minWidth: 0,
+          maxWidth: { xs: "100%", md: "none" },
+          width: { xs: "100%", md: "auto" },
+          "& a": {
+            wordBreak: "break-word",
+            overflowWrap: "anywhere",
+            maxWidth: "100%",
+          },
+          "& > .MuiTypography-root": {
+            wordBreak: { xs: "break-word", md: "normal" },
+            overflowWrap: { xs: "anywhere", md: "normal" },
+            maxWidth: { xs: "100%", md: "none" },
+          },
+        }}
+      >
         {children}
       </Box>
     </Box>
@@ -129,7 +160,7 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
         <Tab label="Photo Gallery" />
       </Tabs>
 
-      <Box sx={{ px: 3, pb: 4 }}>
+      <Box sx={{ px: { xs: 2, md: 3 }, pb: 4, maxWidth: "100%", minWidth: 0 }}>
         <TabPanel value={tabValue} index={0}>
           <Typography
             sx={{
@@ -150,6 +181,8 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
               color: "#545454",
               lineHeight: "25px",
               mb: 3,
+              wordBreak: { xs: "break-word", md: "normal" },
+              overflowWrap: { xs: "anywhere", md: "normal" },
             }}
           >
             {description}
@@ -250,6 +283,10 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
                     fontSize: "16px",
                     color: "#BC2876",
                     textDecoration: "none",
+                    wordBreak: { xs: "break-word", md: "normal" },
+                    overflowWrap: { xs: "anywhere", md: "normal" },
+                    maxWidth: { xs: "100%", md: "none" },
+                    display: "inline-block",
                   }}
                 >
                   {website.replace(/^https?:\/\//i, "")}
@@ -267,6 +304,10 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
                     fontSize: "16px",
                     color: "#BC2876",
                     textDecoration: "none",
+                    wordBreak: { xs: "break-word", md: "normal" },
+                    overflowWrap: { xs: "anywhere", md: "normal" },
+                    maxWidth: { xs: "100%", md: "none" },
+                    display: "inline-block",
                   }}
                 >
                   {contactEmail}

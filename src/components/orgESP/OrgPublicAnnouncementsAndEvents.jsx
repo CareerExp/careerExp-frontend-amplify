@@ -54,7 +54,16 @@ const OrgPublicAnnouncementsAndEvents = ({ identifier, idType }) => {
   if (items.length === 0) {
     return (
       <Box sx={{ my: 6 }}>
-        <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "32px", color: "#000", mb: 3 }}>
+        <Typography
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 700,
+            fontSize: { xs: "24px", md: "32px" },
+            color: "#000",
+            mb: 3,
+            lineHeight: 1.2,
+          }}
+        >
           Announcements and Events
         </Typography>
         <Typography sx={{ fontFamily: fonts.sans, fontSize: "16px", color: "#666" }}>

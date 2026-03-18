@@ -21,9 +21,10 @@ const CounsellorCard = ({ counsellor }) => {
       elevation={0}
       onClick={() => id && navigate(`/profile/${id}`)}
       sx={{
-        width: "189px",
-        minWidth: "189px",
+        width: { xs: "298px", md: "189px" },
+        minWidth: { xs: "298px", md: "189px" },
         p: "15px",
+        boxSizing: "border-box",
         borderRadius: "15px",
         boxShadow: "0px 6px 9px 0px rgba(0,0,0,0.1)",
         backgroundColor: "#fff",
@@ -39,8 +40,8 @@ const CounsellorCard = ({ counsellor }) => {
     >
       <Box
         sx={{
-          width: "159px",
-          height: "160px",
+          width: { xs: "268px", md: "159px" },
+          height: { xs: "272px", md: "160px" },
           borderRadius: "8px",
           overflow: "hidden",
           backgroundColor: "#f0f0f0",
@@ -104,7 +105,16 @@ const OrgPublicCounsellors = ({ identifier, idType }) => {
   if (counsellors.length === 0) {
     return (
       <Box sx={{ my: 6 }}>
-        <Typography sx={{ fontFamily: fonts.sans, fontWeight: 700, fontSize: "32px", color: "#000", mb: 3 }}>
+        <Typography
+          sx={{
+            fontFamily: fonts.sans,
+            fontWeight: 700,
+            fontSize: { xs: "24px", md: "32px" },
+            color: "#000",
+            mb: 3,
+            lineHeight: 1.2,
+          }}
+        >
           Counsellors & Advisers
         </Typography>
         <Typography sx={{ fontFamily: fonts.sans, fontSize: "16px", color: "#666" }}>

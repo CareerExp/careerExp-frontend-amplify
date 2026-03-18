@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Typography, Button, IconButton, Tooltip, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+} from "@mui/material";
 import ShareIcon from "@mui/icons-material/Share";
 import { fonts } from "../../utility/fonts";
 import { defaultHeroBG } from "../../assets/assest";
@@ -30,7 +37,9 @@ const OrgPublicHero = ({ profile }) => {
   const orgTargetId = profile?.userId || profile?._id;
   const isFollowing =
     !!orgTargetId &&
-    followingItems.some((item) => item.id === orgTargetId || item.userId === orgTargetId);
+    followingItems.some(
+      (item) => item.id === orgTargetId || item.userId === orgTargetId,
+    );
 
   // Skip getDashboardFollowing when viewer is the org (own page) — that API returns 403 for org users.
   useEffect(() => {
@@ -48,13 +57,17 @@ const OrgPublicHero = ({ profile }) => {
     if (userId === orgTargetId) return;
     setFollowLoading(true);
     try {
-      const result = await dispatch(toggleFollow({ targetUserId: orgTargetId, token }));
+      const result = await dispatch(
+        toggleFollow({ targetUserId: orgTargetId, token }),
+      );
       if (toggleFollow.fulfilled.match(result)) {
         dispatch(
           notify({
-            message: isFollowing ? "Unfollowed successfully" : "Following successfully",
+            message: isFollowing
+              ? "Unfollowed successfully"
+              : "Following successfully",
             type: "success",
-          })
+          }),
         );
         dispatch(getDashboardFollowing({ token }));
       } else {
@@ -62,7 +75,7 @@ const OrgPublicHero = ({ profile }) => {
           notify({
             message: result.payload?.error || "Failed to update follow",
             type: "error",
-          })
+          }),
         );
       }
     } finally {
@@ -84,15 +97,21 @@ const OrgPublicHero = ({ profile }) => {
         dispatch(notify({ message: "Link shared!", type: "success" }));
       } else {
         await navigator.clipboard.writeText(shareUrl);
-        dispatch(notify({ message: "Link copied to clipboard", type: "success" }));
+        dispatch(
+          notify({ message: "Link copied to clipboard", type: "success" }),
+        );
       }
     } catch (err) {
       if (err.name !== "AbortError") {
         try {
           await navigator.clipboard.writeText(shareUrl);
-          dispatch(notify({ message: "Link copied to clipboard", type: "success" }));
+          dispatch(
+            notify({ message: "Link copied to clipboard", type: "success" }),
+          );
         } catch {
-          dispatch(notify({ message: "Could not share or copy link", type: "error" }));
+          dispatch(
+            notify({ message: "Could not share or copy link", type: "error" }),
+          );
         }
       }
     }
@@ -102,7 +121,7 @@ const OrgPublicHero = ({ profile }) => {
     <Box sx={{ position: "relative" }}>
       <Box
         sx={{
-          height: "182px",
+          height: { xs: "220px", md: "182px" },
           backgroundImage: `url(${profile?.bannerImage || profile?.banner || defaultHeroBG})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -123,7 +142,7 @@ const OrgPublicHero = ({ profile }) => {
           display: "flex",
           alignItems: "center",
           px: { xs: 2, md: 4 },
-          mt: "-120px",
+          mt: { xs: "-180px", md: "-120px" },
           position: "relative",
           zIndex: 2,
           flexDirection: { xs: "column", md: "row" },
@@ -134,7 +153,9 @@ const OrgPublicHero = ({ profile }) => {
           sx={{
             width: "120px",
             height: "120px",
-            background: profile?.logo ? "#fff" : "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+            background: profile?.logo
+              ? "#fff"
+              : "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
             borderRadius: "20px 20px 0 0",
             border: "4px solid #fff",
             boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
@@ -178,7 +199,7 @@ const OrgPublicHero = ({ profile }) => {
               fontSize: { xs: "22px", md: "28px" },
               color: "#fff",
               lineHeight: 1.2,
-              textShadow: "0px 2px 4px rgba(0,0,0,0.3)",
+              textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
             }}
           >
             {profile?.organizationName || "Organization"}
@@ -188,15 +209,23 @@ const OrgPublicHero = ({ profile }) => {
               fontFamily: fonts.sans,
               fontWeight: 500,
               fontSize: { xs: "16px", md: "20px" },
-              color: "#fff",
+              color: { xs: "rgba(0,0,0,0.65)", md: "#fff" },
               mt: 0.5,
-              textShadow: "0px 2px 4px rgba(0,0,0,0.3)",
+              textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
             }}
           >
             {profile?.subtitle || ""}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: { xs: 2, md: 0 } }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            mt: { xs: 2, md: 0 },
+            mb: { xs: 2, md: 0 },
+          }}
+        >
           <Button
             variant="contained"
             onClick={handleFollowClick}
@@ -211,7 +240,8 @@ const OrgPublicHero = ({ profile }) => {
               fontWeight: 700,
               fontSize: "18px",
               "& .MuiTypography-root": {
-                background: "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
+                background:
+                  "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               },

@@ -33,21 +33,47 @@ function getLocationCountryFlagUrl(location) {
 }
 
 const InfoRow = ({ label, children, isLast = false }) => (
-  <Box sx={{ width: "100%" }}>
-    <Box sx={{ display: "flex", gap: 2, py: 1.5, alignItems: "flex-start" }}>
+  <Box sx={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2,
+        py: 1.5,
+        alignItems: "flex-start",
+        flexDirection: { xs: "column", md: "row" },
+        width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+      }}
+    >
       <Typography
         sx={{
           fontFamily: fonts.sans,
           fontWeight: 600,
           fontSize: "16px",
           color: "#000",
-          width: "140px",
+          width: { xs: "100%", md: "140px" },
           flexShrink: 0,
         }}
       >
         {label}
       </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, flexGrow: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          flexGrow: 1,
+          minWidth: 0,
+          maxWidth: { xs: "100%", md: "none" },
+          width: { xs: "100%", md: "auto" },
+          "& a": {
+            wordBreak: "break-word",
+            overflowWrap: "anywhere",
+            maxWidth: "100%",
+          },
+        }}
+      >
         {children}
       </Box>
     </Box>
@@ -64,7 +90,10 @@ const LocationCard = ({ index, location }) => {
         p: 2,
         borderRadius: "15px",
         border: "1px solid rgba(0,0,0,0.1)",
-        width: "297.5px",
+        width: { xs: "100%", md: "297.5px" },
+        maxWidth: "100%",
+        minWidth: 0,
+        boxSizing: "border-box",
         backgroundColor: "#fff",
       }}
     >
@@ -212,9 +241,13 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
     <Box
       sx={{
         backgroundColor: "#fff",
-        p: "30px",
+        p: { xs: 2.5, md: "30px" },
         borderRadius: "0 0 20px 20px",
         width: "100%",
+        maxWidth: "100%",
+        minWidth: 0,
+        boxSizing: "border-box",
+        overflow: { xs: "hidden", md: "visible" },
         boxShadow: "0px 4px 10px rgba(0,0,0,0.05)",
       }}
     >
@@ -239,6 +272,8 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
               fontSize: "16px",
               color: "#545454",
               lineHeight: "25px",
+              wordBreak: { xs: "break-word", md: "normal" },
+              overflowWrap: { xs: "anywhere", md: "normal" },
             }}
           >
             {orgProfile?.description ||
@@ -263,8 +298,16 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
                     fontWeight: 500,
                     fontSize: "14px",
                     borderRadius: "90px",
-                    height: "31px",
-                    "& .MuiChip-label": { px: 1.5 },
+                    height: { xs: "auto", md: "31px" },
+                    maxWidth: { xs: "100%", md: "none" },
+                    "& .MuiChip-label": {
+                      px: 1.5,
+                      py: { xs: 0.5, md: 0 },
+                      whiteSpace: { xs: "normal", md: "nowrap" },
+                      overflow: { xs: "visible", md: "hidden" },
+                      textOverflow: { xs: "clip", md: "ellipsis" },
+                      display: "block",
+                    },
                   }}
                 />
               ))}
@@ -331,12 +374,17 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
                 component="a"
                 href={orgProfile?.website || "https://www.google.com/"}
                 target="_blank"
+                rel="noopener noreferrer"
                 sx={{
                   fontFamily: fonts.sans,
                   fontWeight: 500,
                   fontSize: "16px",
                   color: "#BC2876",
                   textDecoration: "none",
+                  wordBreak: { xs: "break-word", md: "normal" },
+                  overflowWrap: { xs: "anywhere", md: "normal" },
+                  maxWidth: { xs: "100%", md: "none" },
+                  display: "inline-block",
                 }}
               >
                 {orgProfile?.website || "https://www.google.com/"}
@@ -353,6 +401,10 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
                   fontSize: "16px",
                   color: "#BC2876",
                   textDecoration: "none",
+                  wordBreak: { xs: "break-word", md: "normal" },
+                  overflowWrap: { xs: "anywhere", md: "normal" },
+                  maxWidth: { xs: "100%", md: "none" },
+                  display: "inline-block",
                 }}
               >
                 {orgProfile?.contactEmail || "info.institutename@gmail.com"}
