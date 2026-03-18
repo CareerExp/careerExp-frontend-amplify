@@ -135,9 +135,10 @@ const OrgPublicServices = ({ identifier, idType }) => {
           sx={{
             fontFamily: fonts.sans,
             fontWeight: 700,
-            fontSize: "32px",
+            fontSize: { xs: "24px", md: "32px" },
             color: "#000",
             mb: 3,
+            lineHeight: 1.2,
           }}
         >
           Connect 1-2-1

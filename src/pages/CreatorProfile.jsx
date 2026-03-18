@@ -263,20 +263,24 @@ const Profile = () => {
             alt="yellow-background"
             className={creatorStyle.profileTopV2BannerImg}
           />
-          <div className={creatorStyle.profileTopV2SocialTray}>
-            {socialLinksConfig.map(({ key, icon, link }) => (
-              <a
-                key={key}
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={creatorStyle.profileTopV2SocialCircle}
-                aria-label={key}
-              >
-                <img src={icon} alt="" />
-              </a>
-            ))}
-          </div>
+          {socialLinksConfig.length > 0 && (
+            <div
+              className={`${creatorStyle.profileTopV2SocialTray} ${creatorStyle.profileTopV2SocialTrayBannerOnly}`}
+            >
+              {socialLinksConfig.map(({ key, icon, link }) => (
+                <a
+                  key={key}
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={creatorStyle.profileTopV2SocialCircle}
+                  aria-label={key}
+                >
+                  <img src={icon} alt="" />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         <div
@@ -358,14 +362,34 @@ const Profile = () => {
               </button>
             </div>
 
+            {socialLinksConfig.length > 0 && (
+              <div
+                className={`${creatorStyle.profileTopV2SocialTray} ${creatorStyle.profileTopV2SocialTrayMobileOnly}`}
+              >
+                {socialLinksConfig.map(({ key, icon, link }) => (
+                  <a
+                    key={key}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={creatorStyle.profileTopV2SocialCircle}
+                    aria-label={key}
+                  >
+                    <img src={icon} alt="" />
+                  </a>
+                ))}
+              </div>
+            )}
+
             <div
+              className={creatorStyle.profileTopV2MetaOrgRow}
               style={{
                 display: "flex",
                 gap: "10px",
                 justifyContent: "space-between",
               }}
             >
-              <div>
+              <div className={creatorStyle.profileTopV2MetaContactCol}>
                 {!hideDetails && (
                   <>
                     <div className={creatorStyle.profileTopV2MetaRow}>
@@ -435,9 +459,22 @@ const Profile = () => {
                     </>
                   )}
                 </div>
+                {orgProfile?.logo && (
+                  <div className={creatorStyle.profileTopV2OrgLogoMobile}>
+                    <img
+                      src={orgProfile?.logo}
+                      alt=""
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               {orgProfile?.logo && (
                 <div
+                  className={creatorStyle.profileTopV2OrgLogoDesktop}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -452,10 +489,8 @@ const Profile = () => {
                     style={{
                       width: "80px",
                       height: "80px",
-                      // borderRadius: "50%",
                     }}
                   />
-                  {/* <h4>{orgProfile?.organizationName}</h4> */}
                 </div>
               )}
             </div>

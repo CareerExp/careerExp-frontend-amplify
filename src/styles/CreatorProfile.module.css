@@ -228,6 +228,15 @@
   margin-top: 0.75rem;
 }
 
+/* Desktop: social on banner only. Mobile duplicate hidden until breakpoint. */
+.profileTopV2SocialTrayMobileOnly {
+  display: none;
+}
+
+.profileTopV2OrgLogoMobile {
+  display: none;
+}
+
 .profileTopV2About {
   background-color: #f2f2f2;
   color: #777;
@@ -541,8 +550,55 @@
   }
 }
 
-/* Mobile-first responsive styles */
+/* Mobile / tablet portrait — counsellor profile top only; desktop (769px+) unchanged */
 @media (max-width: 768px) {
+  .profileTopV2SocialTrayBannerOnly {
+    display: none !important;
+  }
+
+  .profileTopV2SocialTrayMobileOnly {
+    display: flex !important;
+    position: static;
+    bottom: auto;
+    right: auto;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .profileTopV2MetaRow {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .profileTopV2Pills {
+    justify-content: flex-start;
+  }
+
+  .profileTopV2ContactRow {
+    justify-content: flex-start;
+  }
+
+  .profileTopV2OrgLogoDesktop {
+    display: none !important;
+  }
+
+  .profileTopV2OrgLogoMobile {
+    display: flex !important;
+    margin-top: 0.75rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .profileTopV2MetaOrgRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 /* Very small devices */
@@ -568,18 +624,16 @@
     border-radius: 0.5rem 0.5rem 0 0;
   }
 
-  .profileTopV2SocialTray {
-    top: 12px;
-    right: 12px;
+  .profileTopV2SocialTrayBannerOnly {
     gap: 6px;
   }
 
-  .profileTopV2SocialCircle {
+  .profileTopV2SocialTrayMobileOnly .profileTopV2SocialCircle {
     width: 36px;
     height: 36px;
   }
 
-  .profileTopV2SocialCircle img {
+  .profileTopV2SocialTrayMobileOnly .profileTopV2SocialCircle img {
     width: 18px;
     height: 18px;
   }
@@ -607,14 +661,6 @@
 
   .profileTopV2ShareBtn {
     align-self: center;
-  }
-
-  .profileTopV2MetaRow {
-    justify-content: center;
-  }
-
-  .profileTopV2ContactRow {
-    justify-content: center;
   }
 
   .profileTopContainer {
