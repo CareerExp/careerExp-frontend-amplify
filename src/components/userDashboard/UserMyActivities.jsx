@@ -65,7 +65,7 @@ const ACTIVITY_TABS = [
   },
   {
     id: "services",
-    label: "Services",
+    label: "Connect 1-2-1",
     icon: <SmartToyIcon sx={{ fontSize: 18, mr: 0.5 }} />,
   },
   {
@@ -136,6 +136,9 @@ const UserMyActivities = () => {
   const items = activityData?.items ?? [];
   const total = activityData?.total ?? 0;
   const contentType = TAB_TO_CONTENT_TYPE[activeTab] || "video";
+  const hideRatingColumn =
+    activeTab === "announcements" || activeTab === "events";
+  const tableColCount = hideRatingColumn ? 5 : 6;
 
   useEffect(() => {
     if (!token || !activeTab) return;
@@ -322,9 +325,11 @@ const UserMyActivities = () => {
                       Thumbnail
                     </TableCell>
                     <TableCell sx={TABLE_HEAD_STYLE}>Title</TableCell>
-                    <TableCell sx={{ ...TABLE_HEAD_STYLE, width: 120 }}>
-                      Rating
-                    </TableCell>
+                    {!hideRatingColumn && (
+                      <TableCell sx={{ ...TABLE_HEAD_STYLE, width: 120 }}>
+                        Rating
+                      </TableCell>
+                    )}
                     <TableCell sx={{ ...TABLE_HEAD_STYLE, width: 90 }}>
                       Shared
                     </TableCell>
@@ -339,7 +344,7 @@ const UserMyActivities = () => {
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <TableCell colSpan={tableColCount} align="center" sx={{ py: 4 }}>
                         <Typography
                           sx={{
                             fontFamily: fonts.poppins,
@@ -417,17 +422,21 @@ const UserMyActivities = () => {
                           >
                             {row.title || "—"}
                           </TableCell>
-                          <TableCell sx={{ py: 1.5, verticalAlign: "middle" }}>
-                            <Rating
-                              value={Number(row.rating) || 0}
-                              readOnly
-                              size="small"
-                              max={5}
-                              sx={{
-                                "& .MuiRating-iconFilled": { color: "#ffb400" },
-                              }}
-                            />
-                          </TableCell>
+                          {!hideRatingColumn && (
+                            <TableCell sx={{ py: 1.5, verticalAlign: "middle" }}>
+                              <Rating
+                                value={Number(row.rating) || 0}
+                                readOnly
+                                size="small"
+                                max={5}
+                                sx={{
+                                  "& .MuiRating-iconFilled": {
+                                    color: "#ffb400",
+                                  },
+                                }}
+                              />
+                            </TableCell>
+                          )}
                           <TableCell
                             sx={{
                               fontFamily: fonts.poppins,

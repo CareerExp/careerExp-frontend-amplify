@@ -42,6 +42,7 @@ import {
 import { exitAMEContext } from "../redux/slices/adminSlice.js";
 import { config } from "../config/config.js";
 import { fonts } from "../utility/fonts.js";
+import { isAdminSubAdminAccountDisabled } from "../utility/isAdminSubAdminDisabled.js";
 
 const drawerWidth = 280;
 
@@ -132,6 +133,9 @@ const Workspace = (props) => {
   const isAdminInOrgView =
     userData?.activeDashboard === "organization" &&
     userData?.role?.includes("admin");
+
+  const adminSubAdminDisabled =
+    userData && isAdminSubAdminAccountDisabled(userData);
 
   console.log(orgProfile);
   console.log(effectiveOrgType);
@@ -291,6 +295,9 @@ const Workspace = (props) => {
               organizationType={effectiveOrgType}
               isActingAsAME={isAdminInOrgView}
               isMainAdmin={userData?.isMainAdmin === true}
+              disableAdminNav={
+                effectiveRole === "admin" ? adminSubAdminDisabled : false
+              }
               showQrButton={qrProps.showQrButton}
               qrProfileUrl={qrProps.qrProfileUrl}
               qrDisplayName={qrProps.qrDisplayName}

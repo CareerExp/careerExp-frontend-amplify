@@ -6,7 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fonts } from "../utility/fonts.js";
 import { eventsPlaceholder } from "../assets/assest.js";
-import { registerEventCta } from "../redux/slices/eventSlice.js";
+import {
+  registerEventCta,
+  getEventById,
+} from "../redux/slices/eventSlice.js";
+import { applyEventCtaFollowUp } from "../utility/applyEventCtaFollowUp.js";
 import { selectAuthenticated, selectToken } from "../redux/slices/authSlice.js";
 import { notify } from "../redux/slices/alertSlice.js";
 import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
@@ -82,6 +86,16 @@ const EventCard = ({ event: ev }) => {
       setLoginModalOpen(true);
       return;
     }
+
+    const runFollowUp = async (payload) => {
+      await applyEventCtaFollowUp(dispatch, payload);
+    };
+
+    if (ev?.userHasRespondedToCta) {
+      await runFollowUp(ev);
+      return;
+    }
+
     try {
       await dispatch(
         registerEventCta({
@@ -93,6 +107,14 @@ const EventCard = ({ event: ev }) => {
       dispatch(
         notify({ type: "success", message: "Response recorded successfully." }),
       );
+      let payload = ev;
+      try {
+        const res = await dispatch(getEventById({ id, token })).unwrap();
+        if (res?.data) payload = res.data;
+      } catch {
+        /* use listing payload if refetch fails */
+      }
+      await runFollowUp(payload);
     } catch (err) {
       dispatch(
         notify({
