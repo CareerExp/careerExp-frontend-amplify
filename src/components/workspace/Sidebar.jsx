@@ -49,6 +49,7 @@ const Sidebar = ({
   organizationType,
   isActingAsAME,
   isMainAdmin,
+  disableAdminNav,
   showQrButton,
   qrProfileUrl,
   qrDisplayName,
@@ -251,17 +252,20 @@ const Sidebar = ({
           <ListItem
             key={index}
             sx={{
-              cursor: "pointer",
+              cursor: disableAdminNav ? "not-allowed" : "pointer",
               mt: "-0.5rem",
               padding: "0.5rem 0.5rem",
               borderRadius: "0.5rem",
             }}
           >
             <ListItemButton
-              onClick={() => handleMenuItemClick(menuItem.name)}
+              disabled={!!disableAdminNav}
+              onClick={() =>
+                disableAdminNav ? undefined : handleMenuItemClick(menuItem.name)
+              }
               sx={{
                 background:
-                  currentPage === menuItem.name
+                  currentPage === menuItem.name && !disableAdminNav
                     ? "linear-gradient(to top left, #720361, #BF2F75);"
                     : "",
                 borderRadius: 1,

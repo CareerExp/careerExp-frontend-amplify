@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import {
     Box,
     Typography,
@@ -16,9 +17,12 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LanguageIcon from '@mui/icons-material/Language';
 import TagIcon from '@mui/icons-material/Tag';
 import { fonts } from '../../utility/fonts';
+import { getCtaResponseContact } from '../../utility/ctaResponseContact.js';
 import { eventsPlaceholder } from '../../assets/assest';
+import { notify } from '../../redux/slices/alertSlice.js';
 
 const EventDetail = ({ event, onBack, onEdit, onDelete }) => {
+    const dispatch = useDispatch();
     if (!event) return null;
 
     const formatDate = (dateString) => {
@@ -330,6 +334,7 @@ const EventDetail = ({ event, onBack, onEdit, onDelete }) => {
                         {responses.map((resp) => {
                             const user = resp.userId || {};
                             const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Unknown';
+                            const { email, phone } = getCtaResponseContact(resp, user);
                             return (
                                 <Grid item key={resp._id} xs={12} sm={6} md={4}>
                                     <Box
@@ -338,15 +343,15 @@ const EventDetail = ({ event, onBack, onEdit, onDelete }) => {
                                             borderRadius: '12px',
                                             p: 2,
                                             display: 'flex',
-                                            alignItems: 'center',
+                                            alignItems: 'flex-start',
                                             gap: 2
                                         }}
                                     >
                                         <Avatar
                                             src={user.profilePicture}
-                                            sx={{ width: 48, height: 48, backgroundColor: '#e5e7eb' }}
+                                            sx={{ width: 48, height: 48, backgroundColor: '#e5e7eb', flexShrink: 0 }}
                                         />
-                                        <Box>
+                                        <Box sx={{ minWidth: 0, flex: 1 }}>
                                             <Typography
                                                 sx={{
                                                     fontFamily: fonts.sans,
@@ -367,6 +372,112 @@ const EventDetail = ({ event, onBack, onEdit, onDelete }) => {
                                             >
                                                 {formatDate(resp.respondedAt)}
                                             </Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: fonts.sans,
+                                                    fontWeight: 400,
+                                                    fontSize: '13px',
+                                                    color: '#545454',
+                                                    mt: 0.75,
+                                                    wordBreak: 'break-word',
+                                                }}
+                                            >
+                                                Email:{' '}
+                                                {email ? (
+                                                    <Box
+                                                        component="span"
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigator.clipboard.writeText(email).then(
+                                                                () =>
+                                                                    dispatch(
+                                                                        notify({
+                                                                            message: 'Email Copied',
+                                                                            type: 'success',
+                                                                        }),
+                                                                    ),
+                                                                () =>
+                                                                    dispatch(
+                                                                        notify({
+                                                                            message: 'Could not copy',
+                                                                            type: 'error',
+                                                                        }),
+                                                                    ),
+                                                            );
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                                e.preventDefault();
+                                                                e.currentTarget.click();
+                                                            }
+                                                        }}
+                                                        sx={{
+                                                            color: '#720361',
+                                                            fontWeight: 500,
+                                                            cursor: 'pointer',
+                                                            textDecoration: 'underline',
+                                                        }}
+                                                    >
+                                                        {email}
+                                                    </Box>
+                                                ) : (
+                                                    <span style={{ color: '#999' }}>—</span>
+                                                )}
+                                            </Typography>
+                                            {phone ? (
+                                                <Typography
+                                                    sx={{
+                                                        fontFamily: fonts.sans,
+                                                        fontWeight: 400,
+                                                        fontSize: '13px',
+                                                        color: '#545454',
+                                                        mt: 0.25,
+                                                    }}
+                                                >
+                                                    Phone:{' '}
+                                                    <Box
+                                                        component="span"
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const n = phone.replace(/\s/g, '');
+                                                            navigator.clipboard.writeText(n).then(
+                                                                () =>
+                                                                    dispatch(
+                                                                        notify({
+                                                                            message: 'Contact number copied',
+                                                                            type: 'success',
+                                                                        }),
+                                                                    ),
+                                                                () =>
+                                                                    dispatch(
+                                                                        notify({
+                                                                            message: 'Could not copy',
+                                                                            type: 'error',
+                                                                        }),
+                                                                    ),
+                                                            );
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                                e.preventDefault();
+                                                                e.currentTarget.click();
+                                                            }
+                                                        }}
+                                                        sx={{
+                                                            color: '#720361',
+                                                            fontWeight: 500,
+                                                            cursor: 'pointer',
+                                                            textDecoration: 'underline',
+                                                        }}
+                                                    >
+                                                        {phone}
+                                                    </Box>
+                                                </Typography>
+                                            ) : null}
                                         </Box>
                                     </Box>
                                 </Grid>

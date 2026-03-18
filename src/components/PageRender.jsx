@@ -40,10 +40,39 @@ import OrgESPHome from "./orgDashboard/OrgESPHome.jsx";
 import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
 import MyCompany from "./creatorDashboard/MyCompany.jsx";
 import MyMessages from "./messages/MyMessages.jsx";
+import { isAdminSubAdminAccountDisabled } from "../utility/isAdminSubAdminDisabled.js";
 
 const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
   console.log(orgProfile);
   if (userData.activeDashboard === "admin") {
+    if (isAdminSubAdminAccountDisabled(userData)) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "50vh",
+            px: 3,
+            textAlign: "center",
+            maxWidth: 520,
+            mx: "auto",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, color: "#2d2d2d", mb: 2 }}
+          >
+            Account disabled
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+            Your account has been disabled by the administrator. You cannot access admin
+            features or carry out admin activities.
+          </Typography>
+        </Box>
+      );
+    }
     switch (currentPage) {
       case "Dashboard":
         return <AdminHome />;

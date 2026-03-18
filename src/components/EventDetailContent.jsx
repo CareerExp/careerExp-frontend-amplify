@@ -21,6 +21,7 @@ import {
   selectUserId,
 } from "../redux/slices/authSlice.js";
 import { formatDateMMDDYYYY } from "../utility/convertTimeToUTC.js";
+import { applyEventCtaFollowUp } from "../utility/applyEventCtaFollowUp.js";
 import { fonts } from "../utility/fonts.js";
 import { colors } from "../utility/color.js";
 import { eventsPlaceholder } from "../assets/assest.js";
@@ -132,43 +133,7 @@ const EventDetailContent = ({ eventId, onBack }) => {
       );
       const res = await dispatch(getEventById({ id: eventId, token })).unwrap();
       if (res?.data) setEvent(res.data);
-      // After CTA registration: redirect to link or open email (same as Services/Courses).
-      const rawCta = res?.data?.cta ?? event?.cta;
-      const cta =
-        typeof rawCta === "string"
-          ? (() => {
-              try {
-                return JSON.parse(rawCta);
-              } catch {
-                return null;
-              }
-            })()
-          : rawCta;
-      const ctaType = (cta?.type || "LINK").toUpperCase();
-      const ctaValue = cta?.value?.trim();
-      if (ctaType === "EMAIL" && ctaValue) {
-        try {
-          await navigator.clipboard.writeText(ctaValue);
-          dispatch(
-            notify({
-              type: "success",
-              message:
-                "Email address copied to clipboard. If your email client did not open, paste it there.",
-            })
-          );
-        } catch {
-          // clipboard may be blocked; continue to try mailto
-        }
-        const mailtoUrl = `mailto:${encodeURIComponent(ctaValue)}`;
-        const link = document.createElement("a");
-        link.href = mailtoUrl;
-        link.rel = "noopener noreferrer";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else if (ctaType === "LINK" && ctaValue) {
-        window.open(ctaValue, "_blank", "noopener,noreferrer");
-      }
+      await applyEventCtaFollowUp(dispatch, res?.data ?? event);
     } catch (err) {
       dispatch(
         notify({

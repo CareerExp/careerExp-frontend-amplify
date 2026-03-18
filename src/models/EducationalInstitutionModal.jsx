@@ -19,12 +19,17 @@ import {
   ExpandMore,
   Close,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { countryList } from "../utility/countryList";
 import { fonts } from "../utility/fonts";
 import { uploadDocument, upload2, link2 } from "../assets/assest";
 import { notify } from "../redux/slices/alertSlice.js";
-import { signup } from "../redux/slices/authSlice.js";
+import {
+  signup,
+  logout,
+  selectAuthenticated,
+} from "../redux/slices/authSlice.js";
 import {
   checkPassStrength,
   isValidEmail,
@@ -36,6 +41,8 @@ import OrgRegistrationSuccessModal from "./OrgRegistrationSuccessModal";
 
 const EducationalInstitutionModal = ({ open, onClose }) => {
   const dispatchToRedux = useDispatch();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector(selectAuthenticated);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -1149,28 +1156,89 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
             </Button>
           </Box>
 
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-            <Typography
-              sx={{
-                fontFamily: fonts.poppins,
-                fontSize: { xs: "14px", md: "16px" },
-                color: "#0d1833",
-                opacity: 0.5,
-              }}
-            >
-              Already have an account?
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: fonts.poppins,
-                fontWeight: 600,
-                fontSize: { xs: "14px", md: "16px" },
-                color: "#ff8a00",
-                cursor: "pointer",
-              }}
-            >
-              Sign In
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 1,
+              flexWrap: "wrap",
+              textAlign: "center",
+              px: 1,
+            }}
+          >
+            {isAuthenticated ? (
+              <Typography
+                sx={{
+                  fontFamily: fonts.poppins,
+                  fontSize: { xs: "14px", md: "16px" },
+                  color: "#0d1833",
+                  maxWidth: 420,
+                }}
+              >
+                You are already signed in, please{" "}
+                <Box
+                  component="span"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    dispatchToRedux(logout());
+                    onClose?.();
+                    navigate("/login");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      dispatchToRedux(logout());
+                      onClose?.();
+                      navigate("/login");
+                    }
+                  }}
+                  sx={{
+                    fontWeight: 600,
+                    color: "#ff8a00",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Logout
+                </Box>{" "}
+                to sign in another account
+              </Typography>
+            ) : (
+              <>
+                <Typography
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontSize: { xs: "14px", md: "16px" },
+                    color: "#0d1833",
+                    opacity: 0.5,
+                  }}
+                >
+                  Already have an account?
+                </Typography>
+                <Typography
+                  component="span"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate("/login")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate("/login");
+                    }
+                  }}
+                  sx={{
+                    fontFamily: fonts.poppins,
+                    fontWeight: 600,
+                    fontSize: { xs: "14px", md: "16px" },
+                    color: "#ff8a00",
+                    cursor: "pointer",
+                  }}
+                >
+                  Sign in
+                </Typography>
+              </>
+            )}
           </Box>
         </Stack>
       </Dialog>
