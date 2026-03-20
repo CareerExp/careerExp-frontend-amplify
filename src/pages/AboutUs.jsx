@@ -253,7 +253,22 @@ export default AboutUs;
 const Card = ({ image, name, designation }) => {
   return (
     <div style={{ cursor: "pointer" }} className={aboutStyles["card"]}>
-      <img src={image} alt={name} />
+      <div
+        style={{
+          height: "200px",
+          width: "200px",
+          overflow: "hidden",
+          objectFit: "contain",
+        }}
+      >
+        <img
+          src={image}
+          alt={name}
+          // height="200px"
+          // width="200px"
+          objectFit="contain"
+        />
+      </div>
       <div>
         <p style={{ marginBottom: ".8rem", textAlign: "center" }}>{name}</p>
         <p style={{ color: "#7e7e7e", textAlign: "center" }}>{designation}</p>

@@ -451,7 +451,7 @@ const AdminManageAdmins = () => {
           <TextField
             placeholder={
               tabValue === TAB_ACTIVITY_LOG
-                ? "Search by admin name, action, or details..."
+                ? "Search by admin name"
                 : "Search by name or email..."
             }
             value={searchQuery}

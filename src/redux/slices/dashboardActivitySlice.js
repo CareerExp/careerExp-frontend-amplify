@@ -5,6 +5,72 @@ import { config } from "../../config/config.js";
 /** Activity types for user dashboard – GET /api/dashboard/activity/:type */
 const ACTIVITY_TYPES = ["videos", "articles", "podcasts", "announcements", "events", "services"];
 
+/**
+ * Backend may return `podcastId` / nested `podcast` / `spotifyThumbnailUrl` while the UI expects
+ * `id`, `thumbnail`, `title` (same idea for other types).
+ */
+function normalizeDashboardActivityItem(raw, listType) {
+  if (!raw || typeof raw !== "object") return raw;
+  const nestedKey =
+    listType === "podcasts"
+      ? "podcast"
+      : listType === "videos"
+        ? "video"
+        : listType === "articles"
+          ? "article"
+          : null;
+  const nested =
+    nestedKey && raw[nestedKey] && typeof raw[nestedKey] === "object"
+      ? raw[nestedKey]
+      : null;
+  const item = nested ? { ...nested, ...raw } : raw;
+
+  const id =
+    item.id ??
+    item._id ??
+    (listType === "podcasts" ? item.podcastId : null) ??
+    (listType === "videos" ? item.videoId : null) ??
+    (listType === "articles" ? item.articleId : null) ??
+    (listType === "announcements" ? item.announcementId : null) ??
+    (listType === "events" ? item.eventId : null) ??
+    (listType === "services" ? item.serviceId : null);
+
+  const thumbnail =
+    item.thumbnail ??
+    item.coverImage ??
+    item.thumbNail ??
+    item.spotifyThumbnailUrl ??
+    item.imageUrl ??
+    item.image;
+
+  const title = item.title ?? item.name ?? "";
+  const rating = item.rating ?? item.userRating ?? item.myRating;
+  const shared = item.shared ?? item.shares ?? item.shareCount;
+  const notes = item.notes ?? item.userNotes;
+
+  return {
+    ...item,
+    ...(id != null && id !== "" ? { id: String(id) } : {}),
+    ...(thumbnail ? { thumbnail: String(thumbnail) } : {}),
+    ...(title !== undefined ? { title } : {}),
+    ...(rating != null ? { rating: Number(rating) || rating } : {}),
+    ...(shared != null ? { shared: Number(shared) || 0 } : {}),
+    ...(notes != null ? { notes } : {}),
+  };
+}
+
+function activityItemMatchesContentId(item, contentId) {
+  if (!item || contentId == null) return false;
+  const cid = String(contentId);
+  return (
+    String(item.id) === cid ||
+    String(item._id) === cid ||
+    String(item.podcastId) === cid ||
+    String(item.videoId) === cid ||
+    String(item.articleId) === cid
+  );
+}
+
 const initialState = {
   /** Per-type state: { items, total, currentPage, totalPages, loading, error } */
   byType: {},
@@ -44,9 +110,13 @@ export const getDashboardActivity = createAsyncThunk(
         return rejectWithValue({ message: response.message || "Failed to load activity" });
       }
       const data = response.data || response;
+      const rawItems = data.items ?? [];
+      const items = rawItems.map((row) =>
+        normalizeDashboardActivityItem(row, normalizedType),
+      );
       return {
         type: normalizedType,
-        items: data.items ?? [],
+        items,
         total: data.total ?? 0,
         currentPage: data.currentPage ?? page,
         totalPages: data.totalPages ?? 1,
@@ -169,8 +239,14 @@ const dashboardActivitySlice = createSlice({
         const { contentType, contentId, notes } = action.payload;
         const type = contentType === "video" ? "videos" : contentType === "article" ? "articles" : contentType === "podcast" ? "podcasts" : contentType === "announcement" ? "announcements" : contentType === "event" ? "events" : contentType === "service" ? "services" : null;
         if (type && state.byType[type]?.items) {
-          const idx = state.byType[type].items.findIndex((i) => i.id === contentId);
-          if (idx !== -1) state.byType[type].items[idx] = { ...state.byType[type].items[idx], notes: notes ?? "" };
+          const idx = state.byType[type].items.findIndex((i) =>
+            activityItemMatchesContentId(i, contentId),
+          );
+          if (idx !== -1)
+            state.byType[type].items[idx] = {
+              ...state.byType[type].items[idx],
+              notes: notes ?? "",
+            };
         }
       })
       .addCase(getDashboardFollowing.pending, (state) => {

@@ -21,6 +21,7 @@ import LinkIcon from "@mui/icons-material/Link";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
 import { fonts } from "../../utility/fonts";
 import { uploadDocument } from "../../assets/assest";
 import {
@@ -351,10 +352,46 @@ const AddService = ({ onBack, serviceToEdit, organizationType }) => {
               >
                 {imagePreview ? (
                   <Box
-                    component="img"
-                    src={imagePreview}
-                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                      "&:hover .edit-image-overlay": { opacity: 1 },
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={imagePreview}
+                      sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                    <Box
+                      className="edit-image-overlay"
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundColor: "rgba(0,0,0,0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        opacity: 0,
+                        transition: "opacity 0.2s",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: "50%",
+                          backgroundColor: "rgba(255,255,255,0.9)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: 24, color: "#BC2876" }} />
+                      </Box>
+                    </Box>
+                  </Box>
                 ) : (
                   <>
                     <Box

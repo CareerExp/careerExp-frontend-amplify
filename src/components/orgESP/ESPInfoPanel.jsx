@@ -81,6 +81,12 @@ const InfoRow = ({ label, children, isLast = false }) => (
   </Box>
 );
 
+const mutedPlaceholderSx = {
+  fontFamily: fonts.sans,
+  color: "rgba(0,0,0,0.45)",
+  fontSize: "16px",
+};
+
 const LocationCard = ({ index, location }) => {
   const countryFlagUrl = getLocationCountryFlagUrl(location);
   return (
@@ -147,7 +153,7 @@ const LocationCard = ({ index, location }) => {
               color: "rgba(0,0,0,0.5)",
             }}
           >
-            {location?.country || "United States"}
+            {location?.country?.trim() || "—"}
           </Typography>
           <Box
             sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: "auto" }}
@@ -160,7 +166,7 @@ const LocationCard = ({ index, location }) => {
                 color: "rgba(0,0,0,0.5)",
               }}
             >
-              {location?.state || "California"}
+              {location?.state?.trim() || "—"}
             </Typography>
           </Box>
         </Box>
@@ -174,7 +180,7 @@ const LocationCard = ({ index, location }) => {
               color: "rgba(0,0,0,0.5)",
             }}
           >
-            {location?.email || "info@campusname.com"}
+            {location?.email?.trim() || "—"}
           </Typography>
         </Box>
 
@@ -187,7 +193,7 @@ const LocationCard = ({ index, location }) => {
               color: "rgba(0,0,0,0.5)",
             }}
           >
-            {location?.mobile || "+1 000 0000 000"}
+            {location?.mobile?.trim() || "—"}
           </Typography>
         </Box>
 
@@ -204,18 +210,12 @@ const LocationCard = ({ index, location }) => {
 
 const ESPInfoPanel = ({ profile: profileProp }) => {
   const profileFromRedux = useSelector(selectOrganizationProfile);
-  const orgProfile = profileProp ?? profileFromRedux;
+  const orgProfile =
+    profileProp !== undefined ? profileProp : profileFromRedux;
 
-  const specializations = orgProfile?.specializations || [
-    "Careers Advice",
-    "Study Abroad",
-    "Admissions Counselling",
-    "Visa guidance",
-    "Student Accommodation",
-    "Test preparation",
-    "Mentoring",
-    "Tutoring",
-  ];
+  const specializations = Array.isArray(orgProfile?.specializations)
+    ? orgProfile.specializations.filter(Boolean)
+    : [];
 
   const socialLinks = orgProfile?.socialLinks || {};
 
@@ -229,13 +229,15 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
     { key: "twitter", icon: TwitterIcon, link: socialLinks.twitter },
   ].filter((item) => item.link);
 
-  const languages = orgProfile?.languages || ["English", "Spanish", "Hindi"];
-  const hashtags = orgProfile?.tags || [
-    "#Biju’sEducation",
-    "#Bijutag2",
-    "#Bijutag3",
-  ];
-  const locations = orgProfile?.locations || [];
+  const languages = Array.isArray(orgProfile?.languages)
+    ? orgProfile.languages.filter(Boolean)
+    : [];
+  const hashtags = Array.isArray(orgProfile?.tags)
+    ? orgProfile.tags.filter(Boolean)
+    : [];
+  const locations = Array.isArray(orgProfile?.locations)
+    ? orgProfile.locations
+    : [];
 
   return (
     <Box
@@ -265,20 +267,25 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
           >
             Description
           </Typography>
-          <Typography
-            sx={{
-              fontFamily: fonts.sans,
-              fontWeight: 400,
-              fontSize: "16px",
-              color: "#545454",
-              lineHeight: "25px",
-              wordBreak: { xs: "break-word", md: "normal" },
-              overflowWrap: { xs: "anywhere", md: "normal" },
-            }}
-          >
-            {orgProfile?.description ||
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."}
-          </Typography>
+          {orgProfile?.description?.trim() ? (
+            <Typography
+              sx={{
+                fontFamily: fonts.sans,
+                fontWeight: 400,
+                fontSize: "16px",
+                color: "#545454",
+                lineHeight: "25px",
+                wordBreak: { xs: "break-word", md: "normal" },
+                overflowWrap: { xs: "anywhere", md: "normal" },
+              }}
+            >
+              {orgProfile.description}
+            </Typography>
+          ) : (
+            <Typography sx={{ ...mutedPlaceholderSx, lineHeight: "25px" }}>
+              Description
+            </Typography>
+          )}
         </Grid>
 
         {/* Info List Section */}
@@ -287,60 +294,72 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
             <Divider sx={{ borderColor: "#f0f0f0" }} />
 
             <InfoRow label="Specializations">
-              {specializations.map((spec) => (
-                <Chip
-                  key={spec}
-                  label={spec}
-                  sx={{
-                    backgroundColor: "rgba(188, 40, 118, 0.1)",
-                    color: "#BC2876",
-                    fontFamily: fonts.sans,
-                    fontWeight: 500,
-                    fontSize: "14px",
-                    borderRadius: "90px",
-                    height: { xs: "auto", md: "31px" },
-                    maxWidth: { xs: "100%", md: "none" },
-                    "& .MuiChip-label": {
-                      px: 1.5,
-                      py: { xs: 0.5, md: 0 },
-                      whiteSpace: { xs: "normal", md: "nowrap" },
-                      overflow: { xs: "visible", md: "hidden" },
-                      textOverflow: { xs: "clip", md: "ellipsis" },
-                      display: "block",
-                    },
-                  }}
-                />
-              ))}
+              {specializations.length > 0 ? (
+                specializations.map((spec) => (
+                  <Chip
+                    key={spec}
+                    label={spec}
+                    sx={{
+                      backgroundColor: "rgba(188, 40, 118, 0.1)",
+                      color: "#BC2876",
+                      fontFamily: fonts.sans,
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      borderRadius: "90px",
+                      height: { xs: "auto", md: "31px" },
+                      maxWidth: { xs: "100%", md: "none" },
+                      "& .MuiChip-label": {
+                        px: 1.5,
+                        py: { xs: 0.5, md: 0 },
+                        whiteSpace: { xs: "normal", md: "nowrap" },
+                        overflow: { xs: "visible", md: "hidden" },
+                        textOverflow: { xs: "clip", md: "ellipsis" },
+                        display: "block",
+                      },
+                    }}
+                  />
+                ))
+              ) : (
+                <Typography sx={mutedPlaceholderSx}>Specialization</Typography>
+              )}
             </InfoRow>
 
             <InfoRow label="Hashtags">
-              {hashtags.map((tag) => (
-                <Typography
-                  key={tag}
-                  sx={{
-                    fontFamily: fonts.sans,
-                    color: "#545454",
-                    fontSize: "16px",
-                  }}
-                >
-                  {tag.startsWith("#") ? tag : `#${tag}`}
-                </Typography>
-              ))}
+              {hashtags.length > 0 ? (
+                hashtags.map((tag) => (
+                  <Typography
+                    key={tag}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      color: "#545454",
+                      fontSize: "16px",
+                    }}
+                  >
+                    {tag.startsWith("#") ? tag : `#${tag}`}
+                  </Typography>
+                ))
+              ) : (
+                <Typography sx={mutedPlaceholderSx}>Hashtag</Typography>
+              )}
             </InfoRow>
 
             <InfoRow label="Languages">
-              {languages.map((lang) => (
-                <Typography
-                  key={lang}
-                  sx={{
-                    fontFamily: fonts.sans,
-                    color: "#545454",
-                    fontSize: "16px",
-                  }}
-                >
-                  {lang}
-                </Typography>
-              ))}
+              {languages.length > 0 ? (
+                languages.map((lang) => (
+                  <Typography
+                    key={lang}
+                    sx={{
+                      fontFamily: fonts.sans,
+                      color: "#545454",
+                      fontSize: "16px",
+                    }}
+                  >
+                    {lang}
+                  </Typography>
+                ))
+              ) : (
+                <Typography sx={mutedPlaceholderSx}>Language</Typography>
+              )}
             </InfoRow>
 
             <InfoRow label="Follow on">
@@ -370,45 +389,53 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
             </InfoRow>
 
             <InfoRow label="Website">
-              <Typography
-                component="a"
-                href={orgProfile?.website || "https://www.google.com/"}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#BC2876",
-                  textDecoration: "none",
-                  wordBreak: { xs: "break-word", md: "normal" },
-                  overflowWrap: { xs: "anywhere", md: "normal" },
-                  maxWidth: { xs: "100%", md: "none" },
-                  display: "inline-block",
-                }}
-              >
-                {orgProfile?.website || "https://www.google.com/"}
-              </Typography>
+              {orgProfile?.website?.trim() ? (
+                <Typography
+                  component="a"
+                  href={orgProfile.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 500,
+                    fontSize: "16px",
+                    color: "#BC2876",
+                    textDecoration: "none",
+                    wordBreak: { xs: "break-word", md: "normal" },
+                    overflowWrap: { xs: "anywhere", md: "normal" },
+                    maxWidth: { xs: "100%", md: "none" },
+                    display: "inline-block",
+                  }}
+                >
+                  {orgProfile.website}
+                </Typography>
+              ) : (
+                <Typography sx={mutedPlaceholderSx}>Website</Typography>
+              )}
             </InfoRow>
 
             <InfoRow label="Email ID" isLast>
-              <Typography
-                component="a"
-                href={`mailto:${orgProfile?.contactEmail || "info.institutename@gmail.com"}`}
-                sx={{
-                  fontFamily: fonts.sans,
-                  fontWeight: 500,
-                  fontSize: "16px",
-                  color: "#BC2876",
-                  textDecoration: "none",
-                  wordBreak: { xs: "break-word", md: "normal" },
-                  overflowWrap: { xs: "anywhere", md: "normal" },
-                  maxWidth: { xs: "100%", md: "none" },
-                  display: "inline-block",
-                }}
-              >
-                {orgProfile?.contactEmail || "info.institutename@gmail.com"}
-              </Typography>
+              {orgProfile?.contactEmail?.trim() ? (
+                <Typography
+                  component="a"
+                  href={`mailto:${orgProfile.contactEmail}`}
+                  sx={{
+                    fontFamily: fonts.sans,
+                    fontWeight: 500,
+                    fontSize: "16px",
+                    color: "#BC2876",
+                    textDecoration: "none",
+                    wordBreak: { xs: "break-word", md: "normal" },
+                    overflowWrap: { xs: "anywhere", md: "normal" },
+                    maxWidth: { xs: "100%", md: "none" },
+                    display: "inline-block",
+                  }}
+                >
+                  {orgProfile.contactEmail}
+                </Typography>
+              ) : (
+                <Typography sx={mutedPlaceholderSx}>Email</Typography>
+              )}
             </InfoRow>
           </Box>
         </Grid>

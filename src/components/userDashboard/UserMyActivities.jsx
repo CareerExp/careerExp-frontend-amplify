@@ -97,17 +97,17 @@ function getDetailRoute(type, id) {
   if (!id) return null;
   switch (type) {
     case "videos":
-      return `/explore/video/${id}`;
+      return `/video/${id}`;
     case "articles":
-      return `/explore/article/${id}`;
+      return `/article/${id}`;
     case "podcasts":
-      return `/explore/podcast/${id}`;
+      return `/podcast/${id}`;
     case "announcements":
-      return `/explore/announcement/${id}`;
+      return `/announcement/${id}`;
     case "events":
-      return `/explore/event/${id}`;
+      return `/event/${id}`;
     case "services":
-      return `/explore/service/${id}`;
+      return `/service/${id}`;
     default:
       return null;
   }
@@ -344,7 +344,11 @@ const UserMyActivities = () => {
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={tableColCount} align="center" sx={{ py: 4 }}>
+                      <TableCell
+                        colSpan={tableColCount}
+                        align="center"
+                        sx={{ py: 4 }}
+                      >
                         <Typography
                           sx={{
                             fontFamily: fonts.poppins,
@@ -423,13 +427,24 @@ const UserMyActivities = () => {
                             {row.title || "—"}
                           </TableCell>
                           {!hideRatingColumn && (
-                            <TableCell sx={{ py: 1.5, verticalAlign: "middle" }}>
+                            <TableCell
+                              onClick={(e) => e.stopPropagation()}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              sx={{
+                                py: 1.5,
+                                verticalAlign: "middle",
+                                cursor: "default",
+                              }}
+                            >
                               <Rating
                                 value={Number(row.rating) || 0}
                                 readOnly
                                 size="small"
                                 max={5}
+                                tabIndex={-1}
                                 sx={{
+                                  cursor: "default",
+                                  pointerEvents: "none",
                                   "& .MuiRating-iconFilled": {
                                     color: "#ffb400",
                                   },

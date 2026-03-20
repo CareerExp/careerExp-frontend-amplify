@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress } from '@mui/material';
+import React, { useEffect } from "react";
+import { Box, Typography, Grid, Paper, CircularProgress } from "@mui/material";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import EventIcon from "@mui/icons-material/Event";
@@ -9,15 +9,15 @@ import AdsClickIcon from "@mui/icons-material/AdsClick";
 import TouchAppIcon from "@mui/icons-material/TouchApp";
 import MouseIcon from "@mui/icons-material/Mouse";
 import SchoolIcon from "@mui/icons-material/School";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import {
   getOrganizationDashboard,
   selectOrganizationDashboard,
   selectOrganizationDashboardLoading,
   selectOrganizationProfile,
-} from '../../redux/slices/organizationSlice';
-import { selectToken } from '../../redux/slices/authSlice';
-import { fonts } from '../../utility/fonts';
+} from "../../redux/slices/organizationSlice";
+import { selectToken } from "../../redux/slices/authSlice";
+import { fonts } from "../../utility/fonts";
 
 const StatCard = ({ icon, value, label }) => (
   <Paper
@@ -95,28 +95,82 @@ const OrgESPHome = () => {
   }, [dispatch, token]);
 
   const d = dashboard || {};
-  const byStatus = (obj, key) => (obj && typeof obj[key] === 'number' ? obj[key] : 0);
+  const byStatus = (obj, key) =>
+    obj && typeof obj[key] === "number" ? obj[key] : 0;
   const announcementsByStatus = d.announcementsByStatus || {};
   const servicesByStatus = d.servicesByStatus || {};
 
   const stats = [
-    { label: "No of Counsellors", value: d.totalCounsellors ?? orgProfile?.counsellorsCount ?? 0, icon: <PsychologyIcon /> },
-    { label: "Announcements", value: d.totalAnnouncements ?? orgProfile?.announcementsCount ?? 0, icon: <CampaignIcon /> },
-    { label: "Events", value: d.totalEvents ?? orgProfile?.eventsCount ?? 0, icon: <EventIcon /> },
-    { label: "Services", value: d.totalServices ?? orgProfile?.servicesCount ?? 0, icon: <BusinessCenterIcon /> },
+    {
+      label: "No of Counsellors",
+      value: d.totalCounsellors ?? orgProfile?.counsellorsCount ?? 0,
+      icon: <PsychologyIcon />,
+    },
+    {
+      label: "Announcements",
+      value: d.totalAnnouncements ?? orgProfile?.announcementsCount ?? 0,
+      icon: <CampaignIcon />,
+    },
+    {
+      label: "Events",
+      value: d.totalEvents ?? orgProfile?.eventsCount ?? 0,
+      icon: <EventIcon />,
+    },
+    {
+      label: "Connect 1-2-1",
+      value: d.totalServices ?? orgProfile?.servicesCount ?? 0,
+      icon: <BusinessCenterIcon />,
+    },
     { label: "Courses", value: d.totalCourses ?? 0, icon: <SchoolIcon /> },
-    { label: "Total CTAs received", value: d.totalCtaResponses ?? 0, icon: <AdsClickIcon /> },
-    { label: "Announcements (Live)", value: byStatus(announcementsByStatus, 'LIVE'), icon: <TouchAppIcon /> },
-    { label: "Announcements (Upcoming)", value: byStatus(announcementsByStatus, 'UPCOMING'), icon: <TouchAppIcon /> },
-    { label: "Announcements (Draft)", value: byStatus(announcementsByStatus, 'DRAFT'), icon: <TouchAppIcon /> },
-    { label: "Services (Published)", value: byStatus(servicesByStatus, 'PUBLISHED'), icon: <MouseIcon /> },
-    { label: "Upcoming events", value: d.upcomingEventsCount ?? 0, icon: <EventIcon /> },
-    { label: "Total Counsellors", value: d.totalCounsellors ?? orgProfile?.totalCounsellors ?? 0, icon: <PeopleAltIcon /> },
+    {
+      label: "Total CTAs received",
+      value: d.totalCtaResponses ?? 0,
+      icon: <AdsClickIcon />,
+    },
+    {
+      label: "Announcements (Live)",
+      value: byStatus(announcementsByStatus, "LIVE"),
+      icon: <TouchAppIcon />,
+    },
+    {
+      label: "Announcements (Upcoming)",
+      value: byStatus(announcementsByStatus, "UPCOMING"),
+      icon: <TouchAppIcon />,
+    },
+    {
+      label: "Announcements (Draft)",
+      value: byStatus(announcementsByStatus, "DRAFT"),
+      icon: <TouchAppIcon />,
+    },
+    {
+      label: "Connect 1-2-1 (Published)",
+      value: byStatus(servicesByStatus, "PUBLISHED"),
+      icon: <MouseIcon />,
+    },
+    {
+      label: "Upcoming events",
+      value: d.upcomingEventsCount ?? 0,
+      icon: <EventIcon />,
+    },
+    {
+      label: "Total Counsellors",
+      value: d.totalCounsellors ?? orgProfile?.totalCounsellors ?? 0,
+      icon: <PeopleAltIcon />,
+    },
   ];
 
   if (dashboardLoading && !dashboard) {
     return (
-      <Box sx={{ p: "32px", backgroundColor: "#f9fafb", minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box
+        sx={{
+          p: "32px",
+          backgroundColor: "#f9fafb",
+          minHeight: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <CircularProgress sx={{ color: "#BC2876" }} />
       </Box>
     );

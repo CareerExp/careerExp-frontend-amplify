@@ -29,7 +29,7 @@ const CareerSummary = () => {
       if (authenticated && userId && token) {
         // Dispatch action to fetch user analytics
         const response = await dispatchToRedux(
-          getUserAnalytics({ userId, token })
+          getUserAnalytics({ userId, token }),
         );
 
         // Set analytics if the response payload is available
@@ -70,7 +70,11 @@ const CareerSummary = () => {
       value: analytics?.resumeCount || 0,
       img: resumecreated,
     },
-    { label: "Short Courses enrolled for", value: 0, img: enrolled },
+    {
+      label: "Short Courses enrolled for",
+      value: analytics?.coursesCtaCount || 0,
+      img: enrolled,
+    },
   ];
 
   return (

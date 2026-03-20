@@ -60,10 +60,93 @@ import { notify } from '../../redux/slices/alertSlice';
 import { config } from '../../config/config';
 import SharingVideoModal from '../../models/SharingVideoModal';
 
+const EXPLORE_CARD_MEDIA_HEIGHT = 200;
+
+/** Blurred fill + full image (object-fit contain), same pattern as Explore article cards. */
+const ExploreStyleMedia = ({ imageSrc, height = EXPLORE_CARD_MEDIA_HEIGHT, alt = '' }) => {
+    const trimmed = typeof imageSrc === 'string' ? imageSrc.trim() : '';
+    if (!trimmed) {
+        return (
+            <Box
+                sx={{
+                    width: '100%',
+                    height,
+                    backgroundColor: '#e8e8e8',
+                    flexShrink: 0,
+                }}
+            />
+        );
+    }
+    return (
+        <Box
+            sx={{
+                position: 'relative',
+                width: '100%',
+                height,
+                overflow: 'hidden',
+                backgroundColor: '#e8e8e8',
+                flexShrink: 0,
+            }}
+        >
+            <Box
+                aria-hidden
+                sx={{
+                    position: 'absolute',
+                    inset: '-12px',
+                    backgroundImage: `url(${trimmed})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    filter: 'blur(22px)',
+                    transform: 'scale(1.08)',
+                    pointerEvents: 'none',
+                }}
+            />
+            <Box
+                sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 1,
+                    pointerEvents: 'none',
+                }}
+            >
+                <Box
+                    component="img"
+                    src={trimmed}
+                    alt={alt}
+                    sx={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        objectPosition: 'center',
+                    }}
+                />
+            </Box>
+        </Box>
+    );
+};
+
+/** Spotify-linked podcasts: prefer spotifyThumbnailUrl; manual upload: prefer thumbnail. */
+const getPodcastCardImageUrl = (item) => {
+    const spotifyUrl = item?.spotifyUrl && String(item.spotifyUrl).trim();
+    const spotifyLink = item?.spotifyLink && String(item.spotifyLink).trim();
+    const fromSpotify = Boolean(spotifyUrl || spotifyLink);
+    const thumb = item?.thumbnail && String(item.thumbnail).trim();
+    const spotifyThumb = item?.spotifyThumbnailUrl && String(item.spotifyThumbnailUrl).trim();
+    if (fromSpotify) {
+        return spotifyThumb || thumb || '';
+    }
+    return thumb || spotifyThumb || '';
+};
+
 const ContentCard = ({ item, name }) => {
-    const thumbnailUrl = item.youtubeLink
-        ? `https://img.youtube.com/vi/${item.youtubeVideoId}/0.jpg`
-        : item.thumbnail;
+    const thumbnailUrl =
+        item.youtubeLink && item.youtubeVideoId
+            ? `https://img.youtube.com/vi/${item.youtubeVideoId}/0.jpg`
+            : item.thumbnail || '';
 
     return (
         <Paper
@@ -80,16 +163,7 @@ const ContentCard = ({ item, name }) => {
                 '&:hover': { transform: 'translateY(-4px)' }
             }}
         >
-            <Box
-                sx={{
-                    width: '100%',
-                    height: '160px',
-                    backgroundColor: '#F2F4F7',
-                    backgroundImage: `url(${thumbnailUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                }}
-            />
+            <ExploreStyleMedia imageSrc={thumbnailUrl} alt="" />
             <Box sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                     <Typography
@@ -655,9 +729,10 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                                     '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' }
                                                 }}
                                             >
-                                                {item.coverImage && (
-                                                    <Box sx={{ width: '100%', height: 160, backgroundImage: `url(${item.coverImage})`, backgroundSize: 'cover', backgroundPosition: 'center', bgcolor: '#F2F4F7' }} />
-                                                )}
+                                                <ExploreStyleMedia
+                                                    imageSrc={item.coverImage || ''}
+                                                    alt={item.title ? `${item.title} cover` : 'Article cover'}
+                                                />
                                                 <Box sx={{ p: 2 }}>
                                                     <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#101828', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                                                         {item.title}
@@ -694,7 +769,10 @@ const CounsellorDetail = ({ counsellor, onBack }) => {
                                                     '&:hover': { transform: 'translateY(-4px)', transition: 'transform 0.2s' }
                                                 }}
                                             >
-                                                <Box sx={{ width: '100%', height: 160, backgroundImage: item.thumbnail ? `url(${item.thumbnail})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', bgcolor: '#F2F4F7' }} />
+                                                <ExploreStyleMedia
+                                                    imageSrc={getPodcastCardImageUrl(item)}
+                                                    alt={item.title ? `${item.title} artwork` : 'Podcast artwork'}
+                                                />
                                                 <Box sx={{ p: 2 }}>
                                                     <Typography sx={{ fontFamily: fonts.sans, fontWeight: 600, fontSize: '16px', color: '#101828', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                                                         {item.title}

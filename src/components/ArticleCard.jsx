@@ -98,6 +98,8 @@ const ArticleCard = ({ article }) => {
   const authorId = article?.creatorId?._id;
   const publishedDate = article?.createdAt || article?.publishedAt || "";
   const coverImage = article?.coverImage || "";
+  const imageSrc =
+    coverImage || "https://via.placeholder.com/400x250?text=Article";
 
   return (
     <div
@@ -114,31 +116,60 @@ const ArticleCard = ({ article }) => {
       }}
       onClick={() => article?._id && navigate(`/article/${article._id}`)}
     >
-      {/* Image with overlays - fixed height so all cards match */}
+      {/* Image: full image on top (contain), blurred fill behind — no crop on foreground */}
       <div
         style={{
           position: "relative",
           height: "200px",
           flexShrink: 0,
           overflow: "hidden",
+          backgroundColor: "#e8e8e8",
         }}
       >
-        <img
-          src={coverImage || "https://via.placeholder.com/400x250?text=Article"}
-          alt=""
+        <div
+          aria-hidden
           style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
+            position: "absolute",
+            inset: "-12px",
+            backgroundImage: `url(${imageSrc})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            filter: "blur(22px)",
+            transform: "scale(1.08)",
+            pointerEvents: "none",
           }}
         />
+        {/* Fill the frame so object-fit:contain touches at least one edge (width OR height full); avoids tiny img box + blur on all 4 sides */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        >
+          <img
+            src={imageSrc}
+            alt={title ? `${title} cover` : "Article cover"}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              objectPosition: "center",
+            }}
+          />
+        </div>
         {category && (
           <span
             style={{
               position: "absolute",
               left: "12px",
               top: "12px",
+              zIndex: 2,
               backgroundColor: "#BC2876",
               color: "white",
               padding: "4px 10px",
@@ -190,6 +221,7 @@ const ArticleCard = ({ article }) => {
             position: "absolute",
             right: "8px",
             top: "8px",
+            zIndex: 2,
             width: "36px",
             height: "36px",
             borderRadius: "50%",
