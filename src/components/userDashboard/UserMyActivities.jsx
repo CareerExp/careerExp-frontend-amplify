@@ -103,11 +103,11 @@ function getDetailRoute(type, id) {
     case "podcasts":
       return `/podcast/${id}`;
     case "announcements":
-      return `/announcement/${id}`;
+      return `/explore/announcement/${id}`;
     case "events":
-      return `/event/${id}`;
+      return `/explore/event/${id}`;
     case "services":
-      return `/service/${id}`;
+      return `/explore/service/${id}`;
     default:
       return null;
   }

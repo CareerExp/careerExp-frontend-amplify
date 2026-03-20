@@ -180,6 +180,10 @@
   text-wrap: wrap;
 }
 
+.pricingCardButtonPriceAccent {
+  color: #ff8a00;
+}
+
 /* Two-column feature list for HEI / ESP */
 .pricingCardListTwoCol {
   display: grid;

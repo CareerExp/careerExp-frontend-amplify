@@ -3,12 +3,11 @@ import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import React, { useState } from "react";
 
 import {
-  A,
+  advisoryBoardMember1,
+  advisoryBoardMember2,
+  advisoryBoardMember3,
+  advisoryBoardMember4,
   assessmentHeaderImg,
-  B,
-  C,
-  D,
-  E,
   mohamedPhoto,
   JClaytonKennedy,
   MatthiasFeist,
@@ -133,57 +132,74 @@ const AboutUs = () => {
                   image={MatthiasFeist}
                   name="Matthias Feist"
                   designation=""
+                  imageContain
                 />
               </div>
               <div
                 onClick={() =>
                   handleClickOpen({
-                    image: C,
+                    image: advisoryBoardMember1,
                     name: "To Be Announced",
                     designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card image={C} name="To Be Announced" designation="" />
+                <Card
+                  image={advisoryBoardMember1}
+                  name="To Be Announced"
+                  designation=""
+                />
               </div>
             </div>
             <div>
               <div
                 onClick={() =>
                   handleClickOpen({
-                    image: D,
+                    image: advisoryBoardMember2,
                     name: "To Be Announced",
                     designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card image={D} name="To Be Announced" designation="" />
+                <Card
+                  image={advisoryBoardMember2}
+                  name="To Be Announced"
+                  designation=""
+                />
               </div>
               <div
                 onClick={() =>
                   handleClickOpen({
-                    image: E,
+                    image: advisoryBoardMember3,
                     name: "To Be Announced",
                     designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card image={E} name="To Be Announced" designation="" />
+                <Card
+                  image={advisoryBoardMember3}
+                  name="To Be Announced"
+                  designation=""
+                />
               </div>
               <div
                 onClick={() =>
                   handleClickOpen({
-                    image: E,
+                    image: advisoryBoardMember4,
                     name: "To Be Announced",
                     designation: "",
                     about: "Details about To Be Announced.",
                   })
                 }
               >
-                <Card image={E} name="To Be Announced" designation="" />
+                <Card
+                  image={advisoryBoardMember4}
+                  name="To Be Announced"
+                  designation=""
+                />
               </div>
             </div>
           </div>
@@ -214,9 +230,11 @@ const AboutUs = () => {
             <img
               src={selectedCard.image}
               alt={selectedCard.name}
-              width="200px"
-              height="200px"
-              style={{ borderRadius: "18px" }}
+              className={`${aboutStyles.dialogMemberPhoto} ${
+                selectedCard.image === MatthiasFeist
+                  ? aboutStyles.dialogMemberPhotoContain
+                  : ""
+              }`}
             />
             <h3>{selectedCard.name}</h3>
             <p>{selectedCard.designation}</p>
@@ -250,24 +268,15 @@ const AboutUs = () => {
 
 export default AboutUs;
 
-const Card = ({ image, name, designation }) => {
+const Card = ({ image, name, designation, imageContain }) => {
   return (
     <div style={{ cursor: "pointer" }} className={aboutStyles["card"]}>
       <div
-        style={{
-          height: "200px",
-          width: "200px",
-          overflow: "hidden",
-          objectFit: "contain",
-        }}
+        className={`${aboutStyles.cardImageFrame} ${
+          imageContain ? aboutStyles.cardImageFrameContain : ""
+        }`}
       >
-        <img
-          src={image}
-          alt={name}
-          // height="200px"
-          // width="200px"
-          objectFit="contain"
-        />
+        <img src={image} alt={name} />
       </div>
       <div>
         <p style={{ marginBottom: ".8rem", textAlign: "center" }}>{name}</p>
