@@ -35,6 +35,7 @@ const Headers = () => {
     { name: "Assessment Center", slug: "/assessment" },
     { name: "Resume Builder", slug: "/resume-builder" },
     { name: "How it works?", slug: "/how-it-works" },
+    { name: "Partners", slug: "/partners" },
     { name: "Pricing", slug: "/pricing" },
     { name: "Login", slug: "/login" },
   ].filter((item) => !(authenticated && item.name === "Login"));
@@ -65,7 +66,7 @@ const Headers = () => {
   return (
     <nav className={navBar["navContainer"]}>
       <Link to={"/"} className={navBar["logo"]}>
-        <img src={interestLogo} alt="logo" width={authenticated ? "50%" : "70%"} />
+        <img src={interestLogo} alt="logo" width={authenticated ? "50%" : "50%"} />
       </Link>
 
       <div className={navBar["right"]}>

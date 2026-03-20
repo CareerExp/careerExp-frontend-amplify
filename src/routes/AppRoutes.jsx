@@ -1,6 +1,6 @@
 // eslint-disable-next-line simple-import-sort/imports
 import React, { Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import InitialLoaders from "../loaders/InitialLoaders";
 import { useSelector } from "react-redux";
 import { selectAuthenticated } from "../redux/slices/authSlice.js";
@@ -15,15 +15,21 @@ const CreateNewPassword = React.lazy(
   () => import("../pages/CreateNewPassword")
 );
 const VerifyEmail = React.lazy(() => import("../pages/EmailVerification.jsx"));
+const AcceptAdminInvite = React.lazy(() => import("../pages/AcceptAdminInvite.jsx"));
 
 const Layout = React.lazy(() => import("../components/Layout"));
 const Home = React.lazy(() => import("../pages/Home"));
+const OrgHome = React.lazy(() => import("../pages/OrgHome"));
+const OrgESP = React.lazy(() => import("../pages/OrgESP"));
+const OrgHEI = React.lazy(() => import("../pages/OrgHEI"));
+const OrgPublicHome = React.lazy(() => import("../pages/OrgPublicHome.jsx"));
 const Explore = React.lazy(() => import("../pages/Explore"));
 const AssessmentCenter = React.lazy(() => import("../pages/AssessmentCenter"));
 const ResumeBuilderPage = React.lazy(
   () => import("../pages/ResumeBuilder.jsx")
 );
 const HowItWorks = React.lazy(() => import("../pages/HowItWorks.jsx"));
+const Partners = React.lazy(() => import("../pages/Partners.jsx"));
 const Pricing = React.lazy(() => import("../pages/Pricing.jsx"));
 const Workspace = React.lazy(() => import("../pages/Workspace.jsx"));
 
@@ -48,6 +54,12 @@ const TechSupport = React.lazy(
 const InvalidPages = React.lazy(() => import("../pages/InvalidPages"));
 
 const ExploreVideoPlay = React.lazy(() => import("../pages/ExploreVideoPlay"));
+const ArticleDetail = React.lazy(() => import("../pages/ArticleDetail.jsx"));
+const PodcastDetail = React.lazy(() => import("../pages/PodcastDetail.jsx"));
+const AnnouncementDetail = React.lazy(() => import("../pages/AnnouncementDetail.jsx"));
+const EventDetail = React.lazy(() => import("../pages/EventDetail.jsx"));
+const ServiceDetail = React.lazy(() => import("../pages/ServiceDetail.jsx"));
+const CourseDetail = React.lazy(() => import("../pages/CourseDetail.jsx"));
 const CreatorProfile = React.lazy(() => import("../pages/CreatorProfile.jsx"));
 
 const InterestProfiler = React.lazy(
@@ -75,6 +87,15 @@ const PaymentSuccess = React.lazy(
 const PaymentCancel = React.lazy(
   () => import("../pages/PaymentCancelPage.jsx")
 );
+const SubscriptionSuccess = React.lazy(
+  () => import("../pages/SubscriptionSuccessPage.jsx")
+);
+const SubscriptionCancel = React.lazy(
+  () => import("../pages/SubscriptionCancelPage.jsx")
+);
+const BillingReturn = React.lazy(
+  () => import("../pages/BillingReturnPage.jsx")
+);
 
 const ResumeDashboardPage = React.lazy(
   () => import("../components/resumeBuilder/ResumeDashboard.jsx")
@@ -100,6 +121,94 @@ const AppRoutes = () => {
           element={
             <Suspense fallback={<InitialLoaders />}>
               <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-home"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgHome />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-esp"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgESP />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-esp/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgESP />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-hei"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/org-hei/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
+          path="s/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgPublicHome />
+            </Suspense>
+          }
+        />
+        <Route
+          path="v/:userId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <OrgPublicHome />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/announcement/:announcementId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <AnnouncementDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/event/:eventId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <EventDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/service/:serviceId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <ServiceDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="explore/course/:courseId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <CourseDetail />
             </Suspense>
           }
         />
@@ -144,6 +253,14 @@ const AppRoutes = () => {
           }
         />{" "}
         <Route
+          path="/partners"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <Partners />
+            </Suspense>
+          }
+        />
+        <Route
           path="/profile/:userId"
           element={
             <Suspense fallback={<InitialLoaders />}>
@@ -159,8 +276,23 @@ const AppRoutes = () => {
             </Suspense>
           }
         />
+        <Route
+          path="article/:articleId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <ArticleDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="podcast/:podcastId"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <PodcastDetail />
+            </Suspense>
+          }
+        />
       </Route>
-      \
       <Route
         path="/register"
         element={
@@ -172,9 +304,13 @@ const AppRoutes = () => {
       <Route
         path="/login"
         element={
-          <Suspense fallback={<InitialLoaders />}>
-            <Login />
-          </Suspense>
+          authenticated ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Suspense fallback={<InitialLoaders />}>
+              <Login />
+            </Suspense>
+          )
         }
       />
       <Route
@@ -190,6 +326,22 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <CreateNewPassword />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/accept-admin-invite"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <AcceptAdminInvite />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/workspace/admin-manage/:organizationProfileId"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            {authenticated ? <Workspace /> : <Login />}
           </Suspense>
         }
       />
@@ -322,6 +474,30 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<InitialLoaders />}>
             <PaymentCancel />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/subscription-success"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <SubscriptionSuccess />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/subscription-cancelled"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <SubscriptionCancel />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/billing/return"
+        element={
+          <Suspense fallback={<InitialLoaders />}>
+            <BillingReturn />
           </Suspense>
         }
       />

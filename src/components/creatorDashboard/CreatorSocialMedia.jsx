@@ -119,7 +119,7 @@ const CreatorSocialMedia = () => {
           padding: { xs: "0rem", sm: "0rem", md: "1rem" },
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "600" }}>
+        <Typography variant="h5" sx={{ fontFamily: fonts.poppins, fontWeight: 600, fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" }, marginTop: "1rem" }}>
           Social Channels
         </Typography>
       </Box>

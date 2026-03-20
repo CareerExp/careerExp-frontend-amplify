@@ -1,3 +1,4 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Avatar, Divider, IconButton, Rating } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { Box, Container } from "@mui/system";
@@ -15,6 +16,7 @@ import {
 } from "../assets/assest.js";
 import Headers from "../components/Headers";
 import { config } from "../config/config.js";
+import { formatDateDDMMYYYY } from "../utility/convertTimeToUTC.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import AddVideoToPlaylistModal from "../models/AddVideoToPlaylistModal.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
@@ -356,6 +358,27 @@ const ExploreVideoPlay = () => {
         >
           <Box sx={{ px: { sm: "0.5rem", md: "1rem" } }}>
             <Typography
+              component="button"
+              onClick={() => navigate("/explore?tab=videos")}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                fontFamily: fonts.poppins,
+                fontSize: "0.9375rem",
+                color: "#720361",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                mb: 2,
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              <ArrowBackIcon sx={{ fontSize: "1.25rem" }} />
+              Back to Videos
+            </Typography>
+            <Typography
               variant="h5"
               sx={{
                 fontFamily: fonts.poppins,
@@ -431,7 +454,7 @@ const ExploreVideoPlay = () => {
                   ml: 0.5,
                 }}
               >
-                {new Date(videoData?.updatedAt).toLocaleDateString()}
+                {formatDateDDMMYYYY(videoData?.updatedAt) || "—"}
               </Typography>
 
               {/* Divider */}
@@ -817,6 +840,7 @@ const ExploreVideoPlay = () => {
                   color: "text.secondary",
                   width: "100%",
                   margin: "auto",
+                  whiteSpace: "pre-wrap",
                 }}
               >
                 {videoData?.description}
@@ -836,8 +860,10 @@ const ExploreVideoPlay = () => {
       <SharingVideoModal
         open={openSharingModal}
         handleClose={handleSharingCloseModal}
-        videoUrl={`${config?.frontendDomain}/video/${videoId}`} // Replace with your actual video URL
+        videoUrl={`${config?.frontendDomain}/video/${videoId}`}
         videoId={videoId}
+        shareTitle={videoData?.title}
+        modalTitle="Share Video"
       />
     </Box>
   );

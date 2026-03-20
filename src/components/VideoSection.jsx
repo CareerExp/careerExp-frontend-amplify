@@ -22,8 +22,7 @@ const VideoSection = ({
             fontWeight: "600",
             paddingBottom: "1.5rem",
             margin: "auto",
-            width: "1280px",
-            maxWidth: "100%",
+            width: "100%",
           }}
         >
           {title}
@@ -40,8 +39,7 @@ const VideoSection = ({
           },
           gap: "30px",
           margin: "auto",
-          width: "1280px",
-          maxWidth: "100%",
+          width: "100%",
         }}
       >
         {isLoading ? (

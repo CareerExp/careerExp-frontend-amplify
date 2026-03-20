@@ -27,4 +27,32 @@ function convertUTCtoMonthAndYear(utcDate) {
   return formattedDate;
 }
 
-export { convertToUTC, convertUTCDateToLocalDate, convertUTCtoMonthAndYear };
+/** dd/mm/yyyy (local calendar) — explore, dashboards, lists */
+function formatDateDDMMYYYY(utcDate) {
+  if (!utcDate) return "";
+  const d = new Date(utcDate);
+  if (Number.isNaN(d.getTime())) return "";
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/** Same as formatDateDDMMYYYY (detail pages, articles) */
+function formatArticleDetailDate(utcDate) {
+  return formatDateDDMMYYYY(utcDate);
+}
+
+/** Same as formatDateDDMMYYYY (cards; name kept for existing imports) */
+function formatDateMMDDYYYY(utcDate) {
+  return formatDateDDMMYYYY(utcDate);
+}
+
+export {
+  convertToUTC,
+  convertUTCDateToLocalDate,
+  convertUTCtoMonthAndYear,
+  formatDateDDMMYYYY,
+  formatArticleDetailDate,
+  formatDateMMDDYYYY,
+};

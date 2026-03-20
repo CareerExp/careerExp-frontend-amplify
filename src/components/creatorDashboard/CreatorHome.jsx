@@ -26,7 +26,7 @@ import {
 } from "../../assets/assest.js";
 import UploadVideoModal from "../../models/UploadVideoModal.jsx";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice.js";
-import { getGeneralVideoData, selectGeneralVideoData } from "../../redux/slices/creatorSlice.js";
+import { getCreatorDashboard, selectCreatorDashboard } from "../../redux/slices/creatorSlice.js";
 import creatorStyle from "../../styles/CreatorVideo.module.css";
 import { fonts } from "../../utility/fonts.js";
 import { notify } from "../../redux/slices/alertSlice.js";
@@ -34,30 +34,16 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const CreatorHome = () => {
   const dispatchToRedux = useDispatch();
-  const generalVideoData = useSelector(selectGeneralVideoData);
+  const dashboard = useSelector(selectCreatorDashboard);
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const [openUploadModal, setOpenUploadModal] = useState(false);
 
   useEffect(() => {
-    const fetchGeneralVideoData = async () => {
-      try {
-        const response = await dispatchToRedux(getGeneralVideoData({ userId, token })).unwrap();
-        dispatchToRedux(
-          notify({
-            type: response.success ? "success" : "error",
-            message: response.message || "Video data fetched successfully",
-          }),
-        );
-      } catch (error) {
-        dispatchToRedux(notify({ type: "error", message: error.message || "Failed to fetch video data" }));
-      }
-    };
-
-    if (generalVideoData === null) {
-      fetchGeneralVideoData();
+    if (userId && token) {
+      dispatchToRedux(getCreatorDashboard({ userId, token }));
     }
-  }, []);
+  }, [dispatchToRedux, userId, token]);
 
   const handleUpload = () => {
     setOpenUploadModal(true);
@@ -67,28 +53,36 @@ const CreatorHome = () => {
     setOpenUploadModal(false);
   };
 
+  const d = dashboard || {};
+  const v = d.videos || {};
+  const a = d.articles || {};
+  const p = d.podcasts || {};
+
+  const formatRating = (val) =>
+    typeof val === "number" ? val.toFixed(1) : (val ?? 0);
+
   const Videos = {
-    totalContent: generalVideoData?.totalVideos || 0,
-    contentLikes: generalVideoData?.totalLikes || 0,
-    contentShares: generalVideoData?.totalShares || 0,
-    // contentAvgRating: generalVideoData?.overallAverageRating || 0,
-    contentAvgRating: (generalVideoData?.overallAverageRating || 0).toFixed(1),
-    contentViews: generalVideoData?.totalViews || 0,
-  };
-  const Podcast = {
-    totalContent: 0,
-    contentLikes: 0,
-    contentShares: 0,
-    contentAvgRating: 0,
-    contentViews: 0,
+    totalContent: d.totalVideos ?? 0,
+    contentLikes: v.totalLikes ?? d.totalLikes ?? 0,
+    contentShares: v.totalShares ?? d.totalShares ?? 0,
+    contentAvgRating: formatRating(v.averageRating ?? d.averageRating),
+    contentViews: v.totalViews ?? d.totalViews ?? 0,
   };
   const Articles = {
-    totalContent: 0,
-    contentLikes: 0,
-    contentShares: 0,
-    contentAvgRating: 0,
-    contentViews: 0,
+    totalContent: d.totalArticles ?? 0,
+    contentLikes: a.totalLikes ?? d.totalLikes ?? 0,
+    contentShares: a.totalShares ?? d.totalShares ?? 0,
+    contentAvgRating: formatRating(a.averageRating ?? d.averageRating),
+    contentViews: a.totalViews ?? d.totalViews ?? 0,
   };
+  const Podcast = {
+    totalContent: d.totalPodcasts ?? 0,
+    contentLikes: p.totalLikes ?? d.totalLikes ?? 0,
+    contentShares: p.totalShares ?? d.totalShares ?? 0,
+    contentAvgRating: formatRating(p.averageRating ?? d.averageRating),
+    contentViews: p.totalViews ?? d.totalViews ?? 0,
+  };
+  const totalFollowers = d.totalFollowers ?? 0;
 
   return (
     <>
@@ -97,21 +91,35 @@ const CreatorHome = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: ".6rem",
+          marginTop: "1rem",
           width: { xs: "100%", sm: "100%", md: "100%" },
         }}
       >
-        <Typography
-          variant="h5"
-          sx={{
-            fontFamily: fonts.poppins,
-            fontWeight: "800",
-            padding: "1rem",
-            fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
-          }}
-        >
-          Dashboard
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: fonts.poppins,
+              fontWeight: "600",
+              padding: "1rem",
+              fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" },
+            }}
+          >
+            Dashboard
+          </Typography>
+          {totalFollowers >= 0 && (
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontWeight: "500",
+                fontSize: "1rem",
+                color: "#464545cd",
+              }}
+            >
+              {totalFollowers} follower{totalFollowers !== 1 ? "s" : ""}
+            </Typography>
+          )}
+        </Box>
 
         <Button
           onClick={handleUpload}

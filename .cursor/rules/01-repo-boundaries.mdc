@@ -1,0 +1,13 @@
+---
+name: repo-boundaries-rule
+description:Enforcerepositoryownershipandboundaries
+alwaysApply:true
+---
+
+Youareworkinginsidethisrepositoryonly.
+-ModifycodeONLYwithinthisrepository
+-Treatotherrepositoriesasexternalsystems
+-Neverassumesharedcodeorsharedruntime
+If a change is required in another repository:
+-Stateitexplicitlyasadependency
+-Donotimplementithere

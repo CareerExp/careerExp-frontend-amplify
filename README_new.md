@@ -1,8 +1,8 @@
 # Career Explorer Frontend
- 
+
 ## Overview
 
-Career Explorer is a modern, user-friendly web application designed to help  individuals discover and plan their career paths. This frontend application provides an intuitive interface for accessing  career assessment tools, educational content, and professional development resources.
+Career Explorer is a modern, user-friendly web application designed to help individuals discover and plan their career paths. This frontend application provides an intuitive interface for accessing career assessment tools, educational content, and professional development resources.
 
 ## Features
 
@@ -24,7 +24,6 @@ Career Explorer is a modern, user-friendly web application designed to help  ind
 - Vite
 - Redux Toolkit for state management
 - React Router v6
-- Tailwind CSS
 - Material-UI components
 - AWS SDK for file uploads
 - Stripe for payments

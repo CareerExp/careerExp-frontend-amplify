@@ -1,13 +1,16 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Avatar,
+  Box,
   CircularProgress,
   Divider,
   Pagination,
   Rating,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   creatorIconLocation,
@@ -29,25 +32,69 @@ import {
   checkFollowStatus,
   creatorFollowToggle,
   getCreatorProfile,
+  getAuthorArticles,
+  getAuthorPodcasts,
+  getAuthorVideos,
+  selectAuthorArticles,
+  selectAuthorPodcasts,
+  selectAuthorVideos,
   selectCreatorProfile,
   selectFollowerCount,
   selectIsFollowing,
 } from "../redux/slices/creatorSlice.js";
-import {
-  getAuthorVideos,
-  selectAuthorVideos,
-} from "../redux/slices/creatorSlice.js";
+import ArticleCard from "../components/ArticleCard.jsx";
+import PodcastCard from "../components/PodcastCard.jsx";
 import creatorStyle from "../styles/CreatorProfile.module.css";
 import { shouldHideDetails } from "../utility/hiddenDetailsForEmailIds.js";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TikTokIcon,
+  LinkedinIcon,
+  YoutubeIcon,
+  TelegramIcon,
+  TwitterIcon,
+  yellowBG,
+} from "../assets/assest.js";
+
+/** Non-empty trimmed string, or empty if missing. */
+const trimLink = (v) => {
+  if (v == null) return "";
+  const s = String(v).trim();
+  return s;
+};
+
+/**
+ * Resolve a social URL from direct `user` fields first, then from API `socialMediaLinks`
+ * (name + link entries as returned by getCreatorProfile).
+ */
+const resolveCounsellorSocialLink = (directCandidates, socialMediaLinks, arrayNames) => {
+  for (const c of directCandidates) {
+    const link = trimLink(c);
+    if (link) return link;
+  }
+  if (!Array.isArray(socialMediaLinks)) return "";
+  const wanted = new Set(arrayNames.map((n) => n.toLowerCase()));
+  for (const item of socialMediaLinks) {
+    const name = trimLink(item?.name).toLowerCase();
+    if (!wanted.has(name)) continue;
+    const link = trimLink(item?.link);
+    if (link) return link;
+  }
+  return "";
+};
 
 const Profile = () => {
   const dispatchToRedux = useDispatch();
+  const navigate = useNavigate();
   const { userId } = useParams(); //targetUserId for creator profile
 
   const studentUserId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const creatorProfileWithFollowersCount = useSelector(selectCreatorProfile);
   const creatorVideos = useSelector(selectAuthorVideos);
+  const authorArticles = useSelector(selectAuthorArticles);
+  const authorPodcasts = useSelector(selectAuthorPodcasts);
   const isFollowing = useSelector(selectIsFollowing);
   // Fix: ensure isFollowing is always boolean
   const isFollowingBool =
@@ -60,14 +107,41 @@ const Profile = () => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const creatorProfile = creatorProfileWithFollowersCount?.user;
+  const orgProfile = creatorProfileWithFollowersCount?.organization;
+  const profileSocialMediaLinks =
+    creatorProfileWithFollowersCount?.socialMediaLinks;
+
+  const getInitials = () => {
+    const first = (creatorProfile?.firstName || "").trim();
+    const last = (creatorProfile?.lastName || "").trim();
+    if (first && last) return (first[0] + last[0]).toUpperCase();
+    const name = (first || last || creatorProfile?.name || "").trim();
+    if (name.length >= 2) return name.slice(0, 2).toUpperCase();
+    if (name.length === 1) return name[0].toUpperCase();
+    return "?";
+  };
 
   useEffect(() => {
     dispatchToRedux(getCreatorProfile({ userId }));
   }, []);
 
   useEffect(() => {
-    dispatchToRedux(getAuthorVideos({ page, userId }));
-  }, [page]);
+    if (activeTab === 1) {
+      dispatchToRedux(getAuthorVideos({ page, userId }));
+    }
+  }, [page, activeTab, userId]);
+
+  useEffect(() => {
+    if (activeTab === 2) {
+      dispatchToRedux(getAuthorArticles({ page, userId }));
+    }
+  }, [page, activeTab, userId]);
+
+  useEffect(() => {
+    if (activeTab === 3) {
+      dispatchToRedux(getAuthorPodcasts({ page, userId }));
+    }
+  }, [page, activeTab, userId]);
 
   const handleShareClick = () => {
     setIsModalOpen(true);
@@ -83,14 +157,14 @@ const Profile = () => {
         notify({
           message: "You need to login/signup first to follow",
           type: "error",
-        })
+        }),
       );
       return;
     }
 
     if (studentUserId === userId) {
       dispatchToRedux(
-        notify({ message: "You can't follow yourself", type: "error" })
+        notify({ message: "You can't follow yourself", type: "error" }),
       );
       return;
     }
@@ -102,11 +176,11 @@ const Profile = () => {
           userId: studentUserId,
           targetUserId: userId,
           token: token,
-        })
+        }),
       );
       setIsButtonLoading(false);
       dispatchToRedux(
-        notify({ message: "Successfully performed action", type: "success" })
+        notify({ message: "Successfully performed action", type: "success" }),
       );
     } catch (error) {
       setIsButtonLoading(false);
@@ -121,7 +195,7 @@ const Profile = () => {
           userId: studentUserId,
           targetUserId: userId,
           token: token,
-        })
+        }),
       );
     }
   }, []);
@@ -132,33 +206,170 @@ const Profile = () => {
 
   const hideDetails = shouldHideDetails(creatorProfile?.email);
 
+  const formattedFollowerCount =
+    followerCount >= 1000
+      ? `${(followerCount / 1000).toFixed(1)}k`
+      : String(followerCount ?? 0);
+
+  const socialLinksConfig = [
+    {
+      key: "facebook",
+      icon: FacebookIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.facebook],
+        profileSocialMediaLinks,
+        ["Facebook"],
+      ),
+    },
+    {
+      key: "instagram",
+      icon: InstagramIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.instagram],
+        profileSocialMediaLinks,
+        ["Instagram"],
+      ),
+    },
+    {
+      key: "tiktok",
+      icon: TikTokIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.tiktok],
+        profileSocialMediaLinks,
+        ["TikTok"],
+      ),
+    },
+    {
+      key: "linkedin",
+      icon: LinkedinIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.linkedIn, creatorProfile?.linkedin],
+        profileSocialMediaLinks,
+        ["LinkedIn"],
+      ),
+    },
+    {
+      key: "youtube",
+      icon: YoutubeIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.youtube],
+        profileSocialMediaLinks,
+        ["YouTube"],
+      ),
+    },
+    {
+      key: "telegram",
+      icon: TelegramIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.telegram],
+        profileSocialMediaLinks,
+        ["Telegram"],
+      ),
+    },
+    {
+      key: "twitter",
+      icon: TwitterIcon,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.twitter],
+        profileSocialMediaLinks,
+        ["Twitter"],
+      ),
+    },
+  ].filter((s) => s.link);
+
+  const specTags = (() => {
+    const spec = creatorProfile?.specialization;
+    if (Array.isArray(spec)) return spec;
+    if (typeof spec === "string")
+      return spec
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    return spec ? [spec] : [];
+  })();
+
   return (
     <div className={creatorStyle.container}>
-      {/* top */}
-      <div className={creatorStyle.profileTopContainer}>
-        <img
-          src={profileOilPaint}
-          alt="oilPaint"
-          className={creatorStyle.profileBackgroundImage}
-        />
-
-        <div className={creatorStyle.avatarContainer}>
-          <Avatar
-            src={creatorProfile?.profilePicture || ""}
-            alt="profile"
-            sx={{
-              height: { sm: "97px", xs: "140px" },
-              width: { sm: "97px", xs: "140px" },
-            }}
+      <Box sx={{ maxWidth: "80rem", width: "100%", mx: "auto", mb: 2 }}>
+        <Typography
+          component="button"
+          onClick={() => navigate("/explore?tab=counsellors")}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            fontFamily: "Poppins, sans-serif",
+            fontSize: "0.9375rem",
+            color: "#720361",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            "&:hover": { textDecoration: "underline" },
+          }}
+        >
+          <ArrowBackIcon sx={{ fontSize: "1.25rem" }} />
+          Back to Counsellors
+        </Typography>
+      </Box>
+      {/* ========== NEW PROFILE TOP (Figma 763-116391) ========== */}
+      <div className={creatorStyle.profileTopV2}>
+        <div className={creatorStyle.profileTopV2Banner}>
+          <img
+            src={yellowBG}
+            alt="yellow-background"
+            className={creatorStyle.profileTopV2BannerImg}
           />
+          {socialLinksConfig.length > 0 && (
+            <div
+              className={`${creatorStyle.profileTopV2SocialTray} ${creatorStyle.profileTopV2SocialTrayBannerOnly}`}
+            >
+              {socialLinksConfig.map(({ key, icon, link }) => (
+                <a
+                  key={key}
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={creatorStyle.profileTopV2SocialCircle}
+                  aria-label={key}
+                >
+                  <img src={icon} alt="" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
 
-          <div className={creatorStyle.followersContainer}>
-            <p className={creatorStyle.followersText}>
-              {followerCount} Followers
+        <div
+          className={creatorStyle.profileTopV2Body}
+          style={{ backgroundColor: "#ffffff" }}
+        >
+          <div className={creatorStyle.profileTopV2Left}>
+            <div className={creatorStyle.profileTopV2AvatarWrap}>
+              <Avatar
+                src={creatorProfile?.profilePicture ? creatorProfile.profilePicture : undefined}
+                alt="profile"
+                className={creatorStyle.profileTopV2Avatar}
+                sx={{
+                  height: { sm: "97px", xs: "120px" },
+                  width: { sm: "97px", xs: "120px" },
+                  border: "9px solid #ffffff",
+                  ...(!creatorProfile?.profilePicture && {
+                    background: "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
+                    color: "#ffffff",
+                    fontSize: "1.75rem",
+                    fontWeight: 600,
+                  }),
+                }}
+              >
+                {!creatorProfile?.profilePicture ? getInitials() : null}
+              </Avatar>
+            </div>
+            <p className={creatorStyle.profileTopV2FollowersText}>
+              {formattedFollowerCount} Followers
             </p>
             <button
-              className={creatorStyle.navButton}
-              style={{ marginTop: ".5rem" }}
+              className={creatorStyle.profileTopV2FollowBtn}
               onClick={handleFollow}
             >
               {isButtonLoading ? (
@@ -170,74 +381,184 @@ const Profile = () => {
               )}
             </button>
           </div>
-        </div>
 
-        <div className={creatorStyle.profileInfoContainer}>
-          <div className={creatorStyle.nameContainer}>
-            <div style={{ display: "flex", gap: ".5rem" }}>
-              <p className={creatorStyle.nameText}>
-                {creatorProfile?.firstName + " " + creatorProfile?.lastName}
+          <div
+            className={creatorStyle.profileTopV2Right}
+            style={{ backgroundColor: "#ffffff" }}
+          >
+            <div className={creatorStyle.profileTopV2NameRow}>
+              <div className={creatorStyle.profileTopV2NameBlock}>
+                <h1 className={creatorStyle.profileTopV2Name}>
+                  {creatorProfile?.firstName + " " + creatorProfile?.lastName}
+                </h1>
+                {creatorProfile?.subtitle && (
+                  <span className={creatorStyle.profileTopV2Subtitle}>
+                    ({creatorProfile.subtitle})
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                className={creatorStyle.profileTopV2ShareBtn}
+                onClick={handleShareClick}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleShareClick();
+                  }
+                }}
+              >
+                <img
+                  src={shareIcon}
+                  alt=""
+                  className={creatorStyle.profileTopV2ShareIcon}
+                />
+                <span style={{ color: "#787876", fontWeight: "400" }}>
+                  Share Profile
+                </span>
+              </button>
+            </div>
+
+            {socialLinksConfig.length > 0 && (
+              <div
+                className={`${creatorStyle.profileTopV2SocialTray} ${creatorStyle.profileTopV2SocialTrayMobileOnly}`}
+              >
+                {socialLinksConfig.map(({ key, icon, link }) => (
+                  <a
+                    key={key}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={creatorStyle.profileTopV2SocialCircle}
+                    aria-label={key}
+                  >
+                    <img src={icon} alt="" />
+                  </a>
+                ))}
+              </div>
+            )}
+
+            <div
+              className={creatorStyle.profileTopV2MetaOrgRow}
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "space-between",
+              }}
+            >
+              <div className={creatorStyle.profileTopV2MetaContactCol}>
+                {!hideDetails && (
+                  <>
+                    <div className={creatorStyle.profileTopV2MetaRow}>
+                      <span className={creatorStyle.profileTopV2MetaLabel}>
+                        Specialization :
+                      </span>
+                      <div className={creatorStyle.profileTopV2Pills}>
+                        {specTags.length ? (
+                          specTags.map((tag, i) => (
+                            <span
+                              key={i}
+                              className={creatorStyle.profileTopV2Pill}
+                            >
+                              {tag}
+                            </span>
+                          ))
+                        ) : (
+                          <span className={creatorStyle.profileTopV2Pill}>
+                            {creatorProfile?.specialization || "—"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className={creatorStyle.profileTopV2MetaRow}>
+                      <span className={creatorStyle.profileTopV2MetaLabel}>
+                        Years of experience :
+                      </span>
+                      <span className={creatorStyle.profileTopV2Pill}>
+                        {creatorProfile?.experience != null
+                          ? `${creatorProfile.experience} years`
+                          : "—"}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                <div className={creatorStyle.profileTopV2ContactRow}>
+                  {!hideDetails && (
+                    <>
+                      <Information
+                        icon={creatorIconLocation}
+                        info={creatorProfile?.nationality}
+                        height={24}
+                        width={24}
+                      />
+                      <Dot />
+                      <Information
+                        icon={creatorIconMobile}
+                        info={creatorProfile?.mobile}
+                        height={24}
+                        width={24}
+                      />
+                      <Dot />
+                      <Information
+                        icon={creatorIconWhatsaap}
+                        info={creatorProfile?.telephone}
+                        height={24}
+                        width={24}
+                      />
+                      <Dot />
+                      <Information
+                        icon={creatorIconMail}
+                        info={creatorProfile?.email}
+                        height={24}
+                        width={24}
+                      />
+                    </>
+                  )}
+                </div>
+                {orgProfile?.logo && (
+                  <div className={creatorStyle.profileTopV2OrgLogoMobile}>
+                    <img
+                      src={orgProfile?.logo}
+                      alt=""
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              {orgProfile?.logo && (
+                <div
+                  className={creatorStyle.profileTopV2OrgLogoDesktop}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "end",
+                    gap: "10px",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <img
+                    src={orgProfile?.logo}
+                    alt=""
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className={creatorStyle.profileTopV2About}>
+              <p className={creatorStyle.profileTopV2AboutTitle}>About me</p>
+              <Divider />
+              <p className={creatorStyle.profileTopV2AboutText}>
+                {creatorProfile?.introBio || ""}
               </p>
             </div>
-            <div
-              className={creatorStyle.shareContainer}
-              onClick={() => handleShareClick()}
-            >
-              <img src={shareIcon} className={creatorStyle.shareIcon} />
-              <p>Share Profile</p>
-            </div>
-          </div>
-
-          {/* Hide for Career Libraries's  */}
-          {!hideDetails && (
-            <>
-              <div className={creatorStyle.specializationContainer}>
-                <p>Specialization :</p>
-                <p className={creatorStyle.specializationTag}>
-                  {creatorProfile?.specialization}
-                </p>
-              </div>
-              <div className={creatorStyle.experienceContainer}>
-                <p>Years of experience :</p>
-                <p className={creatorStyle.experienceTag}>
-                  {creatorProfile?.experience + " Years" || ""}
-                </p>
-              </div>
-            </>
-          )}
-
-          <div className={creatorStyle.contactInfoContainer}>
-            {!hideDetails && (
-              <>
-                <Information
-                  icon={creatorIconLocation}
-                  info={creatorProfile?.nationality}
-                />
-                <Dot />
-                <Information
-                  icon={creatorIconMobile}
-                  info={creatorProfile?.mobile}
-                />
-                <Dot />
-                <Information
-                  icon={creatorIconWhatsaap}
-                  info={creatorProfile?.telephone}
-                />
-                <Dot />
-                <Information
-                  icon={creatorIconMail}
-                  info={creatorProfile?.email}
-                />
-              </>
-            )}
-          </div>
-
-          <div className={creatorStyle.aboutMeContainer}>
-            <p className={creatorStyle.aboutMeTitle}>About me</p>
-            <Divider />
-            <p className={creatorStyle.aboutMeText}>
-              {creatorProfile?.introBio}
-            </p>
           </div>
         </div>
       </div>
@@ -245,7 +566,10 @@ const Profile = () => {
       <div className={creatorStyle.contentContainer}>
         <div className={creatorStyle.tabsContainer}>
           <p
-            onClick={() => setActiveTab(1)}
+            onClick={() => {
+              setActiveTab(1);
+              setPage(1);
+            }}
             className={`${creatorStyle.tabItem} ${
               activeTab === 1
                 ? creatorStyle.activeTab
@@ -255,7 +579,10 @@ const Profile = () => {
             Videos
           </p>
           <p
-            onClick={() => setActiveTab(2)}
+            onClick={() => {
+              setActiveTab(2);
+              setPage(1);
+            }}
             className={`${creatorStyle.tabItem} ${
               activeTab === 2
                 ? creatorStyle.activeTab
@@ -265,7 +592,10 @@ const Profile = () => {
             Articles
           </p>
           <p
-            onClick={() => setActiveTab(3)}
+            onClick={() => {
+              setActiveTab(3);
+              setPage(1);
+            }}
             className={`${creatorStyle.tabItem} ${
               activeTab === 3
                 ? creatorStyle.activeTab
@@ -275,7 +605,13 @@ const Profile = () => {
             Podcasts
           </p>
         </div>
-        <div className={creatorStyle.videosGrid}>
+        <div
+          className={
+            activeTab === 1
+              ? creatorStyle.videosGrid
+              : creatorStyle.articlesPodcastsGrid
+          }
+        >
           {activeTab === 1 &&
             creatorVideos?.videos?.map(
               ({
@@ -308,15 +644,36 @@ const Profile = () => {
                     creatorProfile?.firstName + " " + creatorProfile?.lastName
                   }
                 />
-              )
+              ),
             )}
 
-          {activeTab === 2 && <p>Coming Soon</p>}
-          {activeTab === 3 && <p>Coming Soon</p>}
+          {activeTab === 2 &&
+            (authorArticles?.articles?.length > 0 ? (
+              authorArticles.articles.map((article) => (
+                <ArticleCard key={article._id} article={article} />
+              ))
+            ) : (
+              <p className={creatorStyle.comingSoonText}>No articles yet.</p>
+            ))}
+
+          {activeTab === 3 &&
+            (authorPodcasts?.podcasts?.length > 0 ? (
+              authorPodcasts.podcasts.map((podcast) => (
+                <PodcastCard key={podcast._id} podcast={podcast} />
+              ))
+            ) : (
+              <p className={creatorStyle.comingSoonText}>No podcasts yet.</p>
+            ))}
         </div>
         <div className={creatorStyle.paginationContainer}>
           <Pagination
-            count={creatorVideos?.totalPages || 1}
+            count={
+              activeTab === 1
+                ? creatorVideos?.totalPages || 1
+                : activeTab === 2
+                  ? authorArticles?.totalPages || 1
+                  : authorPodcasts?.totalPages || 1
+            }
             page={page}
             onChange={handlePageChange}
           />
@@ -326,7 +683,10 @@ const Profile = () => {
         open={isModalOpen}
         handleClose={handleModalClose}
         videoUrl={`${config?.frontendDomain}/profile/${creatorProfile?._id}`}
+        videoId={creatorProfile?._id}
         isProfile={true}
+        shareTitle={creatorProfile ? `${creatorProfile.firstName || ""} ${creatorProfile.lastName || ""}`.trim() || "Profile" : "Profile"}
+        modalTitle="Share Profile"
       />
     </div>
   );

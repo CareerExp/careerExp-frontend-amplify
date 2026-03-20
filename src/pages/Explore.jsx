@@ -1,21 +1,23 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Button,
   Chip,
-  Container,
+  FormControl,
+  IconButton,
+  InputAdornment,
   MenuItem,
   Pagination,
+  Select,
   TextField,
   Typography,
   Autocomplete,
 } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import VideoCard from "../components/VideoCard";
-import InitialLoaders from "../loaders/InitialLoaders.jsx";
+import { useSearchParams } from "react-router-dom";
 // import ExploreVideoPlayPopup from "../models/ExploreVideoPlayPopup.jsx";
 import {
   selectAuthenticated,
@@ -28,25 +30,53 @@ import {
   getTrendingVideos,
   getVideosByUserInterests,
   getRelatedSearchVideos,
+  getAllArticles,
+  getTrendingArticles,
+  getAllPodcasts,
+  getTrendingPodcasts,
+  getAllAnnouncements,
+  getAllEvents,
+  getAllServices,
+  getAllCounsellors,
+  getAllCourses,
   selectAllVideos,
   selectTrendingVideos,
   selectUserInterestsVideos,
   selectRelatedSearchVideos,
+  selectAllArticles,
+  selectTrendingArticles,
+  selectAllPodcasts,
+  selectTrendingPodcasts,
+  selectAllAnnouncements,
+  selectAllEvents,
+  selectAllServices,
+  selectAllCounsellors,
+  selectAllCourses,
   resetRelatedSearchVideos,
   getAllTags,
   selectAllTags,
 } from "../redux/slices/exploreSlice.js";
 import exploreStyles from "../styles/Explore.module.css";
 import { categories, tags } from "../utility/category";
+import { countryList } from "../utility/countryList";
 import { fonts } from "../utility/fonts.js";
 import VideoSection from "../components/VideoSection.jsx";
-import { borderBottom } from "@mui/system";
-import CloseIcon from "@mui/icons-material/Close";
+import ArticleSection from "../components/ArticleSection.jsx";
+import PodcastSection from "../components/PodcastSection.jsx";
+import AnnouncementSection from "../components/AnnouncementSection.jsx";
+import EventSection from "../components/EventSection.jsx";
+import ServiceSection from "../components/ServiceSection.jsx";
+import CounsellorSection from "../components/CounsellorSection.jsx";
+import CourseSection from "../components/CourseSection.jsx";
 import InterestsModal from "../models/InterestsModal";
 import {
   getUserProfile,
   selectUserProfile,
 } from "../redux/slices/profileSlice.js";
+import {
+  getBookmarkedArticles,
+  getBookmarkedCourses,
+} from "../redux/slices/bookmarkSlice.js";
 
 // Helper function to convert to sentence case
 const toSentenceCase = (str) => {
@@ -62,12 +92,36 @@ const processedTags = tags
   }))
   .sort((a, b) => a.option.localeCompare(b.option));
 
+// Explore page tabs (config-driven for future content)
+const EXPLORE_TABS = [
+  { id: "videos", label: "Videos" },
+  { id: "articles", label: "Articles" },
+  { id: "podcasts", label: "Podcasts" },
+  { id: "courses", label: "Courses" },
+  { id: "announcements", label: "Announcements" },
+  { id: "events", label: "Events" },
+  { id: "services", label: "Connect 1-2-1" },
+  { id: "counsellors", label: "Counsellors" },
+];
+
+const VALID_TAB_IDS = new Set(EXPLORE_TABS.map((t) => t.id));
+
 const Explore = () => {
   const dispatchToRedux = useDispatch();
+  const [searchParams] = useSearchParams();
   let allVideosData = useSelector(selectAllVideos);
   const trendingVideosData = useSelector(selectTrendingVideos);
   const userInterestsVideosData = useSelector(selectUserInterestsVideos);
   const relatedSearchVideosData = useSelector(selectRelatedSearchVideos);
+  const allArticlesData = useSelector(selectAllArticles);
+  const trendingArticlesData = useSelector(selectTrendingArticles);
+  const allPodcastsData = useSelector(selectAllPodcasts);
+  const trendingPodcastsData = useSelector(selectTrendingPodcasts);
+  const allAnnouncementsData = useSelector(selectAllAnnouncements);
+  const allEventsData = useSelector(selectAllEvents);
+  const allServicesData = useSelector(selectAllServices);
+  const allCounsellorsData = useSelector(selectAllCounsellors);
+  const allCoursesData = useSelector(selectAllCourses);
   const userData = useSelector(selectUserProfile);
   const userId = useSelector(selectUserId);
   const allTags = useSelector(selectAllTags);
@@ -96,6 +150,71 @@ const Explore = () => {
   const [page3Loading, setPage3Loading] = useState(false);
   const [page4Loading, setPage4Loading] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabFromUrl = new URLSearchParams(window.location.search).get("tab");
+    return tabFromUrl && VALID_TAB_IDS.has(tabFromUrl) ? tabFromUrl : "videos";
+  });
+
+  // Keep activeTab in sync when navigating to Explore with ?tab= (e.g. back from detail page)
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && VALID_TAB_IDS.has(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
+  // Applied filters (sent to API when user clicks Apply)
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedCategory, setAppliedCategory] = useState("");
+  const [appliedTags, setAppliedTags] = useState([]);
+  // Articles pagination & loading
+  const [page1Articles, setPage1Articles] = useState(1);
+  const [page3Articles, setPage3Articles] = useState(1);
+  const [page1ArticlesLoading, setPage1ArticlesLoading] = useState(false);
+  const [page3ArticlesLoading, setPage3ArticlesLoading] = useState(false);
+  // Podcasts pagination & loading
+  const [page1Podcasts, setPage1Podcasts] = useState(1);
+  const [page3Podcasts, setPage3Podcasts] = useState(1);
+  const [page1PodcastsLoading, setPage1PodcastsLoading] = useState(false);
+  const [page3PodcastsLoading, setPage3PodcastsLoading] = useState(false);
+  // Announcements: single list, search + sortBy only
+  const [page1Announcements, setPage1Announcements] = useState(1);
+  const [page1AnnouncementsLoading, setPage1AnnouncementsLoading] =
+    useState(false);
+  const [selectedSortByAnnouncements, setSelectedSortByAnnouncements] =
+    useState("");
+  const [appliedSortByAnnouncements, setAppliedSortByAnnouncements] =
+    useState("recent");
+  // Events: single list, search + sortBy only
+  const [page1Events, setPage1Events] = useState(1);
+  const [page1EventsLoading, setPage1EventsLoading] = useState(false);
+  const [selectedSortByEvents, setSelectedSortByEvents] = useState("");
+  const [appliedSortByEvents, setAppliedSortByEvents] = useState("recent");
+  // Services: single list, search + sortBy + providerType
+  const [page1Services, setPage1Services] = useState(1);
+  const [page1ServicesLoading, setPage1ServicesLoading] = useState(false);
+  const [selectedSortByServices, setSelectedSortByServices] = useState("");
+  const [appliedSortByServices, setAppliedSortByServices] = useState("recent");
+  const [selectedProviderType, setSelectedProviderType] = useState("all");
+  const [appliedProviderType, setAppliedProviderType] = useState("all");
+  // Counsellors: single list, search + sortBy (recent | name) + country
+  const [page1Counsellors, setPage1Counsellors] = useState(1);
+  const [page1CounsellorsLoading, setPage1CounsellorsLoading] = useState(false);
+  const [selectedSortByCounsellors, setSelectedSortByCounsellors] =
+    useState("");
+  const [appliedSortByCounsellors, setAppliedSortByCounsellors] =
+    useState("recent");
+  const [selectedCountryCounsellors, setSelectedCountryCounsellors] =
+    useState(null);
+  const [appliedCountryCounsellors, setAppliedCountryCounsellors] =
+    useState("");
+  // Courses: single list, search + sortBy (recent | popular) + category
+  const [page1Courses, setPage1Courses] = useState(1);
+  const [page1CoursesLoading, setPage1CoursesLoading] = useState(false);
+  const [selectedSortByCourses, setSelectedSortByCourses] = useState("");
+  const [appliedSortByCourses, setAppliedSortByCourses] = useState("recent");
+  const [selectedCategoryCourses, setSelectedCategoryCourses] = useState("");
+  const [appliedCategoryCourses, setAppliedCategoryCourses] = useState("");
 
   useEffect(() => {
     if (isAuthenticated && !userData) {
@@ -105,18 +224,6 @@ const Explore = () => {
       setIsModalOpen(true);
     }
   }, [isAuthenticated, userData, userId, token, dispatchToRedux]);
-
-  const scrollRef = useRef(null);
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 200; // Adjust this value as needed
-      scrollRef.current.scrollBy({
-        left: direction === "right" ? scrollAmount : -scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
 
   // useEffect(() => {
   //   const fetchVideos = async () => {
@@ -157,24 +264,24 @@ const Explore = () => {
     dispatchToRedux(
       getAllVideos({
         page: page1,
-        search: searchValue,
-        tags: selectedTags,
-        category: selectedCatagory,
-      })
+        search: appliedSearch,
+        tags: appliedTags,
+        category: appliedCategory,
+      }),
     );
-  }, [page1, searchValue, selectedTags, selectedCatagory]);
+  }, [page1, appliedSearch, appliedTags, appliedCategory]);
 
-  // related searches
+  // related searches (uses applied filters)
   useEffect(() => {
     const fetchRelated = async () => {
       try {
         setPage2Loading(true);
         await dispatchToRedux(
           getRelatedSearchVideos({
-            category: selectedCatagory,
-            tags: selectedTags,
+            category: appliedCategory,
+            tags: appliedTags,
             page: page2,
-          })
+          }),
         );
       } catch (error) {
         console.error("Error fetching related videos:", error);
@@ -183,7 +290,7 @@ const Explore = () => {
       }
     };
     fetchRelated();
-  }, [page2, selectedCatagory, selectedTags, searchValue]);
+  }, [page2, appliedCategory, appliedTags, appliedSearch]);
 
   // trending videos
   useEffect(() => {
@@ -207,7 +314,7 @@ const Explore = () => {
       try {
         setPage4Loading(true);
         await dispatchToRedux(
-          getVideosByUserInterests({ userId, page: page4 })
+          getVideosByUserInterests({ userId, page: page4 }),
         );
       } catch (error) {
         console.error("Error fetching user interest videos:", error);
@@ -218,21 +325,318 @@ const Explore = () => {
     fetchUserInterests();
   }, [page4, userId, isAuthenticated]);
 
-  const handleCategorySelection = useCallback(
-    (category) => {
-      dispatchToRedux(getAllVideos({ category }));
-    },
-    [dispatchToRedux]
-  );
+  // Articles: search results (same filters as videos)
+  useEffect(() => {
+    if (activeTab !== "articles") return;
+    const fetch = async () => {
+      try {
+        setPage1ArticlesLoading(true);
+        await dispatchToRedux(
+          getAllArticles({
+            page: page1Articles,
+            search: appliedSearch,
+            tags: appliedTags,
+            category: appliedCategory,
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      } finally {
+        setPage1ArticlesLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Articles, appliedSearch, appliedTags, appliedCategory]);
 
-  const handleSearchClick = useCallback(() => {
-    if (selectedTags?.length > 0) {
-      dispatchToRedux(getAllVideos({ tags: selectedTags }));
+  // Articles: trending
+  useEffect(() => {
+    if (activeTab !== "articles") return;
+    const fetch = async () => {
+      try {
+        setPage3ArticlesLoading(true);
+        await dispatchToRedux(getTrendingArticles({ page: page3Articles }));
+      } catch (error) {
+        console.error("Error fetching trending articles:", error);
+      } finally {
+        setPage3ArticlesLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page3Articles]);
+
+  // Articles tab: fetch user's bookmarked articles so cards can show filled bookmark
+  useEffect(() => {
+    if (activeTab === "articles" && token) {
+      dispatchToRedux(getBookmarkedArticles({ token }));
     }
-    if (searchValue) {
-      dispatchToRedux(getAllVideos({ search: searchValue }));
+  }, [activeTab, token, dispatchToRedux]);
+
+  // Courses tab: fetch user's bookmarked courses so cards can show filled bookmark
+  useEffect(() => {
+    if (activeTab === "courses" && token) {
+      dispatchToRedux(getBookmarkedCourses({ token }));
     }
-  }, [selectedTags?.length, searchValue, dispatchToRedux]);
+  }, [activeTab, token, dispatchToRedux]);
+
+  // Podcasts: search results
+  useEffect(() => {
+    if (activeTab !== "podcasts") return;
+    const fetch = async () => {
+      try {
+        setPage1PodcastsLoading(true);
+        await dispatchToRedux(
+          getAllPodcasts({
+            page: page1Podcasts,
+            search: appliedSearch,
+            tags: appliedTags,
+            category: appliedCategory,
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching podcasts:", error);
+      } finally {
+        setPage1PodcastsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Podcasts, appliedSearch, appliedTags, appliedCategory]);
+
+  // Podcasts: trending
+  useEffect(() => {
+    if (activeTab !== "podcasts") return;
+    const fetch = async () => {
+      try {
+        setPage3PodcastsLoading(true);
+        await dispatchToRedux(getTrendingPodcasts({ page: page3Podcasts }));
+      } catch (error) {
+        console.error("Error fetching trending podcasts:", error);
+      } finally {
+        setPage3PodcastsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page3Podcasts]);
+
+  // Announcements: single list with search + sortBy
+  useEffect(() => {
+    if (activeTab !== "announcements") return;
+    const fetch = async () => {
+      try {
+        setPage1AnnouncementsLoading(true);
+        await dispatchToRedux(
+          getAllAnnouncements({
+            page: page1Announcements,
+            search: appliedSearch,
+            sortBy: appliedSortByAnnouncements,
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      } finally {
+        setPage1AnnouncementsLoading(false);
+      }
+    };
+    fetch();
+  }, [
+    activeTab,
+    page1Announcements,
+    appliedSearch,
+    appliedSortByAnnouncements,
+  ]);
+
+  // Events: single list with search + sortBy
+  useEffect(() => {
+    if (activeTab !== "events") return;
+    const fetch = async () => {
+      try {
+        setPage1EventsLoading(true);
+        await dispatchToRedux(
+          getAllEvents({
+            page: page1Events,
+            search: appliedSearch,
+            sortBy: appliedSortByEvents,
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setPage1EventsLoading(false);
+      }
+    };
+    fetch();
+  }, [activeTab, page1Events, appliedSearch, appliedSortByEvents]);
+
+  // Services: single list with search + sortBy + providerType
+  useEffect(() => {
+    if (activeTab !== "services") return;
+    const fetch = async () => {
+      try {
+        setPage1ServicesLoading(true);
+        await dispatchToRedux(
+          getAllServices({
+            page: page1Services,
+            search: appliedSearch,
+            sortBy: appliedSortByServices,
+            providerType:
+              appliedProviderType === "all" ? "" : appliedProviderType,
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setPage1ServicesLoading(false);
+      }
+    };
+    fetch();
+  }, [
+    activeTab,
+    page1Services,
+    appliedSearch,
+    appliedSortByServices,
+    appliedProviderType,
+  ]);
+
+  // Counsellors: single list with search + sortBy (recent | name)
+  useEffect(() => {
+    if (activeTab !== "counsellors") return;
+    const fetch = async () => {
+      try {
+        setPage1CounsellorsLoading(true);
+        await dispatchToRedux(
+          getAllCounsellors({
+            page: page1Counsellors,
+            search: appliedSearch,
+            sortBy: appliedSortByCounsellors,
+            country: appliedCountryCounsellors,
+            limit: 24,
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching counsellors:", error);
+      } finally {
+        setPage1CounsellorsLoading(false);
+      }
+    };
+    fetch();
+  }, [
+    activeTab,
+    page1Counsellors,
+    appliedSearch,
+    appliedSortByCounsellors,
+    appliedCountryCounsellors,
+  ]);
+
+  // Courses: single list with search + sortBy (recent | popular) + category
+  useEffect(() => {
+    if (activeTab !== "courses") return;
+    const fetch = async () => {
+      try {
+        setPage1CoursesLoading(true);
+        await dispatchToRedux(
+          getAllCourses({
+            page: page1Courses,
+            limit: 12,
+            search: appliedSearch,
+            sortBy: appliedSortByCourses,
+            category: appliedCategoryCourses || "",
+          }),
+        );
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        setPage1CoursesLoading(false);
+      }
+    };
+    fetch();
+  }, [
+    activeTab,
+    page1Courses,
+    appliedSearch,
+    appliedSortByCourses,
+    appliedCategoryCourses,
+  ]);
+
+  const handleApply = useCallback(() => {
+    setAppliedSearch(searchValue);
+    setAppliedCategory(selectedCatagory);
+    setAppliedTags([...selectedTags]);
+    if (activeTab === "announcements") {
+      setAppliedSortByAnnouncements(selectedSortByAnnouncements || "recent");
+      setPage1Announcements(1);
+    }
+    if (activeTab === "events") {
+      setAppliedSortByEvents(selectedSortByEvents || "recent");
+      setPage1Events(1);
+    }
+    if (activeTab === "services") {
+      setAppliedSortByServices(selectedSortByServices || "recent");
+      setAppliedProviderType(selectedProviderType);
+      setPage1Services(1);
+    }
+    if (activeTab === "counsellors") {
+      setAppliedSortByCounsellors(selectedSortByCounsellors || "recent");
+      setAppliedCountryCounsellors(selectedCountryCounsellors?.name || "");
+      setPage1Counsellors(1);
+    }
+    if (activeTab === "courses") {
+      setAppliedSortByCourses(selectedSortByCourses || "recent");
+      setAppliedCategoryCourses(selectedCategoryCourses);
+      setPage1Courses(1);
+    }
+    setPage1(1);
+    setPage1Articles(1);
+    setPage1Podcasts(1);
+  }, [
+    searchValue,
+    selectedCatagory,
+    selectedTags,
+    activeTab,
+    selectedSortByAnnouncements,
+    selectedSortByEvents,
+    selectedSortByServices,
+    selectedProviderType,
+    selectedSortByCounsellors,
+    selectedCountryCounsellors,
+    selectedSortByCourses,
+    selectedCategoryCourses,
+  ]);
+
+  const handleReset = useCallback(() => {
+    setSearchValue("");
+    setSelectedCatagory("");
+    setSelectedTags([]);
+    setAppliedSearch("");
+    setAppliedCategory("");
+    setAppliedTags([]);
+    setPage1(1);
+    setPage1Articles(1);
+    setPage1Podcasts(1);
+    setPage1Announcements(1);
+    setPage1Events(1);
+    setPage3Articles(1);
+    setPage3Podcasts(1);
+    setSelectedSortByAnnouncements("");
+    setAppliedSortByAnnouncements("recent");
+    setSelectedSortByEvents("");
+    setAppliedSortByEvents("recent");
+    setPage1Services(1);
+    setSelectedSortByServices("");
+    setAppliedSortByServices("recent");
+    setSelectedProviderType("all");
+    setAppliedProviderType("all");
+    setPage1Counsellors(1);
+    setSelectedSortByCounsellors("");
+    setAppliedSortByCounsellors("recent");
+    setSelectedCountryCounsellors(null);
+    setAppliedCountryCounsellors("");
+    setPage1Courses(1);
+    setSelectedSortByCourses("");
+    setAppliedSortByCourses("recent");
+    setSelectedCategoryCourses("");
+    setAppliedCategoryCourses("");
+    dispatchToRedux(resetState());
+    dispatchToRedux(resetRelatedSearchVideos());
+  }, [dispatchToRedux]);
 
   const handlePageChange1 = useCallback((event, value) => {
     setPage1(value);
@@ -250,6 +654,34 @@ const Explore = () => {
     setPage4(value);
   }, []);
 
+  const handlePageChange1Articles = useCallback((event, value) => {
+    setPage1Articles(value);
+  }, []);
+  const handlePageChange3Articles = useCallback((event, value) => {
+    setPage3Articles(value);
+  }, []);
+  const handlePageChange1Podcasts = useCallback((event, value) => {
+    setPage1Podcasts(value);
+  }, []);
+  const handlePageChange3Podcasts = useCallback((event, value) => {
+    setPage3Podcasts(value);
+  }, []);
+  const handlePageChange1Announcements = useCallback((event, value) => {
+    setPage1Announcements(value);
+  }, []);
+  const handlePageChange1Events = useCallback((event, value) => {
+    setPage1Events(value);
+  }, []);
+  const handlePageChange1Services = useCallback((event, value) => {
+    setPage1Services(value);
+  }, []);
+  const handlePageChange1Counsellors = useCallback((event, value) => {
+    setPage1Counsellors(value);
+  }, []);
+  const handlePageChange1Courses = useCallback((event, value) => {
+    setPage1Courses(value);
+  }, []);
+
   useEffect(() => {}, [
     allVideosData,
     trendingVideosData,
@@ -257,368 +689,1074 @@ const Explore = () => {
     dispatchToRedux,
   ]);
 
-  const handleReset = () => {
-    setSelectedTags([]);
-    setSelectedCatagory("");
-    setSearchValue("");
-    setPage1(1);
-    setPage2(1);
-    setPage3(1);
-    setPage4(1);
-    dispatchToRedux(resetState());
-    dispatchToRedux(getAllVideos({ page: page1 }));
-    dispatchToRedux(resetRelatedSearchVideos());
-    dispatchToRedux(getTrendingVideos({ page: page3 }));
-    if (userId && isAuthenticated) {
-      dispatchToRedux(
-        getVideosByUserInterests({
-          userId: userId,
-          page: page4,
-        })
-      );
-    }
-  };
-
   return (
-    <Box sx={{ mt: "8.5rem" }}>
-      <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
+    <Box sx={{ mt: "9.25rem" }}>
+      <Box
+        sx={{
+          marginTop: "2rem",
+          marginLeft: "5rem",
+          marginRight: "5rem",
+          "@media (max-width: 480px)": {
+            marginLeft: "1rem",
+            marginRight: "1rem",
+          },
+        }}
+      >
+        {/* Single white box: tabs inside top, then filters row */}
+
         <Box
+          className={exploreStyles.filterBox}
           sx={{
             backgroundColor: "#ffffff",
             boxShadow: "2px 2px 10px #a7a7a764",
-            width: "80rem",
-            maxWidth: "100%",
-            margin: "auto",
+            width: "100%",
             marginBottom: "2rem",
             borderRadius: "19px",
+            marginTop: "2rem",
+            paddingLeft: { xs: "0.75rem", sm: "2rem" },
+            paddingRight: { xs: "0.75rem", sm: "2rem" },
           }}
         >
-          <Box
-            sx={{
-              borderBottom: "1px solid #dddddd",
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-            }}
+          {/* Tabs inside box, equally distributed */}
+          <div
+            className={`${exploreStyles.tabBar} ${exploreStyles.tabBarInside}`}
+            role="tablist"
           >
-            <ArrowBackIosNewIcon
-              sx={{
-                cursor: "pointer",
-                color: "#42424275",
-                fontSize: "1.5rem",
-              }}
-              onClick={() => scroll("left")}
-            />
-            {/* Categories Filter */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                maxWidth: "100%",
-                padding: "15px 0px",
-                overflowX: "auto",
-                overflowY: "hidden",
-                // margin: {
-                //   xs: "0px 15px",
-                //   sm: "0px 30px",
-                // },
-              }}
-              className="scrollbar-hide"
-              ref={scrollRef}
-            >
-              {" "}
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: "bold", fontSize: "15px" }}
-              >
-                Categories:
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "nowrap",
-                  padding: "5px 10px",
-                }}
-              >
-                {categories.map((category, index) => (
-                  <Button
-                    key={`${category}-index-${index}`}
-                    onClick={() => {
-                      handleCategorySelection(category);
-                      setSelectedCatagory(category);
-                    }}
-                    variant="contained"
-                    sx={{
-                      minWidth: "fit-content",
-                      borderRadius: "90px",
-                      padding: "6px 10px",
-                      fontFamily: fonts.sans,
-                      margin: "0 5px",
-                      textTransform: "none",
-                      backgroundColor:
-                        selectedCatagory === category ? "#FF8A00" : "#ff880033",
-                      color:
-                        selectedCatagory === category ? "white" : "#FF8A00",
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      whiteSpace: "nowrap",
-                      // width: "90px",
-                      "&:hover": {
-                        backgroundColor: "#FF8A00",
-                        color: "white",
-                      },
-                    }}
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </Box>
-            </Box>
-            <ArrowForwardIosIcon
-              sx={{
-                cursor: "pointer",
-                color: "#42424275",
-                fontSize: "1.5rem",
-              }}
-              onClick={() => scroll("right")}
-            />
-          </Box>
-
+            <div className={exploreStyles.tabList}>
+              {EXPLORE_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`explore-panel-${tab.id}`}
+                  id={`explore-tab-${tab.id}`}
+                  className={`${exploreStyles.tab} ${activeTab === tab.id ? exploreStyles.tabActive : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Filters row: Search | Categories | Tags | Apply | Reset */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
+              flexWrap: "wrap",
               alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
               width: "100%",
-              margin: "auto",
-              padding: "4px 0",
+              padding: { xs: "15px 0 20px", sm: "15px 24px 20px" },
+              borderTop: "1px solid #eeeeee",
             }}
             className={exploreStyles["filters"]}
           >
-            {/* Search Input */}
+            {/* Search input - full width on mobile, reduced on desktop */}
             <Box
+              className={exploreStyles.filtersSearch}
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                margin: "auto",
                 position: "relative",
-                padding: {
-                  xs: "14px 12px",
-                  sm: "15px 30px",
+                flex: "1 1 280px",
+                minWidth: 0,
+                maxWidth: { xs: "100%", sm: "400px" },
+                "& input": {
+                  width: "100%",
+                  height: "46px",
+                  outline: "none",
+                  border: "1px solid #dddddd",
+                  borderRadius: "90px",
+                  padding: "10px 48px 10px 16px",
+                  backgroundColor: "#F6F6F6",
+                  fontFamily: fonts.sans,
+                  fontSize: "1rem",
+                  transition: "border-color 0.2s",
+                  "&:hover": { borderColor: "#dddddd" },
+                  "&:focus": {
+                    borderColor: "#BC2876",
+                    borderWidth: "1px",
+                  },
                 },
               }}
             >
               <input
-                placeholder="Search here"
-                variant="outlined"
-                style={{
-                  marginRight: "10px",
-                  flexGrow: 1,
-                  width: "23.6875rem",
-                  height: "3rem",
-                  outline: "none",
-                  border: "1px solid #dddddd",
-                  borderRadius: "90px",
-                  padding: "12px 64px 12px 15px",
-                  backgroundColor: "#F6F6F6",
-                }}
+                placeholder="Search by title, topic, or name"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
-              <Button
-                variant="contained"
-                onClick={handleSearchClick}
-                className={exploreStyles["applyBtn"]}
+              {searchValue && (
+                <IconButton
+                  size="small"
+                  onClick={() => setSearchValue("")}
+                  sx={{
+                    position: "absolute",
+                    right: "40px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#720361",
+                    p: 0.5,
+                    "&:hover": { backgroundColor: "rgba(114, 3, 97, 0.08)" },
+                  }}
+                  aria-label="Clear search"
+                >
+                  <CloseIcon sx={{ fontSize: "1.1rem" }} />
+                </IconButton>
+              )}
+              <SearchIcon
                 sx={{
                   position: "absolute",
+                  right: "14px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  right: "10px",
-                  textTransform: "capitalize",
-                  borderRadius: "90px",
-                  padding: "12px 24px",
-                  // borderRadius: "50%",
+                  color: "#720361",
+                  fontSize: "1.4rem",
+                  pointerEvents: "none",
+                }}
+              />
+            </Box>
+            {/* On desktop: search left, filters right (space-between); on mobile: stacked */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { sm: "center" },
+                gap: "12px",
+                flex: { sm: "0 0 auto" },
+                minWidth: 0,
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              <Box
+                className={exploreStyles.filtersDropdownsRow}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  flexWrap: { sm: "nowrap" },
                 }}
               >
-                Search
-              </Button>
-            </Box>
-
-            {/* Tags Filter  */}
-            <div className={exploreStyles["select-and-buttons"]}>
-              {/* Multiple tag selection filter */}
-              <Autocomplete
-                multiple
-                options={formattedTags}
-                getOptionLabel={(option) => option.label}
-                value={formattedTags.filter((tag) =>
-                  selectedTags.includes(tag.value)
-                )}
-                onChange={(event, newValue) => {
-                  const selectedLowercaseTags = newValue.map(
-                    (tag) => tag.value
-                  );
-                  setSelectedTags(selectedLowercaseTags);
-                }}
-                filterSelectedOptions
-                disableCloseOnSelect
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    placeholder="Filter by Tags"
+                {/* Announcements/Events/Services/Counsellors/Courses: SortBy */}
+                {(activeTab === "announcements" ||
+                  activeTab === "events" ||
+                  activeTab === "services" ||
+                  activeTab === "counsellors" ||
+                  activeTab === "courses") && (
+                  <FormControl
                     sx={{
-                      marginRight: "10px",
-                      width: "169px",
-                      maxWidth: "100%",
+                      minWidth: { xs: "140px", sm: "180px" },
                       height: "46px",
-                      backgroundColor: "#F6F6F6",
-                      borderRadius: "90px",
-                      border: "1px solid #dddddd",
                       "& .MuiOutlinedInput-root": {
                         height: "100%",
                         borderRadius: "90px",
-                        padding: "0 35px 0 15px",
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
                       },
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        border: "none",
+                    }}
+                    size="small"
+                  >
+                    {activeTab === "announcements" && (
+                      <Select
+                        key="sort-announcements"
+                        id="explore-sortby-select-announcements"
+                        variant="outlined"
+                        value={selectedSortByAnnouncements}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByAnnouncements(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByAnnouncements ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByAnnouncements("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "events" && (
+                      <Select
+                        key="sort-events"
+                        id="explore-sortby-select-events"
+                        variant="outlined"
+                        value={selectedSortByEvents}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByEvents(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByEvents ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByEvents("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "services" && (
+                      <Select
+                        key="sort-services"
+                        id="explore-sortby-select-services"
+                        variant="outlined"
+                        value={selectedSortByServices}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByServices(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByServices ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByServices("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "counsellors" && (
+                      <Select
+                        key="sort-counsellors"
+                        id="explore-sortby-select-counsellors"
+                        variant="outlined"
+                        value={selectedSortByCounsellors}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "name" ? "Name" : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByCounsellors(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByCounsellors ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByCounsellors("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem value="name" sx={{ fontFamily: fonts.sans }}>
+                          Name
+                        </MenuItem>
+                      </Select>
+                    )}
+                    {activeTab === "courses" && (
+                      <Select
+                        key="sort-courses"
+                        id="explore-sortby-select-courses"
+                        variant="outlined"
+                        value={selectedSortByCourses}
+                        displayEmpty
+                        renderValue={(v) => {
+                          if (!v) return "Sort By";
+                          return v === "popular"
+                            ? "Most popular"
+                            : "Most recent";
+                        }}
+                        onChange={(e) =>
+                          setSelectedSortByCourses(e.target.value ?? "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: { sx: { zIndex: 9999 } },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                        InputProps={{
+                          endAdornment: selectedSortByCourses ? (
+                            <InputAdornment position="end" sx={{ mr: 1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedSortByCourses("");
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                aria-label="Clear sort"
+                                sx={{ p: 0.25 }}
+                              >
+                                <CloseIcon sx={{ fontSize: "18px" }} />
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null,
+                        }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          Sort By
+                        </MenuItem>
+                        <MenuItem
+                          value="recent"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most recent
+                        </MenuItem>
+                        <MenuItem
+                          value="popular"
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          Most popular
+                        </MenuItem>
+                      </Select>
+                    )}
+                  </FormControl>
+                )}
+
+                {/* Counsellors only: Country dropdown (matches Sort By UI) */}
+                {activeTab === "counsellors" && (
+                  <Autocomplete
+                    options={countryList}
+                    getOptionLabel={(option) => option.name}
+                    value={selectedCountryCounsellors}
+                    onChange={(e, newValue) =>
+                      setSelectedCountryCounsellors(newValue)
+                    }
+                    popupIcon={
+                      <KeyboardArrowDownIcon sx={{ color: "#720361" }} />
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Country"
+                        variant="outlined"
+                        inputProps={{
+                          ...params.inputProps,
+                          style: {
+                            textAlign: "start",
+                            padding: "0px",
+                            paddingLeft: "10px",
+                          },
+                        }}
+                      />
+                    )}
+                    sx={{
+                      minWidth: { xs: "140px", sm: "180px" },
+                      height: "46px",
+                      "& .MuiOutlinedInput-root": {
+                        height: "46px",
+                        borderRadius: "90px",
+                        py: "0px",
+                        px: 0,
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
+                        "& .MuiInputBase-input::placeholder": {
+                          color: "#333333",
+                          opacity: 1,
+                        },
+                      },
+                      "& .MuiInputBase-input": {
+                        py: "0px",
+                        px: 0,
+                        // border: "1px solid #dddddd",
                       },
                     }}
                   />
                 )}
-                renderTags={() => null}
-              />
 
-              {/* Apply and Reset Buttons */}
+                {/* Services only: Provider type dropdown */}
+                {activeTab === "services" && (
+                  <FormControl
+                    sx={{
+                      minWidth: { xs: "140px", sm: "180px" },
+                      height: "46px",
+                      "& .MuiOutlinedInput-root": {
+                        height: "100%",
+                        borderRadius: "90px",
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
+                      },
+                    }}
+                    size="small"
+                  >
+                    <Select
+                      id="explore-provider-type-select"
+                      value={selectedProviderType}
+                      displayEmpty
+                      renderValue={(v) =>
+                        v === "all"
+                          ? "All"
+                          : v === "ESP"
+                            ? "Service Providers"
+                            : v === "HEI"
+                              ? "Edu Institutions"
+                              : "All"
+                      }
+                      onChange={(e) => setSelectedProviderType(e.target.value)}
+                      IconComponent={KeyboardArrowDownIcon}
+                      sx={{
+                        "& .MuiSelect-icon": {
+                          color: "#720361",
+                        },
+                      }}
+                    >
+                      <MenuItem value="all" sx={{ fontFamily: fonts.sans }}>
+                        All
+                      </MenuItem>
+                      <MenuItem value="ESP" sx={{ fontFamily: fonts.sans }}>
+                        Service Providers
+                      </MenuItem>
+                      <MenuItem value="HEI" sx={{ fontFamily: fonts.sans }}>
+                        Edu Institutions
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+
+                {/* Categories dropdown (same UI as Sort By for Courses) */}
+                {activeTab !== "announcements" &&
+                  activeTab !== "events" &&
+                  activeTab !== "services" &&
+                  activeTab !== "counsellors" &&
+                  activeTab !== "courses" && (
+                    <FormControl
+                      sx={{
+                        minWidth: { xs: "140px", sm: "180px" },
+                        height: "46px",
+                        "& .MuiOutlinedInput-root": {
+                          height: "100%",
+                          borderRadius: "90px",
+                          backgroundColor: "#F6F6F6",
+                          fontSize: "0.9375rem",
+                          fontFamily: fonts.sans,
+                          "& fieldset": { borderColor: "#dddddd" },
+                          "&:hover fieldset": { borderColor: "#dddddd" },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#BC2876",
+                            borderWidth: "1px",
+                          },
+                        },
+                      }}
+                      size="small"
+                    >
+                      <Select
+                        id="explore-category-select"
+                        variant="outlined"
+                        value={selectedCatagory || ""}
+                        displayEmpty
+                        renderValue={(v) => v || "Categories"}
+                        onChange={(e) =>
+                          setSelectedCatagory(e.target.value || "")
+                        }
+                        IconComponent={KeyboardArrowDownIcon}
+                        MenuProps={{
+                          disableScrollLock: true,
+                          PaperProps: {
+                            sx: { zIndex: 9999, maxHeight: 400 },
+                          },
+                        }}
+                        sx={{ "& .MuiSelect-icon": { color: "#720361" } }}
+                      >
+                        <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                          <em>All</em>
+                        </MenuItem>
+                        {categories.map((cat) => (
+                          <MenuItem
+                            key={cat}
+                            value={cat}
+                            sx={{ fontFamily: fonts.sans }}
+                          >
+                            {cat}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+
+                {/* Courses: Category dropdown */}
+                {activeTab === "courses" && (
+                  <FormControl
+                    sx={{
+                      minWidth: { xs: "140px", sm: "180px" },
+                      height: "46px",
+                      "& .MuiOutlinedInput-root": {
+                        height: "100%",
+                        borderRadius: "90px",
+                        backgroundColor: "#F6F6F6",
+                        fontSize: "0.9375rem",
+                        fontFamily: fonts.sans,
+                        "& fieldset": { borderColor: "#dddddd" },
+                        "&:hover fieldset": { borderColor: "#dddddd" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#BC2876",
+                          borderWidth: "1px",
+                        },
+                      },
+                    }}
+                    size="small"
+                  >
+                    <Select
+                      id="explore-courses-category-select"
+                      value={selectedCategoryCourses || ""}
+                      displayEmpty
+                      renderValue={(v) => v || "Category"}
+                      onChange={(e) =>
+                        setSelectedCategoryCourses(e.target.value || "")
+                      }
+                      IconComponent={KeyboardArrowDownIcon}
+                      sx={{
+                        "& .MuiSelect-icon": {
+                          color: "#720361",
+                        },
+                      }}
+                    >
+                      <MenuItem value="" sx={{ fontFamily: fonts.sans }}>
+                        <em>All</em>
+                      </MenuItem>
+                      {categories.map((cat) => (
+                        <MenuItem
+                          key={cat}
+                          value={cat}
+                          sx={{ fontFamily: fonts.sans }}
+                        >
+                          {cat}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+
+                {/* Tags (same UI as Sort By for Courses: same icon and styling) */}
+                {activeTab !== "announcements" &&
+                  activeTab !== "events" &&
+                  activeTab !== "services" &&
+                  activeTab !== "counsellors" &&
+                  activeTab !== "courses" && (
+                    <Autocomplete
+                      multiple
+                      options={formattedTags}
+                      getOptionLabel={(option) => option.label}
+                      value={formattedTags.filter((tag) =>
+                        selectedTags.includes(tag.value),
+                      )}
+                      onChange={(event, newValue) => {
+                        setSelectedTags(newValue.map((tag) => tag.value));
+                      }}
+                      filterSelectedOptions
+                      disableCloseOnSelect
+                      popupIcon={
+                        <KeyboardArrowDownIcon sx={{ color: "#720361" }} />
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          placeholder="Tags"
+                          size="small"
+                          sx={{
+                            width: { xs: "100%", sm: "180px" },
+                            "& .MuiOutlinedInput-root": {
+                              height: "46px",
+                              borderRadius: "90px",
+                              backgroundColor: "#F6F6F6",
+                              fontSize: "0.9375rem",
+                              fontFamily: fonts.sans,
+                              padding: "0 9px 0 14px",
+                              "& fieldset": { borderColor: "#dddddd" },
+                              "&:hover fieldset": { borderColor: "#dddddd" },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#BC2876",
+                                borderWidth: "1px",
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                      renderTags={() => null}
+                    />
+                  )}
+              </Box>
+              {/* Apply & Reset - 50% width each on mobile */}
               <Box
-                sx={{
-                  display: "flex",
-                  gap: "10px",
-                }}
-                className={exploreStyles["buttons"]}
+                className={exploreStyles.filtersButtonsRow}
+                sx={{ display: "flex", gap: "10px", flexShrink: 0 }}
               >
+                <Button
+                  variant="contained"
+                  onClick={handleApply}
+                  className={exploreStyles["applyBtn"]}
+                  sx={{
+                    textTransform: "capitalize",
+                    borderRadius: "90px",
+                    padding: "10px 24px",
+                    fontFamily: fonts.sans,
+                  }}
+                >
+                  Apply
+                </Button>
                 <Button
                   onClick={handleReset}
                   className={exploreStyles["resetBtn"]}
                   sx={{
                     textTransform: "capitalize",
-                    backgroundColor: "transparent",
-                    border: "1px solid #dddddd",
-                    padding: "0rem 1rem",
                     borderRadius: "90px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "fit-content",
-                    fontSize: "1.125rem",
-                    gap: ".875rem",
-                    color: "#717171",
-                    cursor: "pointer",
+                    padding: "10px 24px",
+                    fontFamily: fonts.sans,
+                    backgroundColor: "#717171",
+                    color: "#fff",
                     "&:hover": {
-                      borderColor: "#dddddd",
+                      backgroundColor: "#5a5a5a",
                     },
                   }}
                 >
                   Reset
                 </Button>
               </Box>
-            </div>
+            </Box>
           </Box>
 
-          {/* Show Selected Tags */}
-          {selectedTags?.length > 0 && (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                width: "100%",
-                margin: "auto",
-                padding: "0 30px 15px 30px",
-              }}
-            >
-              {selectedTags?.length > 0 &&
-                selectedTags.map((tag, i) => (
-                  <Chip
-                    key={i}
-                    label={tag}
-                    onDelete={() => {
-                      setSelectedTags((prev) => prev.filter((t) => t !== tag));
-                    }}
-                    deleteIcon={<CloseIcon />}
-                    sx={{
-                      fontFamily: fonts.sans,
-                      backgroundColor: "#f5f5f5",
-                      color: "#4F4F4F",
-                      border: "1px solid #dddddd",
-                      "& .MuiChip-deleteIcon": {
-                        color: "#888",
-                        fontSize: "18px",
-                        "&:hover": {
-                          color: "#FF8A00",
+          {/* Show Selected Tags (hidden for announcements/events/services/counsellors) */}
+          {selectedTags?.length > 0 &&
+            activeTab !== "announcements" &&
+            activeTab !== "events" &&
+            activeTab !== "services" &&
+            activeTab !== "counsellors" &&
+            activeTab !== "courses" && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  width: "100%",
+                  margin: "auto",
+                  padding: { xs: "0 0 15px 0", sm: "0 30px 15px 30px" },
+                }}
+              >
+                {selectedTags?.length > 0 &&
+                  selectedTags.map((tag, i) => (
+                    <Chip
+                      key={i}
+                      label={tag}
+                      onDelete={() => {
+                        setSelectedTags((prev) =>
+                          prev.filter((t) => t !== tag),
+                        );
+                      }}
+                      deleteIcon={<CloseIcon />}
+                      sx={{
+                        fontFamily: fonts.sans,
+                        backgroundColor: "#f5f5f5",
+                        color: "#4F4F4F",
+                        border: "1px solid #dddddd",
+                        "& .MuiChip-deleteIcon": {
+                          color: "#888",
+                          fontSize: "18px",
+                          "&:hover": {
+                            color: "#FF8A00",
+                          },
                         },
-                      },
-                    }}
-                  />
-                ))}
-            </Box>
-          )}
+                      }}
+                    />
+                  ))}
+              </Box>
+            )}
         </Box>
 
-        <VideoSection
-          title={
-            searchValue || selectedTags.length > 0 || selectedCatagory
-              ? "Search Results"
-              : ""
-          }
-          videos={allVideosData?.videos || []}
-          isLoading={page1Loading}
-          currentPage={page1}
-          totalPages={allVideosData?.totalPages || 1}
-          onPageChange={handlePageChange1}
-        />
+        {/* Row 3: Tab content */}
+        <div
+          id="explore-panel-videos"
+          role="tabpanel"
+          aria-labelledby="explore-tab-videos"
+          hidden={activeTab !== "videos"}
+        >
+          {activeTab === "videos" && (
+            <>
+              <VideoSection
+                title={
+                  appliedSearch || appliedTags.length > 0 || appliedCategory
+                    ? "Search Results"
+                    : ""
+                }
+                videos={allVideosData?.videos || []}
+                isLoading={page1Loading}
+                currentPage={page1}
+                totalPages={allVideosData?.totalPages || 1}
+                onPageChange={handlePageChange1}
+              />
 
-        {relatedSearchVideosData?.videos?.length > 0 && (
-          <VideoSection
-            title="Related Searches"
-            videos={relatedSearchVideosData?.videos || []}
-            isLoading={page2Loading}
-            currentPage={page2}
-            totalPages={relatedSearchVideosData?.totalPages || 1}
-            onPageChange={handlePageChange2}
-          />
-        )}
+              {relatedSearchVideosData?.videos?.length > 0 && (
+                <VideoSection
+                  title="Related Searches"
+                  videos={relatedSearchVideosData?.videos || []}
+                  isLoading={page2Loading}
+                  currentPage={page2}
+                  totalPages={relatedSearchVideosData?.totalPages || 1}
+                  onPageChange={handlePageChange2}
+                />
+              )}
 
-        <VideoSection
-          title="Trending"
-          videos={trendingVideosData?.videos || []}
-          isLoading={page3Loading}
-          currentPage={page3}
-          totalPages={trendingVideosData?.totalPages || 1}
-          onPageChange={handlePageChange3}
-        />
+              <VideoSection
+                title="Trending"
+                videos={trendingVideosData?.videos || []}
+                isLoading={page3Loading}
+                currentPage={page3}
+                totalPages={trendingVideosData?.totalPages || 1}
+                onPageChange={handlePageChange3}
+              />
 
-        {userId &&
-          isAuthenticated &&
-          userInterestsVideosData?.videos?.length > 0 && (
-            <VideoSection
-              title="Curated For You"
-              videos={userInterestsVideosData?.videos.slice(0, 12) || []}
-              isLoading={page4Loading}
-              currentPage={page4}
-              totalPages={userInterestsVideosData?.totalPages || 1}
-              onPageChange={handlePageChange4}
+              {userId &&
+                isAuthenticated &&
+                userInterestsVideosData?.videos?.length > 0 && (
+                  <VideoSection
+                    title="Curated For You"
+                    videos={userInterestsVideosData?.videos.slice(0, 12) || []}
+                    isLoading={page4Loading}
+                    currentPage={page4}
+                    totalPages={userInterestsVideosData?.totalPages || 1}
+                    onPageChange={handlePageChange4}
+                  />
+                )}
+            </>
+          )}
+        </div>
+
+        {/* Articles tab content */}
+        <div
+          id="explore-panel-articles"
+          role="tabpanel"
+          aria-labelledby="explore-tab-articles"
+          hidden={activeTab !== "articles"}
+        >
+          {activeTab === "articles" && (
+            <>
+              <ArticleSection
+                title={
+                  appliedSearch || appliedTags.length > 0 || appliedCategory
+                    ? "Search Results"
+                    : ""
+                }
+                articles={allArticlesData?.articles || []}
+                isLoading={page1ArticlesLoading}
+                currentPage={page1Articles}
+                totalPages={allArticlesData?.totalPages || 1}
+                onPageChange={handlePageChange1Articles}
+              />
+              <ArticleSection
+                title="Trending"
+                articles={trendingArticlesData?.articles || []}
+                isLoading={page3ArticlesLoading}
+                currentPage={page3Articles}
+                totalPages={trendingArticlesData?.totalPages || 1}
+                onPageChange={handlePageChange3Articles}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Podcasts tab content */}
+        <div
+          id="explore-panel-podcasts"
+          role="tabpanel"
+          aria-labelledby="explore-tab-podcasts"
+          hidden={activeTab !== "podcasts"}
+        >
+          {activeTab === "podcasts" && (
+            <>
+              <PodcastSection
+                title={
+                  appliedSearch || appliedTags.length > 0 || appliedCategory
+                    ? "Search Results"
+                    : ""
+                }
+                podcasts={allPodcastsData?.podcasts || []}
+                isLoading={page1PodcastsLoading}
+                currentPage={page1Podcasts}
+                totalPages={allPodcastsData?.totalPages || 1}
+                onPageChange={handlePageChange1Podcasts}
+              />
+              <PodcastSection
+                title="Trending"
+                podcasts={trendingPodcastsData?.podcasts || []}
+                isLoading={page3PodcastsLoading}
+                currentPage={page3Podcasts}
+                totalPages={trendingPodcastsData?.totalPages || 1}
+                onPageChange={handlePageChange3Podcasts}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Announcements tab content */}
+        <div
+          id="explore-panel-announcements"
+          role="tabpanel"
+          aria-labelledby="explore-tab-announcements"
+          hidden={activeTab !== "announcements"}
+        >
+          {activeTab === "announcements" && (
+            <AnnouncementSection
+              announcements={allAnnouncementsData?.announcements || []}
+              isLoading={page1AnnouncementsLoading}
+              currentPage={page1Announcements}
+              totalPages={allAnnouncementsData?.totalPages || 1}
+              onPageChange={handlePageChange1Announcements}
             />
           )}
-      </Container>
+        </div>
+
+        {/* Events tab content */}
+        <div
+          id="explore-panel-events"
+          role="tabpanel"
+          aria-labelledby="explore-tab-events"
+          hidden={activeTab !== "events"}
+        >
+          {activeTab === "events" && (
+            <EventSection
+              events={allEventsData?.events || []}
+              isLoading={page1EventsLoading}
+              currentPage={page1Events}
+              totalPages={allEventsData?.totalPages || 1}
+              onPageChange={handlePageChange1Events}
+            />
+          )}
+        </div>
+
+        {/* Services tab content */}
+        <div
+          id="explore-panel-services"
+          role="tabpanel"
+          aria-labelledby="explore-tab-services"
+          hidden={activeTab !== "services"}
+        >
+          {activeTab === "services" && (
+            <ServiceSection
+              services={allServicesData?.services || []}
+              isLoading={page1ServicesLoading}
+              currentPage={page1Services}
+              totalPages={allServicesData?.totalPages || 1}
+              onPageChange={handlePageChange1Services}
+            />
+          )}
+        </div>
+
+        {/* Counsellors tab content */}
+        <div
+          id="explore-panel-counsellors"
+          role="tabpanel"
+          aria-labelledby="explore-tab-counsellors"
+          hidden={activeTab !== "counsellors"}
+        >
+          {activeTab === "counsellors" && (
+            <CounsellorSection
+              counsellors={allCounsellorsData?.counsellors || []}
+              isLoading={page1CounsellorsLoading}
+              currentPage={allCounsellorsData?.currentPage ?? page1Counsellors}
+              totalPages={allCounsellorsData?.totalPages || 1}
+              onPageChange={handlePageChange1Counsellors}
+            />
+          )}
+        </div>
+
+        {/* Courses tab content */}
+        <div
+          id="explore-panel-courses"
+          role="tabpanel"
+          aria-labelledby="explore-tab-courses"
+          hidden={activeTab !== "courses"}
+        >
+          {activeTab === "courses" && (
+            <CourseSection
+              courses={allCoursesData?.courses || []}
+              isLoading={page1CoursesLoading}
+              currentPage={allCoursesData?.currentPage ?? page1Courses}
+              totalPages={allCoursesData?.totalPages || 1}
+              onPageChange={handlePageChange1Courses}
+            />
+          )}
+        </div>
+
+        {/* Placeholder for other tabs */}
+        {![
+          "videos",
+          "articles",
+          "podcasts",
+          "courses",
+          "announcements",
+          "events",
+          "services",
+          "counsellors",
+        ].includes(activeTab) && (
+          <div
+            role="tabpanel"
+            id={`explore-panel-${activeTab}`}
+            aria-labelledby={`explore-tab-${activeTab}`}
+            className={exploreStyles.placeholderContent}
+          >
+            <Typography sx={{ fontFamily: fonts.sans }}>
+              {EXPLORE_TABS.find((t) => t.id === activeTab)?.label} — Coming
+              soon
+            </Typography>
+          </div>
+        )}
+      </Box>
 
       {/* {userData?.hasLoggedIn === false &&
         userData?.activeDashboard === "user" && (
           <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
           )} */}
-          <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
+      <InterestsModal open={isModalOpen} handleClose={handleModalClose} />
     </Box>
   );
 };

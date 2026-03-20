@@ -30,12 +30,13 @@ const login = createAsyncThunk("auth/login", async (credentials, { rejectWithVal
 
 const signup = createAsyncThunk("auth/signup", async (payload, { rejectWithValue }) => {
   try {
+    const isFormData = payload instanceof FormData;
     const response = await FetchApi.fetch(`${config.api}/api/auth/signup`, {
       method: "POST",
-      headers: {
+      headers: isFormData ? {} : {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: isFormData ? payload : JSON.stringify(payload),
     });
 
     if (!response.success) {
@@ -116,6 +117,12 @@ const authSlice = createSlice({
     setIsAuthenticated(state, { payload }) {
       state.isAuthenticated = payload.isAuthenticated;
     },
+    /** Set auth after accepting admin invite (token + userId); no profile fetch. */
+    setCredentials(state, { payload }) {
+      if (payload?.token) state.token = payload.token;
+      if (payload?.userId != null) state.userId = payload.userId;
+      state.isAuthenticated = true;
+    },
   },
   extraReducers(builder) {
     builder
@@ -147,7 +154,7 @@ const selectAuthenticated = (state) => state.auth.isAuthenticated;
 const selectAuthData = (state) => state.auth;
 const selectToken = (state) => state.auth.token;
 const selectUserId = (state) => state.auth.userId;
-const { setIsAuthenticated, logout } = authSlice.actions;
+const { setIsAuthenticated, logout, setCredentials } = authSlice.actions;
 
 export {
   selectAuthenticated,
@@ -160,5 +167,6 @@ export {
   forgetPassVerify,
   setIsAuthenticated,
   logout,
+  setCredentials,
 };
 export default authSlice.reducer;

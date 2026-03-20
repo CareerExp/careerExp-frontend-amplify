@@ -7,6 +7,15 @@ const initialState = {
   allVideos: [],
   mostViewedThumbnails: [],
   allTags: [],
+  allArticles: null,
+  trendingArticles: null,
+  allPodcasts: null,
+  trendingPodcasts: null,
+  allAnnouncements: null,
+  allEvents: null,
+  allServices: null,
+  allCounsellors: null,
+  allCourses: null,
 };
 
 export const getAllVideos = createAsyncThunk(
@@ -141,6 +150,311 @@ export const getRelatedSearchVideos = createAsyncThunk(
   }
 );
 
+// Articles (same params as getAllVideos + sortBy: views | newest)
+export const getAllArticles = createAsyncThunk(
+  "explore/getAllArticles",
+  async ({
+    page = 1,
+    limit = 12,
+    category = "",
+    tags = [],
+    search = "",
+    sortBy = "newest",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        category,
+        tags: tags.join(","),
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallarticles?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+export const getTrendingArticles = createAsyncThunk(
+  "explore/getTrendingArticles",
+  async ({ page = 1 } = {}) => {
+    try {
+      const query = new URLSearchParams({ page }).toString();
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/gettrendingarticles?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Podcasts (same params as getAllVideos + sortBy)
+export const getAllPodcasts = createAsyncThunk(
+  "explore/getAllPodcasts",
+  async ({
+    page = 1,
+    limit = 12,
+    category = "",
+    tags = [],
+    search = "",
+    sortBy = "newest",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        category,
+        tags: tags.join(","),
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallpodcasts?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+export const getTrendingPodcasts = createAsyncThunk(
+  "explore/getTrendingPodcasts",
+  async ({ page = 1 } = {}) => {
+    try {
+      const query = new URLSearchParams({ page }).toString();
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/gettrendingpodcasts?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Announcements: GET /api/explore/getallannouncements — page, limit, search, sortBy (recent | popular)
+export const getAllAnnouncements = createAsyncThunk(
+  "explore/getAllAnnouncements",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallannouncements?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Events: GET /api/explore/getallevents — page, limit, search, sortBy (recent | popular)
+export const getAllEvents = createAsyncThunk(
+  "explore/getAllEvents",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+  }) => {
+    try {
+      const query = new URLSearchParams({
+        page,
+        limit,
+        search,
+        sortBy,
+      }).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallevents?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Services: GET /api/explore/getallservices — page, limit, search, sortBy (recent | popular), providerType ("" | ESP | HEI)
+export const getAllServices = createAsyncThunk(
+  "explore/getAllServices",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+    providerType = "",
+  }) => {
+    try {
+      const params = { page, limit, search, sortBy };
+      if (providerType && providerType !== "all") {
+        params.providerType = providerType;
+      }
+      const query = new URLSearchParams(params).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallservices?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Counsellors: GET /api/explore/getallcounsellors — page, limit, search, sortBy (recent | name)
+export const getAllCounsellors = createAsyncThunk(
+  "explore/getAllCounsellors",
+  async ({
+    page = 1,
+    limit = 24,
+    search = "",
+    sortBy = "recent",
+    country = "",
+  }) => {
+    try {
+      const params = { page, limit, search, sortBy };
+      if (country) params.country = country;
+      const query = new URLSearchParams(params).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallcounsellors?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// Courses (explore): GET /api/explore/getallcourses — page, limit (12), search, sortBy (recent | popular), category
+export const getAllCourses = createAsyncThunk(
+  "explore/getAllCourses",
+  async ({
+    page = 1,
+    limit = 12,
+    search = "",
+    sortBy = "recent",
+    category = "",
+  }) => {
+    try {
+      const params = { page, limit, search, sortBy };
+      if (category) params.category = category;
+      const query = new URLSearchParams(params).toString();
+
+      return await FetchApi.fetch(
+        `${config.api}/api/explore/getallcourses?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
+// GET /api/explore/course/:id — public course details. Auth: none.
+// Success: { success: true, data: {...}, organizationDetails: {...} }. 404: { success: false, message: "Course not found." }
+export const getExploreCourseById = createAsyncThunk(
+  "explore/getExploreCourseById",
+  async (courseId) => {
+    const res = await FetchApi.fetch(
+      `${config.api}/api/explore/course/${courseId}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    if (res && res.success === false) {
+      throw new Error(res.message || "Course not found.");
+    }
+    return {
+      data: res?.data ?? null,
+      organizationDetails: res?.organizationDetails ?? null,
+    };
+  }
+);
+
+// POST /api/viewsAndShares/increasecourseviewscount/:courseId
+export const increaseCourseViewsCount = createAsyncThunk(
+  "explore/increaseCourseViewsCount",
+  async (courseId) => {
+    try {
+      return await FetchApi.fetch(
+        `${config.api}/api/viewsAndShares/increasecourseviewscount/${courseId}`,
+        { method: "POST", headers: { "Content-Type": "application/json" } }
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
+
 export const getMostViewedThumbnails = createAsyncThunk(
   "explore/getMostViewedThumbnails",
   async () => {
@@ -209,6 +523,33 @@ const exploreSlice = createSlice({
     builder.addCase(getRelatedSearchVideos.fulfilled, (state, { payload }) => {
       state.relatedSearchVideos = payload;
     });
+    builder.addCase(getAllArticles.fulfilled, (state, { payload }) => {
+      state.allArticles = payload;
+    });
+    builder.addCase(getTrendingArticles.fulfilled, (state, { payload }) => {
+      state.trendingArticles = payload;
+    });
+    builder.addCase(getAllPodcasts.fulfilled, (state, { payload }) => {
+      state.allPodcasts = payload;
+    });
+    builder.addCase(getTrendingPodcasts.fulfilled, (state, { payload }) => {
+      state.trendingPodcasts = payload;
+    });
+    builder.addCase(getAllAnnouncements.fulfilled, (state, { payload }) => {
+      state.allAnnouncements = payload;
+    });
+    builder.addCase(getAllEvents.fulfilled, (state, { payload }) => {
+      state.allEvents = payload;
+    });
+    builder.addCase(getAllServices.fulfilled, (state, { payload }) => {
+      state.allServices = payload;
+    });
+    builder.addCase(getAllCounsellors.fulfilled, (state, { payload }) => {
+      state.allCounsellors = payload;
+    });
+    builder.addCase(getAllCourses.fulfilled, (state, { payload }) => {
+      state.allCourses = payload;
+    });
     builder.addCase(getMostViewedThumbnails.fulfilled, (state, { payload }) => {
       state.mostViewedThumbnails = payload.thumbnails;
     });
@@ -227,5 +568,16 @@ export const selectRelatedSearchVideos = (state) =>
   state.explore.relatedSearchVideos;
 export const selectMostViewedThumbnails = (state) =>
   state.explore.mostViewedThumbnails;
+export const selectAllArticles = (state) => state.explore.allArticles;
+export const selectTrendingArticles = (state) =>
+  state.explore.trendingArticles;
+export const selectAllPodcasts = (state) => state.explore.allPodcasts;
+export const selectTrendingPodcasts = (state) =>
+  state.explore.trendingPodcasts;
+export const selectAllAnnouncements = (state) => state.explore.allAnnouncements;
+export const selectAllEvents = (state) => state.explore.allEvents;
+export const selectAllServices = (state) => state.explore.allServices;
+export const selectAllCounsellors = (state) => state.explore.allCounsellors;
+export const selectAllCourses = (state) => state.explore.allCourses;
 export const { resetRelatedSearchVideos } = exploreSlice.actions;
 export default exploreSlice.reducer;

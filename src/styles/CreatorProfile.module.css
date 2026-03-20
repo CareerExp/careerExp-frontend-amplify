@@ -1,32 +1,304 @@
 /* CreatorProfile.module.css */
 
-/* Main container */
+/* Main container – light bg so the white card is visible */
 .container {
   margin-top: 10rem;
+  min-height: 100vh;
+  /* background-color: #f0f0f0; */
+  padding-bottom: 2rem;
 }
 
-/* Profile top section */
-.profileTopContainer {
+/* ========== NEW Profile top (Figma 763-116391) ========== */
+.profileTopV2 {
   margin: auto;
   box-shadow: 2px 2px 10px #a8a8a86a;
+  max-width: 80rem;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  /* Force white so it’s never overridden by parent/global styles */
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+.profileTopV2Banner {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+  border-radius: 1rem 1rem 0 0;
+}
+
+.profileTopV2BannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  margin-top: -18px;
+}
+
+.profileTopV2SocialTray {
+  position: absolute;
+  /* top: 16px; */
+  bottom: 50px;
+  right: 0px;
+  border-radius: 10px 0 0 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #ffffff;
+  gap: 8px;
+  z-index: 2;
+}
+
+.profileTopV2SocialCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  /* background-color: #ffffff; */
+  /* border: 1px solid rgba(0, 0, 0, 0.08); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.profileTopV2SocialCircle:hover {
+  transform: scale(1.02);
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); */
+}
+
+.profileTopV2SocialCircle img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.profileTopV2Body {
+  display: flex;
+  gap: 2rem;
+  padding: 0 1.5rem 1.5rem;
+  padding-top: 0;
+  margin-top: -28px;
+  position: relative;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+.profileTopV2Left {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -58px;
+  position: relative;
+  z-index: 3;
+}
+
+.profileTopV2AvatarWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileTopV2Avatar {
+  flex-shrink: 0;
+}
+
+.profileTopV2FollowersText {
+  font-weight: 600;
+  color: #5e5e5e;
+  font-size: 0.9375rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.profileTopV2FollowBtn {
+  background: linear-gradient(90deg, #5c014e 0%, #720361 50%, #bf2f75 100%);
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.profileTopV2FollowBtn:hover {
+  opacity: 0.95;
+}
+
+.profileTopV2Right {
+  flex: 1;
+  min-width: 0;
+  /* padding-top: 0.5rem; */
+}
+
+.profileTopV2NameRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.profileTopV2NameBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profileTopV2Name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #2d2d2d;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.profileTopV2Subtitle {
+  font-size: 0.875rem;
+  color: #777;
+  font-weight: 400;
+}
+
+.profileTopV2ShareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  color: #BC2876;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profileTopV2ShareBtn:hover {
+  opacity: 0.9;
+}
+
+.profileTopV2ShareIcon {
+  width: 24px;
+  height: 24px;
+  filter: invert(24%) sepia(89%) saturate(3000%) hue-rotate(295deg); 
+}
+
+.profileTopV2MetaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.profileTopV2MetaLabel {
+  font-size: 0.9375rem;
+  color: #545454;
+  flex-shrink: 0;
+}
+
+.profileTopV2Pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.profileTopV2Pill {
+  color: #545454;
+  background-color: #f2f2f2;
+  padding: 0.4rem 0.75rem;
+  border-radius: 90px;
+  font-size: 0.875rem;
+}
+
+.profileTopV2ContactRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+/* Desktop: social on banner only. Mobile duplicate hidden until breakpoint. */
+.profileTopV2SocialTrayMobileOnly {
+  display: none;
+}
+
+.profileTopV2OrgLogoMobile {
+  display: none;
+}
+
+.profileTopV2About {
+  background-color: #f2f2f2;
+  color: #777;
+  border-radius: 10px;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.profileTopV2AboutTitle {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #545454;
+  margin: 0 0 0.5rem 0;
+}
+
+.profileTopV2AboutText {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ========== (Original) Profile top section – kept for reference ========== */
+.profileTopContainer {
+  margin: auto;
+  /* box-shadow: 2px 2px 10px #a8a8a86a; */
   width: 80rem;
   height: 25.5rem;
   border-radius: 1rem;
   position: relative;
   background-color: white;
+  overflow: visible;
+  padding: 0;
 }
 
 .profileBackgroundImage {
-  content: url("../assets//Profile/profileOilPaint.png");
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
+
+  width: 100%;
+  height: 90px;
+  background-image: url('../assets/Profile/yellowBG.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid blue;
+  padding: 0;
+  
+  /* display: block; */
 }
 
-/* Avatar section */
 .avatarContainer {
   position: absolute;
   top: 50px;
   left: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.followersContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5rem;
 }
 
 .followersText {
@@ -46,6 +318,7 @@
 .nameContainer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .nameText {
@@ -157,6 +430,22 @@
   gap: 1.5rem;
 }
 
+/* Articles & Podcasts tabs – 3 columns (Figma) */
+.articlesPodcastsGrid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.comingSoonText {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  margin: 0;
+}
+
 .paginationContainer {
   margin-top: 1.5rem;
   display: flex;
@@ -243,16 +532,17 @@
   align-items: center;
   width: fit-content;
   font-size: 1.125rem;
-  gap: 0.875rem;
   color: white;
   cursor: pointer;
 }
 
 /* Responsive styles */
 @media (max-width: 1200px) {
+  .profileTopV2,
   .profileTopContainer,
   .contentContainer {
     width: 90%;
+    max-width: none;
   }
 
   .profileInfoContainer {
@@ -260,8 +550,55 @@
   }
 }
 
-/* Mobile-first responsive styles */
+/* Mobile / tablet portrait — counsellor profile top only; desktop (769px+) unchanged */
 @media (max-width: 768px) {
+  .profileTopV2SocialTrayBannerOnly {
+    display: none !important;
+  }
+
+  .profileTopV2SocialTrayMobileOnly {
+    display: flex !important;
+    position: static;
+    bottom: auto;
+    right: auto;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .profileTopV2MetaRow {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .profileTopV2Pills {
+    justify-content: flex-start;
+  }
+
+  .profileTopV2ContactRow {
+    justify-content: flex-start;
+  }
+
+  .profileTopV2OrgLogoDesktop {
+    display: none !important;
+  }
+
+  .profileTopV2OrgLogoMobile {
+    display: flex !important;
+    margin-top: 0.75rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .profileTopV2MetaOrgRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 /* Very small devices */
@@ -277,6 +614,55 @@
     padding: 0 1rem;
   }
 
+  .profileTopV2 {
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+
+  .profileTopV2Banner {
+    height: 120px;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .profileTopV2SocialTrayBannerOnly {
+    gap: 6px;
+  }
+
+  .profileTopV2SocialTrayMobileOnly .profileTopV2SocialCircle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profileTopV2SocialTrayMobileOnly .profileTopV2SocialCircle img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .profileTopV2Body {
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem 1rem;
+  }
+
+  .profileTopV2Left {
+    margin-top: -50px;
+  }
+
+  .profileTopV2NameRow {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profileTopV2Name {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  .profileTopV2ShareBtn {
+    align-self: center;
+  }
+
   .profileTopContainer {
     width: 100%;
     height: auto;
@@ -285,30 +671,25 @@
   }
 
   .profileBackgroundImage {
-    content: url("../assets/Profile/Subtractshivam.png");
     width: 100%;
-    height: 120px;
-    object-fit: cover;
-    margin-top: 0;
+    height: auto;
   }
 
   .avatarContainer {
     position: static;
     display: flex;
     flex-direction: column;
-    align-items: left;
+    align-items: center;
     margin-top: -60px;
     margin-bottom: 1rem;
-    /* margin-left: 10px; */
     left: auto;
     top: auto;
   }
 
   .followersContainer {
-    display: flex;
     flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 1rem;
     padding: 0 20px;
   }
 
@@ -422,6 +803,11 @@
   }
 
   .videosGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .articlesPodcastsGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }

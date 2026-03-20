@@ -13,17 +13,33 @@ import {
   wechat,
   WhatsappIcon,
 } from "../assets/assest.js";
-import { selectAuthenticated, selectToken, selectUserId } from "../redux/slices/authSlice.js";
+import {
+  selectAuthenticated,
+  selectToken,
+  selectUserId,
+} from "../redux/slices/authSlice.js";
 import { saveSharingDetails } from "../redux/slices/userHistory.js";
 import { fonts } from "../utility/fonts";
 
-const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) => {
+const SharingVideoModal = ({
+  open,
+  handleClose,
+  videoUrl,
+  videoId,
+  isProfile,
+  shareTitle,
+  modalTitle,
+  onShare,
+}) => {
   const dispatchToRedux = useDispatch();
   const userId = useSelector(selectUserId);
   const token = useSelector(selectToken);
   const authenticated = useSelector(selectAuthenticated);
 
   const [copySuccess, setCopySuccess] = useState(false);
+
+  // For WhatsApp/Line, include title in message so recipients see what is being shared
+  const textToShare = shareTitle ? `${shareTitle}\n\n${videoUrl}` : videoUrl;
 
   const copyToClipboard = async (text) => {
     try {
@@ -38,7 +54,8 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
     {
       icon: FacebookIcon,
       name: "Facebook",
-      url: (link) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
@@ -49,19 +66,22 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
     {
       icon: LinkedinIcon,
       name: "Linkedin",
-      url: (link) => `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
       icon: TelegramIcon,
       name: "Telegram",
-      url: (link) => `https://telegram.me/share/url?url=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://telegram.me/share/url?url=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
       icon: TwitterIcon,
       name: "Twitter",
-      url: (link) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(link)}`,
+      url: (link) =>
+        `https://twitter.com/intent/tweet?url=${encodeURIComponent(link)}`,
       supported: true,
     },
     {
@@ -98,15 +118,21 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
     if (authenticated && userId) {
       dispatchToRedux(saveSharingDetails({ userId, videoId, token }));
     }
-    const shareUrl = platform.url(videoUrl);
+    onShare?.();
+    // WhatsApp and Line use full message text; others use URL only (for link preview)
+    const isTextMessage =
+      platformName === "WhatsApp" || platformName === "Line";
+    const linkParam = shareTitle && isTextMessage ? textToShare : videoUrl;
+    const shareUrl = platform.url(linkParam);
     window.open(shareUrl, "_blank");
   };
 
   const handleCopy = () => {
-    copyToClipboard(videoUrl);
+    copyToClipboard(shareTitle ? textToShare : videoUrl);
     if (authenticated && userId) {
       dispatchToRedux(saveSharingDetails({ userId, videoId, token }));
     }
+    onShare?.();
   };
 
   return (
@@ -142,7 +168,7 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
             fontSize: { xs: "1.25rem", sm: "1.5rem" },
           }}
         >
-          {isProfile ? "Share Profile" : " Share Video"}
+          {modalTitle ?? (isProfile ? "Share Profile" : "Share Video")}
         </Typography>
         <Box
           sx={{
@@ -155,7 +181,7 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
         >
           <TextField
             fullWidth
-            label="Video Link"
+            label={shareTitle ? "Link" : "Video Link"}
             value={videoUrl}
             InputProps={{
               readOnly: true,
@@ -174,6 +200,7 @@ const SharingVideoModal = ({ open, handleClose, videoUrl, videoId, isProfile }) 
               color: "white",
               padding: "0.5rem 1.5rem",
               borderRadius: "0.5rem",
+              marginLeft: "24px",
               width: { xs: "100%", sm: "auto" },
               "&:hover": {
                 background: "linear-gradient(to right, #720361, #bf2f75)",

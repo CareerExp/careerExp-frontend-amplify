@@ -137,7 +137,8 @@ const EditVideoModal = ({ open, onClose, video, onUpdate, isButtonLoading }) => 
           name="description"
           fullWidth
           multiline
-          rows={{ xs: 3, sm: 4, md: 4 }}
+          minRows={3}
+          maxRows={20}
           InputLabelProps={{
             shrink: true,
             style: { marginTop: "-8px" },

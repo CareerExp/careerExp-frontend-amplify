@@ -1,0 +1,16 @@
+---
+name: 02-context-awareness
+description:Enforcecorrectuseofcontextdocumentation
+alwaysApply:true
+---
+
+Systemunderstandingmustbebasedondocumentation.
+Use:
+-docs/GLOBAL_PROJECT_CONTEXT.mdforsystem-levelunderstanding
+-docs/REPO_CONTEXT.mdforrepository-specificbehavior
+Rules:
+-Treatdocumentationasread-only
+-Donotassumeundocumentedbehavior
+-Donottreatin-progressworkasdocumentedtruth
+If context is unclear:
+-Askbeforeimplementing

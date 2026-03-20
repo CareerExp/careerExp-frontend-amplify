@@ -1,3 +1,83 @@
+/* Explore page tabs (Phase 1) */
+.tabBar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  border-bottom: 1px solid #dddddd;
+  margin-bottom: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tabBar::-webkit-scrollbar {
+  display: none;
+}
+/* Tabs inside the filter box: equally distributed across full width */
+.tabBarInside .tabList {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+}
+.tabBarInside .tab {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+.tabList {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0;
+  min-width: min-content;
+}
+.tab {
+  font-family: var(--font-sans, inherit);
+  font-size: 1rem;
+  font-weight: 500;
+  color: #787876;
+  background: none;
+  border: none;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+.tab:hover {
+  color: #424242;
+}
+.tabActive {
+  color: #720361;
+}
+.tabActive::after {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 0;
+  height: 3px;
+  background: #BC2876;
+  border-radius: 0 0 4px 4px;
+}
+.tabBarInside .tabActive::after {
+  left: 0.5rem;
+  right: 0.5rem;
+}
+.placeholderContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 280px;
+  width: 100%;
+  color: #787876;
+  font-size: 1.125rem;
+}
+
 .select-and-buttons {
   display: flex;
 }
@@ -35,15 +115,58 @@
   cursor: pointer;
 }
 
+/* Mobile: horizontally scrollable tab header; desktop unchanged */
+@media screen and (max-width: 600px) {
+  .tabBarInside .tabList {
+    width: max-content;
+    min-width: 100%;
+  }
+  .tabBarInside .tab {
+    flex: 0 0 auto;
+    min-width: max-content;
+  }
+}
+
+/* Mobile: filter bar stacked layout */
+@media screen and (max-width: 600px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .filtersSearch {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  .filtersDropdownsRow {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .filtersDropdownsRow > * {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+  }
+  .filtersButtonsRow {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+  .filtersButtonsRow > * {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 @media screen and (max-width: 480px) {
   .applyBtn,
   .resetBtn {
     font-size: 1rem;
     padding: 0.6rem 1rem;
     gap: 10px;
-  }
-  .filters {
-    flex-direction: column;
   }
   .select-and-buttons {
     margin-bottom: 1rem;

@@ -34,6 +34,18 @@ import userDetailsSlice from "./slices/userDetailsSlice.js";
 import userHistorySlice from "./slices/userHistory.js";
 import userSlice from "./slices/userSlice.js";
 import zylaSlice from "./slices/zylaSlice.js";
+import organizationSlice from "./slices/organizationSlice.js";
+import orgPublicSlice from "./slices/orgPublicSlice.js";
+import subscriptionSlice from "./slices/subscriptionSlice.js";
+import ameContextSlice from "./slices/ameContextSlice.js";
+import announcementSlice from "./slices/announcementSlice.js";
+import eventSlice from "./slices/eventSlice.js";
+import serviceSlice from "./slices/serviceSlice.js";
+import courseSlice from "./slices/courseSlice.js";
+import followerSlice from "./slices/followerSlice.js";
+import dashboardActivitySlice from "./slices/dashboardActivitySlice.js";
+import messageSlice from "./slices/messageSlice.js";
+import bookmarkReducer from "./slices/bookmarkSlice.js";
 
 const persistConfig = {
   key: "user",
@@ -66,6 +78,18 @@ const rootReducer = combineReducers({
   schoolContact: schoolContactSlice,
   payment: paymentSlice,
   careerPlanning: careerPlanningSlice,
+  ameContext: ameContextSlice,
+  organization: organizationSlice,
+  orgPublic: orgPublicSlice,
+  subscription: subscriptionSlice,
+  announcement: announcementSlice,
+  event: eventSlice,
+  service: serviceSlice,
+  course: courseSlice,
+  follower: followerSlice,
+  message: messageSlice,
+  dashboardActivity: dashboardActivitySlice,
+  bookmark: bookmarkReducer,
 });
 
 const store = configureStore({

@@ -3,8 +3,17 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { careerReportImg, homeHero } from "../assets/assest";
-import { getMostViewedThumbnails, selectMostViewedThumbnails } from "../redux/slices/exploreSlice.js";
+import {
+  careerReportImg,
+  homeHero,
+  opportunity1,
+  opportunity2,
+  opportunity3,
+} from "../assets/assest";
+import {
+  getMostViewedThumbnails,
+  selectMostViewedThumbnails,
+} from "../redux/slices/exploreSlice.js";
 import commonStyles from "../styles/Common.module.css";
 import homeStyle from "../styles/Home.module.css";
 
@@ -13,25 +22,31 @@ const Home = () => {
   const mostViewedThumbnails = useSelector(selectMostViewedThumbnails);
   const [hasFetched, setHasFetched] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeOportunityCard, setActiveOportunityCard] = useState(1);
-  const work = [
-    "Internships",
-    "Apprenticeships",
-    "Traineeships",
-    "Micro-internships",
-    "Virtual Internships",
-    "Graduate Training",
-  ];
-  const upskill = [
-    "Micro-credentials",
-    "Certifications",
-    "Simulations",
-    "Game-based Learning",
-    "Project-Based Learning",
-  ];
-  const serve = ["Volunteering"];
-  const opotunityListItems = ["To Work", "To Upskill", "To Serve"];
   const [cardPerPage, setCardPerPage] = useState(2);
+
+  const opportunityCards = [
+    {
+      title: "Connect 1-2-1",
+      description:
+        "When there are questions on your mind and you would like to connect and clarify with Counsellors and Advisers who can guide your thinking and your career plans.",
+      to: "/explore?tab=services",
+      image: opportunity1,
+    },
+    {
+      title: "Skills & Experiences",
+      description:
+        "Find the right course to do or the right experience to build up your application profile to both Universities and employers. Being relevant and up-to-date determines how much success you will achieve.",
+      to: "/explore?tab=courses",
+      image: opportunity2,
+    },
+    {
+      title: "Live Events",
+      description:
+        "Events are a way of broadening knowledge so you can more easily identify the educational or career opportunities that make sense for you. \n Look here for events run by Universities, Colleges, Education & Training Providers.",
+      to: "/explore?tab=events",
+      image: opportunity3,
+    },
+  ];
 
   const lastIndex = currentPage * cardPerPage;
   const firstIndex = lastIndex - cardPerPage;
@@ -82,9 +97,10 @@ const Home = () => {
           <div className={homeStyle["left"]}>
             <h3>Turning possibility to reality</h3>
             <p>
-              Your future is closer than you think! Start figuring out what you're passionate about, build the
-              skills you'll need, and plan your next steps now. It's never too early to start shaping a career
-              that's exciting and right for you!
+              Your future is closer than you think! Start figuring out what
+              you're passionate about, build the skills you'll need, and plan
+              your next steps now. It's never too early to start shaping a
+              career that's exciting and right for you!
             </p>
             <Link to="/explore" style={{ textDecoration: "none" }}>
               <button className={commonStyles.navButton}>
@@ -103,8 +119,9 @@ const Home = () => {
           <div className={homeStyle.left}>
             <h3>Explore</h3>
             <p>
-              Widen your horizons. Time to explore content from Career guidance counsellors sharing their
-              wisdom and experiences, so you can make the best choices
+              Widen your horizons. Time to explore content from Career guidance
+              counsellors sharing their wisdom and experiences, so you can make
+              the best choices
             </p>
             <Link to="/explore" style={{ textDecoration: "none" }}>
               <div className={homeStyle["explore-button"]}>
@@ -131,7 +148,9 @@ const Home = () => {
                 <button
                   disabled={currentPage == totalPages}
                   onClick={handleNextPage}
-                  className={currentPage == totalPages ? homeStyle.disabled : ""}
+                  className={
+                    currentPage == totalPages ? homeStyle.disabled : ""
+                  }
                 >
                   <FaArrowRight />
                 </button>
@@ -158,17 +177,24 @@ const Home = () => {
           <div className={homeStyle["right"]}>
             <h3>Understanding yourself</h3>
             <p>
-              Our AI refined Assessment is a great way to profile your real interests, strengths and
-              personality, to build a shortlist of potential educational and career pathways. Its quick and
-              easy and should give you immediate insights into careers that you can flourish and excel in.
+              Our AI refined Assessment is a great way to profile your real
+              interests, strengths and personality, to build a shortlist of
+              potential educational and career pathways. Its quick and easy and
+              should give you immediate insights into careers that you can
+              flourish and excel in.
             </p>
             <p>
-              You can do the whole Assessment and we will share 3 Career roles identified for you to consider,
-              for <span className={homeStyle.yellowText}>FREE</span>. For the more detailed analysis and the
-              full 'Career Directions Report for you to download and share, there is a charge of <b>$49.</b>
+              You can do the whole Assessment and we will share 3 Career roles
+              identified for you to consider, for{" "}
+              <span className={homeStyle.yellowText}>FREE</span>. For the more
+              detailed analysis and the full 'Career Directions Report for you
+              to download and share, there is a charge of <b>$49.</b>
             </p>
             <Link to="/assessment" style={{ textDecoration: "none" }}>
-              <button className={commonStyles.navButton} onClick={() => navigate("#")}>
+              <button
+                className={commonStyles.navButton}
+                onClick={() => navigate("#")}
+              >
                 Go To Assessment Centre{" "}
                 <span>
                   <MdArrowOutward />
@@ -179,49 +205,22 @@ const Home = () => {
         </section>
         <section className={homeStyle.oportunity}>
           <h3>Opportunity</h3>
-          <ul className={homeStyle["oportunity-list"]}>
-            {opotunityListItems.map((item, index) => (
-              <li
-                key={index}
-                onClick={() => setActiveOportunityCard(index + 1)}
-                className={activeOportunityCard == index + 1 ? homeStyle["activeOportunityCard"] : ""}
-              >
-                {item}
-              </li>
+          <div className={homeStyle.oportunityCards}>
+            {opportunityCards.map((card, index) => (
+              <div key={index} className={homeStyle.oportunityCard}>
+                <div className={homeStyle.oportunityCardIcon}>
+                  <img src={card.image} alt="" />
+                </div>
+                <h4 className={homeStyle.oportunityCardTitle}>{card.title}</h4>
+                <p className={homeStyle.oportunityCardDesc}>
+                  {card.description}
+                </p>
+                <Link to={card.to} className={homeStyle.oportunityCardButton}>
+                  Explore Now
+                </Link>
+              </div>
             ))}
-          </ul>
-          <div>
-            {activeOportunityCard == 1 && (
-              <ul className={homeStyle["oportunityItemCardsList"]}>
-                {work.map((item, index) => (
-                  <li key={index} className={homeStyle["oportunityItemCard"]}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {activeOportunityCard == 2 && (
-              <ul className={homeStyle["oportunityItemCardsList"]}>
-                {upskill.map((item, index) => (
-                  <li key={index} className={homeStyle["oportunityItemCard"]}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {activeOportunityCard == 3 && (
-              <ul className={homeStyle["oportunityItemCardsList"]}>
-                {serve.map((item, index) => (
-                  <li key={index} className={homeStyle["oportunityItemCard"]}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
-          <button className={commonStyles.navButton} onClick={() => navigate("#")}>
-            Coming Soon...
-          </button>
         </section>
       </div>
     </>

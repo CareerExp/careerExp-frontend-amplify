@@ -2,13 +2,18 @@
 import assessmentResult from "../assets/AssessmentResult/assessmentResult.png";
 import assessmentResultbottom from "../assets/AssessmentResult/assessmentResultbottom.png";
 import graph1 from "../assets/AssessmentResult1/graph.png";
-import A from "./About/A.png";
-import B from "./About/B.png";
-import C from "./About/C.png";
-import D from "./About/D.png";
-import E from "./About/E.png";
+import advisoryBoardMember1 from "./About/1 (1).png";
+import advisoryBoardMember2 from "./About/2 (1).png";
+import advisoryBoardMember3 from "./About/3 (1).png";
+import advisoryBoardMember4 from "./About/4 (1).png";
+import JClaytonKennedy from "./About/JCK.jpeg";
+import MatthiasFeist from "./About/MF1.jpeg";
 //about
 import Founder from "./About/Founder.png";
+import opportunity1 from "./About/opportunity1.svg";
+import opportunity2 from "./About/opportunity2.svg";
+import opportunity3 from "./About/opportunity3.svg";
+import espServiceProviders from "./About/esp.jpg";
 import assessmentCardBg from "./assessmentCenter/cardBg.png";
 // assesment center
 import assessmentHeaderImg from "./assessmentCenter/headerBg.png";
@@ -68,10 +73,22 @@ import infoCircleIcon from "./icons/info-circle.png";
 import likeIcon from "./icons/like.svg";
 // hamburger icon
 import menu from "./icons/menu.png";
+import messagesIcon from "./icons/messages.svg";
+import removeUserIcon from "./icons/remove-user.svg";
+import sub1Icon from "./icons/sub1.svg";
+import sub2Icon from "./icons/sub2.svg";
+import sub3Icon from "./icons/sub3.svg";
+import sub4Icon from "./icons/sub4.svg";
+import sub5Icon from "./icons/sub5.svg";
+import sub6Icon from "./icons/sub6.svg";
+import sub7Icon from "./icons/sub7.svg";
 import search from "./icons/search.png";
 import shareIcon from "./icons/share.png";
 import sms from "./icons/sms.svg";
 import trash from "./icons/trash.png";
+import locationPin from "./icons/location-pin.svg";
+import building4 from "./icons/building-4.svg";
+import callIcon from "./icons/call.svg";
 import interestHero from "./Interest/hero.png";
 import interestLogo from "./Interest/logo.png.png";
 import mayConsider from "./Interest/MayConsider.png";
@@ -94,7 +111,7 @@ import commingSoon from "./Pricing/commingSoon.png";
 import Councellers from "./Pricing/Councellers.png";
 import HighSchools from "./Pricing/HighSchools.png";
 import student from "./Pricing/Student.png";
-// profile
+import partners from "./Pricing/partners.png";
 import profileOilPaint from "./Profile/profileOilPaint.png";
 //creator Profile Icon
 import creatorIconWhatsaap from "./profileIcon/ph_whatsapp-logo-thin.png";
@@ -159,6 +176,27 @@ import profileOilPaintMobile from "./Profile/Subtractshivam.png";
 // shareIconInOrange
 import shareIconInOrange from "./icons/shareInOrange.png";
 import domainImage from "./domainWheel.svg";
+
+// organization
+import defaultHeroBG from "./organization/defaultHeroBG.svg";
+import organizationLogo from "./organization/logo.svg";
+import uploadDocument from "./uploadDocument.svg";
+import upload2 from "./upload2.svg";
+import link2 from "./link2.svg";
+import addLocationIcon from "./AddLocation.svg";
+import logoPlaceholder from "./logo-placeholder.svg";
+import bannerPlaceholder from "./banner-placeholder.svg";
+
+// announcements
+import announce1 from "./announcements/announce1.png";
+import announce2 from "./announcements/announce2.png";
+import announce3 from "./announcements/announce3.png";
+import announce4 from "./announcements/announce4.png";
+import announcementsPlaceholder from "./announcements/AnnouncementsPlaceholder.svg";
+import eventsPlaceholder from "./announcements/EventsPlaceholder.svg";
+import servicesPlaceholder from "./announcements/ServicesPlaceholder.svg";
+import servicePL from "./announcements/servicePL.svg";
+import yellowBG from "./Profile/yellowBG.png";
 
 export {
   PageNotFound,
@@ -238,16 +276,19 @@ export {
   Councellers,
   student,
   HighSchools,
+  partners,
+  espServiceProviders,
   //auth
   leftPannelAuth,
   background,
   //about
   Founder,
-  A,
-  B,
-  C,
-  D,
-  E,
+  advisoryBoardMember1,
+  advisoryBoardMember2,
+  advisoryBoardMember3,
+  advisoryBoardMember4,
+  JClaytonKennedy,
+  MatthiasFeist,
   //assessement result
   assessmentResult,
   assessmentResultbottom,
@@ -255,10 +296,22 @@ export {
   insideGraph,
   // hamburger icon
   menu,
+  messagesIcon,
+  removeUserIcon,
+  sub1Icon,
+  sub2Icon,
+  sub3Icon,
+  sub4Icon,
+  sub5Icon,
+  sub6Icon,
+  sub7Icon,
   // creator
   creator,
   edit,
   trash,
+  locationPin,
+  building4,
+  callIcon,
   search,
   linkedin,
   upload,
@@ -323,4 +376,24 @@ export {
   // shareIconInOrange
   shareIconInOrange,
   domainImage,
+  defaultHeroBG,
+  organizationLogo,
+  uploadDocument,
+  upload2,
+  link2,
+  addLocationIcon,
+  logoPlaceholder,
+  bannerPlaceholder,
+  announce1,
+  announce2,
+  announce3,
+  announce4,
+  announcementsPlaceholder,
+  eventsPlaceholder,
+  servicesPlaceholder,
+  servicePL,
+  yellowBG,
+  opportunity1,
+  opportunity2,
+  opportunity3,
 };

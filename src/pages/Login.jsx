@@ -34,39 +34,6 @@ const Login = () => {
     });
   };
 
-  // const handleSubmit = async (e) => {
-  //   // Your form submission logic here
-  //   e.preventDefault();
-
-  //   if (!formData.email || !formData.password) {
-  //     return dispatchToRedux(notify({ type: "warning", message: "Please fill all the fields" }));
-  //   }
-
-  //   if (!isValidEmail(formData.email)) {
-  //     return dispatchToRedux(notify({ type: "warning", message: "Please enter valid email" }));
-  //   }
-
-  //   try {
-  //     setIsButtonLoading(true);
-  //     const resultAction = await dispatchToRedux(login(formData));
-  //     const userId = resultAction?.payload?.userId;
-  //     const token = resultAction?.payload?.token;
-  //     console.log(resultAction, "result");
-
-  //     if (userId) {
-  //       const gettingProfile = await dispatchToRedux(getUserProfile({ userId, token }));
-  //       if (gettingProfile.meta.requestStatus === "fulfilled") {
-  //         dispatchToRedux(notify({ type: "success", message: "Login Successful" }));
-  //         setIsButtonLoading(false);
-
-  //         navigate("/how-it-works");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     setIsButtonLoading(false);
-  //     dispatchToRedux(notify({ type: "error", message: error?.message }));
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -130,9 +97,11 @@ const Login = () => {
           );
           setIsButtonLoading(false);
 
+          console.log(role)
+
           // Redirect based on role if needed
-          const redirectPath =
-            role === "creator" ? "/creator-dashboard" : "/explore";
+          const redirectPath = 
+            role[0] === "organization" ? `/workspace/${userId}` : "/explore";
           navigate(redirectPath);
         }
       }

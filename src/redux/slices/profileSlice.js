@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import FetchApi from "../../client.js";
 import { config } from "../../config/config.js";
+import { enterAMEContext, exitAMEContext } from "./adminSlice.js";
 
 const initialState = {
   userProfile: null,
@@ -11,13 +12,16 @@ export const getUserProfile = createAsyncThunk(
   "profile/getUserProfile",
   async ({ userId, token }, thunkAPI) => {
     try {
-      return await FetchApi.fetch(`${config.api}/api/profile/userProfile/${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      return await FetchApi.fetch(
+        `${config.api}/api/profile/userProfile/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
@@ -46,14 +50,17 @@ export const updatePassword = createAsyncThunk(
   "profile/updatePassword",
   async ({ userId, formData, token }, { rejectWithValue }) => {
     try {
-      const response = await FetchApi.fetch(`${config.api}/api/profile/updatePassword/${userId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await FetchApi.fetch(
+        `${config.api}/api/profile/updatePassword/${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
       if (!response.success) {
         return rejectWithValue({
@@ -73,18 +80,23 @@ export const updatePassword = createAsyncThunk(
 );
 
 // Async thunk for updating user profile
+// updatedData may include: firstName, lastName, introBio, personalWebsite, calendarLink, etc.
+// Backend PATCH /api/profile/updateProfile/:userId should accept and persist these fields (e.g. calendarLink).
 export const updateUserProfile = createAsyncThunk(
   "profile/updateUserProfile",
   async ({ userId, updatedData, token }, thunkAPI) => {
     try {
-      return await FetchApi.fetch(`${config.api}/api/profile/updateProfile/${userId}`, {
-        method: "PATCH", // Assuming this is a PUT request for updating
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      return await FetchApi.fetch(
+        `${config.api}/api/profile/updateProfile/${userId}`,
+        {
+          method: "PATCH", // Assuming this is a PUT request for updating
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
         },
-        body: JSON.stringify(updatedData),
-      });
+      );
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
@@ -95,13 +107,16 @@ export const uploadProfilePicture = createAsyncThunk(
   "profile/uploadProfilePicture",
   async ({ userId, formData, token }, thunkAPI) => {
     try {
-      const response = await fetch(`${config.api}/api/profile/uploadProfilePicture/${userId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${config.api}/api/profile/uploadProfilePicture/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to upload profile picture");
@@ -118,13 +133,16 @@ export const updatePaymentStatus = createAsyncThunk(
   "user/updatePaymentStatus",
   async ({ userId, token }, thunkAPI) => {
     try {
-      return await FetchApi.fetch(`${config.api}/api/stripe/updatePaymentStatus/${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      return await FetchApi.fetch(
+        `${config.api}/api/stripe/updatePaymentStatus/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
     }
@@ -134,13 +152,27 @@ export const updatePaymentStatus = createAsyncThunk(
 const profileSlice = createSlice({
   name: "profile",
   initialState,
-  reducers: {},
+  reducers: {
+    setUserProfile: (state, action) => {
+      state.userProfile = action.payload ?? null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getUserProfile.fulfilled, (state, { payload }) => {
       state.userProfile = payload;
     });
     builder.addCase(updateUserProfile.fulfilled, (state, { payload }) => {
       state.userProfile = payload.user;
+    });
+    builder.addCase(enterAMEContext.fulfilled, (state, { payload }) => {
+      state.userProfile = state.userProfile
+        ? { ...state.userProfile, ...payload }
+        : payload;
+    });
+    builder.addCase(exitAMEContext.fulfilled, (state, { payload }) => {
+      state.userProfile = state.userProfile
+        ? { ...state.userProfile, ...payload }
+        : payload;
     });
     builder.addCase(uploadProfilePicture.fulfilled, (state, { payload }) => {
       state.userProfile.profilePicture = payload.profilePicture;
@@ -155,6 +187,7 @@ const profileSlice = createSlice({
   },
 });
 
+export const { setUserProfile } = profileSlice.actions;
 export const selectUserProfile = (state) => state.profile.userProfile;
 
 export default profileSlice.reducer;

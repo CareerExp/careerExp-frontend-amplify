@@ -13,6 +13,7 @@ import {
 } from "../assets/assest.js";
 import { videoDetailById } from "../redux/slices/creatorSlice.js";
 import { fonts } from "../utility/fonts.js";
+import { formatDateDDMMYYYY } from "../utility/convertTimeToUTC.js";
 import InitialLoaders from "../loaders/InitialLoaders.jsx";
 
 const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
@@ -168,7 +169,7 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
                   ml: 0.5,
                 }}
               >
-                {new Date(videoData?.updatedAt).toLocaleDateString()}
+                {formatDateDDMMYYYY(videoData?.updatedAt) || "—"}
               </Typography>
 
               {/* Divider */}
@@ -403,6 +404,7 @@ const ExploreVideoPlayPopup = ({ open, onClose, videoId }) => {
                   color: "text.secondary",
                   width: "100%",
                   margin: "auto",
+                  whiteSpace: "pre-wrap",
                 }}
               >
                 {videoData?.description}

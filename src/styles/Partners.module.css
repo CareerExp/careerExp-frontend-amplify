@@ -1,0 +1,64 @@
+.autocomplete-country {
+    width: 150px;
+}
+
+.autocomplete-specialization {
+    width: 230px;
+}
+
+.autocomplete-programs {
+    width: 150px;
+}
+
+.autocomplete-language {
+    width: 250px;
+}
+
+.tabs-box {
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 2rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+.tabs-content {
+    width: 82rem;
+    margin: auto;
+    margin-top: 32px;
+}
+
+.top-container {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+@media (max-width: 900px) {
+
+    .autocomplete-country,
+    .autocomplete-specialization,
+    .autocomplete-programs,
+    .autocomplete-language {
+        width: 100% !important;
+    }
+
+    .tabs-box {
+        padding-left: 0;
+        padding-right: 0;
+        /* Ensure horizontal scroll works for tab headers on mobile */
+        min-width: 0;
+    }
+
+        .top-container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+    .tabs-content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .filters-row {
+        width: 100% !important;
+    }
+}

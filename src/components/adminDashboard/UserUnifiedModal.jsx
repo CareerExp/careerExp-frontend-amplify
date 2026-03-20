@@ -18,6 +18,9 @@ import {
 import React from "react";
 
 import { fonts } from "../../utility/fonts.js";
+import { formatDateDDMMYYYY } from "../../utility/convertTimeToUTC.js";
+
+const fmt = (v) => formatDateDDMMYYYY(v) || "—";
 
 const UserUnifiedModal = ({ open, onClose, data }) => {
   if (!open) return null;
@@ -182,7 +185,7 @@ const UserUnifiedModal = ({ open, onClose, data }) => {
                 <Grid item xs={12} sm={6}>
                   <Typography sx={{ fontWeight: "600", color: "#717F8C", mb: 1 }}>Date of Birth</Typography>
                   <Typography sx={{ mb: 2 }}>
-                    {new Date(data?.user?.dateOfBirth).toLocaleDateString()}
+                    {fmt(data?.user?.dateOfBirth)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -714,8 +717,7 @@ const UserUnifiedModal = ({ open, onClose, data }) => {
                       <Box component="span" sx={{ mr: 1, fontSize: "0.75rem" }}>
                         📅
                       </Box>
-                      {new Date(edu.startDate).toLocaleDateString()} -{" "}
-                      {new Date(edu.endDate).toLocaleDateString()}
+                      {fmt(edu.startDate)} - {fmt(edu.endDate)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: "#717F8C" }}>
                       <Box component="span" sx={{ fontWeight: "600" }}>
@@ -758,8 +760,7 @@ const UserUnifiedModal = ({ open, onClose, data }) => {
                   <Box component="span" sx={{ mr: 1, fontSize: "0.75rem" }}>
                     📅
                   </Box>
-                  {new Date(exp.startDate).toLocaleDateString()} -{" "}
-                  {new Date(exp.endDate).toLocaleDateString()}
+                  {fmt(exp.startDate)} - {fmt(exp.endDate)}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   <Box component="span" sx={{ fontWeight: "600", color: "#717F8C" }}>
@@ -913,8 +914,7 @@ const UserUnifiedModal = ({ open, onClose, data }) => {
                       </a>
                     </Typography>
                     <Typography variant="body2" sx={{ color: "#717F8C", fontSize: "0.75rem" }}>
-                      {new Date(proj.startDate).toLocaleDateString()} -{" "}
-                      {new Date(proj.endDate).toLocaleDateString()}
+                      {fmt(proj.startDate)} - {fmt(proj.endDate)}
                     </Typography>
                   </Box>
                 </Grid>
@@ -946,7 +946,7 @@ const UserUnifiedModal = ({ open, onClose, data }) => {
                       {cert.institution}
                     </Typography>
                     <Typography variant="body2" sx={{ color: "#717F8C", mb: 0.5, fontSize: "0.85rem" }}>
-                      Issue Date: {new Date(cert.issueDate).toLocaleDateString()}
+                      Issue Date: {fmt(cert.issueDate)}
                     </Typography>
                     <Typography variant="body2" sx={{ fontSize: "0.85rem" }}>
                       <Box component="span" sx={{ fontWeight: "600", color: "#717F8C" }}>

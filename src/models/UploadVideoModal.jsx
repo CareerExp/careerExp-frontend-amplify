@@ -32,7 +32,7 @@ import creatorStyle from "../styles/CreatorVideo.module.css";
 import { categories, languages } from "../utility/category";
 import { fonts } from "../utility/fonts";
 
-const UploadVideoModal = ({ open, handleClose }) => {
+const UploadVideoModal = ({ open, handleClose, onSuccess }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
@@ -62,6 +62,29 @@ const UploadVideoModal = ({ open, handleClose }) => {
   };
 
   const handleClick = async () => {
+    const manualVideoId =
+      videoData?.video?._id ?? videoData?._id ?? videoData?.videoId;
+    const hasThumbnail =
+      thumbnailLink && String(thumbnailLink).trim().length > 0;
+
+    if (tabValue === 1) {
+      if (!manualVideoId) {
+        dispatchToRedux(
+          notify({
+            type: "error",
+            message: "Please upload your video file first.",
+          })
+        );
+        return;
+      }
+      if (!hasThumbnail) {
+        dispatchToRedux(
+          notify({ type: "error", message: "Thumbnail is missing" })
+        );
+        return;
+      }
+    }
+
     const formData = {
       title,
       description,
@@ -84,22 +107,23 @@ const UploadVideoModal = ({ open, handleClose }) => {
       return;
     }
 
-    if (tabValue === 1 && !thumbnailLink) {
-      dispatchToRedux(
-        notify({ type: "error", message: "Please upload thumbnail first" })
-      );
-      return;
-    }
-
     try {
       setIsButtonLoading(true);
       if (tabValue === 0) {
         await dispatchToRedux(uploadYoutubeVideo({ userId, formData, token }));
       } else {
+        const videoId = manualVideoId;
+        if (!videoId) {
+          dispatchToRedux(
+            notify({ type: "error", message: "Video ID missing. Please upload the video again." })
+          );
+          setIsButtonLoading(false);
+          return;
+        }
         await dispatchToRedux(
           updateVideo({
             userId,
-            videoId: videoData?.video?._id,
+            videoId,
             formData,
             token,
           })
@@ -120,7 +144,7 @@ const UploadVideoModal = ({ open, handleClose }) => {
       setYoutubeLink("");
       setTabValue(0); // Reset to first tab
 
-      // Close the modal
+      onSuccess?.();
       handleClose();
     } catch (error) {
       setIsButtonLoading(false);
@@ -576,7 +600,12 @@ const UploadVideoModal = ({ open, handleClose }) => {
                 width: isMobile ? "100%" : "auto",
               }}
               disabled={
-                (tabValue === 1 && (!videoData || !thumbnailLink)) ||
+                (tabValue === 1 &&
+                  !(
+                    videoData?.video?._id ??
+                    videoData?._id ??
+                    videoData?.videoId
+                  )) ||
                 isButtonLoading ||
                 isLinkTranscriptLoading
               }

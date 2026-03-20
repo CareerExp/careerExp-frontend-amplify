@@ -242,10 +242,26 @@ const PersonalInfoForm = ({ formData, handleInputChange, handleSubmit, isButtonL
             label="Email"
             variant="outlined"
             name="email"
-            value={formData.email}
+            value={formData.email ?? ""}
             onChange={handleInputChange}
             disabled
-            sx={textFieldStyle}
+            helperText="Email cannot be changed"
+            FormHelperTextProps={{
+              sx: {
+                marginTop: 1,
+                marginLeft: 0,
+                fontFamily: fonts.poppins,
+                color: "#666",
+              },
+            }}
+            sx={{
+              ...textFieldStyle,
+              backgroundColor: "transparent",
+              "& .MuiOutlinedInput-root": {
+                ...textFieldStyle["& .MuiOutlinedInput-root"],
+                backgroundColor: "#f3f3f3",
+              },
+            }}
             InputLabelProps={{
               shrink: true,
               style: { marginTop: "-8px" },
@@ -450,6 +466,23 @@ const PersonalInfoForm = ({ formData, handleInputChange, handleSubmit, isButtonL
             />
           </Grid>
         )}
+
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Calendar Link"
+            variant="outlined"
+            name="calendarLink"
+            value={formData.calendarLink ?? ""}
+            onChange={handleInputChange}
+            placeholder="https://calendly.com/..."
+            sx={textFieldStyle}
+            InputLabelProps={{
+              shrink: true,
+              style: { marginTop: "-8px" },
+            }}
+          />
+        </Grid>
       </Grid>
       <Box
         sx={{
