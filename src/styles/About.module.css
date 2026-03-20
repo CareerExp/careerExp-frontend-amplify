@@ -101,18 +101,48 @@
 .cards-container > div div p:last-child {
   margin-top: -1rem;
 }
+
+/* Advisory board: fixed square frame so mixed aspect ratios (e.g. MF1) stay aligned */
+.cardImageFrame {
+  width: 200px;
+  height: 200px;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 18px;
+  background-color: #f0f0f0;
+  flex-shrink: 0;
+}
+.cardImageFrame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+.cardImageFrameContain img {
+  object-fit: contain;
+}
+
+.dialogMemberPhoto {
+  width: 200px;
+  height: 200px;
+  max-width: 100%;
+  border-radius: 18px;
+  object-fit: cover;
+  object-position: center;
+  background-color: #f0f0f0;
+  flex-shrink: 0;
+}
+.dialogMemberPhotoContain {
+  object-fit: contain;
+}
 .founder-details-large-device {
   display: block;
 }
 .founder-details-small-device {
   display: none;
 }
-.card img {
-  width: 200px;
-  height: 200px;
-  border-radius: 18px;
-}
-
 @media screen and (max-width: 480px) {
   .hero {
     flex-direction: column;
@@ -159,10 +189,14 @@
   }
   .card {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  .card img {
-    width: fit-content;
-    height: auto;
+  .cardImageFrame {
+    width: min(200px, 85vw);
+    height: min(200px, 85vw);
+    aspect-ratio: 1;
   }
   .cards-container {
     margin: auto;

@@ -90,7 +90,8 @@ const Pricing = () => {
           buttons={[
             {
               label: "Activate Institution Plan",
-              price: "$100/month or $1000/year",
+              price: "$100/month",
+              priceAccent: "(or $1000/year)",
             },
           ]}
           twoColumnList
@@ -115,7 +116,8 @@ const Pricing = () => {
           buttons={[
             {
               label: "Activate Company Plan",
-              price: "$150/month or $1500/year",
+              price: "$150/month",
+              priceAccent: "(or $1500/year)",
             },
           ]}
           twoColumnList
@@ -369,6 +371,14 @@ function PricingCard({
                   </span>
                   <span className={pricingStyles["pricingCardButtonPrice"]}>
                     {btn.price}
+                    {btn.priceAccent ? (
+                      <span
+                        className={pricingStyles["pricingCardButtonPriceAccent"]}
+                      >
+                        {" "}
+                        {btn.priceAccent}
+                      </span>
+                    ) : null}
                   </span>
                 </button>
               ))}

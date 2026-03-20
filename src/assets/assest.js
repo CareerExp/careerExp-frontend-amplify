@@ -2,11 +2,10 @@
 import assessmentResult from "../assets/AssessmentResult/assessmentResult.png";
 import assessmentResultbottom from "../assets/AssessmentResult/assessmentResultbottom.png";
 import graph1 from "../assets/AssessmentResult1/graph.png";
-import A from "./About/A.png";
-import B from "./About/B.png";
-import C from "./About/C.png";
-import D from "./About/D.png";
-import E from "./About/E.png";
+import advisoryBoardMember1 from "./About/1 (1).png";
+import advisoryBoardMember2 from "./About/2 (1).png";
+import advisoryBoardMember3 from "./About/3 (1).png";
+import advisoryBoardMember4 from "./About/4 (1).png";
 import JClaytonKennedy from "./About/JCK.jpeg";
 import MatthiasFeist from "./About/MF1.jpeg";
 //about
@@ -284,11 +283,10 @@ export {
   background,
   //about
   Founder,
-  A,
-  B,
-  C,
-  D,
-  E,
+  advisoryBoardMember1,
+  advisoryBoardMember2,
+  advisoryBoardMember3,
+  advisoryBoardMember4,
   JClaytonKennedy,
   MatthiasFeist,
   //assessement result
