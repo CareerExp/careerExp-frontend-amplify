@@ -29,6 +29,7 @@ import {
 import {
   getOrganizationProfileById,
   selectOrganizationProfile,
+  selectGetOrganizationProfileByIdStatus,
 } from "../../redux/slices/organizationSlice";
 import { selectToken, selectUserId } from "../../redux/slices/authSlice";
 import {
@@ -359,6 +360,18 @@ const MyCompany = () => {
   };
 
   const orgProfile = useSelector(selectOrganizationProfile);
+  const organizationProfileByIdStatus = useSelector(
+    selectGetOrganizationProfileByIdStatus,
+  );
+  // Membership `organizationId` is often not the same field as `orgProfile._id` (e.g. org userId vs
+  // document id). Trust the dedicated fetch lifecycle instead of comparing ids.
+  const companyProfileReady = Boolean(
+    isMember &&
+      orgProfile &&
+      organizationProfileByIdStatus === "succeeded",
+  );
+  const showCompanyPlaceholder = isMember && !companyProfileReady;
+
   const orgIdentifier =
     orgProfile?.slug || orgProfile?.userId || orgProfile?._id;
   const orgIdType = orgProfile?.slug ? "slug" : "userId";
@@ -411,18 +424,44 @@ const MyCompany = () => {
         </Box>
 
         <Box sx={{ width: "100%", mx: "auto" }}>
-          <ESPHero skipFollowCheck />
-          <ESPInfoPanel />
-          <OrgPublicAnnouncementsAndEvents
-            identifier={orgIdentifier}
-            idType={orgIdType}
+          {showCompanyPlaceholder && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                py: 1.5,
+                mb: 1,
+                color: "rgba(0,0,0,0.55)",
+                fontFamily: fonts.sans,
+                fontSize: "14px",
+              }}
+            >
+              <CircularProgress size={22} sx={{ color: "#BC2876" }} />
+              Loading company profile…
+            </Box>
+          )}
+          <ESPHero skipFollowCheck placeholder={showCompanyPlaceholder} />
+          <ESPInfoPanel
+            profile={showCompanyPlaceholder ? null : undefined}
           />
-          <OrgPublicServices identifier={orgIdentifier} idType={orgIdType} />
-          <OrgPublicCounsellors identifier={orgIdentifier} idType={orgIdType} />
-          <OrgPublicSharedContent
-            identifier={orgIdentifier}
-            idType={orgIdType}
-          />
+          {!showCompanyPlaceholder && (
+            <>
+              <OrgPublicAnnouncementsAndEvents
+                identifier={orgIdentifier}
+                idType={orgIdType}
+              />
+              <OrgPublicServices identifier={orgIdentifier} idType={orgIdType} />
+              <OrgPublicCounsellors
+                identifier={orgIdentifier}
+                idType={orgIdType}
+              />
+              <OrgPublicSharedContent
+                identifier={orgIdentifier}
+                idType={orgIdType}
+              />
+            </>
+          )}
         </Box>
       </Box>
     );

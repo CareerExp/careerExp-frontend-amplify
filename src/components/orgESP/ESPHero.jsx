@@ -29,16 +29,23 @@ function getOrgPublicUrl(profile) {
     return `${base}${path}`;
 }
 
-const ESPHero = ({ skipFollowCheck = false }) => {
+const PLACEHOLDER_TITLE = 'Title';
+const PLACEHOLDER_SUBTITLE = 'Subtitle';
+
+const ESPHero = ({ skipFollowCheck = false, placeholder = false }) => {
     const dispatch = useDispatch();
     const orgProfile = useSelector(selectOrganizationProfile);
     const token = useSelector(selectToken);
     const userId = useSelector(selectUserId);
     const { items: followingItems } = useSelector(selectDashboardFollowing);
-    const isFollowingFromCheck = useSelector(selectIsFollowing);
+    const isFollowingRaw = useSelector(selectIsFollowing);
+    const isFollowingFromCheck =
+        typeof isFollowingRaw === "boolean"
+            ? isFollowingRaw
+            : Boolean(isFollowingRaw?.isFollowing);
     const [followLoading, setFollowLoading] = useState(false);
 
-    const orgTargetId = orgProfile?.userId || orgProfile?._id;
+    const orgTargetId = placeholder ? null : orgProfile?.userId || orgProfile?._id;
     const isFollowing = skipFollowCheck
         ? !!orgTargetId && isFollowingFromCheck
         : !!orgTargetId && followingItems.some(
@@ -46,13 +53,14 @@ const ESPHero = ({ skipFollowCheck = false }) => {
         );
 
     useEffect(() => {
+        if (placeholder) return;
         if (skipFollowCheck && token && orgTargetId && userId && userId !== orgTargetId) {
             dispatch(checkFollowStatus({ userId, targetUserId: orgTargetId, token }));
         }
         if (!skipFollowCheck && token && orgTargetId) {
             dispatch(getDashboardFollowing({ token }));
         }
-    }, [dispatch, token, orgTargetId, userId, skipFollowCheck]);
+    }, [dispatch, token, orgTargetId, userId, skipFollowCheck, placeholder]);
 
     const handleFollowClick = async () => {
         if (!token) {
@@ -85,7 +93,7 @@ const ESPHero = ({ skipFollowCheck = false }) => {
         }
     };
 
-    const shareUrl = getOrgPublicUrl(orgProfile);
+    const shareUrl = placeholder ? null : getOrgPublicUrl(orgProfile);
     const handleShare = async () => {
         if (!shareUrl) return;
         const title = orgProfile?.organizationName || 'Organization';
@@ -119,9 +127,15 @@ const ESPHero = ({ skipFollowCheck = false }) => {
             <Box
                 sx={{
                     height: '182px',
-                    backgroundImage: `url(${orgProfile?.bannerImage || defaultHeroBG})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                    ...(placeholder
+                        ? {
+                              background: 'linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%)',
+                          }
+                        : {
+                              backgroundImage: `url(${orgProfile?.bannerImage || defaultHeroBG})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                          }),
                     borderRadius: '20px 20px 0 0',
                     position: 'relative',
                     overflow: 'hidden',
@@ -153,7 +167,10 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                     sx={{
                         width: '120px',
                         height: '120px',
-                        background: orgProfile?.logo ? '#fff' : 'linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)',
+                        background:
+                            !placeholder && orgProfile?.logo
+                                ? '#fff'
+                                : 'linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)',
                         borderRadius: '20px 20px 0 0',
                         border: '4px solid #fff',
                         boxShadow: '0px 4px 10px rgba(0,0,0,0.1)',
@@ -164,7 +181,7 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                         overflow: 'hidden'
                     }}
                 >
-                    {orgProfile?.logo ? (
+                    {!placeholder && orgProfile?.logo ? (
                         <Box
                             component="img"
                             src={orgProfile.logo}
@@ -179,9 +196,13 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                                 color: '#ffffff'
                             }}
                         >
-                            {(orgProfile?.organizationName || 'Org')
+                            {(placeholder
+                                ? PLACEHOLDER_TITLE
+                                : orgProfile?.organizationName || PLACEHOLDER_TITLE
+                            )
                                 .split(/\s+/)
                                 .map((w) => w[0])
+                                .filter(Boolean)
                                 .join('')
                                 .slice(0, 3)
                                 .toUpperCase()}
@@ -201,7 +222,9 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                             textShadow: '0px 2px 4px rgba(0,0,0,0.3)'
                         }}
                     >
-                        {orgProfile?.organizationName || "BYJU'S"}
+                        {placeholder
+                            ? PLACEHOLDER_TITLE
+                            : orgProfile?.organizationName || PLACEHOLDER_TITLE}
                     </Typography>
                     <Typography
                         sx={{
@@ -213,7 +236,9 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                             textShadow: '0px 2px 4px rgba(0,0,0,0.3)'
                         }}
                     >
-                        {orgProfile?.subtitle || "Subtitle will be here"}
+                        {placeholder
+                            ? PLACEHOLDER_SUBTITLE
+                            : orgProfile?.subtitle || PLACEHOLDER_SUBTITLE}
                     </Typography>
                 </Box>
 
@@ -229,7 +254,12 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                     <Button
                         variant="contained"
                         onClick={handleFollowClick}
-                        disabled={followLoading || !orgTargetId || userId === orgTargetId}
+                        disabled={
+                            placeholder ||
+                            followLoading ||
+                            !orgTargetId ||
+                            userId === orgTargetId
+                        }
                         sx={{
                             backgroundColor: '#fafafa',
                             borderRadius: '90px',
@@ -261,6 +291,7 @@ const ESPHero = ({ skipFollowCheck = false }) => {
                     <Tooltip title="Share">
                         <IconButton
                             onClick={handleShare}
+                            disabled={placeholder || !shareUrl}
                             aria-label="Share company page"
                             sx={{
                                 backgroundColor: 'rgba(0, 0, 0, 0.3)',

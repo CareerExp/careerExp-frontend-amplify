@@ -3,8 +3,6 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ShareIcon from "@mui/icons-material/Share";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import LanguageIcon from "@mui/icons-material/Language";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +26,10 @@ import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
+import {
+  InstitutionExploreEmailRow,
+  InstitutionExploreWebsiteRow,
+} from "./InstitutionExploreContactRows.jsx";
 
 const AnnouncementDetailContent = ({ announcementId, onBack }) => {
   const dispatch = useDispatch();
@@ -595,50 +597,18 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
                   </Typography>
                 </Box>
               )}
-              {(organizationDetails.contactEmail ||
-                announcement?.organizationUserId?.email) && (
-                  <Box
-                    sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
-                  >
-                    <EmailOutlinedIcon sx={{ fontSize: 20, color: "#720361" }} />
-                    <Typography
-                      component="a"
-                      href={`mailto:${organizationDetails.contactEmail || announcement?.organizationUserId?.email}`}
-                      sx={{
-                        fontFamily: fonts.sans,
-                        fontSize: "0.875rem",
-                        color: "#720361",
-                        textDecoration: "none",
-                      }}
-                    >
-                      {organizationDetails.contactEmail ||
-                        announcement?.organizationUserId?.email}
-                    </Typography>
-                  </Box>
-                )}
-              {organizationDetails.website && (
-                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                  <LanguageIcon sx={{ fontSize: 20, color: "#720361" }} />
-                  <Typography
-                    component="a"
-                    href={
-                      organizationDetails.website.startsWith("http")
-                        ? organizationDetails.website
-                        : `https://${organizationDetails.website}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontSize: "0.875rem",
-                      color: "#720361",
-                      textDecoration: "none",
-                    }}
-                  >
-                    {organizationDetails.website.replace(/^https?:\/\//i, "")}
-                  </Typography>
-                </Box>
-              )}
+              <InstitutionExploreEmailRow
+                email={
+                  organizationDetails.contactEmail ||
+                  announcement?.organizationUserId?.email
+                }
+                dispatch={dispatch}
+                iconSx={{ fontSize: 20, color: "#720361" }}
+              />
+              <InstitutionExploreWebsiteRow
+                website={organizationDetails.website}
+                iconSx={{ fontSize: 20, color: "#720361" }}
+              />
             </Box>
           )}
         </Box>

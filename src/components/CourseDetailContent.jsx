@@ -27,8 +27,6 @@ import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import LanguageIcon from "@mui/icons-material/Language";
 import { fonts } from "../utility/fonts.js";
 import {
   getExploreCourseById,
@@ -60,6 +58,10 @@ import NewMessagePanel from "./messages/NewMessagePanel.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
+import {
+  InstitutionExploreEmailRow,
+  InstitutionExploreWebsiteRow,
+} from "./InstitutionExploreContactRows.jsx";
 
 const ACCENT = "#BC2876";
 const ACCENT_PURPLE = "#720361";
@@ -1107,67 +1109,23 @@ const CourseDetailContent = ({ courseId, onBack }) => {
                     </Typography>
                   </Box>
                 )}
-                {organizationDetails.contactEmail && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: 1,
-                    }}
-                  >
-                    <EmailOutlinedIcon
-                      sx={{
-                        color: "#9CA3AF",
-                        fontSize: "1.1rem",
-                        flexShrink: 0,
-                      }}
-                    />
-                    <Typography
-                      component="a"
-                      href={`mailto:${organizationDetails.contactEmail}`}
-                      sx={{
-                        fontFamily: fonts.sans,
-                        fontSize: "0.875rem",
-                        color: "#545454",
-                        textDecoration: "none",
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                    >
-                      {organizationDetails.contactEmail}
-                    </Typography>
-                  </Box>
-                )}
-                {organizationDetails.website && (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <LanguageIcon
-                      sx={{
-                        color: "#9CA3AF",
-                        fontSize: "1.1rem",
-                        flexShrink: 0,
-                      }}
-                    />
-                    <Typography
-                      component="a"
-                      href={
-                        organizationDetails.website.startsWith("http")
-                          ? organizationDetails.website
-                          : `https://${organizationDetails.website}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{
-                        fontFamily: fonts.sans,
-                        fontSize: "0.875rem",
-                        color: "#545454",
-                        textDecoration: "none",
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                    >
-                      {organizationDetails.website}
-                    </Typography>
-                  </Box>
-                )}
+                <InstitutionExploreEmailRow
+                  email={organizationDetails.contactEmail}
+                  dispatch={dispatch}
+                  iconSx={{
+                    color: "#9CA3AF",
+                    fontSize: "1.1rem",
+                    flexShrink: 0,
+                  }}
+                />
+                <InstitutionExploreWebsiteRow
+                  website={organizationDetails.website}
+                  iconSx={{
+                    color: "#9CA3AF",
+                    fontSize: "1.1rem",
+                    flexShrink: 0,
+                  }}
+                />
               </Paper>
             )}
 

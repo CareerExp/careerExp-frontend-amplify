@@ -3,9 +3,7 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ShareIcon from "@mui/icons-material/Share";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import LanguageIcon from "@mui/icons-material/Language";
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -29,6 +27,10 @@ import InitialLoaders from "../loaders/InitialLoaders.jsx";
 import SharingVideoModal from "../models/SharingVideoModal.jsx";
 import EnquiryLoginModal from "../models/EnquiryLoginModal.jsx";
 import InstitutionLogoDisplay from "./InstitutionLogoDisplay.jsx";
+import {
+  InstitutionExploreEmailRow,
+  InstitutionExploreWebsiteRow,
+} from "./InstitutionExploreContactRows.jsx";
 
 // Match EventCard: different colors per mode (In person / Hybrid / Online)
 const EVENT_TYPE_STYLES = {
@@ -64,12 +66,14 @@ const EventDetailContent = ({ eventId, onBack }) => {
   const imageUrl =
     event?.coverImage || event?.banner || event?.image || eventsPlaceholder;
   const registrationDeadline = event?.registrationDeadline;
+  const eventStartForDisplay =
+    event?.liveStartDate || event?.eventDate || event?.createdAt;
+  const eventEndForDisplay = event?.liveEndDate;
   const rawType = (event?.eventType || event?.type || "")
     .toString()
     .toLowerCase()
     .replace(/\s+/g, "_");
-  const eventModeStyle =
-    EVENT_TYPE_STYLES[rawType] ||
+  const eventModeStyle = EVENT_TYPE_STYLES[rawType] ||
     EVENT_TYPE_STYLES[event?.mode] || {
       bg: "#f5f5f5",
       textColor: "#717171",
@@ -453,6 +457,74 @@ const EventDetailContent = ({ eventId, onBack }) => {
             >
               Interested in this Event?
             </Typography>
+            {(eventStartForDisplay || eventEndForDisplay) && (
+              <Stack spacing={0.75} sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 0.25,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: 600,
+                      fontSize: "0.8125rem",
+                      color: colors.midGray,
+                      // textTransform: "uppercase",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    Start date
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.9375rem",
+                      color: colors.darkGray,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {eventStartForDisplay
+                      ? formatDateMMDDYYYY(eventStartForDisplay)
+                      : "—"}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 0.25,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontWeight: 600,
+                      fontSize: "0.8125rem",
+                      color: colors.midGray,
+                      // textTransform: "uppercase",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    End date
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "0.9375rem",
+                      color: colors.darkGray,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {eventEndForDisplay
+                      ? formatDateMMDDYYYY(eventEndForDisplay)
+                      : "—"}
+                  </Typography>
+                </Box>
+              </Stack>
+            )}
             <Typography
               sx={{
                 fontFamily: fonts.sans,
@@ -609,50 +681,17 @@ const EventDetailContent = ({ eventId, onBack }) => {
                   </Typography>
                 </Box>
               )}
-              {(organizationDetails.contactEmail ||
-                event?.createdBy?.email) && (
-                <Box
-                  sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}
-                >
-                  <EmailOutlinedIcon sx={{ fontSize: 20, color: "#FF8A00" }} />
-                  <Typography
-                    component="a"
-                    href={`mailto:${organizationDetails.contactEmail || event?.createdBy?.email}`}
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontSize: "0.875rem",
-                      color: colors.midGray,
-                      textDecoration: "none",
-                    }}
-                  >
-                    {organizationDetails.contactEmail ||
-                      event?.createdBy?.email}
-                  </Typography>
-                </Box>
-              )}
-              {organizationDetails.website && (
-                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                  <LanguageIcon sx={{ fontSize: 20, color: "#FF8A00" }} />
-                  <Typography
-                    component="a"
-                    href={
-                      organizationDetails.website.startsWith("http")
-                        ? organizationDetails.website
-                        : `https://${organizationDetails.website}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      fontFamily: fonts.sans,
-                      fontSize: "0.875rem",
-                      color: colors.midGray,
-                      textDecoration: "none",
-                    }}
-                  >
-                    {organizationDetails.website.replace(/^https?:\/\//i, "")}
-                  </Typography>
-                </Box>
-              )}
+              <InstitutionExploreEmailRow
+                email={
+                  organizationDetails.contactEmail || event?.createdBy?.email
+                }
+                dispatch={dispatch}
+                iconSx={{ fontSize: 20, color: "#FF8A00" }}
+              />
+              <InstitutionExploreWebsiteRow
+                website={organizationDetails.website}
+                iconSx={{ fontSize: 20, color: "#FF8A00" }}
+              />
             </Box>
           )}
         </Box>

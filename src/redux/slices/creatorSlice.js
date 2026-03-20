@@ -24,6 +24,19 @@ const initialState = {
   error: null,
 };
 
+/**
+ * check-follow API may return a boolean, { isFollowing }, or nested { data: ... }.
+ * Never store a raw object on isFollowing — objects are truthy and break Follow/Following UI.
+ */
+function normalizeCheckFollowPayload(payload) {
+  if (typeof payload === "boolean") return payload;
+  if (payload != null && typeof payload === "object") {
+    if (typeof payload.isFollowing === "boolean") return payload.isFollowing;
+    if ("data" in payload) return normalizeCheckFollowPayload(payload.data);
+  }
+  return false;
+}
+
 export const uploadVideo = createAsyncThunk(
   "creator/uploadVideo",
   async ({ userId, formData, token }, thunkAPI) => {
@@ -1130,11 +1143,8 @@ const creatorSlice = createSlice({
         state.followerCount += 1;
       }
     });
-    //check if folllowing
     builder.addCase(checkFollowStatus.fulfilled, (state, { payload }) => {
-      console.log("payload", payload);
-      // Always set as boolean
-      state.isFollowing = payload;
+      state.isFollowing = normalizeCheckFollowPayload(payload);
     });
 
     builder.addCase(getCounsellorAnalytics.fulfilled, (state, { payload }) => {

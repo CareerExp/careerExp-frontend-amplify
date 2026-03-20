@@ -209,7 +209,7 @@ const OrgPublicHero = ({ profile }) => {
               fontFamily: fonts.sans,
               fontWeight: 500,
               fontSize: { xs: "16px", md: "20px" },
-              color: { xs: "rgba(0,0,0,0.65)", md: "#fff" },
+              color: "#fff",
               mt: 0.5,
               textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
             }}

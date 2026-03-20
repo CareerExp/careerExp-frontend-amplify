@@ -148,7 +148,10 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
           "& .MuiTab-root.Mui-focusVisible": { outlineColor: "#BC2876" },
           "& .MuiTabs-flexContainer .MuiButtonBase-root": {
             "&.Mui-selected": { color: "#BC2876" },
-            "&.Mui-focusVisible": { outline: "2px solid #BC2876", outlineOffset: 2 },
+            "&.Mui-focusVisible": {
+              outline: "2px solid #BC2876",
+              outlineOffset: 2,
+            },
           },
           "& .MuiTab-root .MuiTouchRipple-root .MuiTouchRipple-child": {
             backgroundColor: "rgba(188, 40, 118, 0.3)",
@@ -445,6 +448,7 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
                             color: "rgba(0,0,0,0.5)",
                             textDecoration: "none",
                             "&:hover": { color: "#BC2876" },
+                            wordBreak: { xs: "break-word", md: "normal" },
                           }}
                         >
                           {loc.email}

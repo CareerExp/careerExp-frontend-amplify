@@ -42,6 +42,7 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import LanguageIcon from "@mui/icons-material/Language";
 import TagIcon from "@mui/icons-material/Tag";
 import { fonts } from "../../utility/fonts";
+import { getCtaResponseContact } from "../../utility/ctaResponseContact.js";
 import { uploadDocument } from "../../assets/assest";
 import AddCourse from "./AddCourse";
 import {
@@ -70,6 +71,14 @@ const deliveryModeTagBg = (mode) => {
   if (m === "OFFLINE") return "rgba(188, 40, 118, 0.15)";
   if (m === "HYBRID") return "rgba(255, 138, 0, 0.2)";
   return "#f2f2f2";
+};
+
+/** Shown on cards and detail: API referenceNumber only; otherwise N/A. */
+const getCourseReferenceDisplay = (course) => {
+  const raw = course?.referenceNumber;
+  if (raw == null) return "N/A";
+  const ref = String(raw).trim();
+  return ref !== "" ? ref : "N/A";
 };
 
 const CourseCard = ({ course, onEdit, onDelete, onView }) => {
@@ -241,7 +250,7 @@ const CourseCard = ({ course, onEdit, onDelete, onView }) => {
                 color: "#9E9E9E",
               }}
             >
-              Ref no – {course.referenceNumber || "N/A"}
+              Ref no – {getCourseReferenceDisplay(course)}
             </Typography>
           </Box>
           <IconButton size="small" onClick={handleClick}>
@@ -359,7 +368,9 @@ const CourseCard = ({ course, onEdit, onDelete, onView }) => {
                 color: "#BC2876",
               }}
             >
-              {String(course.totalCtaClicks || 0).padStart(2, "0")}
+              {String(
+                course.totalCtaResponses ?? course.totalCtaClicks ?? 0,
+              ).padStart(2, "0")}
             </Typography>
           </Box>
         </Box>
@@ -1147,8 +1158,7 @@ const OrgMyCourses = () => {
                     pl: "26px",
                   }}
                 >
-                  {course.referenceNumber ||
-                    (course._id ? course._id.slice(-8).toUpperCase() : "N/A")}
+                  {getCourseReferenceDisplay(course)}
                 </Typography>
               </Stack>
             </Grid>
@@ -1348,7 +1358,7 @@ const OrgMyCourses = () => {
           </Grid>
         </Paper>
 
-        {/* CTAs received */}
+        {/* CTAs received (same pattern as Connect 1-2-1 / ServiceDetail) */}
         <Paper
           elevation={0}
           sx={{
@@ -1369,49 +1379,176 @@ const OrgMyCourses = () => {
           >
             CTAs received
           </Typography>
+
           {responses.length > 0 ? (
             <Grid container spacing={2.5}>
-              {responses.map((resp, idx) => (
-                <Grid item key={idx} xs={12} sm={6} md={4}>
-                  <Box
-                    sx={{
-                      backgroundColor: "#f4f7fe",
-                      borderRadius: "12px",
-                      p: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                    }}
+              {responses.map((resp, idx) => {
+                const user = resp.userId || {};
+                const displayName =
+                  [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+                  "Unknown";
+                const { email, phone } = getCtaResponseContact(resp, user);
+                const respondedAt =
+                  resp.respondedAt || resp.createdAt || resp.submittedAt;
+                return (
+                  <Grid
+                    item
+                    key={resp._id || `cta-${idx}`}
+                    xs={12}
+                    sm={6}
+                    md={4}
                   >
-                    <Avatar
-                      src={resp.profilePicture}
-                      sx={{ width: 48, height: 48, backgroundColor: "#e5e7eb" }}
-                    />
-                    <Box>
-                      <Typography
+                    <Box
+                      sx={{
+                        backgroundColor: "#f4f7fe",
+                        borderRadius: "12px",
+                        p: 2,
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 2,
+                      }}
+                    >
+                      <Avatar
+                        src={user.profilePicture}
                         sx={{
-                          fontFamily: fonts.sans,
-                          fontWeight: 600,
-                          fontSize: "16px",
-                          color: "#000",
+                          width: 48,
+                          height: 48,
+                          backgroundColor: "#e5e7eb",
+                          flexShrink: 0,
                         }}
-                      >
-                        {resp.firstName} {resp.lastName}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontFamily: fonts.sans,
-                          fontWeight: 400,
-                          fontSize: "14px",
-                          color: "#666",
-                        }}
-                      >
-                        {formatDate(resp.createdAt)}
-                      </Typography>
+                      />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography
+                          sx={{
+                            fontFamily: fonts.sans,
+                            fontWeight: 600,
+                            fontSize: "16px",
+                            color: "#000",
+                          }}
+                        >
+                          {displayName}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontFamily: fonts.sans,
+                            fontWeight: 400,
+                            fontSize: "14px",
+                            color: "#666",
+                          }}
+                        >
+                          {formatDate(respondedAt)}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontFamily: fonts.sans,
+                            fontWeight: 400,
+                            fontSize: "13px",
+                            color: "#545454",
+                            mt: 0.75,
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          Email:{" "}
+                          {email ? (
+                            <Box
+                              component="span"
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(email).then(
+                                  () =>
+                                    dispatch(
+                                      notify({
+                                        message: "Email Copied",
+                                        type: "success",
+                                      }),
+                                    ),
+                                  () =>
+                                    dispatch(
+                                      notify({
+                                        message: "Could not copy",
+                                        type: "error",
+                                      }),
+                                    ),
+                                );
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  e.currentTarget.click();
+                                }
+                              }}
+                              sx={{
+                                color: "#720361",
+                                fontWeight: 500,
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              {email}
+                            </Box>
+                          ) : (
+                            <span style={{ color: "#999" }}>—</span>
+                          )}
+                        </Typography>
+                        {phone ? (
+                          <Typography
+                            sx={{
+                              fontFamily: fonts.sans,
+                              fontWeight: 400,
+                              fontSize: "13px",
+                              color: "#545454",
+                              mt: 0.25,
+                            }}
+                          >
+                            Phone:{" "}
+                            <Box
+                              component="span"
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const n = phone.replace(/\s/g, "");
+                                navigator.clipboard.writeText(n).then(
+                                  () =>
+                                    dispatch(
+                                      notify({
+                                        message: "Contact number copied",
+                                        type: "success",
+                                      }),
+                                    ),
+                                  () =>
+                                    dispatch(
+                                      notify({
+                                        message: "Could not copy",
+                                        type: "error",
+                                      }),
+                                    ),
+                                );
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  e.currentTarget.click();
+                                }
+                              }}
+                              sx={{
+                                color: "#720361",
+                                fontWeight: 500,
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              {phone}
+                            </Box>
+                          </Typography>
+                        ) : null}
+                      </Box>
                     </Box>
-                  </Box>
-                </Grid>
-              ))}
+                  </Grid>
+                );
+              })}
             </Grid>
           ) : (
             <Typography
@@ -1543,7 +1680,24 @@ const OrgMyCourses = () => {
                     course={course}
                     onEdit={handleEditCourse}
                     onDelete={handleDeleteCourse}
-                    onView={setSelectedCourse}
+                    onView={async (c) => {
+                      setSelectedCourse(c);
+                      if (!token || !c?._id) return;
+                      try {
+                        const fresh = await dispatch(
+                          getCourseById({ id: c._id, token }),
+                        ).unwrap();
+                        if (fresh) {
+                          setSelectedCourse((prev) =>
+                            prev && prev._id === c._id
+                              ? { ...prev, ...fresh }
+                              : { ...c, ...fresh },
+                          );
+                        }
+                      } catch {
+                        /* keep list row if detail fetch fails */
+                      }
+                    }}
                   />
                 </Grid>
               ))}

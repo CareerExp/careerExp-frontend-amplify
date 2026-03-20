@@ -57,6 +57,33 @@ import {
   yellowBG,
 } from "../assets/assest.js";
 
+/** Non-empty trimmed string, or empty if missing. */
+const trimLink = (v) => {
+  if (v == null) return "";
+  const s = String(v).trim();
+  return s;
+};
+
+/**
+ * Resolve a social URL from direct `user` fields first, then from API `socialMediaLinks`
+ * (name + link entries as returned by getCreatorProfile).
+ */
+const resolveCounsellorSocialLink = (directCandidates, socialMediaLinks, arrayNames) => {
+  for (const c of directCandidates) {
+    const link = trimLink(c);
+    if (link) return link;
+  }
+  if (!Array.isArray(socialMediaLinks)) return "";
+  const wanted = new Set(arrayNames.map((n) => n.toLowerCase()));
+  for (const item of socialMediaLinks) {
+    const name = trimLink(item?.name).toLowerCase();
+    if (!wanted.has(name)) continue;
+    const link = trimLink(item?.link);
+    if (link) return link;
+  }
+  return "";
+};
+
 const Profile = () => {
   const dispatchToRedux = useDispatch();
   const navigate = useNavigate();
@@ -81,6 +108,8 @@ const Profile = () => {
 
   const creatorProfile = creatorProfileWithFollowersCount?.user;
   const orgProfile = creatorProfileWithFollowersCount?.organization;
+  const profileSocialMediaLinks =
+    creatorProfileWithFollowersCount?.socialMediaLinks;
 
   const getInitials = () => {
     const first = (creatorProfile?.firstName || "").trim();
@@ -186,37 +215,65 @@ const Profile = () => {
     {
       key: "facebook",
       icon: FacebookIcon,
-      link: creatorProfile?.facebook ?? creatorProfile?.facebook,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.facebook],
+        profileSocialMediaLinks,
+        ["Facebook"],
+      ),
     },
     {
       key: "instagram",
       icon: InstagramIcon,
-      link: creatorProfile?.instagram ?? creatorProfile?.instagram,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.instagram],
+        profileSocialMediaLinks,
+        ["Instagram"],
+      ),
     },
     {
       key: "tiktok",
       icon: TikTokIcon,
-      link: creatorProfile?.tiktok ?? creatorProfile?.tiktok,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.tiktok],
+        profileSocialMediaLinks,
+        ["TikTok"],
+      ),
     },
     {
       key: "linkedin",
       icon: LinkedinIcon,
-      link: creatorProfile?.linkedIn ?? creatorProfile?.linkedin,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.linkedIn, creatorProfile?.linkedin],
+        profileSocialMediaLinks,
+        ["LinkedIn"],
+      ),
     },
     {
       key: "youtube",
       icon: YoutubeIcon,
-      link: creatorProfile?.youtube ?? creatorProfile?.youtube,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.youtube],
+        profileSocialMediaLinks,
+        ["YouTube"],
+      ),
     },
     {
       key: "telegram",
       icon: TelegramIcon,
-      link: creatorProfile?.telegram ?? creatorProfile?.telegram,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.telegram],
+        profileSocialMediaLinks,
+        ["Telegram"],
+      ),
     },
     {
       key: "twitter",
       icon: TwitterIcon,
-      link: creatorProfile?.twitter ?? creatorProfile?.twitter,
+      link: resolveCounsellorSocialLink(
+        [creatorProfile?.twitter],
+        profileSocialMediaLinks,
+        ["Twitter"],
+      ),
     },
   ].filter((s) => s.link);
 

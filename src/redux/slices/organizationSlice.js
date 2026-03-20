@@ -11,6 +11,8 @@ const initialState = {
   dashboardError: null,
   loading: false,
   error: null,
+  /** Only for getOrganizationProfileById (counsellor My Company, etc.) — not shared with other org thunks. */
+  getOrganizationProfileByIdStatus: "idle",
 };
 
 export const getMyOrganizationProfile = createAsyncThunk(
@@ -305,6 +307,7 @@ const organizationSlice = createSlice({
       state.profile = null;
       state.error = null;
       state.loading = false;
+      state.getOrganizationProfileByIdStatus = "idle";
     },
   },
   extraReducers: (builder) => {
@@ -370,14 +373,17 @@ const organizationSlice = createSlice({
       .addCase(getOrganizationProfileById.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.getOrganizationProfileByIdStatus = "loading";
       })
       .addCase(getOrganizationProfileById.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.profile = payload.data;
+        state.getOrganizationProfileByIdStatus = "succeeded";
       })
       .addCase(getOrganizationProfileById.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload?.error || "Failed to fetch organization profile";
+        state.getOrganizationProfileByIdStatus = "failed";
       })
       .addCase(getOrganizationCounsellors.pending, (state) => {
         state.loading = true;
@@ -416,5 +422,7 @@ export const selectOrganizationDashboardLoading = (state) => state.organization.
 export const selectOrganizationDashboardError = (state) => state.organization.dashboardError;
 export const selectOrganizationLoading = (state) => state.organization.loading;
 export const selectOrganizationError = (state) => state.organization.error;
+export const selectGetOrganizationProfileByIdStatus = (state) =>
+  state.organization.getOrganizationProfileByIdStatus;
 
 export default organizationSlice.reducer;
