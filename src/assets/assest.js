@@ -175,7 +175,7 @@ import backgroundVector from "./Vector.png";
 import profileOilPaintMobile from "./Profile/Subtractshivam.png";
 // shareIconInOrange
 import shareIconInOrange from "./icons/shareInOrange.png";
-import domainImage from "./domainWheel2.svg";
+import domainImage from "./newDomainWheel.svg";
 
 // organization
 import defaultHeroBG from "./organization/defaultHeroBG.svg";
