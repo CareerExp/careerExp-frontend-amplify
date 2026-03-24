@@ -25,23 +25,32 @@
   margin: 5rem;
   display: flex;
   gap: 5rem;
+  align-items: flex-start;
 }
 
-/* Reserve space for hero SVG before decode; avoid flex column collapsing to 0 width */
+/*
+ * Hero wheel: target width 533px (legacy domain wheel size). Left column must not shrink
+ * when the text column is wide — otherwise the image looks small. .right flexes and wraps.
+ * Aspect ratio matches newDomainWheel.svg viewBox (domainImage), not legacy domainWheel.svg.
+ */
 @media (min-width: 601px) {
+  .main .right {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   .main .left {
-    flex: 0 1 48%;
-    min-width: 280px;
-    max-width: 50%;
+    flex: 0 0 533px;
+    width: 533px;
+    max-width: 100%;
     display: flex;
     justify-content: center;
   }
 
   .main .left img {
     width: 100%;
-    max-width: 560px;
     height: auto;
-    aspect-ratio: 1429.81 / 1447.42;
+    aspect-ratio: 1460.01 / 1477.99;
     object-fit: contain;
     display: block;
   }
@@ -223,6 +232,13 @@
 
   .main .left img {
     width: 100%;
+    max-width: 533px;
+    height: auto;
+    aspect-ratio: 1460.01 / 1477.99;
+    object-fit: contain;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
   }
 
   .main .right {
