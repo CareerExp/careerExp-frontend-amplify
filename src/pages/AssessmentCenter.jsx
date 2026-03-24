@@ -122,7 +122,7 @@ const AssessmentCenter = () => {
           // style={{ maxWidth: "1440px", margin: "auto", marginTop: "5rem" }}
         >
           <div className={assessmentStyle["left"]}>
-            <img src={domainImage} alt="hero Image" />
+            <img src={domainImage} alt="Career domains wheel" />
           </div>
           <div className={assessmentStyle["right"]}>
             <h4>Introduction</h4>
