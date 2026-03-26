@@ -104,12 +104,9 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
   const specializations =
     orgProfile?.specializations ?? hei?.specializations ?? [];
   const website = orgProfile?.website || hei?.website || "";
-  const contactEmail =
-    orgProfile?.email ??
-    orgProfile?.contactEmail ??
-    hei?.contactEmail ??
-    hei?.email ??
-    "";
+  const contactEmail = String(
+    orgProfile?.contactEmail ?? hei?.contactEmail ?? "",
+  ).trim();
   const galleryImages = hei?.galleryImages ?? orgProfile?.galleryImages ?? [];
   const locations = hei?.locations ?? orgProfile?.locations ?? [];
 
@@ -315,17 +312,7 @@ const HEIDescriptionTabs = ({ profile: profileProp }) => {
                 >
                   {contactEmail}
                 </Typography>
-              ) : (
-                <Typography
-                  sx={{
-                    fontFamily: fonts.sans,
-                    color: "rgba(0,0,0,0.5)",
-                    fontSize: "16px",
-                  }}
-                >
-                  —
-                </Typography>
-              )}
+              ) : null}
             </InfoRow>
           </Box>
         </TabPanel>

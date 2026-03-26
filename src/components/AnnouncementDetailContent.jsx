@@ -105,7 +105,7 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
       setLoginModalOpen(true);
       return;
     }
-    if (!announcementId || announcement?.userHasRespondedToCta) return;
+    if (!announcementId) return;
     try {
       await dispatch(
         registerAnnouncementCta({
@@ -458,7 +458,6 @@ const AnnouncementDetailContent = ({ announcementId, onBack }) => {
             <Button
               variant="contained"
               fullWidth
-              disabled={hasResponded}
               onClick={handleEnquire}
               sx={{
                 background: "linear-gradient(to top left, #720361, #bf2f75)",
