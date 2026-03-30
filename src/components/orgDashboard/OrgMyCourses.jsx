@@ -860,10 +860,11 @@ const OrgMyCourses = () => {
 
           {/* Stats row above image (Figma 1125-140255): provider, stars, duration, likes, views */}
           {(() => {
-            const rating = Math.min(5, Math.max(0, Number(course.rating) || 0));
-            const filledStars = Math.floor(rating);
-            const starColorFilled = "#E87900";
-            const starColorEmpty = "#9CA3AF";
+            const averageRating = Math.min(
+              5,
+              Math.max(0, Number(course.averageRating) || 0),
+            );
+            const totalRatings = Number(course.totalRatings) || 0;
             const iconAmber = "#E87900";
             const textSecondary = "#9CA3AF";
             return (
@@ -903,13 +904,26 @@ const OrgMyCourses = () => {
                                         ({course.totalReviews ?? 0})
                                     </Typography> */}
                   <Rating
-                    value={course.rating || 0}
+                    value={averageRating}
                     readOnly
                     precision={0.5}
                     size="small"
-                    sx={{ color: "#E87900" }}
+                    sx={{
+                      "& .MuiRating-iconFilled": { color: "#E87900" },
+                      "& .MuiRating-iconEmpty": { color: "#D0D5DD" },
+                    }}
                   />
-                  ({course.totalReviews ?? 0})
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontFamily: fonts.sans,
+                      fontSize: "14px",
+                      color: textSecondary,
+                      ml: 0.25,
+                    }}
+                  >
+                    ({totalRatings})
+                  </Typography>
                 </Box>
                 {/* Duration – orange/amber outline icon, gray text */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>

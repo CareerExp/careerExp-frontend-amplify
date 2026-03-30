@@ -239,6 +239,8 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
     ? orgProfile.locations
     : [];
 
+  const orgContactEmail = String(orgProfile?.contactEmail || "").trim();
+
   return (
     <Box
       sx={{
@@ -415,10 +417,10 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
             </InfoRow>
 
             <InfoRow label="Email ID" isLast>
-              {orgProfile?.contactEmail?.trim() ? (
+              {orgContactEmail ? (
                 <Typography
                   component="a"
-                  href={`mailto:${orgProfile.contactEmail}`}
+                  href={`mailto:${orgContactEmail}`}
                   sx={{
                     fontFamily: fonts.sans,
                     fontWeight: 500,
@@ -431,11 +433,9 @@ const ESPInfoPanel = ({ profile: profileProp }) => {
                     display: "inline-block",
                   }}
                 >
-                  {orgProfile.contactEmail}
+                  {orgContactEmail}
                 </Typography>
-              ) : (
-                <Typography sx={mutedPlaceholderSx}>Email</Typography>
-              )}
+              ) : null}
             </InfoRow>
           </Box>
         </Grid>
