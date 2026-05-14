@@ -12,7 +12,7 @@ import {
 import ShareIcon from "@mui/icons-material/Share";
 import { fonts } from "../../utility/fonts";
 import { defaultHeroBG } from "../../assets/assest";
-import { selectToken } from "../../redux/slices/authSlice";
+import { selectToken, selectUserId } from "../../redux/slices/authSlice";
 import { selectUserProfile } from "../../redux/slices/profileSlice";
 import { notify } from "../../redux/slices/alertSlice";
 import ClaimRegistrationModal from "./ClaimRegistrationModal.jsx";
