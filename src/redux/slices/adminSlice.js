@@ -13,6 +13,12 @@ const initialState = {
   governmentOrganizations: null,
   admins: null, // { admins: [], pagination?: { page, limit, total, totalPages } }
   activityLog: null, // { logs: [], pagination?: { page, limit, total } }
+  claimRequests: [],
+  claimRequestsTotal: 0,
+  claimRequestsLoading: false,
+  claimRequestsError: null,
+  claimRequestsPage: 1,
+  claimRequestsTotalPages: 1,
 };
 
 export const getAllUsers = createAsyncThunk(
@@ -590,6 +596,40 @@ export const sendStudentSupportEmail = createAsyncThunk(
   },
 );
 
+/** GET /api/admin/university-claim-requests — Pending university directory claims (admin). */
+export const getUniversityClaimRequests = createAsyncThunk(
+  "admin/getUniversityClaimRequests",
+  async ({ token, page = 1, limit = 10, search = "" }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      if (search.trim()) params.set("search", search.trim());
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/university-claim-requests?${params}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to load university claim requests",
+        });
+      }
+      return response.data ?? { items: [], total: 0, currentPage: 1, totalPages: 1 };
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to load university claim requests",
+      });
+    }
+  },
+);
+
 const adminSlice = createSlice({
   name: "admin",
   initialState,
@@ -634,6 +674,23 @@ const adminSlice = createSlice({
     });
     builder.addCase(getGeneralUserData.fulfilled, (state, action) => {
       state.generalData = action.payload.data;
+    });
+
+    builder.addCase(getUniversityClaimRequests.pending, (state) => {
+      state.claimRequestsLoading = true;
+      state.claimRequestsError = null;
+    });
+    builder.addCase(getUniversityClaimRequests.fulfilled, (state, action) => {
+      state.claimRequestsLoading = false;
+      const data = action.payload ?? {};
+      state.claimRequests = data.items ?? [];
+      state.claimRequestsTotal = data.total ?? 0;
+      state.claimRequestsPage = data.currentPage ?? 1;
+      state.claimRequestsTotalPages = data.totalPages ?? 1;
+    });
+    builder.addCase(getUniversityClaimRequests.rejected, (state, action) => {
+      state.claimRequestsLoading = false;
+      state.claimRequestsError = action.payload?.message ?? "Failed to load";
     });
 
     builder.addCase(updateActiveStatus.fulfilled, (state, action) => {
@@ -682,5 +739,11 @@ export const selectGovernmentOrganizationsData = (state) =>
   state.admin.governmentOrganizations;
 export const selectAdminsData = (state) => state.admin.admins;
 export const selectActivityLogData = (state) => state.admin.activityLog;
+export const selectClaimRequests = (state) => state.admin.claimRequests ?? [];
+export const selectClaimRequestsTotal = (state) => state.admin.claimRequestsTotal ?? 0;
+export const selectClaimRequestsLoading = (state) => state.admin.claimRequestsLoading ?? false;
+export const selectClaimRequestsError = (state) => state.admin.claimRequestsError;
+export const selectClaimRequestsPage = (state) => state.admin.claimRequestsPage ?? 1;
+export const selectClaimRequestsTotalPages = (state) => state.admin.claimRequestsTotalPages ?? 1;
 
 export default adminSlice.reducer;

@@ -9,6 +9,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
+  Link,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
@@ -239,6 +241,44 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
         }}
       >
         <Box sx={{ px: 2.5 }}>
+          {org.isClaimFlow ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, flexWrap: "wrap" }}>
+              <Chip
+                label="Claim Flow"
+                size="small"
+                sx={{
+                  backgroundColor: "#FFF3E0",
+                  color: "#E65100",
+                  fontFamily: fonts.poppins,
+                  fontWeight: 600,
+                  border: "1px solid #E65100",
+                }}
+              />
+              <Typography sx={{ fontFamily: fonts.poppins, fontSize: "0.82rem", color: "#555" }}>
+                This organization was registered via the University Claim Page flow.
+              </Typography>
+            </Box>
+          ) : null}
+          {org.isClaimFlow && org.claimUniversitySlug ? (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontFamily: fonts.poppins, fontSize: "0.82rem", color: "#555", mb: 0.5 }}>
+                University Directory Page:
+              </Typography>
+              <Link
+                href={`${typeof window !== "undefined" ? window.location.origin : ""}/university/${org.claimUniversitySlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  fontSize: "0.85rem",
+                  color: "#BC2876",
+                  wordBreak: "break-all",
+                }}
+              >
+                {`${typeof window !== "undefined" ? window.location.origin : ""}/university/${org.claimUniversitySlug}`}
+              </Link>
+            </Box>
+          ) : null}
           {/* Update Status – label dark gray; dropdown + pill badge */}
           <Box sx={{ mb: 3 }}>
             <Typography

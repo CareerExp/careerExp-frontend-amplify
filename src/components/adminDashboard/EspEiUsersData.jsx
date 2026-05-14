@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
+  Chip,
   Table,
   TableBody,
   TableCell,
@@ -14,12 +18,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useDispatch, useSelector } from "react-redux";
 import OrgReviewModal from "../../models/OrgReviewModal.jsx";
 import {
   getAllOrganizations,
+  getUniversityClaimRequests,
+  selectClaimRequestsTotal,
   selectOrganizationsData,
 } from "../../redux/slices/adminSlice.js";
+import UniversityClaimRequests from "./UniversityClaimRequests.jsx";
 import { notify } from "../../redux/slices/alertSlice.js";
 import { selectToken } from "../../redux/slices/authSlice.js";
 import { fonts } from "../../utility/fonts.js";
@@ -60,6 +68,7 @@ const EspEiUsersData = () => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
   const organizationsData = useSelector(selectOrganizationsData);
+  const claimRequestsTotal = useSelector(selectClaimRequestsTotal);
 
   const [tabValue, setTabValue] = useState(TAB_ESP);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,6 +93,11 @@ const EspEiUsersData = () => {
       }),
     );
   }, [dispatch, token, organizationType, page, rowsPerPage, appliedSearch]);
+
+  useEffect(() => {
+    if (!token) return;
+    dispatch(getUniversityClaimRequests({ token, page: 1, limit: 1 }));
+  }, [dispatch, token]);
 
   const handleTabChange = (_, newValue) => {
     setTabValue(newValue);
@@ -123,6 +137,34 @@ const EspEiUsersData = () => {
         ESP & EI User
       </Typography>
       </Box>
+
+      <Accordion
+        defaultExpanded={false}
+        sx={{ mb: 2, mt: 2, ml: 2, mr: 2, boxShadow: "0px 1px 3px rgba(0,0,0,0.08)", borderRadius: "10px", "&:before": { display: "none" } }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+            <Typography sx={{ fontFamily: fonts.poppins, fontWeight: 600 }}>
+              Pending University Claim Requests
+            </Typography>
+            {claimRequestsTotal > 0 ? (
+              <Chip
+                label={claimRequestsTotal}
+                size="small"
+                sx={{ ml: 1, backgroundColor: "#E65100", color: "#fff", fontFamily: fonts.poppins, fontWeight: 600 }}
+              />
+            ) : null}
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails>
+          <UniversityClaimRequests
+            onReviewOrganization={(mappedOrg) => {
+              setSelectedOrganization(mappedOrg);
+              setIsReviewModalOpen(true);
+            }}
+          />
+        </AccordionDetails>
+      </Accordion>
 
       <Box
         sx={{
@@ -270,7 +312,25 @@ const EspEiUsersData = () => {
                   }}
                 >
                   <TableCell sx={{ ...tableBodyStyle, fontWeight: 500 }}>
-                    {org.organizationName || "—"}
+                    <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 0.5 }}>
+                      {org.organizationName || "—"}
+                      {org.isClaimFlow ? (
+                        <Chip
+                          label="Claim Flow"
+                          size="small"
+                          sx={{
+                            ml: 1,
+                            backgroundColor: "#FFF3E0",
+                            color: "#E65100",
+                            fontFamily: fonts.poppins,
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                            height: "20px",
+                            border: "1px solid #E65100",
+                          }}
+                        />
+                      ) : null}
+                    </Box>
                   </TableCell>
                   <TableCell sx={tableBodyStyle}>
                     {org.email || org.contactEmail || "—"}

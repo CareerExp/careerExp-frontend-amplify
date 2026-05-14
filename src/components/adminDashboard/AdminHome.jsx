@@ -5,8 +5,14 @@ import SchoolIcon from "@mui/icons-material/School";
 import PersonIcon from "@mui/icons-material/Person";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import ComputerIcon from "@mui/icons-material/Computer";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { CreatorIcon, MaleFemaleIcon, NewUser, TotalUsers } from "../../assets/assest.js";
-import { getGeneralUserData, selectGeneralData } from "../../redux/slices/adminSlice.js";
+import {
+  getGeneralUserData,
+  getUniversityClaimRequests,
+  selectClaimRequestsTotal,
+  selectGeneralData,
+} from "../../redux/slices/adminSlice.js";
 import { selectToken } from "../../redux/slices/authSlice.js";
 import { fonts } from "../../utility/fonts.js";
 import { notify } from "../../redux/slices/alertSlice.js";
@@ -52,6 +58,7 @@ const ColoredIconCard = ({ IconComponent, iconColor, bgColor, value, title }) =>
 const AdminHome = () => {
   const dispatchToRedux = useDispatch();
   const generalData = useSelector(selectGeneralData);
+  const claimRequestsTotal = useSelector(selectClaimRequestsTotal);
   const token = useSelector(selectToken);
 
   useEffect(() => {
@@ -96,6 +103,11 @@ const AdminHome = () => {
     };
 
     fetchData();
+  }, [dispatchToRedux, token]);
+
+  useEffect(() => {
+    if (!token) return;
+    dispatchToRedux(getUniversityClaimRequests({ token, page: 1, limit: 1 }));
   }, [dispatchToRedux, token]);
 
   return (
@@ -147,6 +159,16 @@ const AdminHome = () => {
           value={generalData?.totalESPUsers}
           title="Total ESP User"
         />
+
+        {claimRequestsTotal > 0 ? (
+          <ColoredIconCard
+            IconComponent={LockOpenIcon}
+            iconColor="#E65100"
+            bgColor="#FFF3E0"
+            value={claimRequestsTotal}
+            title="Pending Claim Requests"
+          />
+        ) : null}
 
         <Box
           sx={{
