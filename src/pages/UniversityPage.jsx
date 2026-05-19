@@ -1,8 +1,11 @@
 import React, { useEffect, useReducer } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { selectToken } from "../redux/slices/authSlice";
 import UniversityPublicHero from "../components/university/UniversityPublicHero";
 import UnclaimedUniversityInfo from "../components/university/UnclaimedUniversityInfo";
+import UniversityDirectoryEspPlaceholderSections from "../components/university/UniversityDirectoryEspPlaceholderSections";
 import universityDirectoryReducer, {
   resetUniversityDirectory,
   fetchUniversityBySlug,
@@ -10,12 +13,13 @@ import universityDirectoryReducer, {
   selectUniversityLoading,
   selectUniversityErrorCode,
   selectUniversityError,
-  setUniversityClaimStatus,
+  setUniversityPendingClaimForViewer,
   initialUniversityDirectoryState,
 } from "../redux/slices/universityDirectorySlice";
 
 const UniversityPage = () => {
   const { slug } = useParams();
+  const token = useSelector(selectToken);
   const [state, dispatch] = useReducer(
     universityDirectoryReducer,
     initialUniversityDirectoryState,
@@ -29,12 +33,12 @@ const UniversityPage = () => {
   useEffect(() => {
     dispatch(resetUniversityDirectory());
     if (slug) {
-      fetchUniversityBySlug(slug, dispatch);
+      fetchUniversityBySlug(slug, dispatch, token);
     }
     return () => {
       dispatch(resetUniversityDirectory());
     };
-  }, [slug]);
+  }, [slug, token]);
 
   if (loading && !university) {
     return (
@@ -99,6 +103,11 @@ const UniversityPage = () => {
 
   if (university.claimStatus === "claimed") {
     const claimedSlug = university.claimedOrgSlug || university.claimedOrgProfileSlug;
+    const orgType = String(university.claimedOrganizationType || "HEI").toUpperCase();
+    const orgBase = orgType === "ESP" ? "/org-esp" : "/org-hei";
+    if (claimedSlug) {
+      return <Navigate to={`${orgBase}/${encodeURIComponent(claimedSlug)}`} replace />;
+    }
     return (
       <Box
         sx={{
@@ -110,13 +119,11 @@ const UniversityPage = () => {
         }}
       >
         <Typography sx={{ mb: 2 }}>
-          This university has been claimed. Visit their profile.
+          This university has been claimed. Visit their profile when a public link is available.
         </Typography>
-        {claimedSlug ? (
-          <Button component={Link} to={`/org-hei/${claimedSlug}`} variant="contained" sx={{ backgroundColor: "#BC2876" }}>
-            Open institution profile
-          </Button>
-        ) : null}
+        <Button component={Link} to="/explore" variant="contained" sx={{ backgroundColor: "#BC2876" }}>
+          Back to Explore
+        </Button>
       </Box>
     );
   }
@@ -134,9 +141,10 @@ const UniversityPage = () => {
       <Box sx={{ width: "100%", mx: "auto" }}>
         <UniversityPublicHero
           university={university}
-          onClaimStatusPending={() => dispatch(setUniversityClaimStatus("pending"))}
+          onClaimStatusPending={() => dispatch(setUniversityPendingClaimForViewer())}
         />
         <UnclaimedUniversityInfo university={university} />
+        <UniversityDirectoryEspPlaceholderSections />
       </Box>
     </Box>
   );

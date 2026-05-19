@@ -137,15 +137,17 @@ export async function getExploreGovernmentOrganizations(params = {}) {
 
 /**
  * GET /api/university/s/:slug — Fetch a single university directory entry.
- * Public. Returns { success, data: { _id, name, country, logo, qsRank, slug,
- *   claimStatus, website, socialLinks, isFollowable } }
+ * Public. Optional Authorization: Bearer — when present, includes `pendingClaimAppliesToViewer`
+ * so only the current pending claimant sees "pending review" UX; others can still start a claim.
  */
-export async function getUniversityBySlug(slug) {
+export async function getUniversityBySlug(slug, token = null) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
   return FetchApi.fetch(
     `${config.api}/api/university/s/${encodeURIComponent(slug)}`,
     {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers,
     },
   );
 }

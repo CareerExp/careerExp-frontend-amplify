@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Grid, Card, Typography, Button, CircularProgress, Chip } from "@mui/material";
+import { Box, Grid, Card, Typography, Button, CircularProgress } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { fonts } from "../../utility/fonts";
 import { listUniversities } from "../../api/partnersExploreApi";
 
 const PAGE_SIZE = 10;
 
-function getInitials(name) {
+export function getInitials(name) {
   if (!name || typeof name !== "string") return "—";
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "—";
@@ -24,8 +24,44 @@ function toCardItem(item) {
     slug: item.slug,
     name: item.name ?? item.organizationName ?? "—",
     logo: item.logo ?? item.logoUrl ?? null,
-    qsRank: item.qsRank,
   };
+}
+
+/** External hosts (e.g. topuniversities.com) block hotlinking unless referer is stripped. */
+export function UniversityCardLogo({ name, logo }) {
+  const [failed, setFailed] = useState(false);
+  const src = typeof logo === "string" ? logo : logo?.url;
+
+  if (!src || failed) {
+    return (
+      <Typography
+        sx={{
+          fontFamily: fonts.poppins,
+          fontWeight: 600,
+          fontSize: "28px",
+          color: "#545454",
+          letterSpacing: "0.02em",
+        }}
+      >
+        {getInitials(name)}
+      </Typography>
+    );
+  }
+
+  return (
+    <Box
+      component="img"
+      src={src}
+      alt={name}
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      sx={{
+        maxWidth: "90%",
+        maxHeight: "90%",
+        objectFit: "contain",
+      }}
+    />
+  );
 }
 
 const UniversityDirectoryList = ({ search = "", country = "" }) => {
@@ -161,44 +197,8 @@ const UniversityDirectoryList = ({ search = "", country = "" }) => {
                   backgroundColor: partner.logo ? "transparent" : "#E8E8E8",
                 }}
               >
-                {partner.logo ? (
-                  <Box
-                    component="img"
-                    src={typeof partner.logo === "string" ? partner.logo : partner.logo?.url}
-                    alt={partner.name}
-                    sx={{
-                      maxWidth: "90%",
-                      maxHeight: "90%",
-                      objectFit: "contain",
-                    }}
-                  />
-                ) : (
-                  <Typography
-                    sx={{
-                      fontFamily: fonts.poppins,
-                      fontWeight: 600,
-                      fontSize: "28px",
-                      color: "#545454",
-                      letterSpacing: "0.02em",
-                    }}
-                  >
-                    {getInitials(partner.name)}
-                  </Typography>
-                )}
+                <UniversityCardLogo name={partner.name} logo={partner.logo} />
               </Box>
-              {partner.qsRank != null && partner.qsRank !== "" ? (
-                <Chip
-                  label={`QS #${partner.qsRank}`}
-                  size="small"
-                  sx={{
-                    mb: 1,
-                    fontFamily: fonts.poppins,
-                    borderColor: "#BC2876",
-                    color: "#BC2876",
-                  }}
-                  variant="outlined"
-                />
-              ) : null}
               <Typography
                 sx={{
                   fontFamily: fonts.poppins,

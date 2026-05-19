@@ -41,6 +41,7 @@ import OrgHEIHome from "./orgDashboard/OrgHEIHome.jsx";
 import MyCompany from "./creatorDashboard/MyCompany.jsx";
 import MyMessages from "./messages/MyMessages.jsx";
 import { isAdminSubAdminAccountDisabled } from "../utility/isAdminSubAdminDisabled.js";
+import { isOrganizationAccountBlocked } from "../utility/organizationAccountStatus.js";
 
 const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
   console.log(orgProfile);
@@ -163,14 +164,8 @@ const renderCurrentPage = (currentPage, userData, orgProfile, options = {}) => {
     const isSubscriptionExpired = subscriptionStatus === "canceled";
     const skipSubscriptionGate = options.isAdminInOrgView === true;
 
-    if (!skipSubscriptionGate && !isOrgActive && orgStatus === "blocked") {
-      return (
-        <PendingStatePopup
-          message={
-            "Your Organization Account has been blocked. Please contact support for further assistance."
-          }
-        />
-      );
+    if (!skipSubscriptionGate && isOrganizationAccountBlocked(userData, orgProfile)) {
+      return null;
     }
     if (!skipSubscriptionGate && !isOrgActive) {
       return <OrgUnderReviewScreen />;

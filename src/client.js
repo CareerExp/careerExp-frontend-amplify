@@ -60,7 +60,9 @@ function checkStatus(response) {
     return response;
   } else {
     return response.json().then((parsedResponse) => {
-      const error = new Error(parsedResponse.message || response.statusText);
+      const error = new Error(
+        parsedResponse.message || parsedResponse.error || response.statusText,
+      );
       error.code = response.status.toString();
       error.field = parsedResponse.field || null;
       throw error;
@@ -69,10 +71,19 @@ function checkStatus(response) {
 }
 
 function parseJSON(response) {
-  if (response && response.headers.get("content-type")?.includes("json")) {
+  const contentType = response?.headers?.get("content-type") || "";
+  if (contentType.includes("json")) {
     return response.json();
   }
-  return response;
+  return response.text().then((text) => {
+    const isHtml = /^\s*</.test(text);
+    const error = new Error(
+      isHtml
+        ? "The API returned a web page instead of JSON. Check VITE_REACT_APP_API points at the Career Explorer backend."
+        : text?.slice(0, 120) || "Invalid response from server",
+    );
+    throw error;
+  });
 }
 function logError(error) {
   // eslint-disable-next-line no-console

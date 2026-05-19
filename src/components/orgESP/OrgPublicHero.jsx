@@ -228,30 +228,43 @@ const OrgPublicHero = ({ profile }) => {
         >
           <Button
             variant="contained"
+            disableElevation
             onClick={handleFollowClick}
             disabled={followLoading || !orgTargetId || userId === orgTargetId}
             sx={{
               backgroundColor: "#fafafa",
+              boxShadow: "none",
               borderRadius: "90px",
               px: 3,
               py: 1,
               textTransform: "none",
               fontFamily: fonts.sans,
-              fontWeight: 700,
-              fontSize: "18px",
-              "& .MuiTypography-root": {
-                background:
-                  "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+              "&:hover": {
+                backgroundColor: "#fff",
+                boxShadow: "none",
               },
-              "&:hover": { backgroundColor: "#fff", opacity: 0.9 },
+              "&.Mui-disabled": {
+                backgroundColor: "#fafafa",
+                opacity: 0.85,
+              },
             }}
           >
             {followLoading ? (
               <CircularProgress size={20} sx={{ color: "#720361" }} />
             ) : (
-              <Typography sx={{ fontWeight: 700, fontSize: "18px" }}>
+              <Typography
+                component="span"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: "18px",
+                  background:
+                    "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  display: "inline-block",
+                }}
+              >
                 {isFollowing ? "Following" : "Follow"}
               </Typography>
             )}

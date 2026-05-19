@@ -1,32 +1,20 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Typography,
   Button,
   IconButton,
   Tooltip,
-  Chip,
 } from "@mui/material";
 import ShareIcon from "@mui/icons-material/Share";
 import { fonts } from "../../utility/fonts";
 import { defaultHeroBG } from "../../assets/assest";
-import { selectToken, selectUserId } from "../../redux/slices/authSlice";
+import { selectToken } from "../../redux/slices/authSlice";
 import { selectUserProfile } from "../../redux/slices/profileSlice";
 import { notify } from "../../redux/slices/alertSlice";
 import ClaimRegistrationModal from "./ClaimRegistrationModal.jsx";
-
-function getInitials(name) {
-  if (!name || typeof name !== "string") return "—";
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "—";
-  return words
-    .slice(0, 3)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
 
 function normalizeRoles(profile) {
   const r = profile?.role;
@@ -43,10 +31,8 @@ function getUniversityPublicUrl(slug) {
 
 const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { slug: routeSlug } = useParams();
   const token = useSelector(selectToken);
-  const userId = useSelector(selectUserId);
   const userProfile = useSelector(selectUserProfile);
   const [claimOpen, setClaimOpen] = useState(false);
 
@@ -57,13 +43,20 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
   const isAdmin = roles.includes("admin");
 
   const claimStatus = university?.claimStatus ?? "unclaimed";
-  const claimEnabled = claimStatus === "unclaimed" || claimStatus === "rejected";
-  const claimLabel =
-    claimStatus === "pending"
-      ? "Claim Pending Review"
-      : claimStatus === "claimed"
-        ? "Claimed"
-        : "Claim Page";
+  const viewerIsPendingClaimant = university?.pendingClaimAppliesToViewer === true;
+  const showClaimPendingReview =
+    claimStatus === "pending" && viewerIsPendingClaimant;
+
+  const claimEnabled =
+    claimStatus === "unclaimed" ||
+    claimStatus === "rejected" ||
+    (claimStatus === "pending" && !viewerIsPendingClaimant);
+
+  const claimLabel = showClaimPendingReview
+    ? "Claim Pending Review"
+    : claimStatus === "claimed"
+      ? "Claimed"
+      : "Claim Page";
 
   const handleShare = async () => {
     if (!shareUrl) return;
@@ -100,21 +93,10 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
 
   const handleClaimClick = () => {
     if (!claimEnabled) return;
-    if (!token) {
+    if (token && (isOrg || isAdmin)) {
       dispatch(
         notify({
-          message: "Please sign in to claim this page",
-          type: "warning",
-        }),
-      );
-      navigate(`/login?redirect=/university/${encodeURIComponent(slug || "")}`);
-      return;
-    }
-    if (isOrg || isAdmin) {
-      dispatch(
-        notify({
-          message:
-            "This action is only available for student/individual accounts",
+          message: "This action is only available for individual accounts.",
           type: "warning",
         }),
       );
@@ -122,24 +104,6 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
     }
     setClaimOpen(true);
   };
-
-  const claimButtonSx = (() => {
-    if (claimEnabled) {
-      return {
-        background: "linear-gradient(180deg, #BF2F75 0%, #720361 100%)",
-        color: "#fff",
-        "&:hover": {
-          background: "linear-gradient(180deg, #BF2F75 0%, #720361 100%)",
-          opacity: 0.92,
-        },
-      };
-    }
-    return {
-      backgroundColor: "#9e9e9e",
-      color: "#fff",
-      "&:hover": { backgroundColor: "#9e9e9e" },
-    };
-  })();
 
   return (
     <Box sx={{ position: "relative" }}>
@@ -194,6 +158,7 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
             <Box
               component="img"
               src={university.logo}
+              referrerPolicy="no-referrer"
               sx={{ width: "80%", height: "80%", objectFit: "contain" }}
               alt=""
             />
@@ -206,48 +171,29 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
                 color: "#ffffff",
               }}
             >
-              {getInitials(university?.name)}
+              {(university?.name || "University")
+                .split(/\s+/)
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 3)
+                .toUpperCase()}
             </Typography>
           )}
         </Box>
         <Box sx={{ flexGrow: 1, textAlign: { xs: "center", md: "left" } }}>
-          <Box
+          <Typography
+            variant="h4"
             sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "center", md: "flex-start" },
-              gap: 1,
-              flexWrap: "wrap",
+              fontFamily: fonts.sans,
+              fontWeight: 600,
+              fontSize: { xs: "22px", md: "28px" },
+              color: "#fff",
+              lineHeight: 1.2,
+              textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
             }}
           >
-            <Typography
-              variant="h4"
-              sx={{
-                fontFamily: fonts.sans,
-                fontWeight: 600,
-                fontSize: { xs: "22px", md: "28px" },
-                color: "#fff",
-                lineHeight: 1.2,
-                textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
-              }}
-            >
-              {university?.name || "University"}
-            </Typography>
-            {university?.qsRank != null && university.qsRank !== "" && (
-              <Chip
-                label={`QS Rank #${university.qsRank}`}
-                size="small"
-                variant="outlined"
-                sx={{
-                  borderColor: "#BC2876",
-                  color: "#fff",
-                  fontFamily: fonts.sans,
-                  fontWeight: 600,
-                  textShadow: { xs: "none", md: "0px 1px 2px rgba(0,0,0,0.4)" },
-                }}
-              />
-            )}
-          </Box>
+            {university?.name || "University"}
+          </Typography>
           <Typography
             sx={{
               fontFamily: fonts.sans,
@@ -260,25 +206,6 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
           >
             {university?.country || ""}
           </Typography>
-          {university?.website ? (
-            <Typography
-              component="a"
-              href={university.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                fontFamily: fonts.sans,
-                fontWeight: 500,
-                fontSize: "16px",
-                color: "#fff",
-                display: "inline-block",
-                mt: 0.5,
-                textDecoration: "underline",
-              }}
-            >
-              {university.website}
-            </Typography>
-          ) : null}
         </Box>
         <Box
           sx={{
@@ -291,20 +218,46 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
         >
           <Button
             variant="contained"
+            disableElevation
             onClick={handleClaimClick}
             disabled={!claimEnabled}
             sx={{
+              backgroundColor: "#fafafa",
+              boxShadow: "none",
               borderRadius: "90px",
               px: 3,
               py: 1,
               textTransform: "none",
               fontFamily: fonts.sans,
-              fontWeight: 700,
-              fontSize: "18px",
-              ...claimButtonSx,
+              "&:hover": {
+                backgroundColor: "#fff",
+                boxShadow: "none",
+              },
+              "&.Mui-disabled": {
+                backgroundColor: "#fafafa",
+                opacity: 0.85,
+              },
             }}
           >
-            {claimLabel}
+            <Typography
+              component="span"
+              sx={{
+                fontWeight: 700,
+                fontSize: "18px",
+                display: "inline-block",
+                ...(claimEnabled
+                  ? {
+                      background:
+                        "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }
+                  : { color: "rgba(0, 0, 0, 0.38)" }),
+              }}
+            >
+              {claimLabel}
+            </Typography>
           </Button>
           <Tooltip title="Share">
             <IconButton

@@ -43,6 +43,16 @@ const universityDirectorySlice = createSlice({
         state.university = { ...state.university, claimStatus: payload };
       }
     },
+    /** After successful claim registration while still on the page (viewer is now the pending claimant). */
+    setUniversityPendingClaimForViewer(state) {
+      if (state.university) {
+        state.university = {
+          ...state.university,
+          claimStatus: "pending",
+          pendingClaimAppliesToViewer: true,
+        };
+      }
+    },
   },
 });
 
@@ -54,6 +64,7 @@ export const {
   setClaimSubmitting,
   setClaimError,
   setUniversityClaimStatus,
+  setUniversityPendingClaimForViewer,
 } = universityDirectorySlice.actions;
 
 export default universityDirectorySlice.reducer;
@@ -63,11 +74,11 @@ export const selectUniversityLoading = (state) => state.loading;
 export const selectUniversityError = (state) => state.error;
 export const selectUniversityErrorCode = (state) => state.errorCode;
 
-/** For use with local useReducer state (same shape as slice state). */
-export async function fetchUniversityBySlug(slug, dispatch) {
+/** For use with local useReducer state (same shape as slice state). Pass access token when logged in so pending-claim UX is viewer-specific. */
+export async function fetchUniversityBySlug(slug, dispatch, token = null) {
   dispatch(fetchUniversityStarted());
   try {
-    const res = await getUniversityBySlug(slug);
+    const res = await getUniversityBySlug(slug, token);
     if (res?.success && res.data) {
       dispatch(fetchUniversitySucceeded(res.data));
       return;
