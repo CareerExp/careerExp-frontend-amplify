@@ -417,21 +417,6 @@ const OrgSubscriptionRequiredScreen = ({
                     </Box>
                     <Box>
                       <Typography
-                        component="a"
-                        href="mailto:help@careerexplorer.me"
-                        sx={{
-                          fontFamily: fonts.poppins,
-                          fontSize: "12px",
-                          lineHeight: "18px",
-                          fontWeight: 600,
-                          color: COUPON_ORANGE,
-                          textDecoration: "none",
-                          "&:hover": { textDecoration: "underline" },
-                        }}
-                      >
-                        help@careerexplorer.me{" "}
-                      </Typography>
-                      <Typography
                         component="span"
                         sx={{
                           fontFamily: fonts.poppins,
@@ -452,7 +437,22 @@ const OrgSubscriptionRequiredScreen = ({
                           color: "#666666",
                         }}
                       >
-                        For special offers, please contact our support team.
+                        For special offers, please contact our support team.{" "}
+                        <Box
+                          component="a"
+                          href="mailto:help@careerexplorer.me"
+                          sx={{
+                            fontFamily: fonts.poppins,
+                            fontSize: "12px",
+                            lineHeight: "18px",
+                            fontWeight: 600,
+                            color: COUPON_ORANGE,
+                            textDecoration: "none",
+                            "&:hover": { textDecoration: "underline" },
+                          }}
+                        >
+                          help@careerexplorer.me
+                        </Box>
                       </Typography>
                     </Box>
                   </Box>
@@ -782,21 +782,6 @@ const OrgSubscriptionRequiredScreen = ({
 
                       <Box>
                         <Typography
-                          component="a"
-                          href="mailto:help@careerexplorer.me"
-                          sx={{
-                            fontFamily: fonts.poppins,
-                            fontSize: "12px",
-                            lineHeight: "18px",
-                            fontWeight: 600,
-                            color: COUPON_ORANGE,
-                            textDecoration: "none",
-                            "&:hover": { textDecoration: "underline" },
-                          }}
-                        >
-                          help@careerexplorer.me{" "}
-                        </Typography>
-                        <Typography
                           component="span"
                           sx={{
                             fontFamily: fonts.poppins,
@@ -817,7 +802,22 @@ const OrgSubscriptionRequiredScreen = ({
                             color: "#666666",
                           }}
                         >
-                          For special offers, please contact our support team.
+                          For special offers, please contact our support team.{" "}
+                          <Box
+                            component="a"
+                            href="mailto:help@careerexplorer.me"
+                            sx={{
+                              fontFamily: fonts.poppins,
+                              fontSize: "12px",
+                              lineHeight: "18px",
+                              fontWeight: 600,
+                              color: COUPON_ORANGE,
+                              textDecoration: "none",
+                              "&:hover": { textDecoration: "underline" },
+                            }}
+                          >
+                            help@careerexplorer.me
+                          </Box>
                         </Typography>
                       </Box>
                     </Box>
