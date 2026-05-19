@@ -134,3 +134,36 @@ export async function getExploreGovernmentOrganizations(params = {}) {
     },
   );
 }
+
+/**
+ * GET /api/university/s/:slug — Fetch a single university directory entry.
+ * Public. Optional Authorization: Bearer — when present, includes `pendingClaimAppliesToViewer`
+ * so only the current pending claimant sees "pending review" UX; others can still start a claim.
+ */
+export async function getUniversityBySlug(slug, token = null) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return FetchApi.fetch(
+    `${config.api}/api/university/s/${encodeURIComponent(slug)}`,
+    {
+      method: "GET",
+      headers,
+    },
+  );
+}
+
+/**
+ * GET /api/university — List university directory entries.
+ * Public. Params: search, country, page, limit.
+ */
+export async function listUniversities(params = {}) {
+  const q = new URLSearchParams();
+  if (params.search) q.set("search", params.search);
+  if (params.country) q.set("country", params.country);
+  q.set("page", String(params.page || 1));
+  q.set("limit", String(Math.min(params.limit || 10, 50)));
+  return FetchApi.fetch(`${config.api}/api/university?${q.toString()}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+}

@@ -13,6 +13,13 @@ const initialState = {
   governmentOrganizations: null,
   admins: null, // { admins: [], pagination?: { page, limit, total, totalPages } }
   activityLog: null, // { logs: [], pagination?: { page, limit, total } }
+  claimRequests: [],
+  claimRequestsTotal: 0,
+  claimRequestsPendingCount: 0,
+  claimRequestsLoading: false,
+  claimRequestsError: null,
+  claimRequestsPage: 1,
+  claimRequestsTotalPages: 1,
 };
 
 export const getAllUsers = createAsyncThunk(
@@ -590,6 +597,136 @@ export const sendStudentSupportEmail = createAsyncThunk(
   },
 );
 
+/** GET /api/admin/university-claim-requests — Pending university directory claims (admin). */
+export const getUniversityClaimRequests = createAsyncThunk(
+  "admin/getUniversityClaimRequests",
+  async ({ token, page = 1, limit = 10, search = "", status = "" }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      if (search.trim()) params.set("search", search.trim());
+      if (status === "pending" || status === "rejected") params.set("status", status);
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/university-claim-requests?${params}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (!response.success) {
+        return rejectWithValue({
+          message: response.message || "Failed to load university claim requests",
+        });
+      }
+      return response.data ?? {
+        items: [],
+        total: 0,
+        pendingCount: 0,
+        currentPage: 1,
+        totalPages: 1,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to load university claim requests",
+      });
+    }
+  },
+);
+
+/** DELETE /api/admin/university-claim-requests/:id — Remove pending/rejected claim request (admin). */
+export const deleteUniversityClaimRequest = createAsyncThunk(
+  "admin/deleteUniversityClaimRequest",
+  async ({ token, directoryId }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/university-claim-requests/${encodeURIComponent(directoryId)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (response?.success) {
+        return { directoryId: response.directoryId || directoryId };
+      }
+      return rejectWithValue({
+        message: response?.message || "Failed to delete university claim request",
+      });
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to delete university claim request",
+      });
+    }
+  },
+);
+
+/** PATCH /api/admin/university-claim-requests/:id/approve — Approve pending university claim (admin). */
+export const approveUniversityClaim = createAsyncThunk(
+  "admin/approveUniversityClaim",
+  async ({ token, directoryId }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/university-claim-requests/${encodeURIComponent(directoryId)}/approve`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({}),
+        },
+      );
+      if (response?.user) {
+        return { directoryId, user: response.user };
+      }
+      return rejectWithValue({
+        message: response?.message || "Failed to approve university claim",
+      });
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to approve university claim",
+      });
+    }
+  },
+);
+
+/** PATCH /api/admin/university-claim-requests/:id/reject — Reject pending university claim (admin). */
+export const rejectUniversityClaim = createAsyncThunk(
+  "admin/rejectUniversityClaim",
+  async ({ token, directoryId, reason = "" }, { rejectWithValue }) => {
+    try {
+      const response = await FetchApi.fetch(
+        `${config.api}/api/admin/university-claim-requests/${encodeURIComponent(directoryId)}/reject`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reason }),
+        },
+      );
+      if (response?.success !== false && response?.user) {
+        return { directoryId: response.directoryId || directoryId, user: response.user };
+      }
+      return rejectWithValue({
+        message: response?.message || "Failed to reject university claim",
+      });
+    } catch (error) {
+      return rejectWithValue({
+        message: error?.message || "Failed to reject university claim",
+      });
+    }
+  },
+);
+
 const adminSlice = createSlice({
   name: "admin",
   initialState,
@@ -636,10 +773,87 @@ const adminSlice = createSlice({
       state.generalData = action.payload.data;
     });
 
+    builder.addCase(getUniversityClaimRequests.pending, (state) => {
+      state.claimRequestsLoading = true;
+      state.claimRequestsError = null;
+    });
+    builder.addCase(getUniversityClaimRequests.fulfilled, (state, action) => {
+      state.claimRequestsLoading = false;
+      const data = action.payload ?? {};
+      state.claimRequests = data.items ?? [];
+      state.claimRequestsTotal = data.total ?? 0;
+      state.claimRequestsPendingCount = data.pendingCount ?? 0;
+      state.claimRequestsPage = data.currentPage ?? 1;
+      state.claimRequestsTotalPages = data.totalPages ?? 1;
+    });
+    builder.addCase(getUniversityClaimRequests.rejected, (state, action) => {
+      state.claimRequestsLoading = false;
+      state.claimRequestsError = action.payload?.message ?? "Failed to load";
+    });
+
+    const removeClaimRequestByDirectoryId = (state, directoryId) => {
+      if (!directoryId || !Array.isArray(state.claimRequests)) return;
+      const idStr = String(directoryId);
+      const prevLen = state.claimRequests.length;
+      state.claimRequests = state.claimRequests.filter(
+        (row) => String(row?._id) !== idStr,
+      );
+      const removed = prevLen - state.claimRequests.length;
+      if (removed > 0) {
+        state.claimRequestsTotal = Math.max(0, (state.claimRequestsTotal ?? 0) - removed);
+      }
+    };
+
+    builder.addCase(approveUniversityClaim.fulfilled, (state, action) => {
+      removeClaimRequestByDirectoryId(state, action.payload?.directoryId);
+      if (state.claimRequestsPendingCount > 0) {
+        state.claimRequestsPendingCount -= 1;
+      }
+    });
+    builder.addCase(rejectUniversityClaim.fulfilled, (state, action) => {
+      removeClaimRequestByDirectoryId(state, action.payload?.directoryId);
+      if (state.claimRequestsPendingCount > 0) {
+        state.claimRequestsPendingCount -= 1;
+      }
+    });
+    builder.addCase(deleteUniversityClaimRequest.fulfilled, (state, action) => {
+      const directoryId = action.payload?.directoryId;
+      const removedRow = state.claimRequests?.find(
+        (row) => String(row?._id) === String(directoryId),
+      );
+      removeClaimRequestByDirectoryId(state, directoryId);
+      if (removedRow?.claimStatus === "pending" && state.claimRequestsPendingCount > 0) {
+        state.claimRequestsPendingCount -= 1;
+      }
+    });
+
     builder.addCase(updateActiveStatus.fulfilled, (state, action) => {
       const { user } = action.payload;
       const creatorId = user._id;
       const userId = user._id;
+
+      // Claim-flow org approved/rejected from HEI tab: remove from pending claims list
+      if (
+        user?.role?.includes?.("organization") &&
+        ["active", "blocked"].includes(user.status) &&
+        Array.isArray(state.claimRequests) &&
+        state.claimRequests.length > 0
+      ) {
+        const email = String(user.email || "").toLowerCase();
+        if (email) {
+          const prevLen = state.claimRequests.length;
+          state.claimRequests = state.claimRequests.filter(
+            (row) => String(row?.claimant?.email || "").toLowerCase() !== email,
+          );
+          const removed = prevLen - state.claimRequests.length;
+          if (removed > 0) {
+            state.claimRequestsTotal = Math.max(0, (state.claimRequestsTotal ?? 0) - removed);
+            if (state.claimRequestsPendingCount > 0) {
+              state.claimRequestsPendingCount -= 1;
+            }
+          }
+        }
+      }
 
       if (state.users && state.users.users) {
         state.users.users = state.users.users.map((userItem) => {
@@ -682,5 +896,13 @@ export const selectGovernmentOrganizationsData = (state) =>
   state.admin.governmentOrganizations;
 export const selectAdminsData = (state) => state.admin.admins;
 export const selectActivityLogData = (state) => state.admin.activityLog;
+export const selectClaimRequests = (state) => state.admin.claimRequests ?? [];
+export const selectClaimRequestsTotal = (state) => state.admin.claimRequestsTotal ?? 0;
+export const selectClaimRequestsPendingCount = (state) =>
+  state.admin.claimRequestsPendingCount ?? 0;
+export const selectClaimRequestsLoading = (state) => state.admin.claimRequestsLoading ?? false;
+export const selectClaimRequestsError = (state) => state.admin.claimRequestsError;
+export const selectClaimRequestsPage = (state) => state.admin.claimRequestsPage ?? 1;
+export const selectClaimRequestsTotalPages = (state) => state.admin.claimRequestsTotalPages ?? 1;
 
 export default adminSlice.reducer;
