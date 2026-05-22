@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Grid, Card, Typography, Button, CircularProgress } from "@mui/material";
+import { Box, Grid, Card, Chip, Typography, Button, CircularProgress } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { fonts } from "../../utility/fonts";
 import { listUniversities } from "../../api/partnersExploreApi";
@@ -170,6 +170,7 @@ const UniversityDirectoryList = ({ search = "", country = "" }) => {
                 }
               }}
               sx={{
+                position: "relative",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -184,6 +185,23 @@ const UniversityDirectoryList = ({ search = "", country = "" }) => {
                 },
               }}
             >
+              <Chip
+                label="Unclaimed"
+                size="small"
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  backgroundColor: "#FFF3E0",
+                  color: "#E65100",
+                  fontFamily: fonts.poppins,
+                  fontWeight: 600,
+                  fontSize: "0.7rem",
+                  height: "20px",
+                  border: "1px solid #E65100",
+                  zIndex: 1,
+                }}
+              />
               <Box
                 sx={{
                   width: "100%",
