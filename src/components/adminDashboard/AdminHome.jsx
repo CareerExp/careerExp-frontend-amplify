@@ -107,7 +107,7 @@ const AdminHome = () => {
 
   useEffect(() => {
     if (!token) return;
-    dispatchToRedux(getUniversityClaimRequests({ token, page: 1, limit: 1 }));
+    dispatchToRedux(getUniversityClaimRequests({ token, page: 1, limit: 1, badgeOnly: true }));
   }, [dispatchToRedux, token]);
 
   return (

@@ -226,6 +226,7 @@ const OrgPublicHero = ({ profile }) => {
             mb: { xs: 2, md: 0 },
           }}
         >
+          {profile?.awaitingClaimPayment ? null : (
           <Button
             variant="contained"
             disableElevation
@@ -269,6 +270,7 @@ const OrgPublicHero = ({ profile }) => {
               </Typography>
             )}
           </Button>
+          )}
           <Tooltip title="Share">
             <IconButton
               onClick={handleShare}

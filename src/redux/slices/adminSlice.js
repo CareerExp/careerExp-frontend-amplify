@@ -600,7 +600,10 @@ export const sendStudentSupportEmail = createAsyncThunk(
 /** GET /api/admin/university-claim-requests — Pending university directory claims (admin). */
 export const getUniversityClaimRequests = createAsyncThunk(
   "admin/getUniversityClaimRequests",
-  async ({ token, page = 1, limit = 10, search = "", status = "" }, { rejectWithValue }) => {
+  async (
+    { token, page = 1, limit = 10, search = "", status = "", badgeOnly = false },
+    { rejectWithValue },
+  ) => {
     try {
       const params = new URLSearchParams({
         page: String(page),
@@ -773,13 +776,22 @@ const adminSlice = createSlice({
       state.generalData = action.payload.data;
     });
 
-    builder.addCase(getUniversityClaimRequests.pending, (state) => {
-      state.claimRequestsLoading = true;
-      state.claimRequestsError = null;
+    builder.addCase(getUniversityClaimRequests.pending, (state, action) => {
+      if (!action.meta?.arg?.badgeOnly) {
+        state.claimRequestsLoading = true;
+        state.claimRequestsError = null;
+      }
     });
     builder.addCase(getUniversityClaimRequests.fulfilled, (state, action) => {
-      state.claimRequestsLoading = false;
       const data = action.payload ?? {};
+      const badgeOnly = Boolean(action.meta?.arg?.badgeOnly);
+
+      if (badgeOnly) {
+        state.claimRequestsPendingCount = data.pendingCount ?? 0;
+        return;
+      }
+
+      state.claimRequestsLoading = false;
       state.claimRequests = data.items ?? [];
       state.claimRequestsTotal = data.total ?? 0;
       state.claimRequestsPendingCount = data.pendingCount ?? 0;
@@ -787,6 +799,7 @@ const adminSlice = createSlice({
       state.claimRequestsTotalPages = data.totalPages ?? 1;
     });
     builder.addCase(getUniversityClaimRequests.rejected, (state, action) => {
+      if (action.meta?.arg?.badgeOnly) return;
       state.claimRequestsLoading = false;
       state.claimRequestsError = action.payload?.message ?? "Failed to load";
     });
