@@ -88,12 +88,13 @@ const EspEiUsersData = () => {
       : tabValue === TAB_EI
         ? ORGANIZATION_TYPE_HEI
         : null;
-  const organizationsRaw = organizationsData?.organizations ?? [];
-  /** Hide unapproved claim-flow HEIs from EI tab (they belong on University claim requests). */
-  const organizations =
-    tabValue === TAB_EI
-      ? organizationsRaw.filter((org) => !org.isClaimFlow || org.status === "active")
-      : organizationsRaw;
+  /** Backend already filters HEI claim-flow rows down to directory winners
+   * (see `getAllOrganizations` in admin.controller.js), so any row the API
+   * returns for the EI tab is meant to be displayed — including winners that
+   * the admin has subsequently blocked/suspended. No extra client-side
+   * filtering: blocking from EI must keep the row visible with status
+   * 'blocked', exactly like pre-claim-flow behavior. */
+  const organizations = organizationsData?.organizations ?? [];
   const totalOrganizations = organizationsData?.totalOrganizations ?? 0;
 
   useEffect(() => {

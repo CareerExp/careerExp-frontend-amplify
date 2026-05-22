@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Grid, Card, Typography, Button, CircularProgress } from "@mui/material";
+import { Box, Grid, Card, Chip, Typography, Button, CircularProgress } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { fonts } from "../../utility/fonts";
 import { getExploreEi, listUniversities } from "../../api/partnersExploreApi";
@@ -16,6 +16,7 @@ function toOnboardedCard(item) {
     name: item.organizationName ?? item.name ?? "—",
     logo: item.logo ?? item.logoUrl ?? item.image ?? null,
     path: slug ? `/org-hei/${slug}` : null,
+    isUnclaimed: false,
   };
 }
 
@@ -27,6 +28,7 @@ function toDirectoryCard(item) {
     name: item.name ?? item.organizationName ?? "—",
     logo: item.logo ?? item.logoUrl ?? null,
     path: slug ? `/university/${slug}` : null,
+    isUnclaimed: true,
   };
 }
 
@@ -175,6 +177,7 @@ const EducationalInstitutions = ({ search = "", country = "", language = "", pro
                 }
               }}
               sx={{
+                position: "relative",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -189,6 +192,25 @@ const EducationalInstitutions = ({ search = "", country = "", language = "", pro
                 },
               }}
             >
+              {partner.isUnclaimed && (
+                <Chip
+                  label="Unclaimed"
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    backgroundColor: "#FFF3E0",
+                    color: "#E65100",
+                    fontFamily: fonts.poppins,
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    height: "20px",
+                    border: "1px solid #E65100",
+                    zIndex: 1,
+                  }}
+                />
+              )}
               <Box
                 sx={{
                   width: "100%",
