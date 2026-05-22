@@ -81,14 +81,7 @@ const ClaimRegistrationModal = ({ open, onClose, university, onSuccess }) => {
         ...prev,
         corporateName: university.name || "",
         website: university.website || "",
-        country: university.country || "",
       }));
-      if (university.country) {
-        const selectedCountry = countryList.find((c) => c.name === university.country);
-        if (selectedCountry) {
-          setAvailableStates(State.getStatesOfCountry(selectedCountry.code));
-        }
-      }
       setErrorMessage("");
     }
   }, [open, university]);
@@ -380,7 +373,7 @@ const ClaimRegistrationModal = ({ open, onClose, university, onSuccess }) => {
         </Stack>
         <Box>
           <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
-            Institution name <span style={{ color: "red" }}>*</span>
+            University Name <span style={{ color: "red" }}>*</span>
           </Typography>
           <TextField
             fullWidth

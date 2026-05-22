@@ -14,7 +14,7 @@ import { defaultHeroBG } from "../../assets/assest";
 import { selectToken } from "../../redux/slices/authSlice";
 import { selectUserProfile } from "../../redux/slices/profileSlice";
 import { notify } from "../../redux/slices/alertSlice";
-import ClaimRegistrationModal from "./ClaimRegistrationModal.jsx";
+import EducationalInstitutionModal from "../../models/EducationalInstitutionModal.jsx";
 
 function normalizeRoles(profile) {
   const r = profile?.role;
@@ -43,20 +43,10 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
   const isAdmin = roles.includes("admin");
 
   const claimStatus = university?.claimStatus ?? "unclaimed";
-  const viewerIsPendingClaimant = university?.pendingClaimAppliesToViewer === true;
-  const showClaimPendingReview =
-    claimStatus === "pending" && viewerIsPendingClaimant;
 
-  const claimEnabled =
-    claimStatus === "unclaimed" ||
-    claimStatus === "rejected" ||
-    (claimStatus === "pending" && !viewerIsPendingClaimant);
+  const claimEnabled = claimStatus !== "claimed";
 
-  const claimLabel = showClaimPendingReview
-    ? "Claim Pending Review"
-    : claimStatus === "claimed"
-      ? "Claimed"
-      : "Claim Page";
+  const claimLabel = claimStatus === "claimed" ? "Claimed" : "Claim Page";
 
   const handleShare = async () => {
     if (!shareUrl) return;
@@ -278,7 +268,7 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
           </Tooltip>
         </Box>
       </Box>
-      <ClaimRegistrationModal
+      <EducationalInstitutionModal
         open={claimOpen}
         onClose={() => setClaimOpen(false)}
         university={university}

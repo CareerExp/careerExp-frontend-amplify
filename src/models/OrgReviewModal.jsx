@@ -657,7 +657,7 @@ const OrgReviewModal = ({
           </Box>
         </Box>
       </DialogContent>
-      {isClaimPending ? (
+      {isUniversityClaimMode && isClaimPending ? (
         <DialogActions sx={{ px: 2.5, py: 2, gap: 1, flexWrap: "wrap" }}>
           <Button
             onClick={onClose}

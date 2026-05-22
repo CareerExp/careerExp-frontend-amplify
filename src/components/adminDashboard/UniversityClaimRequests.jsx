@@ -317,7 +317,14 @@ const UniversityClaimRequests = ({ onReviewOrganization, refreshKey = 0 }) => {
                   const rowId = String(row._id);
                   const isDeleting = deleteLoadingId === rowId;
                   return (
-                    <TableRow key={row._id || row.slug} hover>
+                    <TableRow
+                      key={
+                        row._id
+                          ? String(row._id)
+                          : `${row.slug || "uni"}-${row.claimant?.email || row.pendingClaimUserId || Math.random()}`
+                      }
+                      hover
+                    >
                       <TableCell sx={{ ...tableBodyStyle, fontWeight: 500 }}>
                         {row.name || "—"}
                       </TableCell>

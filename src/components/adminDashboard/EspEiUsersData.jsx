@@ -111,7 +111,7 @@ const EspEiUsersData = () => {
 
   useEffect(() => {
     if (!token) return;
-    dispatch(getUniversityClaimRequests({ token, page: 1, limit: 1 }));
+    dispatch(getUniversityClaimRequests({ token, page: 1, limit: 1, badgeOnly: true }));
   }, [dispatch, token]);
 
   const handleTabChange = (_, newValue) => {
@@ -166,7 +166,7 @@ const EspEiUsersData = () => {
         ...(appliedSearch.trim() && { search: appliedSearch.trim() }),
       }),
     );
-    dispatch(getUniversityClaimRequests({ token, page: 1, limit: 1 }));
+    dispatch(getUniversityClaimRequests({ token, page: 1, limit: 1, badgeOnly: true }));
   };
 
   const runClaimApprove = async () => {
