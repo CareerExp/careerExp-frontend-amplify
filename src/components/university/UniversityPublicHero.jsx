@@ -1,97 +1,61 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Typography,
   Button,
   IconButton,
   Tooltip,
-  CircularProgress,
 } from "@mui/material";
 import ShareIcon from "@mui/icons-material/Share";
 import { fonts } from "../../utility/fonts";
 import { defaultHeroBG } from "../../assets/assest";
-import { selectToken, selectUserId } from "../../redux/slices/authSlice";
-import { toggleFollow } from "../../redux/slices/followerSlice";
-import { getDashboardFollowing } from "../../redux/slices/dashboardActivitySlice";
-import { selectDashboardFollowing } from "../../redux/slices/dashboardActivitySlice";
+import { selectToken } from "../../redux/slices/authSlice";
+import { selectUserProfile } from "../../redux/slices/profileSlice";
 import { notify } from "../../redux/slices/alertSlice";
+import EducationalInstitutionModal from "../../models/EducationalInstitutionModal.jsx";
 
-function getOrgPublicUrl(profile) {
-  if (!profile) return null;
-  const base = typeof window !== "undefined" ? window.location.origin : "";
-  const path =
-    profile.organizationType === "HEI"
-      ? `/org-hei/${profile.slug || profile.userId || profile._id}`
-      : `/org-esp/${profile.slug || profile.userId || profile._id}`;
-  return `${base}${path}`;
+function normalizeRoles(profile) {
+  const r = profile?.role;
+  if (Array.isArray(r)) return r;
+  if (r) return [r];
+  return [];
 }
 
-const OrgPublicHero = ({ profile }) => {
+function getUniversityPublicUrl(slug) {
+  if (!slug) return null;
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  return `${base}/university/${encodeURIComponent(slug)}`;
+}
+
+const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
   const dispatch = useDispatch();
+  const { slug: routeSlug } = useParams();
   const token = useSelector(selectToken);
-  const userId = useSelector(selectUserId);
-  const { items: followingItems } = useSelector(selectDashboardFollowing);
-  const [followLoading, setFollowLoading] = useState(false);
+  const userProfile = useSelector(selectUserProfile);
+  const [claimOpen, setClaimOpen] = useState(false);
 
-  const orgTargetId = profile?.userId || profile?._id;
-  const isFollowing =
-    !!orgTargetId &&
-    followingItems.some(
-      (item) => item.id === orgTargetId || item.userId === orgTargetId,
-    );
+  const slug = university?.slug || routeSlug;
+  const shareUrl = getUniversityPublicUrl(slug);
+  const roles = normalizeRoles(userProfile);
+  const isOrg = roles.includes("organization");
+  const isAdmin = roles.includes("admin");
 
-  // Skip getDashboardFollowing when viewer is the org (own page) — that API returns 403 for org users.
-  useEffect(() => {
-    if (token && orgTargetId && userId !== orgTargetId) {
-      dispatch(getDashboardFollowing({ token }));
-    }
-  }, [dispatch, token, orgTargetId, userId]);
+  const claimStatus = university?.claimStatus ?? "unclaimed";
 
-  const handleFollowClick = async () => {
-    if (!token) {
-      dispatch(notify({ message: "Please sign in to follow", type: "error" }));
-      return;
-    }
-    if (!orgTargetId) return;
-    if (userId === orgTargetId) return;
-    setFollowLoading(true);
-    try {
-      const result = await dispatch(
-        toggleFollow({ targetUserId: orgTargetId, token }),
-      );
-      if (toggleFollow.fulfilled.match(result)) {
-        dispatch(
-          notify({
-            message: isFollowing
-              ? "Unfollowed successfully"
-              : "Following successfully",
-            type: "success",
-          }),
-        );
-        dispatch(getDashboardFollowing({ token }));
-      } else {
-        dispatch(
-          notify({
-            message: result.payload?.error || "Failed to update follow",
-            type: "error",
-          }),
-        );
-      }
-    } finally {
-      setFollowLoading(false);
-    }
-  };
+  const claimEnabled = claimStatus !== "claimed";
 
-  const shareUrl = getOrgPublicUrl(profile);
+  const claimLabel = claimStatus === "claimed" ? "Claimed" : "Claim Page";
+
   const handleShare = async () => {
     if (!shareUrl) return;
-    const title = profile?.organizationName || "Organization";
+    const title = university?.name || "University";
     try {
       if (navigator.share) {
         await navigator.share({
           title,
-          text: profile?.subtitle || "",
+          text: university?.country || "",
           url: shareUrl,
         });
         dispatch(notify({ message: "Link shared!", type: "success" }));
@@ -117,12 +81,26 @@ const OrgPublicHero = ({ profile }) => {
     }
   };
 
+  const handleClaimClick = () => {
+    if (!claimEnabled) return;
+    if (token && (isOrg || isAdmin)) {
+      dispatch(
+        notify({
+          message: "This action is only available for individual accounts.",
+          type: "warning",
+        }),
+      );
+      return;
+    }
+    setClaimOpen(true);
+  };
+
   return (
     <Box sx={{ position: "relative" }}>
       <Box
         sx={{
           height: { xs: "220px", md: "182px" },
-          backgroundImage: `url(${profile?.bannerImage || profile?.banner || defaultHeroBG})`,
+          backgroundImage: `url(${university?.bannerImage || university?.banner || defaultHeroBG})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRadius: "20px 20px 0 0",
@@ -153,7 +131,7 @@ const OrgPublicHero = ({ profile }) => {
           sx={{
             width: "120px",
             height: "120px",
-            background: profile?.logo
+            background: university?.logo
               ? "#fff"
               : "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
             borderRadius: "20px 20px 0 0",
@@ -166,10 +144,11 @@ const OrgPublicHero = ({ profile }) => {
             overflow: "hidden",
           }}
         >
-          {profile?.logo ? (
+          {university?.logo ? (
             <Box
               component="img"
-              src={profile.logo}
+              src={university.logo}
+              referrerPolicy="no-referrer"
               sx={{ width: "80%", height: "80%", objectFit: "contain" }}
               alt=""
             />
@@ -182,7 +161,7 @@ const OrgPublicHero = ({ profile }) => {
                 color: "#ffffff",
               }}
             >
-              {(profile?.organizationName || "Org")
+              {(university?.name || "University")
                 .split(/\s+/)
                 .map((w) => w[0])
                 .join("")
@@ -193,6 +172,7 @@ const OrgPublicHero = ({ profile }) => {
         </Box>
         <Box sx={{ flexGrow: 1, textAlign: { xs: "center", md: "left" } }}>
           <Typography
+            variant="h4"
             sx={{
               fontFamily: fonts.sans,
               fontWeight: 600,
@@ -202,7 +182,7 @@ const OrgPublicHero = ({ profile }) => {
               textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
             }}
           >
-            {profile?.organizationName || "Organization"}
+            {university?.name || "University"}
           </Typography>
           <Typography
             sx={{
@@ -214,7 +194,7 @@ const OrgPublicHero = ({ profile }) => {
               textShadow: { xs: "none", md: "0px 2px 4px rgba(0,0,0,0.3)" },
             }}
           >
-            {profile?.subtitle || ""}
+            {university?.country || ""}
           </Typography>
         </Box>
         <Box
@@ -226,12 +206,11 @@ const OrgPublicHero = ({ profile }) => {
             mb: { xs: 2, md: 0 },
           }}
         >
-          {profile?.awaitingClaimPayment ? null : (
           <Button
             variant="contained"
             disableElevation
-            onClick={handleFollowClick}
-            disabled={followLoading || !orgTargetId || userId === orgTargetId}
+            onClick={handleClaimClick}
+            disabled={!claimEnabled}
             sx={{
               backgroundColor: "#fafafa",
               boxShadow: "none",
@@ -250,31 +229,30 @@ const OrgPublicHero = ({ profile }) => {
               },
             }}
           >
-            {followLoading ? (
-              <CircularProgress size={20} sx={{ color: "#720361" }} />
-            ) : (
-              <Typography
-                component="span"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "18px",
-                  background:
-                    "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  display: "inline-block",
-                }}
-              >
-                {isFollowing ? "Following" : "Follow"}
-              </Typography>
-            )}
+            <Typography
+              component="span"
+              sx={{
+                fontWeight: 700,
+                fontSize: "18px",
+                display: "inline-block",
+                ...(claimEnabled
+                  ? {
+                      background:
+                        "linear-gradient(146.73deg, #BF2F75 3.87%, #720361 63.8%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }
+                  : { color: "rgba(0, 0, 0, 0.38)" }),
+              }}
+            >
+              {claimLabel}
+            </Typography>
           </Button>
-          )}
           <Tooltip title="Share">
             <IconButton
               onClick={handleShare}
-              aria-label="Share company page"
+              aria-label="Share university page"
               sx={{
                 backgroundColor: "rgba(0, 0, 0, 0.3)",
                 color: "#fff",
@@ -290,8 +268,17 @@ const OrgPublicHero = ({ profile }) => {
           </Tooltip>
         </Box>
       </Box>
+      <EducationalInstitutionModal
+        open={claimOpen}
+        onClose={() => setClaimOpen(false)}
+        university={university}
+        onSuccess={() => {
+          setClaimOpen(false);
+          onClaimStatusPending?.();
+        }}
+      />
     </Box>
   );
 };
 
-export default OrgPublicHero;
+export default UniversityPublicHero;

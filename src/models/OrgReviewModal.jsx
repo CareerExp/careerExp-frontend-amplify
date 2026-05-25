@@ -2,13 +2,17 @@ import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogActions,
   Box,
   Typography,
   IconButton,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
+  Chip,
+  Link,
+  Button,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
@@ -57,7 +61,17 @@ const getStatusBadgeStyle = (status) => {
   return { bgcolor: "#E5E7EB", color: VALUE_COLOR };
 };
 
-const InfoRow = ({ label, value, isLink, fullWidth }) => (
+const displayField = (value) => {
+  if (value == null) return "";
+  const s = String(value).trim();
+  return s;
+};
+
+const InfoRow = ({ label, value, isLink, fullWidth }) => {
+  const text = displayField(value);
+  const showValue = text.length > 0;
+
+  return (
   <Box sx={{ mb: 2, ...(fullWidth && { gridColumn: "1 / -1" }) }}>
     <Typography
       sx={{
@@ -70,7 +84,7 @@ const InfoRow = ({ label, value, isLink, fullWidth }) => (
     >
       {label}
     </Typography>
-    {isLink && value ? (
+    {isLink && showValue ? (
       <Typography
         component="a"
         href={value.startsWith("http") ? value : `https://${value}`}
@@ -88,7 +102,7 @@ const InfoRow = ({ label, value, isLink, fullWidth }) => (
           "&:hover": { textDecoration: "underline" },
         }}
       >
-        {value}
+        {text}
         <OpenInNewIcon sx={{ fontSize: 16 }} />
       </Typography>
     ) : (
@@ -100,18 +114,27 @@ const InfoRow = ({ label, value, isLink, fullWidth }) => (
           color: VALUE_COLOR,
         }}
       >
-        {value || "—"}
+        {showValue ? text : "—"}
       </Typography>
     )}
   </Box>
-);
+  );
+};
 
 /**
  * Admin-only modal for reviewing an organization (ESP or EI) and updating its status.
  * Matches Figma node 1013-165357. Uses API fields: firstName, lastName, email, mobile,
  * organizationName, address, state, country, registrationNo, telephone, website, documents.
  */
-const OrgReviewModal = ({ open, onClose, organization }) => {
+const OrgReviewModal = ({
+  open,
+  onClose,
+  organization,
+  universityClaimReview = null,
+  onApproveClaim,
+  onRejectClaim,
+  claimActionLoading = false,
+}) => {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -121,6 +144,12 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
   const organizationType = org.organizationType || "ESP";
   const currentStatus = org.status || "pending";
   const documents = Array.isArray(org.documents) ? org.documents : [];
+  const claimStatus = universityClaimReview?.claimStatus;
+  const isClaimRejected =
+    claimStatus === "rejected" || currentStatus === "blocked";
+  const isClaimPending = !isClaimRejected;
+  const isUniversityClaimMode = Boolean(universityClaimReview);
+  const showStatusDropdown = !isUniversityClaimMode;
 
   const title =
     organizationType === "ESP"
@@ -239,64 +268,67 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
         }}
       >
         <Box sx={{ px: 2.5 }}>
-          {/* Update Status – label dark gray; dropdown + pill badge */}
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              sx={{
-                fontFamily: fonts.poppins,
-                fontWeight: 400,
-                fontSize: "0.875rem",
-                color: LABEL_COLOR,
-                mb: 1,
-              }}
-            >
-              Update Status
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                flexWrap: "wrap",
-              }}
-            >
-              <FormControl
+          {org.isClaimFlow ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, flexWrap: "wrap" }}>
+              <Chip
+                label="Claim Flow"
                 size="small"
-                fullWidth
                 sx={{
-                  flex: "1 1 200px",
-                  maxWidth: 280,
-                  "& .MuiOutlinedInput-root": {
-                    fontFamily: fonts.poppins,
-                    fontSize: "0.875rem",
-                    borderRadius: "8px",
-                    backgroundColor: "#fff",
-                    "& fieldset": { borderColor: BORDER_COLOR },
-                    "&:hover fieldset": { borderColor: "#9CA3AF" },
-                  },
-                  "& .MuiInputLabel-root": {
-                    fontFamily: fonts.poppins,
-                    color: LABEL_COLOR,
-                  },
+                  backgroundColor: "#FFF3E0",
+                  color: "#E65100",
+                  fontFamily: fonts.poppins,
+                  fontWeight: 600,
+                  border: "1px solid #E65100",
+                }}
+              />
+              <Typography sx={{ fontFamily: fonts.poppins, fontSize: "0.82rem", color: "#555" }}>
+                This organization was registered via the University Claim Page flow.
+              </Typography>
+            </Box>
+          ) : null}
+          {(org.isClaimFlow || isUniversityClaimMode) && org.claimUniversitySlug ? (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontFamily: fonts.poppins, fontSize: "0.82rem", color: "#555", mb: 0.5 }}>
+                University Directory Page:
+              </Typography>
+              <Link
+                href={`${typeof window !== "undefined" ? window.location.origin : ""}/university/${org.claimUniversitySlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  fontSize: "0.85rem",
+                  color: "#BC2876",
+                  wordBreak: "break-all",
                 }}
               >
-                <Select
-                  labelId="org-status-label"
-                  value={selectedStatus}
-                  onChange={handleStatusChange}
-                  disabled={isSubmitting}
-                >
-                  {STATUS_OPTIONS.map((opt) => (
-                    <MenuItem
-                      key={opt.value}
-                      value={opt.value}
-                      sx={{ fontFamily: fonts.poppins }}
-                    >
-                      {opt.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                {`${typeof window !== "undefined" ? window.location.origin : ""}/university/${org.claimUniversitySlug}`}
+              </Link>
+            </Box>
+          ) : null}
+          {isUniversityClaimMode ? (
+            <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.poppins,
+                  fontWeight: 400,
+                  fontSize: "0.875rem",
+                  color: LABEL_COLOR,
+                }}
+              >
+                Claim request status
+              </Typography>
+              <Chip
+                label={isClaimRejected ? "Rejected" : "Pending"}
+                size="small"
+                sx={{
+                  fontFamily: fonts.poppins,
+                  fontWeight: 600,
+                  backgroundColor: isClaimRejected ? "#FEE2E2" : "#FFF3E0",
+                  color: isClaimRejected ? "#B91C1C" : "#E65100",
+                  border: `1px solid ${isClaimRejected ? "#B91C1C" : "#E65100"}`,
+                }}
+              />
               <Box
                 sx={{
                   px: 1.5,
@@ -308,10 +340,96 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
                   ...statusBadgeStyle,
                 }}
               >
-                {currentStatus}
+                Account: {currentStatus}
               </Box>
             </Box>
-          </Box>
+          ) : null}
+          {showStatusDropdown ? (
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                sx={{
+                  fontFamily: fonts.poppins,
+                  fontWeight: 400,
+                  fontSize: "0.875rem",
+                  color: LABEL_COLOR,
+                  mb: 1,
+                }}
+              >
+                Update Status
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  flexWrap: "wrap",
+                }}
+              >
+                <FormControl
+                  size="small"
+                  fullWidth
+                  sx={{
+                    flex: "1 1 200px",
+                    maxWidth: 280,
+                    "& .MuiOutlinedInput-root": {
+                      fontFamily: fonts.poppins,
+                      fontSize: "0.875rem",
+                      borderRadius: "8px",
+                      backgroundColor: "#fff",
+                      "& fieldset": { borderColor: BORDER_COLOR },
+                      "&:hover fieldset": { borderColor: "#9CA3AF" },
+                    },
+                  }}
+                >
+                  <Select
+                    labelId="org-status-label"
+                    value={selectedStatus}
+                    onChange={handleStatusChange}
+                    disabled={isSubmitting}
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <MenuItem
+                        key={opt.value}
+                        value={opt.value}
+                        sx={{ fontFamily: fonts.poppins }}
+                      >
+                        {opt.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Box
+                  sx={{
+                    px: 1.5,
+                    py: 0.75,
+                    borderRadius: "20px",
+                    fontFamily: fonts.poppins,
+                    fontSize: "0.8125rem",
+                    fontWeight: 600,
+                    ...statusBadgeStyle,
+                  }}
+                >
+                  {currentStatus}
+                </Box>
+              </Box>
+            </Box>
+          ) : null}
+          {isClaimRejected ? (
+            <Typography
+              sx={{
+                fontFamily: fonts.poppins,
+                fontSize: "0.875rem",
+                color: "#B45309",
+                backgroundColor: "#FFF8E1",
+                border: "1px solid #FFE082",
+                borderRadius: "8px",
+                p: 1.5,
+                mb: 3,
+              }}
+            >
+              This claim was rejected. No further approve or reject actions are available.
+            </Typography>
+          ) : null}
 
           {/* Contact Person Information */}
           <Typography
@@ -539,6 +657,47 @@ const OrgReviewModal = ({ open, onClose, organization }) => {
           </Box>
         </Box>
       </DialogContent>
+      {isUniversityClaimMode && isClaimPending ? (
+        <DialogActions sx={{ px: 2.5, py: 2, gap: 1, flexWrap: "wrap" }}>
+          <Button
+            onClick={onClose}
+            disabled={claimActionLoading}
+            sx={{ fontFamily: fonts.poppins, textTransform: "none", color: "#6B7280" }}
+          >
+            Close
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            disabled={claimActionLoading}
+            onClick={() => onRejectClaim?.()}
+            sx={{ fontFamily: fonts.poppins, fontWeight: 600, textTransform: "none" }}
+          >
+            {claimActionLoading === "reject" ? (
+              <CircularProgress size={22} color="inherit" />
+            ) : (
+              "Reject claim"
+            )}
+          </Button>
+          <Button
+            variant="contained"
+            disabled={claimActionLoading}
+            onClick={() => onApproveClaim?.()}
+            sx={{
+              fontFamily: fonts.poppins,
+              fontWeight: 600,
+              textTransform: "none",
+              background: "linear-gradient(180deg, #BF2F75 0%, #720361 100%)",
+            }}
+          >
+            {claimActionLoading === "approve" ? (
+              <CircularProgress size={22} sx={{ color: "#fff" }} />
+            ) : (
+              "Approve claim"
+            )}
+          </Button>
+        </DialogActions>
+      ) : null}
     </Dialog>
   );
 };

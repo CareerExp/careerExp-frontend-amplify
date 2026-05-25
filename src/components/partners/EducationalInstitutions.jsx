@@ -1,87 +1,130 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Grid, Card, Typography, Button, CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Box, Grid, Card, Chip, Typography, Button, CircularProgress } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { fonts } from "../../utility/fonts";
-import { getExploreEi } from "../../api/partnersExploreApi";
+import { getExploreEi, listUniversities } from "../../api/partnersExploreApi";
+import { UniversityCardLogo } from "./UniversityDirectoryList";
 
 const PAGE_SIZE = 10;
 
-/** Get initials from organization name (e.g. "University of Pune" -> "UoP"), max 3 chars. */
-function getInitials(name) {
-  if (!name || typeof name !== "string") return "—";
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "—";
-  return words
-    .slice(0, 3)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
+function toOnboardedCard(item) {
+  const slug = item.slug ?? null;
+  return {
+    id: `org-${slug ?? item._id ?? item.id}`,
+    slug,
+    name: item.organizationName ?? item.name ?? "—",
+    logo: item.logo ?? item.logoUrl ?? item.image ?? null,
+    path: slug ? `/org-hei/${slug}` : null,
+    isUnclaimed: false,
+  };
 }
 
-/** Normalize API item to card shape: { id, name, logo } */
-function toCardItem(item) {
+function toDirectoryCard(item) {
+  const slug = item.slug ?? null;
   return {
-    id: item.id ?? item.slug ?? JSON.stringify(item),
-    name: item.organizationName ?? item.name ?? item.title ?? "—",
-    logo: item.logo ?? item.logoUrl ?? item.image ?? null,
+    id: `uni-${slug ?? item._id ?? item.id}`,
+    slug,
+    name: item.name ?? item.organizationName ?? "—",
+    logo: item.logo ?? item.logoUrl ?? null,
+    path: slug ? `/university/${slug}` : null,
+    isUnclaimed: true,
   };
 }
 
 const EducationalInstitutions = ({ search = "", country = "", language = "", program = "" }) => {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
-  const [hasMore, setHasMore] = useState(false);
-  const [page, setPage] = useState(1);
+  const [onboardedPage, setOnboardedPage] = useState(1);
+  const [univPage, setUnivPage] = useState(1);
+  const [onboardedHasMore, setOnboardedHasMore] = useState(false);
+  const [univHasMore, setUnivHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchPage = useCallback(
-    async (pageNum, append = false) => {
-      if (pageNum === 1) setLoading(true);
-      else setLoadingMore(true);
-      setError(null);
-      try {
-        const res = await getExploreEi({
-          search: search.trim(),
-          country: country.trim(),
-          language: language.trim(),
-          program: program.trim(),
-          page: pageNum,
-          limit: PAGE_SIZE,
-        });
-        if (!res?.success || !res?.data) {
-          setItems(append ? items : []);
-          setHasMore(false);
-          return;
-        }
-        const { items: rawItems = [], hasMore: more } = res.data;
-        const newCards = rawItems.map(toCardItem);
-        if (append) {
-          setItems((prev) => [...prev, ...newCards]);
-        } else {
-          setItems(newCards);
-        }
-        setHasMore(!!more);
-        setPage(pageNum);
-      } catch (err) {
-        setError(err?.message || "Failed to load.");
-        if (!append) setItems([]);
-        setHasMore(false);
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [search, country, language, program]
-  );
+  const queryParams = {
+    search: search.trim(),
+    country: country.trim(),
+    language: language.trim(),
+    program: program.trim(),
+  };
+
+  const fetchInitial = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [eiRes, uniRes] = await Promise.all([
+        getExploreEi({ ...queryParams, page: 1, limit: PAGE_SIZE }),
+        listUniversities({ search: queryParams.search, country: queryParams.country, page: 1, limit: PAGE_SIZE }),
+      ]);
+
+      const onboarded =
+        eiRes?.success && eiRes?.data?.items
+          ? eiRes.data.items.map(toOnboardedCard)
+          : [];
+      const directory =
+        uniRes?.success && uniRes?.data?.items
+          ? uniRes.data.items.map(toDirectoryCard)
+          : [];
+
+      setItems([...onboarded, ...directory]);
+      setOnboardedPage(1);
+      setUnivPage(1);
+      setOnboardedHasMore(!!eiRes?.data?.hasMore);
+      setUnivHasMore(!!uniRes?.data?.hasMore);
+    } catch (err) {
+      setError(err?.message || "Failed to load.");
+      setItems([]);
+      setOnboardedHasMore(false);
+      setUnivHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [queryParams.search, queryParams.country, queryParams.language, queryParams.program]);
 
   useEffect(() => {
-    fetchPage(1, false);
-  }, [fetchPage]);
+    fetchInitial();
+  }, [fetchInitial]);
 
-  const handleLoadMore = () => {
+  const hasMore = onboardedHasMore || univHasMore;
+
+  const handleLoadMore = async () => {
     if (loadingMore || !hasMore) return;
-    fetchPage(page + 1, true);
+    setLoadingMore(true);
+    setError(null);
+    try {
+      if (onboardedHasMore) {
+        const nextPage = onboardedPage + 1;
+        const eiRes = await getExploreEi({ ...queryParams, page: nextPage, limit: PAGE_SIZE });
+        const newCards =
+          eiRes?.success && eiRes?.data?.items
+            ? eiRes.data.items.map(toOnboardedCard)
+            : [];
+        setItems((prev) => [...prev, ...newCards]);
+        setOnboardedPage(nextPage);
+        setOnboardedHasMore(!!eiRes?.data?.hasMore);
+      } else if (univHasMore) {
+        const nextPage = univPage + 1;
+        const uniRes = await listUniversities({
+          search: queryParams.search,
+          country: queryParams.country,
+          page: nextPage,
+          limit: PAGE_SIZE,
+        });
+        const newCards =
+          uniRes?.success && uniRes?.data?.items
+            ? uniRes.data.items.map(toDirectoryCard)
+            : [];
+        setItems((prev) => [...prev, ...newCards]);
+        setUnivPage(nextPage);
+        setUnivHasMore(!!uniRes?.data?.hasMore);
+      }
+    } catch (err) {
+      setError(err?.message || "Failed to load more.");
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   if (loading && items.length === 0) {
@@ -125,7 +168,16 @@ const EducationalInstitutions = ({ search = "", country = "", language = "", pro
         {items.map((partner) => (
           <Grid item xs={12} sm={6} md={4} lg={2.4} key={partner.id}>
             <Card
+              onClick={() => partner.path && navigate(partner.path)}
+              role={partner.path ? "button" : undefined}
+              tabIndex={partner.path ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && partner.path) {
+                  navigate(partner.path);
+                }
+              }}
               sx={{
+                position: "relative",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -134,11 +186,31 @@ const EducationalInstitutions = ({ search = "", country = "", language = "", pro
                 borderRadius: "15px",
                 boxShadow: "0px 6px 9px 0px rgba(0,0,0,0.1)",
                 transition: "transform 0.2s ease-in-out",
+                cursor: partner.path ? "pointer" : "default",
                 "&:hover": {
-                  transform: "translateY(-5px)",
+                  transform: partner.path ? "translateY(-5px)" : "none",
                 },
               }}
             >
+              {partner.isUnclaimed && (
+                <Chip
+                  label="Unclaimed"
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    backgroundColor: "#FFF3E0",
+                    color: "#E65100",
+                    fontFamily: fonts.poppins,
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    height: "20px",
+                    border: "1px solid #E65100",
+                    zIndex: 1,
+                  }}
+                />
+              )}
               <Box
                 sx={{
                   width: "100%",
@@ -152,30 +224,7 @@ const EducationalInstitutions = ({ search = "", country = "", language = "", pro
                   backgroundColor: partner.logo ? "transparent" : "#E8E8E8",
                 }}
               >
-                {partner.logo ? (
-                  <Box
-                    component="img"
-                    src={typeof partner.logo === "string" ? partner.logo : partner.logo?.url}
-                    alt={partner.name}
-                    sx={{
-                      maxWidth: "90%",
-                      maxHeight: "90%",
-                      objectFit: "contain",
-                    }}
-                  />
-                ) : (
-                  <Typography
-                    sx={{
-                      fontFamily: fonts.poppins,
-                      fontWeight: 600,
-                      fontSize: "28px",
-                      color: "#545454",
-                      letterSpacing: "0.02em",
-                    }}
-                  >
-                    {getInitials(partner.name)}
-                  </Typography>
-                )}
+                <UniversityCardLogo name={partner.name} logo={partner.logo} />
               </Box>
               <Typography
                 sx={{

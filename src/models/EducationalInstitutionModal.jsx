@@ -39,10 +39,11 @@ import { State } from "country-state-city";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import OrgRegistrationSuccessModal from "./OrgRegistrationSuccessModal";
 
-const EducationalInstitutionModal = ({ open, onClose }) => {
+const EducationalInstitutionModal = ({ open, onClose, university, onSuccess }) => {
   const dispatchToRedux = useDispatch();
   const navigate = useNavigate();
   const isAuthenticated = useSelector(selectAuthenticated);
+  const isClaimMode = Boolean(university?.slug);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -63,6 +64,16 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
   });
 
   const [availableStates, setAvailableStates] = useState([]);
+
+  React.useEffect(() => {
+    if (open && university) {
+      setFormData((prev) => ({
+        ...prev,
+        corporateName: university.name || "",
+        website: university.website || "",
+      }));
+    }
+  }, [open, university]);
   const [documents, setDocuments] = useState([
     {
       id: Date.now(),
@@ -254,6 +265,9 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
     data.append("address", formData.registeredAddress);
     data.append("state", formData.state);
     data.append("country", formData.country);
+    if (isClaimMode) {
+      data.append("claimUniversitySlug", university.slug);
+    }
 
     // Filter documents to include only those with values
     const validDocs = documents.filter((doc) => doc.value);
@@ -296,7 +310,19 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
         setDocuments([{ id: Date.now(), type: "FILE", name: "", value: null }]);
         setShowPassword(false);
         setShowConfirmPassword(false);
-        setShowSuccessModal(true);
+        if (isClaimMode) {
+          dispatchToRedux(
+            notify({
+              type: "success",
+              message:
+                "Registration submitted! Check your email for next steps.",
+            }),
+          );
+          onSuccess?.();
+          onClose?.();
+        } else {
+          setShowSuccessModal(true);
+        }
       } else if (signup.rejected.match(resultAction)) {
         const error = resultAction.payload || resultAction.error;
         dispatchToRedux(
@@ -726,7 +752,7 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
 
           <Box>
             <Typography sx={inputStyle["& .MuiFormLabel-root"]}>
-              Corporate Name <span style={{ color: "red" }}>*</span>
+              {isClaimMode ? "University Name" : "Corporate Name"} <span style={{ color: "red" }}>*</span>
             </Typography>
             <TextField
               fullWidth
@@ -734,6 +760,7 @@ const EducationalInstitutionModal = ({ open, onClose }) => {
               value={formData.corporateName}
               onChange={handleChange}
               placeholder="Enter corporate/company name"
+              InputProps={isClaimMode ? { readOnly: true } : undefined}
               sx={inputStyle}
             />
           </Box>

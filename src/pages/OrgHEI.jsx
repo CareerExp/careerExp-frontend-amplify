@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import ESPHero from "../components/orgESP/ESPHero";
 import HEIKeyStatsSection from "../components/orgHEI/HEIKeyStatsSection";
@@ -18,6 +18,8 @@ import {
   resetOrgPublic,
   selectOrgPublicProfile,
   selectOrgPublicProfileLoading,
+  selectOrgPublicProfileError,
+  selectOrgPublicProfileErrorCode,
 } from "../redux/slices/orgPublicSlice";
 import { selectOrganizationProfile } from "../redux/slices/organizationSlice";
 
@@ -27,6 +29,8 @@ const OrgHEI = () => {
   const orgProfile = useSelector(selectOrganizationProfile);
   const publicProfile = useSelector(selectOrgPublicProfile);
   const publicProfileLoading = useSelector(selectOrgPublicProfileLoading);
+  const publicProfileError = useSelector(selectOrgPublicProfileError);
+  const publicProfileErrorCode = useSelector(selectOrgPublicProfileErrorCode);
 
   const identifier = slug ?? orgProfile?.slug ?? orgProfile?.userId;
   const idType = (slug || orgProfile?.slug) ? "slug" : "userId";
@@ -40,7 +44,6 @@ const OrgHEI = () => {
   }, [dispatch, slug]);
 
   const usePublicSections = Boolean(identifier);
-  const showPublicHero = Boolean(slug && (publicProfile || publicProfileLoading));
 
   if (slug && publicProfileLoading && !publicProfile) {
     return (
@@ -59,6 +62,36 @@ const OrgHEI = () => {
     );
   }
 
+  if (slug && !publicProfileLoading && !publicProfile) {
+    const isNotAvailable =
+      publicProfileErrorCode === "PUBLIC_HOME_NOT_AVAILABLE" ||
+      publicProfileError?.toLowerCase?.().includes("not available");
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          backgroundColor: "#f9fafb",
+          pt: "10rem",
+          pb: 8,
+          px: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <Typography sx={{ fontWeight: 600, fontSize: "1.25rem", mb: 2 }}>
+          {isNotAvailable ? "Page not available" : "Organization not found"}
+        </Typography>
+        <Typography sx={{ color: "#666", maxWidth: 420 }}>
+          {isNotAvailable
+            ? "This institution's public page is not available yet."
+            : publicProfileError || "The organization you're looking for doesn't exist or the link may be incorrect."}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -70,11 +103,11 @@ const OrgHEI = () => {
       }}
     >
       <Box sx={{ width: "100%", mx: "auto" }}>
-        {showPublicHero && publicProfile ? (
+        {slug && publicProfile ? (
           <OrgPublicHero profile={publicProfile} />
-        ) : (
+        ) : !slug ? (
           <ESPHero />
-        )}
+        ) : null}
         <HEIKeyStatsSection profile={profile} />
         <HEIDescriptionTabs profile={profile} />
         {usePublicSections ? (

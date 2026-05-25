@@ -22,6 +22,7 @@ const Home = React.lazy(() => import("../pages/Home"));
 const OrgHome = React.lazy(() => import("../pages/OrgHome"));
 const OrgESP = React.lazy(() => import("../pages/OrgESP"));
 const OrgHEI = React.lazy(() => import("../pages/OrgHEI"));
+const UniversityPage = React.lazy(() => import("../pages/UniversityPage"));
 const OrgPublicHome = React.lazy(() => import("../pages/OrgPublicHome.jsx"));
 const Explore = React.lazy(() => import("../pages/Explore"));
 const AssessmentCenter = React.lazy(() => import("../pages/AssessmentCenter"));
@@ -161,6 +162,14 @@ const AppRoutes = () => {
           element={
             <Suspense fallback={<InitialLoaders />}>
               <OrgHEI />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/university/:slug"
+          element={
+            <Suspense fallback={<InitialLoaders />}>
+              <UniversityPage />
             </Suspense>
           }
         />

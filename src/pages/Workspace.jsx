@@ -43,6 +43,11 @@ import { exitAMEContext } from "../redux/slices/adminSlice.js";
 import { config } from "../config/config.js";
 import { fonts } from "../utility/fonts.js";
 import { isAdminSubAdminAccountDisabled } from "../utility/isAdminSubAdminDisabled.js";
+import {
+  getOrganizationBlockedMessage,
+  isOrganizationAccountBlocked,
+} from "../utility/organizationAccountStatus.js";
+import PendingStatePopup from "../models/PendingStatePopup.jsx";
 
 const drawerWidth = 280;
 
@@ -136,6 +141,10 @@ const Workspace = (props) => {
 
   const adminSubAdminDisabled =
     userData && isAdminSubAdminAccountDisabled(userData);
+
+  const orgAccountBlocked =
+    !isAdminInOrgView &&
+    isOrganizationAccountBlocked(userData, orgProfile);
 
   console.log(orgProfile);
   console.log(effectiveOrgType);
@@ -665,6 +674,13 @@ const Workspace = (props) => {
                 },
               })}
           </Box>
+
+          {orgAccountBlocked && (
+            <PendingStatePopup
+              persistent
+              message={getOrganizationBlockedMessage(orgProfile)}
+            />
+          )}
 
           {/* Acting-as AME: popup on first load */}
           <Dialog
