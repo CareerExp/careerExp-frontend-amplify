@@ -59,6 +59,14 @@ const Partners = () => {
     };
   }, []);
 
+  // Live search: refresh results as the user types or clears the search box (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAppliedSearch(searchValue.trim());
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchValue]);
+
   const [isServiceProviderOpen, setServiceProviderOpen] = useState(false);
   const [isEducationalInstitutionOpen, setEducationalInstitutionOpen] =
     useState(false);
@@ -178,6 +186,12 @@ const Partners = () => {
               variant="outlined"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
               sx={{
                 flex: 2,
                 width: "100%",
