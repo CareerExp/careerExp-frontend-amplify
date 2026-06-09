@@ -178,6 +178,12 @@ const Partners = () => {
               variant="outlined"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
               sx={{
                 flex: 2,
                 width: "100%",
