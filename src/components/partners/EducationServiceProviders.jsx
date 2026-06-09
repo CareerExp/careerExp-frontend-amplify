@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Grid, Card, Typography, Button, CircularProgress } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { fonts } from "../../utility/fonts";
@@ -20,14 +21,18 @@ function getInitials(name) {
 
 /** Normalize API item to card shape: { id, name, logo } */
 function toCardItem(item) {
+  const slug = item.slug ?? null;
   return {
-    id: item.id ?? item.slug ?? JSON.stringify(item),
+    id: item.id ?? slug ?? JSON.stringify(item),
+    slug,
     name: item.organizationName ?? item.name ?? item.title ?? "—",
     logo: item.logo ?? item.logoUrl ?? item.image ?? null,
+    path: slug ? `/org-esp/${slug}` : null,
   };
 }
 
 const EducationServiceProviders = ({ search = "", country = "", language = "", specialization = "" }) => {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -125,6 +130,14 @@ const EducationServiceProviders = ({ search = "", country = "", language = "", s
         {items.map((partner) => (
           <Grid item xs={12} sm={6} md={4} lg={2.4} key={partner.id}>
             <Card
+              onClick={() => partner.path && navigate(partner.path)}
+              role={partner.path ? "button" : undefined}
+              tabIndex={partner.path ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && partner.path) {
+                  navigate(partner.path);
+                }
+              }}
               sx={{
                 height: "100%",
                 display: "flex",
@@ -132,10 +145,12 @@ const EducationServiceProviders = ({ search = "", country = "", language = "", s
                 alignItems: "center",
                 p: 2,
                 borderRadius: "15px",
+                backgroundColor: "#FFF3E0",
                 boxShadow: "0px 6px 9px 0px rgba(0,0,0,0.1)",
                 transition: "transform 0.2s ease-in-out",
+                cursor: partner.path ? "pointer" : "default",
                 "&:hover": {
-                  transform: "translateY(-5px)",
+                  transform: partner.path ? "translateY(-5px)" : "none",
                 },
               }}
             >

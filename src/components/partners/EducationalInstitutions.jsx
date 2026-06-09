@@ -184,6 +184,7 @@ const EducationalInstitutions = ({ search = "", country = "", language = "", pro
                 alignItems: "center",
                 p: 2,
                 borderRadius: "15px",
+                backgroundColor: "#FFF3E0",
                 boxShadow: "0px 6px 9px 0px rgba(0,0,0,0.1)",
                 transition: "transform 0.2s ease-in-out",
                 cursor: partner.path ? "pointer" : "default",

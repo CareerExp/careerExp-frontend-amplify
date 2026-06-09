@@ -132,7 +132,7 @@ const UniversityPublicHero = ({ university, onClaimStatusPending }) => {
             width: "120px",
             height: "120px",
             background: university?.logo
-              ? "#fff"
+              ? "#FFF3E0"
               : "linear-gradient(125deg, #BF2F75 -3.87%, #720361 63.8%)",
             borderRadius: "20px 20px 0 0",
             border: "4px solid #fff",
